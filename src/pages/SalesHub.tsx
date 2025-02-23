@@ -99,37 +99,32 @@ export default function SalesHub() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Sales Summary</h1>
-            <p className="text-muted-foreground">1 January - 30 January 2025</p>
+            <h1 className="text-4xl font-bold tracking-tight">Sales Summary</h1>
+            <p className="text-lg text-muted-foreground">24 January - 23 February 2025</p>
           </div>
-          <button className="bg-primary text-primary-foreground px-4 py-2 rounded-md">
+          <button className="bg-white text-black hover:bg-gray-50 px-6 py-2.5 rounded-full border shadow-sm text-sm font-medium">
             Show Costs
           </button>
         </div>
 
         <div className="grid lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-4 grid gap-3 grid-cols-2">
+          <div className="lg:col-span-4 grid gap-4 grid-cols-2">
             {statsCards.map((card, index) => (
-              <Card key={index} className="p-2">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
-                  <CardTitle className="text-xs font-medium text-muted-foreground">
-                    {card.title}
-                  </CardTitle>
-                  <card.icon className="h-3 w-3 text-muted-foreground" />
-                </CardHeader>
-                <CardContent className="p-2">
-                  <div className="text-lg font-bold">{card.value}</div>
-                </CardContent>
+              <Card key={index} className="p-6">
+                <div>
+                  <p className="text-base text-muted-foreground font-medium">{card.title}</p>
+                  <p className="text-2xl font-bold mt-2">{card.value}</p>
+                </div>
               </Card>
             ))}
           </div>
 
           <Card className="lg:col-span-8">
             <CardHeader>
-              <CardTitle>1 January 2025 - 30 January 2025</CardTitle>
+              <CardTitle className="text-xl font-semibold">24 January 2025 - 23 February 2025</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[400px] w-full">
@@ -137,15 +132,30 @@ export default function SalesHub() {
                   data={salesData} 
                   width={700} 
                   height={400}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis tickFormatter={formatYAxis} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                  <XAxis dataKey="date" stroke="#888" fontSize={12} />
+                  <YAxis 
+                    tickFormatter={formatYAxis} 
+                    stroke="#888" 
+                    fontSize={12}
+                    tickMargin={8}
+                  />
                   <Tooltip 
                     formatter={(value: number) => [`£${value}`, 'Amount']}
+                    contentStyle={{ 
+                      background: 'white',
+                      border: '1px solid #eee',
+                      borderRadius: '8px',
+                      padding: '8px 12px'
+                    }}
                   />
-                  <Bar dataKey="amount" fill="#0EA5E9" />
+                  <Bar 
+                    dataKey="amount" 
+                    fill="#4457ff"
+                    radius={[4, 4, 0, 0]}
+                  />
                 </BarChart>
               </div>
             </CardContent>
