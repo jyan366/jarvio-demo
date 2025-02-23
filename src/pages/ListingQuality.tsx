@@ -5,6 +5,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Check, X, Image, ListTodo, Target, TrendingUp } from 'lucide-react';
+
 const products = [{
   id: 1,
   asin: 'B08P5PVDS3',
@@ -36,6 +37,7 @@ const products = [{
   recommendations: 3,
   score: 70
 }];
+
 const recommendations = [{
   section: 'Title',
   items: [{
@@ -69,8 +71,10 @@ const recommendations = [{
     status: 'error'
   }]
 }];
+
 export default function ListingQuality() {
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+
   return <MainLayout>
       <div className="space-y-6">
         <h1 className="text-4xl font-bold tracking-tight">Listings Hub</h1>
@@ -102,13 +106,13 @@ export default function ListingQuality() {
             </Card>
 
             <Card className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="bg-blue-600 p-2 rounded-full">
-                  <TrendingUp className="h-5 w-5 text-white" />
-                </div>
+              <div className="flex justify-between items-start">
                 <div>
                   <p className="text-base text-muted-foreground font-medium">Organic Sales Uplift</p>
                   <p className="text-3xl font-bold mt-2">£5495</p>
+                </div>
+                <div className="bg-blue-600 p-2 rounded-full">
+                  <TrendingUp className="h-5 w-5 text-white" />
                 </div>
               </div>
             </Card>
