@@ -59,22 +59,22 @@ export function NavigationMenu() {
                   <SidebarMenuButton
                     onClick={() => toggleSubmenu(item.label)}
                     tooltip={item.label}
-                    className="w-full group"
+                    className="w-full"
                   >
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center gap-2">
                         <item.icon className="w-4 h-4 shrink-0" />
-                        <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                        <span className="data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
                       <ChevronDown 
-                        className={`w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${
+                        className={`w-4 h-4 transition-transform duration-200 data-[collapsible=icon]:hidden ${
                           expandedMenus[item.label] ? 'transform rotate-180' : ''
                         }`}
                       />
                     </div>
                   </SidebarMenuButton>
                   {expandedMenus[item.label] && (
-                    <SidebarMenu className="ml-6 mt-2 group-data-[collapsible=icon]:hidden">
+                    <SidebarMenu className="ml-6 mt-2 data-[collapsible=icon]:hidden">
                       {item.submenu.map((subitem, subindex) => (
                         <SidebarMenuItem key={`${index}-${subindex}`}>
                           <SidebarMenuButton 
@@ -101,7 +101,7 @@ export function NavigationMenu() {
                     className="flex items-center gap-2"
                   >
                     <item.icon className="w-4 h-4 shrink-0" />
-                    <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                    <span className="data-[collapsible=icon]:hidden">{item.label}</span>
                   </Link>
                 </SidebarMenuButton>
               )}
