@@ -1,4 +1,3 @@
-
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState } from 'react';
