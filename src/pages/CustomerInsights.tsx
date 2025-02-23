@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Star, Zap, TrendingUp } from 'lucide-react';
+import { Star, Zap, TrendingUp, AlertCircle, DollarSign, ThumbsUp } from 'lucide-react';
 
 export default function CustomerInsights() {
   const ratings = [
@@ -41,6 +41,33 @@ export default function CustomerInsights() {
     }
   ];
 
+  const insights = [
+    {
+      title: "Unmet Feature Expectations",
+      icon: AlertCircle,
+      preview: "27% of customers expected additional features",
+      color: "bg-blue-50 text-blue-700 border-blue-200"
+    },
+    {
+      title: "Consistent Quality Concerns",
+      icon: Zap,
+      preview: "Quality mentioned in 42% of recent reviews",
+      color: "bg-amber-50 text-amber-700 border-amber-200"
+    },
+    {
+      title: "Value vs. Price Perception",
+      icon: DollarSign,
+      preview: "68% consider the product fairly priced",
+      color: "bg-green-50 text-green-700 border-green-200"
+    },
+    {
+      title: "Positive Differentiators",
+      icon: ThumbsUp,
+      preview: "Packaging praised in 89% of reviews",
+      color: "bg-indigo-50 text-indigo-700 border-indigo-200"
+    }
+  ];
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -74,13 +101,13 @@ export default function CustomerInsights() {
                         style={{ width: `${rating.percentage}%` }}
                       />
                     </div>
-                    <Zap className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">{rating.percentage}%</span>
                   </div>
                 ))}
               </div>
-              <Button className="w-full mt-4 bg-[#9b87f5] hover:bg-[#7E69AB]">
+              <Button className="w-full mt-4" variant="default">
                 <Zap className="mr-2 h-4 w-4" />
-                Jarvio Insights
+                Generate Insights
               </Button>
             </div>
           </Card>
@@ -89,7 +116,7 @@ export default function CustomerInsights() {
           <Card className="p-6">
             <div className="flex justify-between items-start">
               <h2 className="text-xl font-semibold">Inventory Score</h2>
-              <Zap className="w-5 h-5 text-yellow-400" />
+              <Zap className="w-5 h-5 text-primary" />
             </div>
             <div className="flex flex-col items-center justify-center h-[calc(100%-2rem)]">
               <div className="relative w-48 h-48">
@@ -113,26 +140,32 @@ export default function CustomerInsights() {
           </Card>
 
           {/* Insights Assistant Card */}
-          <Card className="p-6 bg-[#9b87f5] text-white">
+          <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-6 h-6" />
-              <h2 className="text-xl font-semibold">Jarvio Customer Insights Assistant</h2>
+              <Zap className="w-6 h-6 text-primary" />
+              <h2 className="text-xl font-semibold">Customer Insights Assistant</h2>
             </div>
             <div className="space-y-4">
-              <Card className="bg-white/10 p-4 backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10">
-                    <img src="/lovable-uploads/983c698c-2767-4609-b0fe-48e16d5a1fc0.png" alt="Logo" className="w-full h-full object-contain" />
-                  </div>
-                  <p className="text-sm">Your highest-rated product has 95% 5-star reviews.</p>
-                </div>
-              </Card>
+              <div className="grid grid-cols-2 gap-4">
+                {insights.map((insight, index) => (
+                  <Card 
+                    key={index} 
+                    className={`p-4 border ${insight.color} cursor-pointer hover:opacity-90 transition-opacity`}
+                  >
+                    <div className="flex flex-col gap-2">
+                      <insight.icon className="w-5 h-5" />
+                      <h3 className="font-medium text-sm">{insight.title}</h3>
+                      <p className="text-xs">{insight.preview}</p>
+                    </div>
+                  </Card>
+                ))}
+              </div>
               <div className="flex gap-4">
-                <Button variant="secondary" className="flex-1 bg-white/20 hover:bg-white/30 text-white">
-                  Positive Feedback
+                <Button variant="default" className="flex-1">
+                  Generate Report
                 </Button>
-                <Button variant="outline" className="flex-1 border-white/20 text-white hover:bg-white/10">
-                  Negative Feedback
+                <Button variant="outline" className="flex-1">
+                  Export Data
                 </Button>
               </div>
             </div>
