@@ -18,7 +18,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                   className="w-full object-contain"
                 />
               </div>
-              <span className="font-semibold text-lg data-[collapsible=icon]:hidden">Jarvio</span>
+              <span className="font-semibold text-lg group-data-[collapsible=icon]:hidden">Jarvio</span>
             </div>
           </SidebarHeader>
           <SidebarContent>
@@ -27,7 +27,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <SidebarFooter className="p-4 border-t">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gray-200 rounded-full shrink-0"></div>
-              <div className="data-[collapsible=icon]:hidden">
+              <div className="group-data-[collapsible=icon]:hidden">
                 <p className="text-sm font-medium">User Profile</p>
                 <p className="text-xs text-muted-foreground">user@example.com</p>
               </div>
