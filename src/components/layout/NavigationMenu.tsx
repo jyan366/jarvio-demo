@@ -1,4 +1,4 @@
-import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -31,6 +31,30 @@ const menuItems = [
     submenu: [
       { label: 'Listing Quality', href: '/listing-quality' },
       { label: 'Listing Builder', href: '/listing-builder' },
+    ]
+  },
+  { 
+    icon: Users, 
+    label: 'Customers', 
+    href: '#',
+    submenu: [
+      { label: 'Customer Insights', href: '/customer-insights' },
+    ]
+  },
+  { 
+    icon: Target, 
+    label: 'Competitors', 
+    href: '#',
+    submenu: [
+      { label: 'My Competitors', href: '/my-competitors' },
+    ]
+  },
+  { 
+    icon: Megaphone, 
+    label: 'Advertising', 
+    href: '#',
+    submenu: [
+      { label: 'Ads Manager', href: '/ads-manager' },
     ]
   },
 ];
