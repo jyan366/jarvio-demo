@@ -2,36 +2,74 @@
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, DollarSign, ShoppingCart, Users } from 'lucide-react';
+import { BarChart, Line } from 'recharts';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { DollarSign, ShoppingBag, Package, ArrowRight, Percent, CreditCard } from 'lucide-react';
+
+const salesData = [
+  { date: '24 Jan', amount: 500 },
+  { date: '28 Jan', amount: 650 },
+  { date: '1 Feb', amount: 600 },
+  { date: '5 Feb', amount: 450 },
+  { date: '9 Feb', amount: 550 },
+  { date: '13 Feb', amount: 600 },
+  { date: '17 Feb', amount: 400 },
+  { date: '21 Feb', amount: 350 },
+];
+
+const productData = [
+  {
+    image: "/placeholder.svg",
+    name: "Kimchi 1kg Jar - Raw & Unpasteurised - Traditionally Fermented",
+    asin: "B08P5P3QCG",
+    unitsSold: 25,
+    totalSales: "£492.71",
+    totalCosts: "£342.65",
+    avgPrice: "19.71",
+    profit: "£152.05"
+  },
+  {
+    image: "/placeholder.svg",
+    name: "Ruby Red Sauerkraut 1kg Jar - Raw & Unpasteurised - Traditionally Fermented",
+    asin: "B08P5KYH1P",
+    unitsSold: 80,
+    totalSales: "£1274.15",
+    totalCosts: "£932.95",
+    avgPrice: "15.93",
+    profit: "£150.20"
+  }
+];
 
 const statsCards = [
   {
-    title: "Total Revenue",
-    value: "$45,231.89",
-    description: "+20.1% from last month",
-    icon: DollarSign,
-    trend: "up"
+    title: "Total Sales",
+    value: "£12,954.99",
+    icon: DollarSign
   },
   {
-    title: "Subscriptions",
-    value: "2,350",
-    description: "+180.1% from last month",
-    icon: Users,
-    trend: "up"
+    title: "Orders",
+    value: "878",
+    icon: ShoppingBag
   },
   {
-    title: "Sales",
-    value: "12,234",
-    description: "+19% from last month",
-    icon: ShoppingCart,
-    trend: "up"
+    title: "Units Sold",
+    value: "950",
+    icon: Package
   },
   {
-    title: "Active Now",
-    value: "573",
-    description: "+201 since last hour",
-    icon: BarChart3,
-    trend: "up"
+    title: "Units Per Order",
+    value: "1.08",
+    icon: ArrowRight
+  },
+  {
+    title: "Estimate Payout",
+    value: "£5,074.19",
+    icon: CreditCard
+  },
+  {
+    title: "Payout Percentage",
+    value: "60.83%",
+    icon: Percent
   }
 ];
 
@@ -39,14 +77,17 @@ export default function SalesHub() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Sales Hub</h1>
-          <p className="text-muted-foreground">
-            Your sales performance and analytics at a glance
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Sales Summary</h1>
+            <p className="text-muted-foreground">24 January - 23 February 2025</p>
+          </div>
+          <button className="bg-primary text-primary-foreground px-4 py-2 rounded-md">
+            Show Costs
+          </button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {statsCards.map((card, index) => (
             <Card key={index}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -57,13 +98,64 @@ export default function SalesHub() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{card.value}</div>
-                <p className="text-xs text-muted-foreground">
-                  {card.description}
-                </p>
               </CardContent>
             </Card>
           ))}
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>24 January 2025 - 23 February 2025</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px] w-full">
+              <BarChart data={salesData} width={800} height={300}>
+                <Line 
+                  type="monotone" 
+                  dataKey="amount" 
+                  stroke="#8884d8"
+                />
+              </BarChart>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Image</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>ASIN</TableHead>
+                <TableHead>Units Sold</TableHead>
+                <TableHead>Total Sales</TableHead>
+                <TableHead>Total Costs</TableHead>
+                <TableHead>Avg Price</TableHead>
+                <TableHead>Profit</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {productData.map((product, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="h-12 w-12 object-contain"
+                    />
+                  </TableCell>
+                  <TableCell className="max-w-[300px]">{product.name}</TableCell>
+                  <TableCell>{product.asin}</TableCell>
+                  <TableCell>{product.unitsSold}</TableCell>
+                  <TableCell>{product.totalSales}</TableCell>
+                  <TableCell>{product.totalCosts}</TableCell>
+                  <TableCell>{product.avgPrice}</TableCell>
+                  <TableCell>{product.profit}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
       </div>
     </MainLayout>
   );
