@@ -8,10 +8,10 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
-        <Sidebar className="border-r">
+        <Sidebar className="border-r" collapsible="icon">
           <SidebarHeader className="p-4 border-b">
             <div className="flex items-center space-x-2">
-              <img src="/logo.svg" alt="Logo" className="w-8 h-8" />
+              <img src="/lovable-uploads/983c698c-2767-4609-b0fe-48e16d5a1fc0.png" alt="Logo" className="w-8 h-8" />
               <span className="font-semibold text-lg data-[collapsible=icon]:hidden">Jarvio</span>
             </div>
           </SidebarHeader>

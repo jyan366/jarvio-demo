@@ -59,7 +59,7 @@ export function NavigationMenu() {
                   <SidebarMenuButton
                     onClick={() => toggleSubmenu(item.label)}
                     tooltip={item.label}
-                    className="w-full relative"
+                    className="w-full relative p-2"
                   >
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center gap-2">
@@ -73,21 +73,23 @@ export function NavigationMenu() {
                       />
                     </div>
                   </SidebarMenuButton>
-                  <div className={`data-[collapsible=icon]:hidden ${expandedMenus[item.label] ? 'block' : 'hidden'}`}>
-                    <SidebarMenu className="ml-6 mt-2">
-                      {item.submenu.map((subitem, subindex) => (
-                        <SidebarMenuItem key={`${index}-${subindex}`}>
-                          <SidebarMenuButton 
-                            asChild
-                            data-active={location.pathname === subitem.href}
-                          >
-                            <Link to={subitem.href} className="text-sm">
-                              {subitem.label}
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
+                  <div className="data-[collapsible=icon]:hidden">
+                    {expandedMenus[item.label] && (
+                      <SidebarMenu className="ml-6 mt-2">
+                        {item.submenu.map((subitem, subindex) => (
+                          <SidebarMenuItem key={`${index}-${subindex}`}>
+                            <SidebarMenuButton 
+                              asChild
+                              data-active={location.pathname === subitem.href}
+                            >
+                              <Link to={subitem.href} className="text-sm">
+                                {subitem.label}
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -95,6 +97,7 @@ export function NavigationMenu() {
                   asChild
                   tooltip={item.label}
                   data-active={location.pathname === item.href}
+                  className="p-2"
                 >
                   <Link 
                     to={item.href} 
