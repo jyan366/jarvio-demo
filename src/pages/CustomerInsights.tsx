@@ -46,31 +46,35 @@ export default function CustomerInsights() {
       title: "Unmet Feature Expectations",
       icon: AlertCircle,
       preview: "27% of customers expected additional features",
-      color: "bg-blue-50 text-blue-700 border-blue-200"
+      color: "bg-blue-50 text-blue-700 border-blue-200",
+      details: "Customers frequently mention certain functionalities they expected but didn't find, highlighting missed opportunities for product enhancements."
     },
     {
       title: "Consistent Quality Concerns",
       icon: Zap,
       preview: "Quality mentioned in 42% of recent reviews",
-      color: "bg-amber-50 text-amber-700 border-amber-200"
+      color: "bg-amber-50 text-amber-700 border-amber-200",
+      details: "Reviews show patterns questioning product durability and performance, indicating potential quality control improvements needed."
     },
     {
       title: "Value vs. Price Perception",
       icon: DollarSign,
       preview: "68% consider the product fairly priced",
-      color: "bg-green-50 text-green-700 border-green-200"
+      color: "bg-green-50 text-green-700 border-green-200",
+      details: "Customer reviews consistently comment on price-value relationship, providing insights for pricing strategy optimization."
     },
     {
       title: "Positive Differentiators",
       icon: ThumbsUp,
       preview: "Packaging praised in 89% of reviews",
-      color: "bg-indigo-50 text-indigo-700 border-indigo-200"
+      color: "bg-indigo-50 text-indigo-700 border-indigo-200",
+      details: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages."
     }
   ];
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-4xl font-bold tracking-tight">Customer Insights</h1>
           <div className="flex gap-4">
@@ -79,19 +83,19 @@ export default function CustomerInsights() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-8">
           {/* Customer Feedback Card */}
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Customer Feedback</h2>
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-xl font-semibold mb-6">Customer Feedback</h2>
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star key={star} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                 ))}
                 <span className="font-semibold ml-2">4.7 out of 5</span>
               </div>
-              <p className="text-sm text-muted-foreground">Based on 456</p>
-              <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Based on 456 reviews</p>
+              <div className="space-y-3">
                 {ratings.map((rating) => (
                   <div key={rating.stars} className="flex items-center gap-4">
                     <span className="w-12 text-sm">{rating.stars} Star</span>
@@ -105,10 +109,6 @@ export default function CustomerInsights() {
                   </div>
                 ))}
               </div>
-              <Button className="w-full mt-4" variant="default">
-                <Zap className="mr-2 h-4 w-4" />
-                Generate Insights
-              </Button>
             </div>
           </Card>
 
@@ -119,19 +119,19 @@ export default function CustomerInsights() {
               <Zap className="w-5 h-5 text-primary" />
             </div>
             <div className="flex flex-col items-center justify-center h-[calc(100%-2rem)]">
-              <div className="relative w-48 h-48">
+              <div className="relative w-40 h-40">
                 <div className="w-full h-full rounded-full border-8 border-muted flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-5xl font-bold">89</div>
+                    <div className="text-4xl font-bold">89</div>
                     <div className="text-sm text-muted-foreground">out of 100</div>
                   </div>
                 </div>
                 <div className="absolute inset-0 border-8 border-primary rounded-full" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 75%)' }} />
               </div>
-              <div className="text-center mt-4">
+              <div className="text-center mt-6">
                 <p className="text-sm text-muted-foreground">Current Performance</p>
                 <p className="font-semibold">On Track</p>
-                <p className="text-sm text-green-600 flex items-center justify-center gap-1">
+                <p className="text-sm text-green-600 flex items-center justify-center gap-1 mt-1">
                   <TrendingUp className="w-4 h-4" />
                   +5 since last month
                 </p>
@@ -141,11 +141,11 @@ export default function CustomerInsights() {
 
           {/* Insights Assistant Card */}
           <Card className="p-6">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-6">
               <Zap className="w-6 h-6 text-primary" />
               <h2 className="text-xl font-semibold">Customer Insights Assistant</h2>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 {insights.map((insight, index) => (
                   <Card 
