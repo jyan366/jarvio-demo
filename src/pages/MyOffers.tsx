@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Image } from 'lucide-react';
 
 const statsCards = [
   {
@@ -32,7 +32,6 @@ const statsCards = [
 const products = [
   {
     id: 1,
-    image: "/lovable-uploads/770367a8-bd58-49de-8601-206ba2fa4382.png",
     name: "Kimchi 1 Kg Jar - Raw & Unpasteurised - Traditionally Fermented - By The Cultured Food Company",
     price: "£16.99",
     margin: "30.86%",
@@ -105,14 +104,8 @@ export default function MyOffers() {
                 {products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
-                      <div className="w-16 h-16 relative">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="object-cover rounded-md"
-                          width={64}
-                          height={64}
-                        />
+                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
+                        <Image className="h-8 w-8 text-muted-foreground" />
                       </div>
                     </TableCell>
                     <TableCell className="font-medium max-w-xl">
