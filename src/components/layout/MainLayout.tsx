@@ -10,8 +10,14 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar className="border-r" collapsible="icon">
           <SidebarHeader className="p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <img src="/lovable-uploads/983c698c-2767-4609-b0fe-48e16d5a1fc0.png" alt="Logo" className="w-8 h-8" />
+            <div className="flex items-center gap-3">
+              <div className="w-6 shrink-0">
+                <img 
+                  src="/lovable-uploads/983c698c-2767-4609-b0fe-48e16d5a1fc0.png" 
+                  alt="Logo" 
+                  className="w-full object-contain"
+                />
+              </div>
               <span className="font-semibold text-lg data-[collapsible=icon]:hidden">Jarvio</span>
             </div>
           </SidebarHeader>
