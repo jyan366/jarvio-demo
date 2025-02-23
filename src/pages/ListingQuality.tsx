@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Check, X, Image, ArrowUpDown } from 'lucide-react';
+import { Check, X, Image, ListTodo, Target, TrendingUp } from 'lucide-react';
 
 const products = [
   {
@@ -106,11 +105,11 @@ export default function ListingQuality() {
             <Card className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm text-muted-foreground font-medium">Listings to Optimize</p>
-                  <p className="text-2xl font-bold mt-2">34</p>
+                  <p className="text-base text-muted-foreground font-medium">Listings to Optimize</p>
+                  <p className="text-3xl font-bold mt-2">34</p>
                 </div>
                 <div className="bg-blue-600 p-2 rounded-full">
-                  <ArrowUpDown className="h-4 w-4 text-white" />
+                  <ListTodo className="h-5 w-5 text-white" />
                 </div>
               </div>
             </Card>
@@ -118,23 +117,23 @@ export default function ListingQuality() {
             <Card className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm text-muted-foreground font-medium">Best Listing Score</p>
-                  <p className="text-2xl font-bold mt-2">80</p>
+                  <p className="text-base text-muted-foreground font-medium">Best Listing Score</p>
+                  <p className="text-3xl font-bold mt-2">80</p>
                 </div>
                 <div className="bg-blue-600 p-2 rounded-full">
-                  <ArrowUpDown className="h-4 w-4 text-white" />
+                  <Target className="h-5 w-5 text-white" />
                 </div>
               </div>
             </Card>
 
             <Card className="p-6">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <div className="bg-blue-600 p-2 rounded-full">
-                  <ArrowUpDown className="h-4 w-4 text-white" />
+                  <TrendingUp className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground font-medium">Total Organic Potential Monthly Sales Uplift</p>
-                  <p className="text-2xl font-bold mt-1">£5495</p>
+                  <p className="text-base text-muted-foreground font-medium">Total Organic Potential Monthly Sales Uplift</p>
+                  <p className="text-3xl font-bold mt-2">£5495</p>
                 </div>
               </div>
             </Card>
