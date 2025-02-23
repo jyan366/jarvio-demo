@@ -80,21 +80,32 @@ export default function Dashboard() {
   return (
     <MainLayout>
       <div className="space-y-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Products
+            </Button>
+            <div className="border rounded-lg px-4 py-2">
+              Jan 24, 2025 - Feb 23, 2025
+            </div>
+          </div>
+        </div>
+
         {/* Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-7 gap-4">
           {metrics.map((metric, index) => (
-            <Card key={index} className="p-6">
-              <div className="flex flex-col space-y-2">
-                <p className="text-sm text-muted-foreground">{metric.label}</p>
-                <div className="flex items-center justify-between">
-                  <p className="text-2xl font-semibold">{metric.value}</p>
-                  {metric.change !== 0 && (
-                    <div className={`flex items-center ${metric.change < 0 ? 'text-red-500' : 'text-green-500'}`}>
-                      {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                      <span className="text-sm">{Math.abs(metric.change)}%</span>
-                    </div>
-                  )}
-                </div>
+            <Card key={index} className="p-4 border rounded-2xl">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm text-muted-foreground font-medium">{metric.label}</p>
+                <p className="text-xl font-bold">{metric.value}</p>
+                {metric.change !== 0 && (
+                  <div className={`flex items-center ${metric.change < 0 ? 'text-red-500' : 'text-green-500'} text-sm`}>
+                    {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                    <span>{Math.abs(metric.change)}%</span>
+                  </div>
+                )}
               </div>
             </Card>
           ))}
