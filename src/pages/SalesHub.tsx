@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { DollarSign, ShoppingBag, Package, ArrowRight, Percent, CreditCard } from 'lucide-react';
+import { DollarSign, ShoppingBag, Package, ArrowRight, Percent, CreditCard, Image } from 'lucide-react';
 
 const salesData = [
   { date: '1 Jan', amount: 500 },
@@ -40,7 +40,6 @@ const salesData = [
 
 const productData = [
   {
-    image: "/placeholder.svg",
     name: "Kimchi 1kg Jar - Raw & Unpasteurised - Traditionally Fermented",
     asin: "B08P5P3QCG",
     unitsSold: 25,
@@ -50,7 +49,6 @@ const productData = [
     profit: "£152.05"
   },
   {
-    image: "/placeholder.svg",
     name: "Ruby Red Sauerkraut 1kg Jar - Raw & Unpasteurised - Traditionally Fermented",
     asin: "B08P5KYH1P",
     unitsSold: 80,
@@ -180,11 +178,9 @@ export default function SalesHub() {
               {productData.map((product, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <img 
-                      src={product.image} 
-                      alt={product.name} 
-                      className="h-12 w-12 object-contain"
-                    />
+                    <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
+                      <Image className="h-8 w-8 text-muted-foreground" />
+                    </div>
                   </TableCell>
                   <TableCell className="max-w-[300px]">{product.name}</TableCell>
                   <TableCell>{product.asin}</TableCell>
