@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,14 +6,36 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { DollarSign, ShoppingBag, Package, ArrowRight, Percent, CreditCard } from 'lucide-react';
 
 const salesData = [
-  { date: '24 Jan', amount: 500 },
-  { date: '28 Jan', amount: 650 },
-  { date: '1 Feb', amount: 600 },
-  { date: '5 Feb', amount: 450 },
-  { date: '9 Feb', amount: 550 },
-  { date: '13 Feb', amount: 600 },
-  { date: '17 Feb', amount: 400 },
-  { date: '21 Feb', amount: 350 },
+  { date: '1 Jan', amount: 500 },
+  { date: '2 Jan', amount: 650 },
+  { date: '3 Jan', amount: 600 },
+  { date: '4 Jan', amount: 450 },
+  { date: '5 Jan', amount: 550 },
+  { date: '6 Jan', amount: 600 },
+  { date: '7 Jan', amount: 400 },
+  { date: '8 Jan', amount: 350 },
+  { date: '9 Jan', amount: 480 },
+  { date: '10 Jan', amount: 520 },
+  { date: '11 Jan', amount: 610 },
+  { date: '12 Jan', amount: 590 },
+  { date: '13 Jan', amount: 570 },
+  { date: '14 Jan', amount: 510 },
+  { date: '15 Jan', amount: 530 },
+  { date: '16 Jan', amount: 640 },
+  { date: '17 Jan', amount: 580 },
+  { date: '18 Jan', amount: 620 },
+  { date: '19 Jan', amount: 560 },
+  { date: '20 Jan', amount: 490 },
+  { date: '21 Jan', amount: 540 },
+  { date: '22 Jan', amount: 630 },
+  { date: '23 Jan', amount: 600 },
+  { date: '24 Jan', amount: 550 },
+  { date: '25 Jan', amount: 510 },
+  { date: '26 Jan', amount: 570 },
+  { date: '27 Jan', amount: 480 },
+  { date: '28 Jan', amount: 520 },
+  { date: '29 Jan', amount: 590 },
+  { date: '30 Jan', amount: 610 }
 ];
 
 const productData = [
@@ -82,7 +103,7 @@ export default function SalesHub() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Sales Summary</h1>
-            <p className="text-muted-foreground">24 January - 23 February 2025</p>
+            <p className="text-muted-foreground">1 January - 30 January 2025</p>
           </div>
           <button className="bg-primary text-primary-foreground px-4 py-2 rounded-md">
             Show Costs
@@ -108,7 +129,7 @@ export default function SalesHub() {
 
           <Card>
             <CardHeader>
-              <CardTitle>24 January 2025 - 23 February 2025</CardTitle>
+              <CardTitle>1 January 2025 - 30 January 2025</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[400px] w-full">
@@ -124,7 +145,7 @@ export default function SalesHub() {
                   <Tooltip 
                     formatter={(value: number) => [`£${value}`, 'Amount']}
                   />
-                  <Bar dataKey="amount" fill="#8884d8" />
+                  <Bar dataKey="amount" fill="#0EA5E9" />
                 </BarChart>
               </div>
             </CardContent>
