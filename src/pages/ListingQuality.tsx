@@ -98,37 +98,37 @@ export default function ListingQuality() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <h1 className="text-4xl font-bold tracking-tight">Listings Hub</h1>
         
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="p-6">
+        <div className="grid grid-cols-3 gap-6">
+          <Card className="p-8">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm text-muted-foreground">Listings to Optimize</p>
-                <p className="text-4xl font-bold mt-2">34</p>
+                <p className="text-base text-gray-500 font-medium">Listings to Optimize</p>
+                <p className="text-5xl font-bold mt-3">34</p>
               </div>
-              <div className="bg-blue-600 p-2 rounded-full">
+              <div className="bg-blue-600 p-2.5 rounded-full">
                 <ArrowUpDown className="h-5 w-5 text-white" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-8">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm text-muted-foreground">Best Listing Score</p>
-                <p className="text-4xl font-bold mt-2">80</p>
+                <p className="text-base text-gray-500 font-medium">Best Listing Score</p>
+                <p className="text-5xl font-bold mt-3">80</p>
               </div>
-              <div className="bg-blue-600 p-2 rounded-full">
+              <div className="bg-blue-600 p-2.5 rounded-full">
                 <ArrowUpDown className="h-5 w-5 text-white" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 flex flex-col items-center text-center">
-            <h3 className="text-lg font-semibold mb-4">Listing Quality Score</h3>
-            <div className="relative w-32 h-32">
+          <Card className="p-8 flex flex-col items-center text-center">
+            <h3 className="text-lg font-semibold mb-6">Listing Quality Score</h3>
+            <div className="relative w-36 h-36">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <circle
                   cx="50"
@@ -151,21 +151,25 @@ export default function ListingQuality() {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl font-bold">47</span>
-                <span className="text-sm text-muted-foreground">out of 100</span>
+                <span className="text-5xl font-bold">47</span>
+                <span className="text-sm text-gray-500">out of 100</span>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-4">Current Performance</p>
-            <p className="font-medium">On Track</p>
+            <p className="text-base text-gray-500 mt-6">Current Performance</p>
+            <p className="font-medium text-lg">On Track</p>
           </Card>
         </div>
 
-        <Card className="p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <ArrowUpDown className="h-5 w-5 text-blue-600" />
-            <p className="text-lg font-semibold">Total Organic Potential Monthly Sales Uplift</p>
+        <Card className="p-8">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-600 p-2.5 rounded-full">
+              <ArrowUpDown className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="text-base text-gray-500 font-medium">Total Organic Potential Monthly Sales Uplift</p>
+              <p className="text-5xl font-bold mt-2">£5495</p>
+            </div>
           </div>
-          <p className="text-4xl font-bold">£5495</p>
         </Card>
 
         <Card>
