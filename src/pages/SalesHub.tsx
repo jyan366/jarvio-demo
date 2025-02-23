@@ -74,6 +74,8 @@ const statsCards = [
 ];
 
 export default function SalesHub() {
+  const formatYAxis = (value: number) => `£${value}`;
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -118,8 +120,10 @@ export default function SalesHub() {
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
-                  <YAxis prefix="£" />
-                  <Tooltip />
+                  <YAxis tickFormatter={formatYAxis} />
+                  <Tooltip 
+                    formatter={(value: number) => [`£${value}`, 'Amount']}
+                  />
                   <Bar dataKey="amount" fill="#8884d8" />
                 </BarChart>
               </div>
