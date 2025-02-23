@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -100,34 +101,48 @@ export default function ListingQuality() {
       <div className="space-y-6">
         <h1 className="text-4xl font-bold tracking-tight">Listings Hub</h1>
         
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium">Listings to Optimize</p>
-                <p className="text-2xl font-bold mt-2">34</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <Card className="p-6">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium">Listings to Optimize</p>
+                  <p className="text-2xl font-bold mt-2">34</p>
+                </div>
+                <div className="bg-blue-600 p-2 rounded-full">
+                  <ArrowUpDown className="h-4 w-4 text-white" />
+                </div>
               </div>
-              <div className="bg-blue-600 p-2 rounded-full">
-                <ArrowUpDown className="h-4 w-4 text-white" />
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          <Card className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium">Best Listing Score</p>
-                <p className="text-2xl font-bold mt-2">80</p>
+            <Card className="p-6">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium">Best Listing Score</p>
+                  <p className="text-2xl font-bold mt-2">80</p>
+                </div>
+                <div className="bg-blue-600 p-2 rounded-full">
+                  <ArrowUpDown className="h-4 w-4 text-white" />
+                </div>
               </div>
-              <div className="bg-blue-600 p-2 rounded-full">
-                <ArrowUpDown className="h-4 w-4 text-white" />
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          <Card className="p-6 flex flex-col items-center text-center">
-            <h3 className="text-base font-semibold mb-4">Listing Quality Score</h3>
-            <div className="relative w-24 h-24">
+            <Card className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-600 p-2 rounded-full">
+                  <ArrowUpDown className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium">Total Organic Potential Monthly Sales Uplift</p>
+                  <p className="text-2xl font-bold mt-1">£5495</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <Card className="p-6 flex flex-col items-center justify-center text-center h-full">
+            <h3 className="text-base font-semibold mb-6">Listing Quality Score</h3>
+            <div className="relative w-40 h-40">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <circle
                   cx="50"
@@ -150,26 +165,14 @@ export default function ListingQuality() {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold">47</span>
+                <span className="text-3xl font-bold">47</span>
                 <span className="text-xs text-muted-foreground">out of 100</span>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-4">Current Performance</p>
+            <p className="text-sm text-muted-foreground mt-6">Current Performance</p>
             <p className="font-medium text-base">On Track</p>
           </Card>
         </div>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2 rounded-full">
-              <ArrowUpDown className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground font-medium">Total Organic Potential Monthly Sales Uplift</p>
-              <p className="text-2xl font-bold mt-1">£5495</p>
-            </div>
-          </div>
-        </Card>
 
         <Card>
           <Table>
