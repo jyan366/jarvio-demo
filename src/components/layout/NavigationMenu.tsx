@@ -2,7 +2,7 @@
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
@@ -38,6 +38,7 @@ const menuItems = [
 
 export function NavigationMenu() {
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
+  const location = useLocation();
 
   const toggleSubmenu = (label: string) => {
     setExpandedMenus(prev => ({
@@ -53,51 +54,57 @@ export function NavigationMenu() {
         <SidebarMenu>
           {menuItems.map((item, index) => (
             <SidebarMenuItem key={index}>
-              <div className="relative w-full">
-                {item.submenu ? (
-                  <div className="w-full">
-                    <SidebarMenuButton
-                      onClick={() => toggleSubmenu(item.label)}
-                      className="w-full group"
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          <item.icon className="w-4 h-4 shrink-0" />
-                          <span>{item.label}</span>
-                        </div>
-                        <ChevronDown 
-                          className={`w-4 h-4 transition-transform duration-200 ${
-                            expandedMenus[item.label] ? 'transform rotate-180' : ''
-                          }`}
-                        />
+              {item.submenu ? (
+                <div className="w-full">
+                  <SidebarMenuButton
+                    onClick={() => toggleSubmenu(item.label)}
+                    tooltip={item.label}
+                    className="w-full group"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <item.icon className="w-4 h-4 shrink-0" />
+                        <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
-                    </SidebarMenuButton>
-                    {expandedMenus[item.label] && (
-                      <SidebarMenu className="ml-6 mt-2">
-                        {item.submenu.map((subitem, subindex) => (
-                          <SidebarMenuItem key={`${index}-${subindex}`}>
-                            <SidebarMenuButton asChild>
-                              <Link to={subitem.href} className="text-sm">
-                                {subitem.label}
-                              </Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        ))}
-                      </SidebarMenu>
-                    )}
-                  </div>
-                ) : (
-                  <SidebarMenuButton asChild>
-                    <Link 
-                      to={item.href} 
-                      className="flex items-center gap-2"
-                    >
-                      <item.icon className="w-4 h-4 shrink-0" />
-                      <span>{item.label}</span>
-                    </Link>
+                      <ChevronDown 
+                        className={`w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${
+                          expandedMenus[item.label] ? 'transform rotate-180' : ''
+                        }`}
+                      />
+                    </div>
                   </SidebarMenuButton>
-                )}
-              </div>
+                  {expandedMenus[item.label] && (
+                    <SidebarMenu className="ml-6 mt-2 group-data-[collapsible=icon]:hidden">
+                      {item.submenu.map((subitem, subindex) => (
+                        <SidebarMenuItem key={`${index}-${subindex}`}>
+                          <SidebarMenuButton 
+                            asChild
+                            data-active={location.pathname === subitem.href}
+                          >
+                            <Link to={subitem.href} className="text-sm">
+                              {subitem.label}
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  )}
+                </div>
+              ) : (
+                <SidebarMenuButton 
+                  asChild
+                  tooltip={item.label}
+                  data-active={location.pathname === item.href}
+                >
+                  <Link 
+                    to={item.href} 
+                    className="flex items-center gap-2"
+                  >
+                    <item.icon className="w-4 h-4 shrink-0" />
+                    <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

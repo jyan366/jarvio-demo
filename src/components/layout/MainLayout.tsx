@@ -6,12 +6,12 @@ import { NavigationMenu } from './NavigationMenu';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar>
           <SidebarHeader className="p-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg"></div>
+              <img src="/lovable-uploads/983c698c-2767-4609-b0fe-48e16d5a1fc0.png" alt="Logo" className="w-8 h-8" />
               <span className="font-semibold text-lg">Jarvio</span>
             </div>
           </SidebarHeader>
@@ -21,7 +21,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <SidebarFooter className="p-4">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-              <div>
+              <div className="group-data-[collapsible=icon]:hidden">
                 <p className="text-sm font-medium">User Profile</p>
                 <p className="text-xs text-muted-foreground">user@example.com</p>
               </div>
