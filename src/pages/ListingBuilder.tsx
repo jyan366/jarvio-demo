@@ -25,10 +25,20 @@ export default function ListingBuilder() {
     isLoaded: false
   });
 
-  const dummyProduct = {
+  const sampleProduct = {
     title: "Raw Natural Sauerkraut - Organic, Raw & Unpasteurised - Traditionally Fermented - 2 x 400g Jar - by The Cultured Food Company",
-    score: 55,
-    searchVolume: "348/748"
+    bulletPoints: "✔️ TRADITIONALLY FERMENTED: Our sauerkraut is naturally fermented for 3-4 weeks, creating a probiotic-rich food full of beneficial bacteria\n\n✔️ RAW & UNPASTEURISED: Unlike most store-bought versions, our sauerkraut is raw and unpasteurised, preserving all the beneficial probiotics\n\n✔️ ORGANIC INGREDIENTS: Made with certified organic cabbage and sea salt, ensuring the highest quality and purity\n\n✔️ GUT HEALTH: Rich in live cultures and beneficial enzymes that support digestive health and immune function\n\n✔️ PREMIUM QUALITY: Carefully crafted in small batches to ensure consistent quality and authentic traditional taste",
+    keywords: ["raw sauerkraut", "raw sauerkraut unpasteurised", "sauerkraut jar", "sauerkraut organic", "fermented foods organic", "probiotic foods"]
+  };
+
+  const handleSelectProduct = () => {
+    setListingData({
+      title: sampleProduct.title,
+      bulletPoints: sampleProduct.bulletPoints,
+      images: Array(5).fill('/placeholder.svg'),
+      keywords: sampleProduct.keywords,
+      isLoaded: true
+    });
   };
 
   return (
@@ -41,10 +51,10 @@ export default function ListingBuilder() {
               <Zap className="mr-2" />
               Optimise Listing
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleSelectProduct}>
               {listingData.isLoaded ? (
                 <div className="flex items-center gap-2">
-                  <img src="/path/to/product-image.jpg" className="w-6 h-6 rounded" alt="Product" />
+                  <img src="/placeholder.svg" className="w-6 h-6 rounded" alt="Product" />
                   <span>Raw Natural Sauerkraut - Organ...</span>
                 </div>
               ) : (
@@ -68,16 +78,16 @@ export default function ListingBuilder() {
               ) : (
                 <div className="space-y-4">
                   <img 
-                    src="/path/to/main-image.jpg" 
+                    src="/placeholder.svg" 
                     alt="Product" 
                     className="w-96 h-96 mx-auto object-contain"
                   />
                   <div className="flex gap-4 justify-center">
-                    {[1,2,3,4,5].map((i) => (
+                    {listingData.images.map((img, i) => (
                       <div key={i} className="w-16 h-16 border rounded">
                         <img 
-                          src="/path/to/thumbnail.jpg" 
-                          alt={`Thumbnail ${i}`} 
+                          src={img} 
+                          alt={`Thumbnail ${i + 1}`} 
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -144,22 +154,15 @@ export default function ListingBuilder() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                {listingData.isLoaded ? (
-                  <>
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
-                      raw sauerkraut
-                    </Badge>
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
-                      raw sauerkraut unpasteurised
-                    </Badge>
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
-                      sauerkraut jar
-                    </Badge>
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
-                      sauerkraut organic
-                    </Badge>
-                  </>
-                ) : null}
+                {listingData.keywords.map((keyword, index) => (
+                  <Badge 
+                    key={index} 
+                    variant="outline" 
+                    className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                  >
+                    {keyword}
+                  </Badge>
+                ))}
               </div>
             </div>
           </div>
