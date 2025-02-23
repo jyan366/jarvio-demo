@@ -49,7 +49,7 @@ export function NavigationMenu() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel className="data-[collapsible=icon]:hidden">Platform</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {menuItems.map((item, index) => (
@@ -59,7 +59,7 @@ export function NavigationMenu() {
                   <SidebarMenuButton
                     onClick={() => toggleSubmenu(item.label)}
                     tooltip={item.label}
-                    className="w-full"
+                    className="w-full relative"
                   >
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center gap-2">
@@ -73,8 +73,8 @@ export function NavigationMenu() {
                       />
                     </div>
                   </SidebarMenuButton>
-                  {expandedMenus[item.label] && (
-                    <SidebarMenu className="ml-6 mt-2 data-[collapsible=icon]:hidden">
+                  <div className={`data-[collapsible=icon]:hidden ${expandedMenus[item.label] ? 'block' : 'hidden'}`}>
+                    <SidebarMenu className="ml-6 mt-2">
                       {item.submenu.map((subitem, subindex) => (
                         <SidebarMenuItem key={`${index}-${subindex}`}>
                           <SidebarMenuButton 
@@ -88,7 +88,7 @@ export function NavigationMenu() {
                         </SidebarMenuItem>
                       ))}
                     </SidebarMenu>
-                  )}
+                  </div>
                 </div>
               ) : (
                 <SidebarMenuButton 
