@@ -54,17 +54,17 @@ export default function AdvertisingInsights() {
     <MainLayout>
       <div className="space-y-8">
         {/* Header Section */}
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div>
-            <h1 className="text-4xl font-bold">Advertising Insights</h1>
-            <p className="text-lg text-muted-foreground mt-1">
+            <h1 className="text-2xl md:text-4xl font-bold">Advertising Insights</h1>
+            <p className="text-base md:text-lg text-muted-foreground mt-1">
               Optimize your Amazon advertising performance
             </p>
           </div>
-          <Card className="p-4">
+          <Card className="p-4 w-full md:w-auto">
             <div className="text-sm text-muted-foreground">Advertising Score</div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold">78/100</span>
+              <span className="text-2xl md:text-3xl font-bold">78/100</span>
               <span className="text-sm text-green-600 flex items-center">
                 <TrendingUp className="w-4 h-4 mr-1" />
                 +5 points this month
@@ -74,14 +74,14 @@ export default function AdvertisingInsights() {
         </div>
 
         {/* Key Metrics Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Total Ad Spend</span>
             </div>
             <div className="mt-2">
-              <span className="text-2xl font-bold">$37,500</span>
+              <span className="text-xl md:text-2xl font-bold">$37,500</span>
               <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
                 <TrendingUp className="w-4 h-4" />
                 +12% from last month
@@ -89,13 +89,13 @@ export default function AdvertisingInsights() {
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Ad-Attributed Sales</span>
             </div>
             <div className="mt-2">
-              <span className="text-2xl font-bold">$140,000</span>
+              <span className="text-xl md:text-2xl font-bold">$140,000</span>
               <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
                 <TrendingUp className="w-4 h-4" />
                 +18% from last month
@@ -103,13 +103,13 @@ export default function AdvertisingInsights() {
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2">
               <Target className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">ACoS</span>
             </div>
             <div className="mt-2">
-              <span className="text-2xl font-bold">26.79%</span>
+              <span className="text-xl md:text-2xl font-bold">26.79%</span>
               <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
                 <TrendingDown className="w-4 h-4" />
                 -2.3% from last month
@@ -117,13 +117,13 @@ export default function AdvertisingInsights() {
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2">
               <Search className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Best Performing ASIN</span>
             </div>
             <div className="mt-2">
-              <span className="text-2xl font-bold">B00X12345</span>
+              <span className="text-xl md:text-2xl font-bold truncate">B00X12345</span>
               <div className="text-sm text-muted-foreground mt-1">
                 18% of ad-attributed sales
               </div>
@@ -132,9 +132,9 @@ export default function AdvertisingInsights() {
         </div>
 
         {/* Main Performance Chart */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold mb-6">Advertising Performance Over Time</h2>
-          <div className="h-[400px]">
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold mb-6">Advertising Performance Over Time</h2>
+          <div className="h-[300px] md:h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={performanceData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -152,36 +152,38 @@ export default function AdvertisingInsights() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Keywords Table */}
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-6">Top Performing Keywords</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Keyword</TableHead>
-                  <TableHead className="text-right">Impressions</TableHead>
-                  <TableHead className="text-right">Clicks</TableHead>
-                  <TableHead className="text-right">Conv.</TableHead>
-                  <TableHead className="text-right">ACoS</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {topKeywords.map((keyword) => (
-                  <TableRow key={keyword.keyword}>
-                    <TableCell>{keyword.keyword}</TableCell>
-                    <TableCell className="text-right">{keyword.impressions.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">{keyword.clicks.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">{keyword.conversions}</TableCell>
-                    <TableCell className="text-right">{keyword.acos}%</TableCell>
+          <Card className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold mb-6">Top Performing Keywords</h2>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Keyword</TableHead>
+                    <TableHead className="text-right">Impressions</TableHead>
+                    <TableHead className="text-right">Clicks</TableHead>
+                    <TableHead className="text-right">Conv.</TableHead>
+                    <TableHead className="text-right">ACoS</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {topKeywords.map((keyword) => (
+                    <TableRow key={keyword.keyword}>
+                      <TableCell className="min-w-[150px]">{keyword.keyword}</TableCell>
+                      <TableCell className="text-right">{keyword.impressions.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">{keyword.clicks.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">{keyword.conversions}</TableCell>
+                      <TableCell className="text-right">{keyword.acos}%</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </Card>
 
           {/* Campaign Performance Chart */}
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-6">Campaign Performance by ACoS</h2>
-            <div className="h-[300px]">
+          <Card className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold mb-6">Campaign Performance by ACoS</h2>
+            <div className="h-[250px] md:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={campaignPerformance}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -196,8 +198,8 @@ export default function AdvertisingInsights() {
         </div>
 
         {/* Recommendations Section */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold mb-2">Ads Assistant Recommendations</h2>
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold mb-2">Ads Assistant Recommendations</h2>
           <p className="text-sm text-muted-foreground mb-6">
             AI-powered suggestions to improve your advertising performance
           </p>
@@ -205,12 +207,12 @@ export default function AdvertisingInsights() {
           <div className="space-y-4">
             {recommendations.map((rec) => (
               <Card key={rec.title} className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div>
                     <h3 className="font-medium">{rec.title}</h3>
                     <p className="text-sm text-muted-foreground">{rec.description}</p>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 w-full md:w-auto">
                     <span className={`text-sm ${
                       rec.impact === 'High' ? 'text-red-600' : 
                       rec.impact === 'Medium' ? 'text-yellow-600' : 
@@ -218,19 +220,19 @@ export default function AdvertisingInsights() {
                     }`}>
                       {rec.impact} Impact
                     </span>
-                    <Button variant="default">Apply</Button>
+                    <Button variant="default" className="w-full md:w-auto">Apply</Button>
                   </div>
                 </div>
               </Card>
             ))}
           </div>
 
-          <div className="flex justify-end gap-4 mt-6">
-            <Button variant="outline" className="gap-2">
+          <div className="flex flex-col md:flex-row justify-end gap-4 mt-6">
+            <Button variant="outline" className="w-full md:w-auto gap-2">
               <Download className="w-4 h-4" />
               Download Negative Keywords List
             </Button>
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="w-full md:w-auto gap-2">
               <Download className="w-4 h-4" />
               Download Positive Keywords List
             </Button>
