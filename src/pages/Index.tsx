@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -8,11 +9,11 @@ import { CreateTaskDialog } from '@/components/tasks/CreateTaskDialog';
 import { useToast } from '@/components/ui/use-toast';
 
 const metrics = [
-  { label: 'Total Sales', value: '£89,954.99', change: 35.65, inverseColor: false },
-  { label: 'Total Cost', value: '£52,471.61', change: -8.71, inverseColor: true },
-  { label: 'Total Profit', value: '£37,483.38', change: 68.32, inverseColor: false },
-  { label: 'Advertising Cost', value: '£2,890.00', change: -12.5, inverseColor: true },
-  { label: 'Inventory Value', value: '£142,570.47', change: 45.3, inverseColor: false },
+  { label: 'Total Sales', value: '$112,443.74', change: 35.65, inverseColor: false },
+  { label: 'Total Cost', value: '$65,589.51', change: -8.71, inverseColor: true },
+  { label: 'Total Profit', value: '$46,854.23', change: 68.32, inverseColor: false },
+  { label: 'Advertising Cost', value: '$3,612.50', change: -12.5, inverseColor: true },
+  { label: 'Inventory Value', value: '$178,213.09', change: 45.3, inverseColor: false },
   { label: 'Profit Margin', value: '41.67%', change: 28.58, inverseColor: false },
   { label: 'Units Sold', value: '4,950', change: 55.44, inverseColor: false },
 ];

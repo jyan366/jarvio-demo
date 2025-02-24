@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,26 +43,26 @@ const salesData = [
 
 const costData = {
   breakdown: [
-    { item: 'Total Sales', value: 17579.31 },
-    { item: 'Shipping and Rebates', value: 64.04 },
+    { item: 'Total Sales', value: 21974.14 },
+    { item: 'Shipping and Rebates', value: 80.05 },
     { item: 'Advertising Cost', value: 0 },
-    { item: 'Commission', value: -2654.6 },
-    { item: 'FBA Fulfillment Fee', value: -4651.44 },
-    { item: 'Other Amazon Fees', value: -275.76 },
-    { item: 'Estimated Payout', value: 10061.55 },
-    { item: 'Cost of goods', value: 5158.58 },
-    { item: 'Other Costs', value: 1414.6 },
-    { item: 'Net profit', value: 3488.37 },
+    { item: 'Commission', value: -3318.25 },
+    { item: 'FBA Fulfillment Fee', value: -5814.30 },
+    { item: 'Other Amazon Fees', value: -344.70 },
+    { item: 'Estimated Payout', value: 12576.94 },
+    { item: 'Cost of goods', value: 6448.23 },
+    { item: 'Other Costs', value: 1768.25 },
+    { item: 'Net profit', value: 4360.46 },
   ],
   distribution: [
-    { name: 'Net Profit', value: 3488.37, color: '#818CF8' },
-    { name: 'COGS', value: 5158.58, color: '#A855F7' },
+    { name: 'Net Profit', value: 4360.46, color: '#818CF8' },
+    { name: 'COGS', value: 6448.23, color: '#A855F7' },
     { item: 'Advertising Cost', value: 0, color: '#EC4899' },
-    { name: 'FBA Fulfillment', value: 4651.44, color: '#60A5FA' },
-    { name: 'Commission Fee', value: 2654.6, color: '#A78BFA' },
-    { name: 'Other Cost', value: 1414.6, color: '#C084FC' },
-    { name: 'Shipping', value: 64.04, color: '#38BDF8' },
-    { name: 'Other Amazon Fees', value: 275.76, color: '#FB923C' },
+    { name: 'FBA Fulfillment', value: 5814.30, color: '#60A5FA' },
+    { name: 'Commission Fee', value: 3318.25, color: '#A78BFA' },
+    { name: 'Other Cost', value: 1768.25, color: '#C084FC' },
+    { name: 'Shipping', value: 80.05, color: '#38BDF8' },
+    { name: 'Other Amazon Fees', value: 344.70, color: '#FB923C' },
   ]
 };
 
@@ -70,26 +71,26 @@ const productData = [
     name: "Kimchi 1kg Jar - Raw & Unpasteurised - Traditionally Fermented",
     asin: "B08P5P3QCG",
     unitsSold: 25,
-    totalSales: "£492.71",
-    totalCosts: "£342.65",
-    avgPrice: "19.71",
-    profit: "£152.05"
+    totalSales: "$615.89",
+    totalCosts: "$428.31",
+    avgPrice: "24.64",
+    profit: "$190.06"
   },
   {
     name: "Ruby Red Sauerkraut 1kg Jar - Raw & Unpasteurised - Traditionally Fermented",
     asin: "B08P5KYH1P",
     unitsSold: 80,
-    totalSales: "£1274.15",
-    totalCosts: "£932.95",
-    avgPrice: "15.93",
-    profit: "£150.20"
+    totalSales: "$1,592.69",
+    totalCosts: "$1,166.19",
+    avgPrice: "19.91",
+    profit: "$187.75"
   }
 ];
 
 const statsCards = [
   {
     title: "Total Sales",
-    value: "£12,954.99",
+    value: "$16,193.74",
     icon: DollarSign
   },
   {
@@ -109,7 +110,7 @@ const statsCards = [
   },
   {
     title: "Estimate Payout",
-    value: "£5,074.19",
+    value: "$6,342.74",
     icon: CreditCard
   },
   {

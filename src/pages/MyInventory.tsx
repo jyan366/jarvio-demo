@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -18,7 +17,7 @@ const statsCards = [
   },
   {
     title: "Inventory Value",
-    value: "£10,292.45"
+    value: "$12,865.56"
   },
   {
     title: "Last 30D Sales",
@@ -40,54 +39,54 @@ const products = [
     name: "Raw Natural Sauerkraut 1kg Jar - Organic, Raw & Unpasteurised - Traditionally Fermented - By The Cultured Food Company",
     availableQuantity: 503,
     inboundQuantity: 0,
-    salesPrice: 13,
-    inventoryValue: 6755,
-    estimatedSales: "5932.25"
+    salesPrice: 16,
+    inventoryValue: 8443.75,
+    estimatedSales: "7415.31"
   },
   {
     id: 2,
     name: "The Cultured Food Company Natural Sauerkraut (400g) & Kimchi (300g) Pack - Probiotic-Rich, Gluten-Free Fermented Foods For Digestive Health & Immunity Support - Unpasteurised, Organic Ingredients",
     availableQuantity: 89,
     inboundQuantity: 0,
-    salesPrice: 16,
-    inventoryValue: 1423,
-    estimatedSales: "287.82"
+    salesPrice: 20,
+    inventoryValue: 1778.75,
+    estimatedSales: "359.78"
   },
   {
     id: 3,
     name: "Kimchi 300g - The Cultured Food Company",
     availableQuantity: 160,
     inboundQuantity: 0,
-    salesPrice: 8,
-    inventoryValue: 1275,
-    estimatedSales: "47.82"
+    salesPrice: 10,
+    inventoryValue: 1593.75,
+    estimatedSales: "59.78"
   },
   {
     id: 4,
     name: "Vegan Kimchi 2 X 300g Jar - The Cultured Food Company's Authentic Plant-Based Korean Delight - Raw, Unpasteurised & Bursting With Flavour.",
     availableQuantity: 75,
     inboundQuantity: 0,
-    salesPrice: 14,
-    inventoryValue: 1087,
-    estimatedSales: "57.96"
+    salesPrice: 17.5,
+    inventoryValue: 1358.75,
+    estimatedSales: "72.45"
   },
   {
     id: 5,
     name: "Ruby Red Sauerkraut - Organic, Raw & Unpasteurised - Traditionally Fermented - 2 X 400g Jar - By The Cultured Food Company",
     availableQuantity: 59,
     inboundQuantity: 0,
-    salesPrice: 14,
-    inventoryValue: 855,
-    estimatedSales: "854.91"
+    salesPrice: 17.5,
+    inventoryValue: 1068.75,
+    estimatedSales: "1068.64"
   },
   {
     id: 6,
     name: "Fermented Beetroot Infused With Ginger - Organic, Raw & Unpasteurised - Traditionally Fermented - 1 Kg Jar - By The Cultured Food Company",
     availableQuantity: 27,
     inboundQuantity: 0,
-    salesPrice: 15,
-    inventoryValue: 405,
-    estimatedSales: "554.63"
+    salesPrice: 18.75,
+    inventoryValue: 506.25,
+    estimatedSales: "693.29"
   }
 ];
 
