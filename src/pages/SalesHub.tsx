@@ -34,11 +34,11 @@ export default function SalesHub() {
         </div>
 
         {!showCosts ? (
-          <div className="grid lg:grid-cols-8 gap-6">
-            <div className="lg:col-span-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-6">
+            <div className="md:col-span-1 lg:col-span-3">
               <StatsCards cards={statsCards} />
             </div>
-            <div className="lg:col-span-5">
+            <div className="md:col-span-1 lg:col-span-5">
               <SalesChart data={salesData} />
             </div>
           </div>
