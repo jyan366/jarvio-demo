@@ -9,8 +9,8 @@ import { ArrowRight, DollarSign, Percent, CalendarDays } from 'lucide-react';
 
 export default function Financing() {
   const [formData, setFormData] = useState({
-    companyName: '',
-    monthlyRevenue: '',
+    companyName: 'The Cultured Food Company',
+    monthlyRevenue: '89954.99',
     desiredAmount: '',
     email: '',
     phone: ''
@@ -28,7 +28,6 @@ export default function Financing() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the data to Wayflyer's API
     toast({
       title: "Application Submitted",
       description: "We've received your financing application. A Wayflyer representative will contact you shortly.",
@@ -96,8 +95,8 @@ export default function Financing() {
                     name="companyName"
                     value={formData.companyName}
                     onChange={handleInputChange}
-                    placeholder="Your company name"
-                    required
+                    className="bg-muted"
+                    readOnly
                   />
                 </div>
                 
@@ -108,11 +107,10 @@ export default function Financing() {
                   <Input
                     id="monthlyRevenue"
                     name="monthlyRevenue"
-                    value={formData.monthlyRevenue}
+                    value={`£${formData.monthlyRevenue}`}
                     onChange={handleInputChange}
-                    placeholder="Average monthly revenue"
-                    type="number"
-                    required
+                    className="bg-muted"
+                    readOnly
                   />
                 </div>
 
