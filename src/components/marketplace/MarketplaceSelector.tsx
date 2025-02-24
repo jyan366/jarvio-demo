@@ -17,26 +17,37 @@ interface Marketplace {
   name: string;
   status: 'connected' | 'available';
   logo: string;
+  type: 'website' | 'marketplace';
 }
 
 const defaultMarketplaces: Marketplace[] = [
   {
+    id: 'shopify',
+    name: 'Shopify',
+    status: 'connected',
+    logo: '',
+    type: 'website'
+  },
+  {
     id: 'amazon',
     name: 'Amazon',
     status: 'connected',
-    logo: '' // Will be updated with Supabase URL
-  },
-  {
-    id: 'shopify',
-    name: 'Shopify',
-    status: 'available',
-    logo: '' // Will be updated with Supabase URL
+    logo: '',
+    type: 'marketplace'
   },
   {
     id: 'walmart',
     name: 'Walmart',
     status: 'available',
-    logo: '' // Will be updated with Supabase URL
+    logo: '',
+    type: 'marketplace'
+  },
+  {
+    id: 'ebay',
+    name: 'eBay',
+    status: 'available',
+    logo: '',
+    type: 'marketplace'
   }
 ];
 
@@ -59,7 +70,11 @@ export function MarketplaceSelector() {
         
         const walmartUrl = supabase.storage
           .from('marketplace-icons')
-          .getPublicUrl('5977595.png'); // Updated to use correct filename
+          .getPublicUrl('5977595.png');
+
+        const ebayUrl = supabase.storage
+          .from('marketplace-icons')
+          .getPublicUrl('ebay.svg');
 
         setMarketplaces(prev => prev.map(marketplace => {
           if (marketplace.id === 'amazon') {
@@ -70,6 +85,9 @@ export function MarketplaceSelector() {
           }
           if (marketplace.id === 'walmart') {
             return { ...marketplace, logo: walmartUrl.data.publicUrl };
+          }
+          if (marketplace.id === 'ebay') {
+            return { ...marketplace, logo: ebayUrl.data.publicUrl };
           }
           return marketplace;
         }));
@@ -101,24 +119,64 @@ export function MarketplaceSelector() {
     );
   }
 
+  const websites = marketplaces.filter(m => m.type === 'website');
+  const marketplacesOnly = marketplaces.filter(m => m.type === 'marketplace');
+
+  // Find the first connected marketplace/website to show in the trigger button
+  const connectedItem = marketplaces.find(m => m.status === 'connected') || marketplaces[0];
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="gap-2">
           <img 
-            src={marketplaces[0].logo} 
-            alt={marketplaces[0].name}
+            src={connectedItem.logo} 
+            alt={connectedItem.name}
             className="h-5 w-5 object-contain"
             onError={handleImageError}
           />
-          <span className="font-medium">{marketplaces[0].name}</span>
+          <span className="font-medium">{connectedItem.name}</span>
           <Check className="h-4 w-4 text-green-500" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 bg-background">
+        <DropdownMenuLabel>Linked Websites</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {websites.map((website) => (
+          <DropdownMenuItem
+            key={website.id}
+            className="flex items-center justify-between py-2"
+          >
+            <div className="flex items-center gap-2">
+              <img 
+                src={website.logo} 
+                alt={website.name}
+                className="h-5 w-5 object-contain"
+                onError={handleImageError}
+              />
+              <span className="font-medium">{website.name}</span>
+            </div>
+            {website.status === 'connected' ? (
+              <Check className="h-4 w-4 text-green-500" />
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => handleConnect(website.id)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Connect
+              </Button>
+            )}
+          </DropdownMenuItem>
+        ))}
+        
+        <DropdownMenuSeparator className="my-2" />
         <DropdownMenuLabel>Marketplaces</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {marketplaces.map((marketplace) => (
+        
+        {marketplacesOnly.map((marketplace) => (
           <DropdownMenuItem
             key={marketplace.id}
             className="flex items-center justify-between py-2"
