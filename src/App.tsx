@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import ActionStudio from "./pages/ActionStudio";
 import SalesHub from "./pages/SalesHub";
@@ -21,30 +20,28 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider defaultTheme="system" enableSystem>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/action-studio" element={<ActionStudio />} />
-            <Route path="/sales-hub" element={<SalesHub />} />
-            <Route path="/my-offers" element={<MyOffers />} />
-            <Route path="/reports-builder" element={<ReportsBuilder />} />
-            <Route path="/inventory" element={<MyInventory />} />
-            <Route path="/listing-quality" element={<ListingQuality />} />
-            <Route path="/listing-builder" element={<ListingBuilder />} />
-            <Route path="/customer-insights" element={<CustomerInsights />} />
-            <Route path="/my-competitors" element={<CompetitorInsights />} />
-            <Route path="/ads-manager" element={<AdvertisingInsights />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/action-studio" element={<ActionStudio />} />
+          <Route path="/sales-hub" element={<SalesHub />} />
+          <Route path="/my-offers" element={<MyOffers />} />
+          <Route path="/reports-builder" element={<ReportsBuilder />} />
+          <Route path="/inventory" element={<MyInventory />} />
+          <Route path="/listing-quality" element={<ListingQuality />} />
+          <Route path="/listing-builder" element={<ListingBuilder />} />
+          <Route path="/customer-insights" element={<CustomerInsights />} />
+          <Route path="/my-competitors" element={<CompetitorInsights />} />
+          <Route path="/ads-manager" element={<AdvertisingInsights />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
 );
 
 export default App;

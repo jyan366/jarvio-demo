@@ -3,7 +3,6 @@ import React from 'react';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter } from '@/components/ui/sidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { NavigationMenu } from './NavigationMenu';
-import { ThemeToggle } from '../ThemeToggle';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -39,7 +38,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <div className="container py-6">
             <div className="flex justify-between items-center mb-6">
               <SidebarTrigger />
-              <ThemeToggle />
             </div>
             {children}
           </div>
