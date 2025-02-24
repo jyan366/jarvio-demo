@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -8,13 +9,13 @@ import { CreateTaskDialog } from '@/components/tasks/CreateTaskDialog';
 import { useToast } from '@/components/ui/use-toast';
 
 const metrics = [
-  { label: 'Total Sales', value: '£12,954.99', change: -20.65 },
-  { label: 'Total Cost', value: '£9,471.61', change: -27.71 },
-  { label: 'Total Profit', value: '£217.61', change: -93.32 },
-  { label: 'Advertising Cost', value: '£0.00', change: 0 },
-  { label: 'Inventory Value', value: '£12,570.47', change: 0 },
-  { label: 'Profit Margin', value: '1.68%', change: -91.58 },
-  { label: 'Units Sold', value: '950', change: -20.44 },
+  { label: 'Total Sales', value: '£12,954.99', change: 20.65 },
+  { label: 'Total Cost', value: '£9,471.61', change: -15.71 },
+  { label: 'Total Profit', value: '£3,483.38', change: 43.32 },
+  { label: 'Advertising Cost', value: '£890.00', change: -12.5 },
+  { label: 'Inventory Value', value: '£12,570.47', change: 15.3 },
+  { label: 'Profit Margin', value: '26.89%', change: 18.58 },
+  { label: 'Units Sold', value: '950', change: 25.44 },
 ];
 
 const initialTasks = {
@@ -164,11 +165,11 @@ export default function Dashboard() {
                 key={index} 
                 className="p-4 border rounded-2xl snap-start min-w-[180px] lg:min-w-0 flex-shrink-0 lg:flex-shrink"
               >
-                <div className="flex flex-col space-y-1">
+                <div className="flex flex-col space-y-2">
                   <p className="text-sm text-muted-foreground font-medium">{metric.label}</p>
-                  <p className="text-xl font-bold">{metric.value}</p>
+                  <p className="text-2xl font-bold tracking-tight">{metric.value}</p>
                   {metric.change !== 0 && (
-                    <div className={`flex items-center ${metric.change < 0 ? 'text-red-500' : 'text-green-500'} text-sm`}>
+                    <div className={`flex items-center ${metric.change < 0 ? 'text-red-500' : 'text-green-500'} text-sm font-medium`}>
                       {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
                       <span>{Math.abs(metric.change)}%</span>
                     </div>
