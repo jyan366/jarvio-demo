@@ -1,9 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { CreateTaskDialog } from '@/components/tasks/CreateTaskDialog';
+import { useToast } from '@/components/ui/use-toast';
 
 const metrics = [
   { label: 'Total Sales', value: '£12,954.99', change: -20.65 },
@@ -15,7 +18,7 @@ const metrics = [
   { label: 'Units Sold', value: '950', change: -20.44 },
 ];
 
-const tasks = {
+const initialTasks = {
   todo: [
     {
       title: 'Resolve Support Case 21',
@@ -77,6 +80,53 @@ const tagColors = {
 };
 
 export default function Dashboard() {
+  const [tasks, setTasks] = useState(initialTasks);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleDragEnd = (result: any) => {
+    const { source, destination } = result;
+
+    if (!destination) return;
+
+    if (source.droppableId === destination.droppableId) {
+      const items = Array.from(tasks[source.droppableId as keyof typeof tasks]);
+      const [reorderedItem] = items.splice(source.index, 1);
+      items.splice(destination.index, 0, reorderedItem);
+
+      setTasks({
+        ...tasks,
+        [source.droppableId]: items,
+      });
+    } else {
+      const sourceItems = Array.from(tasks[source.droppableId as keyof typeof tasks]);
+      const destItems = Array.from(tasks[destination.droppableId as keyof typeof tasks]);
+      const [removedItem] = sourceItems.splice(source.index, 1);
+      destItems.splice(destination.index, 0, removedItem);
+
+      setTasks({
+        ...tasks,
+        [source.droppableId]: sourceItems,
+        [destination.droppableId]: destItems,
+      });
+    }
+  };
+
+  const handleCreateTask = (newTask: any) => {
+    setTasks(prev => ({
+      ...prev,
+      todo: [...prev.todo, {
+        ...newTask,
+        tag: newTask.category,
+      }]
+    }));
+    
+    toast({
+      title: "Task created",
+      description: "Your new task has been added to the board.",
+    });
+  };
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -118,56 +168,86 @@ export default function Dashboard() {
               <Button variant="outline">Select Category</Button>
               <Button variant="outline">Select Priority</Button>
             </div>
-            <Button>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Create Task
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {Object.entries(tasks).map(([status, items]) => (
-              <div key={status} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="capitalize font-semibold">
-                    {status.replace(/([A-Z])/g, ' $1').trim()}
-                    <span className="ml-2 text-sm text-muted-foreground">({items.length})</span>
-                  </h3>
-                  <Button variant="ghost" size="icon">
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {items.map((task, index) => (
-                    <Card key={index} className="p-4 space-y-4">
-                      <div className="flex items-start justify-between">
-                        <h4 className="font-medium">{task.title}</h4>
-                        <span className={`px-2 py-1 rounded-full text-xs ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
-                          {task.priority}
-                        </span>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {Object.entries(tasks).map(([status, items]) => (
+                <div key={status} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="capitalize font-semibold">
+                      {status.replace(/([A-Z])/g, ' $1').trim()}
+                      <span className="ml-2 text-sm text-muted-foreground">({items.length})</span>
+                    </h3>
+                    <Button variant="ghost" size="icon" onClick={() => setIsCreateDialogOpen(true)}>
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <Droppable droppableId={status}>
+                    {(provided) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="space-y-4"
+                      >
+                        {items.map((task, index) => (
+                          <Draggable
+                            key={task.title}
+                            draggableId={task.title}
+                            index={index}
+                          >
+                            {(provided) => (
+                              <Card
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="p-4 space-y-4"
+                              >
+                                <div className="flex items-start justify-between">
+                                  <h4 className="font-medium">{task.title}</h4>
+                                  <span className={`px-2 py-1 rounded-full text-xs ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
+                                    {task.priority}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{task.description}</p>
+                                {task.products && (
+                                  <div className="flex flex-wrap gap-2">
+                                    {task.products.map((product, i) => (
+                                      <span key={i} className="text-xs bg-muted px-2 py-1 rounded">
+                                        {product}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                {task.tag && (
+                                  <span className={`text-xs px-2 py-1 rounded ${tagColors[task.tag as keyof typeof tagColors]}`}>
+                                    {task.tag}
+                                  </span>
+                                )}
+                              </Card>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
                       </div>
-                      <p className="text-sm text-muted-foreground">{task.description}</p>
-                      {task.products && (
-                        <div className="flex flex-wrap gap-2">
-                          {task.products.map((product, i) => (
-                            <span key={i} className="text-xs bg-muted px-2 py-1 rounded">
-                              {product}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {task.tag && (
-                        <span className={`text-xs px-2 py-1 rounded ${tagColors[task.tag as keyof typeof tagColors]}`}>
-                          {task.tag}
-                        </span>
-                      )}
-                    </Card>
-                  ))}
+                    )}
+                  </Droppable>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </DragDropContext>
         </div>
       </div>
+
+      <CreateTaskDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onCreateTask={handleCreateTask}
+      />
     </MainLayout>
   );
 }
