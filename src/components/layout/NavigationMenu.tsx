@@ -1,4 +1,5 @@
-import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone } from 'lucide-react';
+
+import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -57,6 +58,7 @@ const menuItems = [
       { label: 'Ads Manager', href: '/ads-manager' },
     ]
   },
+  { icon: MessageSquare, label: 'AI Assistant', href: '/ai-assistant' },
 ];
 
 export function NavigationMenu() {
