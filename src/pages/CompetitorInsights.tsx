@@ -78,9 +78,9 @@ export default function CompetitorInsights() {
 
         <div className="grid grid-cols-2 gap-8">
           {/* Left Column */}
-          <div className="space-y-8">
+          <div className="space-y-8 flex flex-col">
             {/* Monthly Revenue */}
-            <Card className="p-6">
+            <Card className="p-6 flex-1">
               <h2 className="text-xl font-bold mb-4">Monthly Revenue</h2>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold">$12.5M</span>
@@ -92,7 +92,7 @@ export default function CompetitorInsights() {
             </Card>
 
             {/* Growth Comparison */}
-            <Card className="p-6">
+            <Card className="p-6 flex-1">
               <h2 className="text-xl font-bold mb-2">Your Growth vs Market</h2>
               <p className="text-sm text-green-600 mb-6">Growing 2.3x faster than category average</p>
               
