@@ -5,7 +5,6 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Check, X, Image, ListTodo, Target, TrendingUp } from 'lucide-react';
-
 const products = [{
   id: 1,
   asin: 'B08P5PVDS3',
@@ -37,46 +36,41 @@ const products = [{
   recommendations: 3,
   score: 70
 }];
-
-const recommendations = [
-  {
-    section: 'Title',
-    items: [{
-      title: 'Character Count',
-      description: 'Title is not between 120-200 characters (0)',
-      status: 'error'
-    }]
+const recommendations = [{
+  section: 'Title',
+  items: [{
+    title: 'Character Count',
+    description: 'Title is not between 120-200 characters (0)',
+    status: 'error'
+  }]
+}, {
+  section: 'Bullet Points',
+  items: [{
+    title: 'Minimum Points',
+    description: 'Listing includes 5 or more bullet points.',
+    status: 'success'
   }, {
-    section: 'Bullet Points',
-    items: [{
-      title: 'Minimum Points',
-      description: 'Listing includes 5 or more bullet points.',
-      status: 'success'
-    }, {
-      title: 'Character Count per Bullet',
-      description: 'Not all bullet points are within 150-200 characters.',
-      status: 'error'
-    }]
-  }, {
-    section: 'Product Description',
-    items: [{
-      title: 'Character Count',
-      description: 'Product description is outside the ideal character range or lacks A+ Content.',
-      status: 'error'
-    }]
-  }, {
-    section: 'Keyword Optimisation',
-    items: [{
-      title: 'Primary Keywords in Fields',
-      description: 'Primary keywords are missing from the title, bullet points, or description.',
-      status: 'error'
-    }]
-  }
-];
-
+    title: 'Character Count per Bullet',
+    description: 'Not all bullet points are within 150-200 characters.',
+    status: 'error'
+  }]
+}, {
+  section: 'Product Description',
+  items: [{
+    title: 'Character Count',
+    description: 'Product description is outside the ideal character range or lacks A+ Content.',
+    status: 'error'
+  }]
+}, {
+  section: 'Keyword Optimisation',
+  items: [{
+    title: 'Primary Keywords in Fields',
+    description: 'Primary keywords are missing from the title, bullet points, or description.',
+    status: 'error'
+  }]
+}];
 export default function ListingQuality() {
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
-
   return <MainLayout>
       <div className="space-y-6">
         <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Listings Hub</h1>
@@ -110,7 +104,7 @@ export default function ListingQuality() {
             <Card className="p-4 md:p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-base text-muted-foreground font-medium">Total Organic Potential Monthly Sales Uplift</p>
+                  <p className="text-base text-muted-foreground font-medium">Organic Sales Uplift</p>
                   <p className="text-xl md:text-3xl font-bold mt-2">£5495</p>
                 </div>
                 <div className="bg-blue-600 p-2 rounded-full">
@@ -151,8 +145,7 @@ export default function ListingQuality() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map(product => (
-                  <TableRow key={product.id}>
+                {products.map(product => <TableRow key={product.id}>
                     <TableCell>
                       <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
                         <Image className="h-8 w-8 text-muted-foreground" />
@@ -161,11 +154,7 @@ export default function ListingQuality() {
                     <TableCell>{product.asin}</TableCell>
                     <TableCell>{product.potentialSales}</TableCell>
                     <TableCell>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setSelectedProduct(product.asin)}
-                        className="w-full md:w-auto"
-                      >
+                      <Button variant="outline" onClick={() => setSelectedProduct(product.asin)} className="w-full md:w-auto">
                         View ({product.recommendations})
                       </Button>
                     </TableCell>
@@ -173,8 +162,7 @@ export default function ListingQuality() {
                     <TableCell>
                       <Button className="w-full md:w-auto">Update</Button>
                     </TableCell>
-                  </TableRow>
-                ))}
+                  </TableRow>)}
               </TableBody>
             </Table>
           </div>
@@ -195,21 +183,15 @@ export default function ListingQuality() {
               </div>
             </div>
             <div className="space-y-6 md:space-y-8">
-              {recommendations.map(section => (
-                <div key={section.section} className="space-y-4">
+              {recommendations.map(section => <div key={section.section} className="space-y-4">
                   <h3 className="text-lg font-semibold">{section.section}</h3>
                   <div className="space-y-4">
-                    {section.items.map(item => (
-                      <div key={item.title} className="flex gap-3 p-4 rounded-lg bg-muted/50">
+                    {section.items.map(item => <div key={item.title} className="flex gap-3 p-4 rounded-lg bg-muted/50">
                         <div className={`
                           rounded-full p-1 flex-shrink-0
                           ${item.status === 'success' ? 'bg-green-100' : 'bg-red-100'}
                         `}>
-                          {item.status === 'success' ? (
-                            <Check className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <X className="h-4 w-4 text-red-600" />
-                          )}
+                          {item.status === 'success' ? <Check className="h-4 w-4 text-green-600" /> : <X className="h-4 w-4 text-red-600" />}
                         </div>
                         <div>
                           <p className="font-medium">{item.title}</p>
@@ -217,11 +199,9 @@ export default function ListingQuality() {
                             {item.description}
                           </p>
                         </div>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </SheetContent>
