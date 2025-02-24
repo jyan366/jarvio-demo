@@ -15,6 +15,7 @@ const menuItems = [
       { label: 'Sales Hub', href: '/sales-hub' },
       { label: 'My Offers', href: '/my-offers' },
       { label: 'Reports Builder', href: '/reports-builder' },
+      { label: 'Financing', href: '/financing' },
     ]
   },
   { 

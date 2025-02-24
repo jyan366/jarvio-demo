@@ -10,6 +10,7 @@ import ActionStudio from "./pages/ActionStudio";
 import SalesHub from "./pages/SalesHub";
 import MyOffers from "./pages/MyOffers";
 import ReportsBuilder from "./pages/ReportsBuilder";
+import Financing from "./pages/Financing";
 import MyInventory from "./pages/MyInventory";
 import ListingQuality from "./pages/ListingQuality";
 import ListingBuilder from "./pages/ListingBuilder";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/sales-hub" element={<SalesHub />} />
             <Route path="/my-offers" element={<MyOffers />} />
             <Route path="/reports-builder" element={<ReportsBuilder />} />
+            <Route path="/financing" element={<Financing />} />
             <Route path="/inventory" element={<MyInventory />} />
             <Route path="/listing-quality" element={<ListingQuality />} />
             <Route path="/listing-builder" element={<ListingBuilder />} />
