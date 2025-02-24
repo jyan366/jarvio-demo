@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -83,7 +82,6 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState(initialTasks);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
-  const metricsRef = useRef<HTMLDivElement>(null);
 
   const handleDragEnd = (result: any) => {
     const { source, destination } = result;
@@ -128,15 +126,6 @@ export default function Dashboard() {
     });
   };
 
-  const scrollMetrics = () => {
-    if (metricsRef.current) {
-      metricsRef.current.scrollBy({
-        left: 300,
-        behavior: 'smooth'
-      });
-    }
-  };
-
   return (
     <MainLayout>
       <div className="space-y-6 md:space-y-8">
@@ -153,41 +142,29 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Metrics */}
-        <div className="relative">
-          <div
-            ref={metricsRef}
-            className="flex lg:grid lg:grid-cols-7 overflow-x-auto lg:overflow-x-visible gap-4 pb-4 lg:pb-0 scrollbar-hide snap-x snap-mandatory"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {metrics.map((metric, index) => (
-              <Card 
-                key={index} 
-                className="p-4 border rounded-2xl snap-start min-w-[180px] lg:min-w-0 flex-shrink-0 lg:flex-shrink"
-              >
-                <div className="flex flex-col space-y-2">
-                  <p className="text-sm text-muted-foreground font-medium">{metric.label}</p>
-                  <p className="text-lg md:text-xl font-bold">{metric.value}</p>
-                  {metric.change !== 0 && (
-                    <div className={`flex items-center ${
-                      metric.inverseColor 
-                        ? (metric.change < 0 ? 'text-green-500' : 'text-red-500')
-                        : (metric.change < 0 ? 'text-red-500' : 'text-green-500')
-                    } text-sm font-medium`}>
-                      {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                      <span>{Math.abs(metric.change)}%</span>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            ))}
-          </div>
-          <button
-            onClick={scrollMetrics}
-            className="absolute right-0 top-1/2 -translate-y-1/2 lg:hidden bg-background/80 backdrop-blur-sm border rounded-full p-2 shadow-lg hover:bg-accent transition-colors"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
+        {/* Metrics - Updated Layout */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
+          {metrics.map((metric, index) => (
+            <Card 
+              key={index} 
+              className="p-4 border rounded-2xl"
+            >
+              <div className="flex flex-col space-y-2">
+                <p className="text-sm text-muted-foreground font-medium truncate">{metric.label}</p>
+                <p className="text-lg md:text-xl font-bold">{metric.value}</p>
+                {metric.change !== 0 && (
+                  <div className={`flex items-center ${
+                    metric.inverseColor 
+                      ? (metric.change < 0 ? 'text-green-500' : 'text-red-500')
+                      : (metric.change < 0 ? 'text-red-500' : 'text-green-500')
+                  } text-sm font-medium`}>
+                    {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                    <span>{Math.abs(metric.change)}%</span>
+                  </div>
+                )}
+              </div>
+            </Card>
+          ))}
         </div>
 
         {/* Kanban Board */}
