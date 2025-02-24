@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { ArrowRight, DollarSign, Percent, CalendarDays } from 'lucide-react';
+import { ArrowRight, DollarSign, Percent, CalendarDays, CheckCircle2 } from 'lucide-react';
 
 export default function Financing() {
   const [formData, setFormData] = useState({
@@ -51,6 +51,18 @@ export default function Financing() {
             className="h-12"
           />
         </div>
+
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-green-600 mt-1" />
+              <div>
+                <h3 className="font-semibold text-green-900">Congratulations! You're pre-approved for funding</h3>
+                <p className="text-green-700">Based on your revenue, you're eligible for up to €245,000 in growth capital</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-3 gap-6">
           <Card className="p-6">
@@ -123,7 +135,7 @@ export default function Financing() {
                     name="desiredAmount"
                     value={formData.desiredAmount}
                     onChange={handleInputChange}
-                    placeholder="How much funding do you need?"
+                    placeholder="How much funding do you need? (up to €245,000)"
                     type="number"
                     required
                   />
