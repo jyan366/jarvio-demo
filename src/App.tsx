@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Index from "./pages/Index";
 import ActionStudio from "./pages/ActionStudio";
@@ -21,38 +20,40 @@ import AIAssistant from "./pages/AIAssistant";
 import GetSupport from "./pages/GetSupport";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import TaskView from "./pages/TaskView";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <ThemeProvider defaultTheme="light">
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<Index />} />
-            <Route path="/action-studio" element={<ActionStudio />} />
-            <Route path="/sales-hub" element={<SalesHub />} />
-            <Route path="/my-offers" element={<MyOffers />} />
-            <Route path="/reports-builder" element={<ReportsBuilder />} />
-            <Route path="/financing" element={<Financing />} />
-            <Route path="/inventory" element={<MyInventory />} />
-            <Route path="/listing-quality" element={<ListingQuality />} />
-            <Route path="/listing-builder" element={<ListingBuilder />} />
-            <Route path="/customer-insights" element={<CustomerInsights />} />
-            <Route path="/my-competitors" element={<CompetitorInsights />} />
-            <Route path="/ads-manager" element={<AdvertisingInsights />} />
-            <Route path="/ai-assistant" element={<AIAssistant />} />
-            <Route path="/get-support" element={<GetSupport />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
-);
-
-export default App;
+export default function App() {
+  return (
+    <ThemeProvider defaultTheme="light">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Router>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/" element={<Index />} />
+              <Route path="/action-studio" element={<ActionStudio />} />
+              <Route path="/sales-hub" element={<SalesHub />} />
+              <Route path="/my-offers" element={<MyOffers />} />
+              <Route path="/reports-builder" element={<ReportsBuilder />} />
+              <Route path="/financing" element={<Financing />} />
+              <Route path="/inventory" element={<MyInventory />} />
+              <Route path="/listing-quality" element={<ListingQuality />} />
+              <Route path="/listing-builder" element={<ListingBuilder />} />
+              <Route path="/customer-insights" element={<CustomerInsights />} />
+              <Route path="/my-competitors" element={<CompetitorInsights />} />
+              <Route path="/ads-manager" element={<AdvertisingInsights />} />
+              <Route path="/ai-assistant" element={<AIAssistant />} />
+              <Route path="/get-support" element={<GetSupport />} />
+              <Route path="/task/:id" element={<TaskView />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Router>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+}
