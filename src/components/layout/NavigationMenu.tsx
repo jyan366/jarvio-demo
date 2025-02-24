@@ -4,7 +4,7 @@ import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, Side
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LucideIcon } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface SubMenuItem {
   label: string;
@@ -116,6 +116,24 @@ export function NavigationMenu() {
     }));
   };
 
+  const renderStatusDot = (status?: 'active' | 'coming-soon') => {
+    if (!status) return null;
+
+    return (
+      <div 
+        className={cn(
+          "w-1.5 h-1.5 rounded-full ml-2",
+          status === 'active' ? "bg-green-500" : "bg-amber-500",
+          "relative",
+          "after:content-[''] after:absolute after:top-[-2px] after:left-[-2px] after:rounded-full after:w-2 after:h-2",
+          status === 'active' 
+            ? "after:animate-[pulse_2s_ease-in-out_infinite] after:bg-green-500/30" 
+            : "after:animate-[pulse_3s_ease-in-out_infinite] after:bg-amber-500/30"
+        )}
+      />
+    );
+  };
+
   const renderMenuItems = (items: MenuItem[]) => {
     return items.map((item, index) => (
       <SidebarMenuItem key={index}>
@@ -123,29 +141,20 @@ export function NavigationMenu() {
           <div className="w-full">
             <SidebarMenuButton
               onClick={() => toggleSubmenu(item.label)}
-              tooltip={item.status === 'coming-soon' ? 'Coming Soon - Beta Feature' : item.label}
-              className={`w-full relative p-2 ${item.status === 'coming-soon' ? 'opacity-50 cursor-not-allowed' : ''}`}
+              tooltip={item.status === 'coming-soon' ? 'Demo Data' : item.label}
+              className="w-full relative p-2"
             >
               <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                   <item.icon className="w-4 h-4 shrink-0" />
-                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                  {item.status === 'active' && (
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
-                      Active
-                    </Badge>
-                  )}
-                  {item.status === 'coming-soon' && (
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-gray-300 text-gray-500">
-                      Soon
-                    </Badge>
-                  )}
+                  <span className="ml-2 group-data-[collapsible=icon]:hidden">{item.label}</span>
+                  {renderStatusDot(item.status)}
                 </div>
                 <ChevronDown className="w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden" />
               </div>
             </SidebarMenuButton>
             <div className="group-data-[collapsible=icon]:hidden">
-              {expandedMenus[item.label] && !item.status?.includes('coming-soon') && (
+              {expandedMenus[item.label] && (
                 <SidebarMenu className="ml-6 mt-2 relative">
                   <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200" />
                   {item.submenu.map((subitem, subindex) => (
