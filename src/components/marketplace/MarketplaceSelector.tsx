@@ -34,7 +34,7 @@ const marketplaces: Marketplace[] = [
     id: 'walmart',
     name: 'Walmart',
     status: 'available',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Walmart_logo.svg/800px-Walmart_logo.svg.png'
+    logo: 'https://i5.walmartimages.com/dfw/63fd9f59-b3e1/7a569e53-f29a-4c3d-bfaf-6f7a158bfadd/v1/walmarticon.svg'
   }
 ];
 
