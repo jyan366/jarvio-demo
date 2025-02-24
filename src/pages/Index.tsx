@@ -156,13 +156,13 @@ export default function Dashboard() {
         <div className="relative">
           <div
             ref={metricsRef}
-            className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory"
+            className="flex lg:grid lg:grid-cols-7 overflow-x-auto lg:overflow-x-visible gap-4 pb-4 lg:pb-0 scrollbar-hide snap-x snap-mandatory"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {metrics.map((metric, index) => (
               <Card 
                 key={index} 
-                className="p-4 border rounded-2xl snap-start min-w-[200px] flex-shrink-0"
+                className="p-4 border rounded-2xl snap-start min-w-[180px] lg:min-w-0 flex-shrink-0 lg:flex-shrink"
               >
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm text-muted-foreground font-medium">{metric.label}</p>
@@ -179,7 +179,7 @@ export default function Dashboard() {
           </div>
           <button
             onClick={scrollMetrics}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm border rounded-full p-2 shadow-lg hover:bg-accent transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 lg:hidden bg-background/80 backdrop-blur-sm border rounded-full p-2 shadow-lg hover:bg-accent transition-colors"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
