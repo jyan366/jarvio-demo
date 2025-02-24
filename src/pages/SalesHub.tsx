@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -90,17 +89,17 @@ const productData = [
 const statsCards = [
   {
     title: "Total Sales",
-    value: "$16,193.74",
+    value: "£12,635.18",
     icon: DollarSign
   },
   {
     title: "Orders",
-    value: "878",
+    value: "856",
     icon: ShoppingBag
   },
   {
     title: "Units Sold",
-    value: "950",
+    value: "927",
     icon: Package
   },
   {
@@ -110,12 +109,12 @@ const statsCards = [
   },
   {
     title: "Estimate Payout",
-    value: "$6,342.74",
+    value: "£4,945.31",
     icon: CreditCard
   },
   {
     title: "Payout Percentage",
-    value: "60.83%",
+    value: "60.86%",
     icon: Percent
   }
 ];
@@ -133,7 +132,7 @@ export default function SalesHub() {
               {showCosts ? 'Cost Breakdown' : 'Sales Summary'}
             </h1>
             <p className="text-sm md:text-lg text-muted-foreground">
-              24 January - 23 February 2025
+              25 January - 24 February 2025
             </p>
           </div>
           <Button
@@ -146,59 +145,57 @@ export default function SalesHub() {
         </div>
 
         {!showCosts ? (
-          <>
-            <div className="grid gap-4 md:gap-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {statsCards.map((card, index) => (
-                  <Card key={index} className="p-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
-                      <p className="text-lg md:text-xl font-bold mt-2">{card.value}</p>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg md:text-xl font-semibold">24 January 2025 - 23 February 2025</CardTitle>
-                </CardHeader>
-                <CardContent className="overflow-x-auto">
-                  <div className="min-w-[600px] md:min-w-0 h-[300px] md:h-[400px]">
-                    <BarChart 
-                      data={salesData} 
-                      width={700} 
-                      height={400}
-                      margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                      <XAxis dataKey="date" stroke="#888" fontSize={12} />
-                      <YAxis 
-                        tickFormatter={formatYAxis} 
-                        stroke="#888" 
-                        fontSize={12}
-                        tickMargin={8}
-                      />
-                      <Tooltip 
-                        formatter={(value: number) => [`£${value}`, 'Amount']}
-                        contentStyle={{ 
-                          background: 'white',
-                          border: '1px solid #eee',
-                          borderRadius: '8px',
-                          padding: '8px 12px'
-                        }}
-                      />
-                      <Bar 
-                        dataKey="amount" 
-                        fill="#4457ff"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
+          <div className="grid lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+              {statsCards.map((card, index) => (
+                <Card key={index} className="p-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
+                    <p className="text-lg md:text-xl font-bold mt-2">{card.value}</p>
                   </div>
-                </CardContent>
-              </Card>
+                </Card>
+              ))}
             </div>
-          </>
+
+            <Card className="lg:col-span-7">
+              <CardHeader>
+                <CardTitle className="text-lg md:text-xl font-semibold">25 January 2025 - 24 February 2025</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[400px]">
+                  <BarChart 
+                    data={salesData} 
+                    width={700} 
+                    height={400}
+                    margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                    <XAxis dataKey="date" stroke="#888" fontSize={12} />
+                    <YAxis 
+                      tickFormatter={formatYAxis} 
+                      stroke="#888" 
+                      fontSize={12}
+                      tickMargin={8}
+                    />
+                    <Tooltip 
+                      formatter={(value: number) => [`£${value}`, 'Amount']}
+                      contentStyle={{ 
+                        background: 'white',
+                        border: '1px solid #eee',
+                        borderRadius: '8px',
+                        padding: '8px 12px'
+                      }}
+                    />
+                    <Bar 
+                      dataKey="amount" 
+                      fill="#4457ff"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
