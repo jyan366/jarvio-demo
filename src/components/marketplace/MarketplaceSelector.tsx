@@ -22,19 +22,19 @@ const marketplaces: Marketplace[] = [
     id: 'amazon',
     name: 'Amazon',
     status: 'connected',
-    logo: '/lovable-uploads/bf0da1e7-7412-4d82-9167-46fa818cd337.png'
+    logo: '/lovable-uploads/f428f714-5de1-4601-bf84-87c8583025b2.png'
   },
   {
     id: 'shopify',
     name: 'Shopify',
     status: 'available',
-    logo: '/lovable-uploads/9153360e-039d-4318-b78b-50dcec74f7ae.png'
+    logo: '/lovable-uploads/3a6e08c9-e723-4940-aa76-985a8773f3f5.png'
   },
   {
     id: 'walmart',
     name: 'Walmart',
     status: 'available',
-    logo: '/lovable-uploads/d27457b3-6119-4dd1-8b60-5f86e3cbe4e3.png'
+    logo: '/lovable-uploads/eb5c4b4c-cea3-4ed6-9cb3-a3256797cb36.png'
   }
 ];
 
