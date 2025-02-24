@@ -3,9 +3,12 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Star, Zap, TrendingUp, AlertCircle, DollarSign, ThumbsUp } from 'lucide-react';
+import { Star, Zap, TrendingUp, AlertCircle, DollarSign, ThumbsUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
 
 export default function CustomerInsights() {
+  const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
+
   const ratings = [
     { stars: 5, percentage: 70 },
     { stars: 4, percentage: 20 },
@@ -71,6 +74,16 @@ export default function CustomerInsights() {
       details: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages."
     }
   ];
+
+  const nextInsight = () => {
+    setCurrentInsightIndex((prev) => (prev + 1) % insights.length);
+  };
+
+  const previousInsight = () => {
+    setCurrentInsightIndex((prev) => (prev - 1 + insights.length) % insights.length);
+  };
+
+  const currentInsight = insights[currentInsightIndex];
 
   return (
     <MainLayout>
@@ -146,20 +159,39 @@ export default function CustomerInsights() {
               <h2 className="text-xl font-semibold">Customer Insights Assistant</h2>
             </div>
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                {insights.map((insight, index) => (
-                  <Card 
-                    key={index} 
-                    className={`p-4 border ${insight.color} cursor-pointer hover:opacity-90 transition-opacity`}
+              <Card 
+                className={`p-6 border ${currentInsight.color} transition-all duration-300 min-h-[200px] flex flex-col`}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex gap-3 items-center">
+                    <currentInsight.icon className="w-5 h-5" />
+                    <h3 className="font-medium">{currentInsight.title}</h3>
+                  </div>
+                  <span className="text-xs bg-white/50 px-2 py-1 rounded-full">
+                    {currentInsightIndex + 1} of {insights.length}
+                  </span>
+                </div>
+                <p className="text-sm font-medium mb-2">{currentInsight.preview}</p>
+                <p className="text-sm flex-1">{currentInsight.details}</p>
+                <div className="flex justify-between items-center mt-4 pt-4 border-t border-current/10">
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={previousInsight}
+                    className="h-8 w-8"
                   >
-                    <div className="flex flex-col gap-2">
-                      <insight.icon className="w-5 h-5" />
-                      <h3 className="font-medium text-sm">{insight.title}</h3>
-                      <p className="text-xs">{insight.preview}</p>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={nextInsight}
+                    className="h-8 w-8"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </Card>
               <div className="flex gap-4">
                 <Button variant="default" className="flex-1">
                   Generate Report
