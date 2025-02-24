@@ -22,19 +22,19 @@ const marketplaces: Marketplace[] = [
     id: 'amazon',
     name: 'Amazon',
     status: 'connected',
-    logo: '/lovable-uploads/b45accd5-ef0c-49c0-80ae-e63807d938fe.png'
+    logo: 'https://cdn.worldvectorlogo.com/logos/amazon-icon-1.svg'
   },
   {
     id: 'shopify',
     name: 'Shopify',
     status: 'available',
-    logo: '/lovable-uploads/7266dcf6-58ea-4ccb-84c2-8a85411bb626.png'
+    logo: 'https://cdn.worldvectorlogo.com/logos/shopify.svg'
   },
   {
     id: 'walmart',
     name: 'Walmart',
     status: 'available',
-    logo: '/lovable-uploads/222004e3-2d6d-4ce6-ba66-7676516ea7a9.png'
+    logo: 'https://cdn.worldvectorlogo.com/logos/walmart-2.svg'
   }
 ];
 
@@ -45,6 +45,8 @@ export function MarketplaceSelector() {
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('Image failed to load:', e.currentTarget.src);
+    // Fallback to a default icon if the image fails to load
+    e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M7 8h.01"/><path d="M20.5 10.5 15 15"/><path d="M15 10.5 20.5 15"/></svg>';
   };
 
   return (
