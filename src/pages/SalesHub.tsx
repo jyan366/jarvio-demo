@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { DollarSign, ShoppingBag, Package, ArrowRight, Percent, CreditCard, Image } from 'lucide-react';
+import { DollarSign, ShoppingBag, Package, ArrowRight, Percent, CreditCard, Image, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const salesData = [
   { date: '1 Jan', amount: 500 },
@@ -37,6 +39,31 @@ const salesData = [
   { date: '29 Jan', amount: 590 },
   { date: '30 Jan', amount: 610 }
 ];
+
+const costData = {
+  breakdown: [
+    { item: 'Total Sales', value: 17579.31 },
+    { item: 'Shipping and Rebates', value: 64.04 },
+    { item: 'Advertising Cost', value: 0 },
+    { item: 'Commission', value: -2654.6 },
+    { item: 'FBA Fulfillment Fee', value: -4651.44 },
+    { item: 'Other Amazon Fees', value: -275.76 },
+    { item: 'Estimated Payout', value: 10061.55 },
+    { item: 'Cost of goods', value: 5158.58 },
+    { item: 'Other Costs', value: 1414.6 },
+    { item: 'Net profit', value: 3488.37 },
+  ],
+  distribution: [
+    { name: 'Net Profit', value: 3488.37, color: '#818CF8' },
+    { name: 'COGS', value: 5158.58, color: '#A855F7' },
+    { item: 'Advertising Cost', value: 0, color: '#EC4899' },
+    { name: 'FBA Fulfillment', value: 4651.44, color: '#60A5FA' },
+    { name: 'Commission Fee', value: 2654.6, color: '#A78BFA' },
+    { name: 'Other Cost', value: 1414.6, color: '#C084FC' },
+    { name: 'Shipping', value: 64.04, color: '#38BDF8' },
+    { name: 'Other Amazon Fees', value: 275.76, color: '#FB923C' },
+  ]
+};
 
 const productData = [
   {
@@ -93,6 +120,7 @@ const statsCards = [
 ];
 
 export default function SalesHub() {
+  const [showCosts, setShowCosts] = useState(false);
   const formatYAxis = (value: number) => `£${value}`;
 
   return (
@@ -100,65 +128,155 @@ export default function SalesHub() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight">Sales Summary</h1>
-            <p className="text-lg text-muted-foreground">24 January - 23 February 2025</p>
+            <h1 className="text-4xl font-bold tracking-tight">
+              {showCosts ? 'Cost Breakdown' : 'Sales Summary'}
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              24 January - 23 February 2025
+            </p>
           </div>
-          <button className="bg-white text-black hover:bg-gray-50 px-6 py-2.5 rounded-full border shadow-sm text-sm font-medium">
-            Show Costs
-          </button>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => setShowCosts(!showCosts)}
+          >
+            {showCosts ? 'Show Sales' : 'Show Costs'}
+          </Button>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-4 grid gap-4 grid-cols-2">
-            {statsCards.map((card, index) => (
-              <Card key={index} className="p-6">
-                <div>
-                  <p className="text-base text-muted-foreground font-medium">{card.title}</p>
-                  <p className="text-2xl font-bold mt-2">{card.value}</p>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          <Card className="lg:col-span-8">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold">24 January 2025 - 23 February 2025</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px] w-full">
-                <BarChart 
-                  data={salesData} 
-                  width={700} 
-                  height={400}
-                  margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                  <XAxis dataKey="date" stroke="#888" fontSize={12} />
-                  <YAxis 
-                    tickFormatter={formatYAxis} 
-                    stroke="#888" 
-                    fontSize={12}
-                    tickMargin={8}
-                  />
-                  <Tooltip 
-                    formatter={(value: number) => [`£${value}`, 'Amount']}
-                    contentStyle={{ 
-                      background: 'white',
-                      border: '1px solid #eee',
-                      borderRadius: '8px',
-                      padding: '8px 12px'
-                    }}
-                  />
-                  <Bar 
-                    dataKey="amount" 
-                    fill="#4457ff"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
+        {!showCosts ? (
+          <>
+            <div className="grid lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-4 grid gap-4 grid-cols-2">
+                {statsCards.map((card, index) => (
+                  <Card key={index} className="p-6">
+                    <div>
+                      <p className="text-base text-muted-foreground font-medium">{card.title}</p>
+                      <p className="text-2xl font-bold mt-2">{card.value}</p>
+                    </div>
+                  </Card>
+                ))}
               </div>
-            </CardContent>
-          </Card>
-        </div>
+
+              <Card className="lg:col-span-8">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">24 January 2025 - 23 February 2025</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[400px] w-full">
+                    <BarChart 
+                      data={salesData} 
+                      width={700} 
+                      height={400}
+                      margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                      <XAxis dataKey="date" stroke="#888" fontSize={12} />
+                      <YAxis 
+                        tickFormatter={formatYAxis} 
+                        stroke="#888" 
+                        fontSize={12}
+                        tickMargin={8}
+                      />
+                      <Tooltip 
+                        formatter={(value: number) => [`£${value}`, 'Amount']}
+                        contentStyle={{ 
+                          background: 'white',
+                          border: '1px solid #eee',
+                          borderRadius: '8px',
+                          padding: '8px 12px'
+                        }}
+                      />
+                      <Bar 
+                        dataKey="amount" 
+                        fill="#4457ff"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        ) : (
+          <div className="grid lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold flex items-center justify-between">
+                  Cost Breakdown
+                  <span className="text-sm text-muted-foreground">
+                    1-31 January 2025
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {costData.breakdown.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {item.item}
+                        </span>
+                        {item.item === 'Total Sales' && (
+                          <TooltipProvider>
+                            <UITooltip>
+                              <TooltipTrigger>
+                                <Info className="h-4 w-4 text-muted-foreground" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Total sales before deductions</p>
+                              </TooltipContent>
+                            </UITooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
+                      <span className={`font-medium ${
+                        item.value < 0 ? 'text-red-500' : ''
+                      }`}>
+                        {item.value < 0 ? '-' : ''}£{Math.abs(item.value).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold">
+                  Cost Distribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px] flex items-center justify-center">
+                  <PieChart width={300} height={300}>
+                    <Pie
+                      data={costData.distribution}
+                      cx={150}
+                      cy={150}
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {costData.distribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                  <div className="ml-8">
+                    {costData.distribution.map((item, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                        <span>{item.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <Card>
           <Table>
