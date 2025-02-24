@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories = [
   "Sales",
@@ -23,6 +24,7 @@ interface CreateInsightDialogProps {
     title: string;
     description: string;
     category: string;
+    tasks: { id: string; name: string; completed: boolean; }[];
   }) => void;
 }
 
@@ -36,12 +38,37 @@ export function CreateInsightDialog({
     description: "",
     category: "Listings",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onInsightCreate(formData);
-    onOpenChange(false);
-    setFormData({ title: "", description: "", category: "Listings" });
+    setIsLoading(true);
+
+    try {
+      // Get AI-suggested tasks
+      const { data, error } = await supabase.functions.invoke('suggest-tasks', {
+        body: { insight: formData }
+      });
+
+      if (error) throw error;
+
+      // Create the insight with AI-suggested tasks
+      onInsightCreate({
+        ...formData,
+        tasks: data.tasks || [
+          { id: "1", name: "Review Impact", completed: false },
+          { id: "2", name: "Take Action", completed: false },
+          { id: "3", name: "Monitor Results", completed: false },
+        ]
+      });
+
+      onOpenChange(false);
+      setFormData({ title: "", description: "", category: "Listings" });
+    } catch (error) {
+      console.error('Error creating insight:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -105,8 +132,15 @@ export function CreateInsightDialog({
             </div>
           </div>
 
-          <Button type="submit" className="w-full">
-            Add Insight
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating Tasks...
+              </>
+            ) : (
+              'Add Insight'
+            )}
           </Button>
         </form>
       </DialogContent>

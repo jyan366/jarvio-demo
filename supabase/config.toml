@@ -1,5 +1,8 @@
 
-project_id = "aojrdgobdavxjpnymskc"
+project_id = "lovable"
 
 [functions.chat]
+verify_jwt = false
+
+[functions.suggest-tasks]
 verify_jwt = false
