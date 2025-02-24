@@ -21,7 +21,6 @@ import AIAssistant from "./pages/AIAssistant";
 import GetSupport from "./pages/GetSupport";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
-import TaskView from "./pages/TaskView";
 
 const queryClient = new QueryClient();
 
@@ -49,7 +48,6 @@ export default function App() {
               <Route path="/ads-manager" element={<AdvertisingInsights />} />
               <Route path="/ai-assistant" element={<AIAssistant />} />
               <Route path="/get-support" element={<GetSupport />} />
-              <Route path="/task/:id" element={<TaskView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
