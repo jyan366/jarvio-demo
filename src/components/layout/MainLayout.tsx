@@ -37,8 +37,16 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   const handleSignOut = async () => {
     try {
+      // First get the session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/auth');
+        return;
+      }
+
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
       navigate('/auth');
     } catch (error: any) {
       toast({
