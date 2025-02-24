@@ -60,39 +60,39 @@ export default function MyOffers() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold tracking-tight">My Offers</h1>
-          <div className="flex items-center gap-4">
-            <Button variant="outline" className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">My Offers</h1>
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4">
+            <Button variant="outline" className="w-full md:w-auto flex items-center justify-between gap-2">
               <span>Select Tags</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="w-full md:w-auto flex items-center justify-between gap-2">
               <span>Select Products</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="w-full md:w-auto flex items-center justify-between gap-2">
               <span>24 Jan 2025 - 23 Feb 2025</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {statsCards.map((card, index) => (
             <Card key={index} className="p-4">
               <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
-              <p className="text-2xl font-bold mt-1">{card.value}</p>
+              <p className="text-xl md:text-2xl font-bold mt-1">{card.value}</p>
             </Card>
           ))}
         </div>
 
-        <Card>
+        <Card className="overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Image</TableHead>
+                  <TableHead className="w-[100px]">Image</TableHead>
                   <TableHead>Product Name</TableHead>
                   <TableHead className="text-right">*Pack Price</TableHead>
                   <TableHead className="text-right">Margin</TableHead>
@@ -108,8 +108,8 @@ export default function MyOffers() {
                         <Image className="h-8 w-8 text-muted-foreground" />
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium max-w-xl">
-                      {product.name}
+                    <TableCell className="font-medium max-w-[300px] md:max-w-xl">
+                      <div className="line-clamp-2">{product.name}</div>
                     </TableCell>
                     <TableCell className="text-right">{product.price}</TableCell>
                     <TableCell className="text-right">{product.margin}</TableCell>

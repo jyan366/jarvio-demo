@@ -76,20 +76,20 @@ export default function AIAssistant() {
   return (
     <MainLayout>
       <div className="max-w-4xl mx-auto space-y-4">
-        <div className="flex items-center gap-2 mb-8">
-          <MessageSquare className="w-8 h-8" />
-          <h1 className="text-3xl font-bold">AI Assistant</h1>
+        <div className="flex items-center gap-2 mb-4 md:mb-8">
+          <MessageSquare className="w-6 md:w-8 h-6 md:h-8" />
+          <h1 className="text-2xl md:text-3xl font-bold">AI Assistant</h1>
         </div>
 
-        <Card className="h-[600px] flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <Card className="h-[500px] md:h-[600px] flex flex-col">
+          <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4">
             {messages.map((message, index) => (
               <div
                 key={index}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[85%] md:max-w-[80%] rounded-lg p-3 ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground ml-4'
                       : 'bg-muted mr-4'
@@ -102,7 +102,7 @@ export default function AIAssistant() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="border-t p-4">
+          <div className="border-t p-3 md:p-4">
             <div className="flex gap-2">
               <Input
                 placeholder="Type your message..."
