@@ -1,3 +1,4 @@
+
 import { DollarSign, ShoppingBag, Package, ArrowRight, Percent, CreditCard } from 'lucide-react';
 import { StatsCard, SalesDataPoint, CostBreakdownItem, CostDistributionItem, ProductItem } from '@/types/sales';
 
@@ -83,7 +84,7 @@ export const costData = {
   distribution: [
     { name: 'Net Profit', value: 4360.46, color: '#818CF8' },
     { name: 'COGS', value: 6448.23, color: '#A855F7' },
-    { item: 'Advertising Cost', value: 0, color: '#EC4899' },
+    { name: 'Advertising Cost', value: 0, color: '#EC4899' },
     { name: 'FBA Fulfillment', value: 5814.30, color: '#60A5FA' },
     { name: 'Commission Fee', value: 3318.25, color: '#A78BFA' },
     { name: 'Other Cost', value: 1768.25, color: '#C084FC' },
