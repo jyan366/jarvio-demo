@@ -1,12 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
-import { ChevronDown, ChevronUp, Plus, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { CreateTaskDialog } from '@/components/tasks/CreateTaskDialog';
 import { useToast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 const metrics = [
   { label: 'Total Sales', value: '$112,443.74', change: 35.65, inverseColor: false },
@@ -83,7 +82,6 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState(initialTasks);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleDragEnd = (result: any) => {
     const { source, destination } = result;
@@ -233,26 +231,11 @@ export default function Dashboard() {
                                     ))}
                                   </div>
                                 )}
-                                <div className="flex items-center justify-between">
-                                  {task.tag && (
-                                    <span className={`text-xs px-2 py-1 rounded ${tagColors[task.tag as keyof typeof tagColors]}`}>
-                                      {task.tag}
-                                    </span>
-                                  )}
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="ml-auto"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      navigate(`/task/${index + 1}`);
-                                    }}
-                                  >
-                                    <ChevronRight className="h-4 w-4 mr-1" />
-                                    View Details
-                                  </Button>
-                                </div>
+                                {task.tag && (
+                                  <span className={`text-xs px-2 py-1 rounded ${tagColors[task.tag as keyof typeof tagColors]}`}>
+                                    {task.tag}
+                                  </span>
+                                )}
                               </Card>
                             )}
                           </Draggable>
