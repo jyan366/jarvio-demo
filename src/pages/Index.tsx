@@ -144,12 +144,12 @@ export default function Dashboard() {
         </div>
 
         <div className="relative">
-          <div className="overflow-x-auto sm:overflow-x-scroll lg:overflow-visible pb-4 sm:pb-2 lg:pb-0 -mx-4 sm:mx-0">
-            <div className="grid grid-cols-2 sm:grid-cols-7 md:grid-cols-4 lg:grid-cols-7 gap-4 min-w-[768px] lg:min-w-0 px-4 sm:px-0">
+          <div className="overflow-x-auto md:overflow-x-scroll lg:overflow-visible pb-4 md:pb-2 lg:pb-0 -mx-4 md:mx-0">
+            <div className="grid grid-cols-2 md:grid-cols-7 lg:grid-cols-7 gap-4 min-w-[1024px] lg:min-w-0 px-4 md:px-0">
               {metrics.map((metric, index) => (
                 <Card 
                   key={index} 
-                  className="p-4 border rounded-2xl"
+                  className="p-4 border rounded-2xl min-w-[140px]"
                 >
                   <div className="flex flex-col space-y-2">
                     <p className="text-sm text-muted-foreground font-medium truncate">{metric.label}</p>
