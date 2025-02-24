@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -143,32 +142,34 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Metrics - Updated Layout */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
-          {metrics.map((metric, index) => (
-            <Card 
-              key={index} 
-              className="p-4 border rounded-2xl"
-            >
-              <div className="flex flex-col space-y-2">
-                <p className="text-sm text-muted-foreground font-medium truncate">{metric.label}</p>
-                <p className="text-lg md:text-xl font-bold">{metric.value}</p>
-                {metric.change !== 0 && (
-                  <div className={`flex items-center ${
-                    metric.inverseColor 
-                      ? (metric.change < 0 ? 'text-green-500' : 'text-red-500')
-                      : (metric.change < 0 ? 'text-red-500' : 'text-green-500')
-                  } text-sm font-medium`}>
-                    {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                    <span>{Math.abs(metric.change)}%</span>
+        <div className="relative">
+          <div className="overflow-x-auto md:overflow-x-scroll lg:overflow-visible pb-4 md:pb-2 lg:pb-0 -mx-4 md:mx-0">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-4 min-w-[768px] md:min-w-[1000px] lg:min-w-0 px-4 md:px-0">
+              {metrics.map((metric, index) => (
+                <Card 
+                  key={index} 
+                  className="p-4 border rounded-2xl"
+                >
+                  <div className="flex flex-col space-y-2">
+                    <p className="text-sm text-muted-foreground font-medium truncate">{metric.label}</p>
+                    <p className="text-lg md:text-xl font-bold">{metric.value}</p>
+                    {metric.change !== 0 && (
+                      <div className={`flex items-center ${
+                        metric.inverseColor 
+                          ? (metric.change < 0 ? 'text-green-500' : 'text-red-500')
+                          : (metric.change < 0 ? 'text-red-500' : 'text-green-500')
+                      } text-sm font-medium`}>
+                        {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                        <span>{Math.abs(metric.change)}%</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </Card>
-          ))}
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Kanban Board */}
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex flex-col md:flex-row gap-3 md:gap-4 w-full md:w-auto">
