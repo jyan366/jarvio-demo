@@ -19,6 +19,7 @@ import CompetitorInsights from "./pages/CompetitorInsights";
 import AdvertisingInsights from "./pages/AdvertisingInsights";
 import AIAssistant from "./pages/AIAssistant";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<Index />} />
             <Route path="/action-studio" element={<ActionStudio />} />
             <Route path="/sales-hub" element={<SalesHub />} />
