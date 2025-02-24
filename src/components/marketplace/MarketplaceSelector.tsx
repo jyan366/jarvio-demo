@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -59,7 +58,6 @@ export function MarketplaceSelector() {
     const initializeMarketplaces = async () => {
       setIsLoading(true);
       try {
-        // Get the URLs for each icon directly from storage
         const amazonUrl = supabase.storage
           .from('marketplace-icons')
           .getPublicUrl('amazon.png');
@@ -72,9 +70,7 @@ export function MarketplaceSelector() {
           .from('marketplace-icons')
           .getPublicUrl('5977595.png');
 
-        const ebayUrl = supabase.storage
-          .from('marketplace-icons')
-          .getPublicUrl('free-ebay-logo-ico-0.png');  // Updated to full filename
+        const ebayUrl = { data: { publicUrl: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/marketplace-icons/ebay.png' } };
 
         setMarketplaces(prev => prev.map(marketplace => {
           if (marketplace.id === 'amazon') {
@@ -107,7 +103,6 @@ export function MarketplaceSelector() {
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('Image failed to load:', e.currentTarget.src);
-    // Fallback to a default icon if the image fails to load
     e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M7 8h.01"/><path d="M20.5 10.5 15 15"/><path d="M15 10.5 20.5 15"/></svg>';
   };
 
@@ -122,7 +117,6 @@ export function MarketplaceSelector() {
   const websites = marketplaces.filter(m => m.type === 'website');
   const marketplacesOnly = marketplaces.filter(m => m.type === 'marketplace');
 
-  // Find the first connected marketplace/website to show in the trigger button
   const connectedItem = marketplaces.find(m => m.status === 'connected') || marketplaces[0];
 
   return (
