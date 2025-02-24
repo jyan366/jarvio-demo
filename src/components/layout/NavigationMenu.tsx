@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -27,7 +26,7 @@ import {
   Tags,
   Trophy,
 } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NavigationItem {
   label: string;
@@ -114,7 +113,7 @@ const otherNavigation: NavigationItem[] = [
 
 export function NavigationMenu() {
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   return (
     <NavigationMenuRoot className="max-w-none w-full justify-start px-2">
