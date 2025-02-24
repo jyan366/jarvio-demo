@@ -48,7 +48,7 @@ export default function Financing() {
           <img 
             src="/lovable-uploads/dd1b4a32-6641-4117-91fb-85c0baad331b.png" 
             alt="Wayflyer" 
-            className="h-12"
+            className="h-8"
           />
         </div>
 
