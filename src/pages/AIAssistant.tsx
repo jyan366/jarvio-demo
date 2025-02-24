@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Send } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -19,7 +20,9 @@ export default function AIAssistant() {
     }
   ]);
   const [input, setInput] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,18 +32,43 @@ export default function AIAssistant() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = () => {
-    if (input.trim()) {
-      setMessages(prev => [...prev, { role: 'user', content: input.trim() }]);
+  const handleSend = async () => {
+    if (input.trim() && !isLoading) {
+      const userMessage = input.trim();
       setInput('');
-      // Here you would typically make an API call to your AI service
-      // For now, we'll just echo back a response
-      setTimeout(() => {
+      setIsLoading(true);
+      
+      // Add user message immediately
+      setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: userMessage }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get response from AI');
+        }
+
+        const data = await response.json();
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: "I understand you're asking about " + input.trim() + ". However, I'm currently in demo mode and can't provide a real response yet."
+          content: data.generatedText
         }]);
-      }, 1000);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to get response from AI. Please try again.",
+          variant: "destructive",
+        });
+        console.error('Error:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -87,9 +115,14 @@ export default function AIAssistant() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
+                disabled={isLoading}
                 className="flex-1"
               />
-              <Button onClick={handleSend} size="icon">
+              <Button 
+                onClick={handleSend} 
+                size="icon"
+                disabled={isLoading}
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
