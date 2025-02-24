@@ -9,7 +9,7 @@ interface StatsCardsProps {
 
 export const StatsCards: React.FC<StatsCardsProps> = ({ cards }) => {
   return (
-    <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
       {cards.map((card, index) => (
         <Card key={index} className="p-4">
           <div>
