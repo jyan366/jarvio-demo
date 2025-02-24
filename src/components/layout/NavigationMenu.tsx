@@ -1,5 +1,5 @@
 
-import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -109,21 +109,23 @@ export function NavigationMenu() {
                         <item.icon className="w-4 h-4 shrink-0" />
                         <span className="data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
-                      <ChevronDown 
-                        className={`w-4 h-4 transition-transform duration-200 data-[collapsible=icon]:hidden ${
-                          expandedMenus[item.label] ? 'transform rotate-180' : ''
-                        }`}
-                      />
+                      {expandedMenus[item.label] ? (
+                        <ChevronDown className="w-4 h-4 transition-transform duration-200 data-[collapsible=icon]:hidden" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 transition-transform duration-200 data-[collapsible=icon]:hidden" />
+                      )}
                     </div>
                   </SidebarMenuButton>
                   <div className="data-[collapsible=icon]:hidden">
                     {expandedMenus[item.label] && (
-                      <SidebarMenu className="ml-6 mt-2">
+                      <SidebarMenu className="ml-6 mt-2 relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200" />
                         {item.submenu.map((subitem, subindex) => (
                           <SidebarMenuItem key={`${index}-${subindex}`}>
                             <SidebarMenuButton 
                               asChild
                               data-active={location.pathname === subitem.href}
+                              className="relative"
                             >
                               <Link to={subitem.href} className="text-sm">
                                 {subitem.label}
