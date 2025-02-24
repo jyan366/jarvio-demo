@@ -17,7 +17,7 @@ export default function AIAssistant() {
   const [messages, setMessages] = React.useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm your AI assistant. How can I help you today?"
+      content: "Hi! I'm Jarvio, your Amazon selling assistant. I'm here to help you optimize your business and answer any questions about selling on Amazon. How can I assist you today?"
     }
   ]);
   const [input, setInput] = React.useState('');
