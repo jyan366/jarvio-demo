@@ -22,19 +22,19 @@ const marketplaces: Marketplace[] = [
     id: 'amazon',
     name: 'Amazon',
     status: 'connected',
-    logo: 'https://raw.githubusercontent.com/lovable-community-logo-assets/amazon.png'
+    logo: '/lovable-uploads/983c698c-2767-4609-b0fe-48e16d5a1fc0.png'
   },
   {
     id: 'shopify',
     name: 'Shopify',
     status: 'available',
-    logo: 'https://raw.githubusercontent.com/lovable-community-logo-assets/shopify.png'
+    logo: '/lovable-uploads/770367a8-bd58-49de-8601-206ba2fa4382.png'
   },
   {
     id: 'walmart',
     name: 'Walmart',
     status: 'available',
-    logo: 'https://raw.githubusercontent.com/lovable-community-logo-assets/walmart.png'
+    logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png'
   }
 ];
 
