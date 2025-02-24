@@ -139,13 +139,12 @@ export function MarketplaceSelector() {
           <Check className="h-4 w-4 text-green-500" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-background">
-        <DropdownMenuLabel>Linked Websites</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuLabel className="text-base font-semibold">Linked Websites</DropdownMenuLabel>
         {websites.map((website) => (
           <DropdownMenuItem
             key={website.id}
-            className="flex items-center justify-between py-2"
+            className="flex items-center justify-between py-3"
           >
             <div className="flex items-center gap-2">
               <img 
@@ -173,13 +172,11 @@ export function MarketplaceSelector() {
         ))}
         
         <DropdownMenuSeparator className="my-2" />
-        <DropdownMenuLabel>Marketplaces</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        
+        <DropdownMenuLabel className="text-base font-semibold">Marketplaces</DropdownMenuLabel>
         {marketplacesOnly.map((marketplace) => (
           <DropdownMenuItem
             key={marketplace.id}
-            className="flex items-center justify-between py-2"
+            className="flex items-center justify-between py-3"
           >
             <div className="flex items-center gap-2">
               <img 
