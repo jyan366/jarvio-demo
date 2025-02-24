@@ -22,19 +22,19 @@ const marketplaces: Marketplace[] = [
     id: 'amazon',
     name: 'Amazon',
     status: 'connected',
-    logo: '/lovable-uploads/f428f714-5de1-4601-bf84-87c8583025b2.png'
+    logo: 'https://raw.githubusercontent.com/lovable-community-logo-assets/amazon.png'
   },
   {
     id: 'shopify',
     name: 'Shopify',
     status: 'available',
-    logo: '/lovable-uploads/3a6e08c9-e723-4940-aa76-985a8773f3f5.png'
+    logo: 'https://raw.githubusercontent.com/lovable-community-logo-assets/shopify.png'
   },
   {
     id: 'walmart',
     name: 'Walmart',
     status: 'available',
-    logo: '/lovable-uploads/eb5c4b4c-cea3-4ed6-9cb3-a3256797cb36.png'
+    logo: 'https://raw.githubusercontent.com/lovable-community-logo-assets/walmart.png'
   }
 ];
 
@@ -50,7 +50,7 @@ export function MarketplaceSelector() {
           <img 
             src={marketplaces[0].logo} 
             alt={marketplaces[0].name}
-            className="h-5 w-auto"
+            className="h-5 w-5 object-contain"
           />
           <Check className="h-4 w-4 text-green-500" />
         </Button>
@@ -67,7 +67,7 @@ export function MarketplaceSelector() {
               <img 
                 src={marketplace.logo} 
                 alt={marketplace.name}
-                className="h-5 w-auto"
+                className="h-5 w-5 object-contain"
               />
             </div>
             {marketplace.status === 'connected' ? (
