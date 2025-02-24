@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Send } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -42,30 +43,23 @@ export default function AIAssistant() {
       setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
       try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ prompt: userMessage }),
+        const { data, error } = await supabase.functions.invoke('chat', {
+          body: { prompt: userMessage }
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to get response from AI');
-        }
+        if (error) throw error;
 
-        const data = await response.json();
         setMessages(prev => [...prev, {
           role: 'assistant',
           content: data.generatedText
         }]);
       } catch (error) {
+        console.error('Error:', error);
         toast({
           title: "Error",
           description: "Failed to get response from AI. Please try again.",
           variant: "destructive",
         });
-        console.error('Error:', error);
       } finally {
         setIsLoading(false);
       }
