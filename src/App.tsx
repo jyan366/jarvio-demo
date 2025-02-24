@@ -18,6 +18,7 @@ import CustomerInsights from "./pages/CustomerInsights";
 import CompetitorInsights from "./pages/CompetitorInsights";
 import AdvertisingInsights from "./pages/AdvertisingInsights";
 import AIAssistant from "./pages/AIAssistant";
+import GetSupport from "./pages/GetSupport";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/my-competitors" element={<CompetitorInsights />} />
             <Route path="/ads-manager" element={<AdvertisingInsights />} />
             <Route path="/ai-assistant" element={<AIAssistant />} />
+            <Route path="/get-support" element={<GetSupport />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

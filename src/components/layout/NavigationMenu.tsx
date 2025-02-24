@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
 interface SubMenuItem {
   label: string;
   href: string;
 }
+
 interface MenuItem {
   icon: LucideIcon;
   label: string;
@@ -15,6 +17,7 @@ interface MenuItem {
   submenu?: SubMenuItem[];
   status?: 'active' | 'coming-soon';
 }
+
 const workflowItems: MenuItem[] = [{
   icon: LayoutDashboard,
   label: 'Dashboard',
@@ -24,6 +27,7 @@ const workflowItems: MenuItem[] = [{
   label: 'Action Studio',
   href: '/action-studio'
 }];
+
 const brandToolkitItems: MenuItem[] = [{
   icon: ShoppingCart,
   label: 'Sales Center',
@@ -91,16 +95,26 @@ const brandToolkitItems: MenuItem[] = [{
     href: '/ads-manager'
   }]
 }];
+
 const aiAssistantItems: MenuItem[] = [{
   icon: MessageSquare,
   label: 'Jarvio Assistant',
-  href: '/ai-assistant'
+  href: '#',
+  submenu: [{
+    label: 'Chat Assistant',
+    href: '/ai-assistant'
+  }, {
+    label: 'Get Support',
+    href: '/get-support'
+  }]
 }];
+
 export function NavigationMenu() {
   const [expandedMenus, setExpandedMenus] = useState<{
     [key: string]: boolean;
   }>({});
   const location = useLocation();
+
   useEffect(() => {
     const newExpandedMenus: {
       [key: string]: boolean;
@@ -118,12 +132,14 @@ export function NavigationMenu() {
       ...newExpandedMenus
     }));
   }, [location.pathname]);
+
   const toggleSubmenu = (label: string) => {
     setExpandedMenus(prev => ({
       ...prev,
       [label]: !prev[label]
     }));
   };
+
   const renderStatusIndicator = (status?: 'active' | 'coming-soon') => {
     if (!status) return null;
     return <div className="ml-auto flex items-center gap-1.5 text-xs group-data-[collapsible=icon]:hidden">
@@ -133,6 +149,7 @@ export function NavigationMenu() {
         </div>
       </div>;
   };
+
   const renderMenuItems = (items: MenuItem[]) => {
     return items.map((item, index) => <SidebarMenuItem key={index}>
         {item.submenu ? <div className="w-full">
@@ -166,6 +183,7 @@ export function NavigationMenu() {
           </SidebarMenuButton>}
       </SidebarMenuItem>);
   };
+
   return <div className="w-full h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
       <SidebarGroup>
         <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Workflow</SidebarGroupLabel>
