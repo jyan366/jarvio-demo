@@ -48,10 +48,7 @@ export function MarketplaceSelector() {
     const initializeMarketplaces = async () => {
       setIsLoading(true);
       try {
-        // First, ensure icons are uploaded to storage
-        await supabase.functions.invoke('upload-marketplace-icons');
-
-        // Get the URLs for each icon
+        // Get the URLs for each icon directly from storage
         const amazonUrl = supabase.storage
           .from('marketplace-icons')
           .getPublicUrl('amazon.png');
