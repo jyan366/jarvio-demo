@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 
 export default function Auth() {
   const [email, setEmail] = useState('jake@jarvio.io');
-  const [password, setPassword] = useState('password');
+  const [password, setPassword] = useState('Jarvio2024!');  // Updated to a stronger password
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
