@@ -49,14 +49,13 @@ export function MarketplaceSelector() {
         <Button variant="outline" className="gap-2">
           <img 
             src={marketplaces[0].logo} 
-            alt="Amazon" 
+            alt={marketplaces[0].name}
             className="h-5 w-auto"
           />
-          <span>Amazon</span>
           <Check className="h-4 w-4 text-green-500" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-56 bg-background">
         <DropdownMenuLabel>Marketplaces</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {marketplaces.map((marketplace) => (
@@ -67,10 +66,9 @@ export function MarketplaceSelector() {
             <div className="flex items-center gap-2">
               <img 
                 src={marketplace.logo} 
-                alt={marketplace.name} 
+                alt={marketplace.name}
                 className="h-5 w-auto"
               />
-              <span>{marketplace.name}</span>
             </div>
             {marketplace.status === 'connected' ? (
               <Check className="h-4 w-4 text-green-500" />
