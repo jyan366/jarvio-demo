@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Users, HelpCircle } from 'lucide-react';
+import { MessageSquare, Users, HelpCircle, Bug } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import {
   Dialog,
@@ -20,6 +20,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 export default function GetSupport() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [showOtherInput, setShowOtherInput] = React.useState(false);
+  const [otherExpertise, setOtherExpertise] = React.useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +45,17 @@ export default function GetSupport() {
         <div className="flex items-center gap-2 mb-4">
           <HelpCircle className="w-6 md:w-8 h-6 md:h-8" />
           <h1 className="text-2xl md:text-3xl font-bold">Get Support</h1>
+        </div>
+
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+          <Bug className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-blue-700">
+            🎯 <span className="font-semibold">Beta Bug Bounty Alert!</span> Found a bug? Let us know! 
+            We're on a mission to build the most amazing Amazon brand management tool ever, 
+            and your keen eye could help us get there. In return, we promise to keep 
+            innovating and making your brand management experience absolutely fantastic! 
+            #BetterTogether 🚀
+          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -125,6 +138,22 @@ export default function GetSupport() {
                       Brand Strategy
                     </label>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="other" onClick={() => setShowOtherInput(!showOtherInput)} />
+                    <label htmlFor="other" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Other
+                    </label>
+                  </div>
+                  {showOtherInput && (
+                    <div className="ml-6">
+                      <Input 
+                        placeholder="Please specify your needs"
+                        value={otherExpertise}
+                        onChange={(e) => setOtherExpertise(e.target.value)}
+                        className="mt-2"
+                      />
+                    </div>
+                  )}
                   <Button className="w-full mt-4" onClick={() => {
                     toast({
                       title: "Partner search initiated",
