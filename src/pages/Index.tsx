@@ -9,13 +9,13 @@ import { CreateTaskDialog } from '@/components/tasks/CreateTaskDialog';
 import { useToast } from '@/components/ui/use-toast';
 
 const metrics = [
-  { label: 'Total Sales', value: '£89,954.99', change: 35.65 },
-  { label: 'Total Cost', value: '£52,471.61', change: -8.71 },
-  { label: 'Total Profit', value: '£37,483.38', change: 68.32 },
-  { label: 'Advertising Cost', value: '£2,890.00', change: -12.5 },
-  { label: 'Inventory Value', value: '£142,570.47', change: 45.3 },
-  { label: 'Profit Margin', value: '41.67%', change: 28.58 },
-  { label: 'Units Sold', value: '4,950', change: 55.44 },
+  { label: 'Total Sales', value: '£89,954.99', change: 35.65, inverseColor: false },
+  { label: 'Total Cost', value: '£52,471.61', change: -8.71, inverseColor: true },
+  { label: 'Total Profit', value: '£37,483.38', change: 68.32, inverseColor: false },
+  { label: 'Advertising Cost', value: '£2,890.00', change: -12.5, inverseColor: true },
+  { label: 'Inventory Value', value: '£142,570.47', change: 45.3, inverseColor: false },
+  { label: 'Profit Margin', value: '41.67%', change: 28.58, inverseColor: false },
+  { label: 'Units Sold', value: '4,950', change: 55.44, inverseColor: false },
 ];
 
 const initialTasks = {
@@ -167,9 +167,13 @@ export default function Dashboard() {
               >
                 <div className="flex flex-col space-y-2">
                   <p className="text-sm text-muted-foreground font-medium">{metric.label}</p>
-                  <p className="text-2xl font-bold tracking-tight">{metric.value}</p>
+                  <p className="text-xl font-bold">{metric.value}</p>
                   {metric.change !== 0 && (
-                    <div className={`flex items-center ${metric.change < 0 ? 'text-red-500' : 'text-green-500'} text-sm font-medium`}>
+                    <div className={`flex items-center ${
+                      metric.inverseColor 
+                        ? (metric.change < 0 ? 'text-green-500' : 'text-red-500')
+                        : (metric.change < 0 ? 'text-red-500' : 'text-green-500')
+                    } text-sm font-medium`}>
                       {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
                       <span>{Math.abs(metric.change)}%</span>
                     </div>
