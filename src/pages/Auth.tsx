@@ -8,8 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function Auth() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('jake@jarvio.io');
+  const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -52,16 +52,27 @@ export default function Auth() {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
+      // First try to sign up
+      const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (signUpError) throw signUpError;
 
+      // If sign up successful, try to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) throw signInError;
+
+      navigate('/');
+      
       toast({
         title: "Success",
-        description: "Check your email for the confirmation link.",
+        description: "Account created and logged in successfully.",
       });
     } catch (error: any) {
       toast({
