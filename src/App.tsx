@@ -14,6 +14,7 @@ import ListingQuality from "./pages/ListingQuality";
 import ListingBuilder from "./pages/ListingBuilder";
 import CustomerInsights from "./pages/CustomerInsights";
 import CompetitorInsights from "./pages/CompetitorInsights";
+import AdvertisingInsights from "./pages/AdvertisingInsights";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/listing-builder" element={<ListingBuilder />} />
           <Route path="/customer-insights" element={<CustomerInsights />} />
           <Route path="/my-competitors" element={<CompetitorInsights />} />
+          <Route path="/ads-manager" element={<AdvertisingInsights />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
