@@ -1,3 +1,4 @@
+
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -58,6 +59,18 @@ export default function CompetitorInsights() {
   return (
     <MainLayout>
       <div className="space-y-8">
+        {/* Powered By SmartScout */}
+        <div className="flex justify-end items-center mb-4">
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-sm text-muted-foreground">Powered By</span>
+            <img 
+              src="/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png" 
+              alt="SmartScout" 
+              className="h-8"
+            />
+          </div>
+        </div>
+
         {/* Header Section */}
         <div className="flex justify-between items-start">
           <div>
