@@ -11,8 +11,8 @@ import { ArrowRight, Headphones } from 'lucide-react';
 export default function TaskView() {
   return (
     <MainLayout>
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-6">
             <div className="space-y-4">
               <label className="text-sm font-medium">Task Name</label>
@@ -75,22 +75,6 @@ export default function TaskView() {
           </div>
 
           <div className="space-y-6">
-            <Card className="p-6 space-y-6">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <img src="/lovable-uploads/1a224868-586a-4b33-aea4-b6b32d85ea18.png" alt="Jarvio" className="h-8" />
-                  <h3 className="text-xl font-bold">TASK ASSISTANT</h3>
-                </div>
-                <p className="text-center">
-                  Need assistance on this task? Ask below and Jarvio will walk you through the steps and help you complete this task with ease!
-                </p>
-                <div className="flex gap-2">
-                  <Button className="flex-1">Give me the steps</Button>
-                  <Button variant="outline" className="flex-1">View more insights</Button>
-                </div>
-              </div>
-            </Card>
-
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Performance Summary</h3>
               <div className="space-y-4">
@@ -113,6 +97,24 @@ export default function TaskView() {
                 <div className="grid grid-cols-2 gap-2">
                   <span className="text-sm text-muted-foreground">Days of Stock Remaining</span>
                   <span className="text-sm font-medium">45</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <div className="space-y-6">
+            <Card className="p-6 space-y-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <img src="/lovable-uploads/1a224868-586a-4b33-aea4-b6b32d85ea18.png" alt="Jarvio" className="h-8" />
+                  <h3 className="text-xl font-bold">TASK ASSISTANT</h3>
+                </div>
+                <p className="text-center">
+                  Need assistance on this task? Ask below and Jarvio will walk you through the steps and help you complete this task with ease!
+                </p>
+                <div className="flex gap-2">
+                  <Button className="flex-1">Give me the steps</Button>
+                  <Button variant="outline" className="flex-1">View more insights</Button>
                 </div>
               </div>
             </Card>
