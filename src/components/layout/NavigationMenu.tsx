@@ -1,4 +1,4 @@
-import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -99,14 +99,11 @@ const brandToolkitItems: MenuItem[] = [{
 const aiAssistantItems: MenuItem[] = [{
   icon: MessageSquare,
   label: 'Jarvio Assistant',
-  href: '#',
-  submenu: [{
-    label: 'Chat Assistant',
-    href: '/ai-assistant'
-  }, {
-    label: 'Get Support',
-    href: '/get-support'
-  }]
+  href: '/ai-assistant'
+}, {
+  icon: HelpCircle,
+  label: 'Get Support',
+  href: '/get-support'
 }];
 
 export function NavigationMenu() {
