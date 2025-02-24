@@ -37,25 +37,25 @@ export default function Financing() {
 
   return (
     <MainLayout>
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 md:space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight">Financing</h1>
-            <p className="text-lg text-muted-foreground">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Financing</h1>
+            <p className="text-base md:text-lg text-muted-foreground">
               Get quick access to growth capital through Wayflyer
             </p>
           </div>
           <img 
             src="/lovable-uploads/dd1b4a32-6641-4117-91fb-85c0baad331b.png" 
             alt="Wayflyer" 
-            className="h-8"
+            className="h-8 self-start md:self-auto"
           />
         </div>
 
         <Card className="bg-green-50 border-green-200">
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-600 mt-1" />
+              <CheckCircle2 className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
                 <h3 className="font-semibold text-green-900">Congratulations! You're pre-approved for funding</h3>
                 <p className="text-green-700">Based on your revenue, you're eligible for €245,000 in growth capital</p>
@@ -64,43 +64,43 @@ export default function Financing() {
           </CardContent>
         </Card>
         
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground mb-4 mt-2 px-2 md:px-0">
           * This pre-approval amount of €245,000 is calculated based on Jarvio's analysis of your business performance and revenue data
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
-          <Card className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <Card className="p-4 md:p-6">
             <CardHeader className="p-0">
               <DollarSign className="w-8 h-8 text-green-600 mb-2" />
-              <CardTitle>Fast Funding</CardTitle>
+              <CardTitle className="text-xl md:text-2xl">Fast Funding</CardTitle>
               <CardDescription>Get funded in as little as 48 hours</CardDescription>
             </CardHeader>
           </Card>
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <CardHeader className="p-0">
               <Percent className="w-8 h-8 text-blue-600 mb-2" />
-              <CardTitle>Competitive Rates</CardTitle>
+              <CardTitle className="text-xl md:text-2xl">Competitive Rates</CardTitle>
               <CardDescription>Clear, transparent pricing with no hidden fees</CardDescription>
             </CardHeader>
           </Card>
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <CardHeader className="p-0">
               <CalendarDays className="w-8 h-8 text-purple-600 mb-2" />
-              <CardTitle>Flexible Terms</CardTitle>
+              <CardTitle className="text-xl md:text-2xl">Flexible Terms</CardTitle>
               <CardDescription>Repayment terms that match your business cycles</CardDescription>
             </CardHeader>
           </Card>
         </div>
 
-        <Card className="max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle>Apply for Financing</CardTitle>
+        <Card className="w-full md:max-w-2xl mx-auto">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-xl md:text-2xl">Apply for Financing</CardTitle>
             <CardDescription>
               Fill out the form below to start your application process
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="p-4 md:p-6">
+            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
               <div className="space-y-4">
                 <div>
                   <label htmlFor="companyName" className="block text-sm font-medium mb-2">
