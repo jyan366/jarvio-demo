@@ -22,7 +22,7 @@ const marketplaces: Marketplace[] = [
     id: 'amazon',
     name: 'Amazon',
     status: 'connected',
-    logo: 'https://cdn.worldvectorlogo.com/logos/amazon-icon-1.svg'
+    logo: 'https://companieslogo.com/img/orig/AMZN-e9f942e4.png'
   },
   {
     id: 'shopify',
@@ -34,7 +34,7 @@ const marketplaces: Marketplace[] = [
     id: 'walmart',
     name: 'Walmart',
     status: 'available',
-    logo: 'https://cdn.worldvectorlogo.com/logos/walmart-2.svg'
+    logo: 'https://companieslogo.com/img/orig/WMT-0d8e7e26.png'
   }
 ];
 
