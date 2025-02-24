@@ -12,33 +12,24 @@ export const SalesChart: React.FC<SalesChartProps> = ({ data }) => {
   const formatYAxis = (value: number) => `£${value}`;
 
   return (
-    <Card>
+    <Card className="lg:col-span-7">
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold">25 January 2025 - 24 February 2025</CardTitle>
+        <CardTitle className="text-lg md:text-xl font-semibold">25 January 2025 - 24 February 2025</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[250px] md:h-[300px] lg:h-[400px] w-full">
+        <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={data}
-              margin={{ top: 20, right: 30, left: 40, bottom: 20 }}
+              margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#eee" vertical={false} />
-              <XAxis 
-                dataKey="date" 
-                stroke="#888" 
-                fontSize={12}
-                tickFormatter={(value) => value.split(' ')[0]} // Only show the day
-                axisLine={false}
-                tickLine={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="date" stroke="#888" fontSize={12} />
               <YAxis 
                 tickFormatter={formatYAxis} 
                 stroke="#888" 
                 fontSize={12}
                 tickMargin={8}
-                axisLine={false}
-                tickLine={false}
               />
               <Tooltip 
                 formatter={(value: number) => [`£${value}`, 'Amount']}
