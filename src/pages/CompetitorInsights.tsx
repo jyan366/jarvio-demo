@@ -76,9 +76,9 @@ export default function CompetitorInsights() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-12 gap-8">
           {/* Left Column */}
-          <div className="space-y-8 flex flex-col">
+          <div className="col-span-5 space-y-8 flex flex-col">
             {/* Monthly Revenue */}
             <Card className="p-6 flex-1">
               <h2 className="text-xl font-bold mb-4">Monthly Revenue</h2>
@@ -117,11 +117,11 @@ export default function CompetitorInsights() {
           </div>
 
           {/* Market Share Distribution */}
-          <Card className="p-6">
+          <Card className="col-span-7 p-6">
             <h2 className="text-xl font-bold mb-2">Market Share Distribution</h2>
             <p className="text-sm text-muted-foreground mb-6">Revenue share across top competitors</p>
             
-            <div className="h-[400px]">
+            <div className="h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={marketShareData}>
                   <CartesianGrid strokeDasharray="3 3" />
