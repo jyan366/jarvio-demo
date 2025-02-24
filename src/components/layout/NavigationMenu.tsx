@@ -1,4 +1,3 @@
-
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
@@ -116,21 +115,24 @@ export function NavigationMenu() {
     }));
   };
 
-  const renderStatusDot = (status?: 'active' | 'coming-soon') => {
+  const renderStatusIndicator = (status?: 'active' | 'coming-soon') => {
     if (!status) return null;
 
     return (
-      <div 
-        className={cn(
-          "w-1.5 h-1.5 rounded-full ml-2",
-          status === 'active' ? "bg-green-500" : "bg-amber-500",
-          "relative",
-          "after:content-[''] after:absolute after:top-[-2px] after:left-[-2px] after:rounded-full after:w-2 after:h-2",
+      <div className="ml-auto flex items-center gap-1.5 text-xs">
+        <div className={cn(
+          "h-4 flex items-center rounded-full px-2",
           status === 'active' 
-            ? "after:animate-[pulse_2s_ease-in-out_infinite] after:bg-green-500/30" 
-            : "after:animate-[pulse_3s_ease-in-out_infinite] after:bg-amber-500/30"
-        )}
-      />
+            ? "bg-gradient-to-r from-green-500/10 to-green-500/5 text-green-600" 
+            : "bg-gradient-to-r from-amber-500/10 to-amber-500/5 text-amber-600"
+        )}>
+          <div className={cn(
+            "w-1 h-1 rounded-full mr-1.5",
+            status === 'active' ? "bg-green-500" : "bg-amber-500"
+          )} />
+          {status === 'active' ? 'Live' : 'Soon'}
+        </div>
+      </div>
     );
   };
 
@@ -144,13 +146,13 @@ export function NavigationMenu() {
               tooltip={item.status === 'coming-soon' ? 'Demo Data' : item.label}
               className="w-full relative p-2"
             >
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center">
+              <div className="flex items-center w-full pr-2">
+                <div className="flex items-center min-w-0">
                   <item.icon className="w-4 h-4 shrink-0" />
-                  <span className="ml-2 group-data-[collapsible=icon]:hidden">{item.label}</span>
-                  {renderStatusDot(item.status)}
+                  <span className="ml-2 truncate group-data-[collapsible=icon]:hidden">{item.label}</span>
                 </div>
-                <ChevronDown className="w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden" />
+                {renderStatusIndicator(item.status)}
+                <ChevronDown className="w-4 h-4 ml-2 transition-transform duration-200 group-data-[collapsible=icon]:hidden" />
               </div>
             </SidebarMenuButton>
             <div className="group-data-[collapsible=icon]:hidden">
