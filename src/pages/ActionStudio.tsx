@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronLeft, ChevronRight, Eye, Link, BarChart2, Trash2, MoreHorizontal } from 'lucide-react';
 import { CreateInsightDialog } from '@/components/tasks/CreateInsightDialog';
-import { MarketplaceSelector } from '@/components/marketplace/MarketplaceSelector';
 
 interface Task {
   id: string;
@@ -166,12 +165,9 @@ export default function ActionStudio() {
       <div className="space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Action Studio</h1>
-          <div className="flex items-center gap-4">
-            <MarketplaceSelector />
-            <div className="flex items-center gap-2">
-              <span className="font-medium">Cultured Food Company</span>
-              <span className="text-muted-foreground">UK</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Cultured Food Company</span>
+            <span className="text-muted-foreground">UK</span>
           </div>
         </div>
 

@@ -4,6 +4,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter } from '@/compone
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { NavigationMenu } from './NavigationMenu';
 import { ThemeToggle } from '../ThemeToggle';
+import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -39,7 +40,10 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <div className="container py-6">
             <div className="flex justify-between items-center mb-6">
               <SidebarTrigger />
-              <ThemeToggle />
+              <div className="flex items-center gap-2">
+                <MarketplaceSelector />
+                <ThemeToggle />
+              </div>
             </div>
             {children}
           </div>
