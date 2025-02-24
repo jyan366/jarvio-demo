@@ -74,7 +74,7 @@ export function MarketplaceSelector() {
 
         const ebayUrl = supabase.storage
           .from('marketplace-icons')
-          .getPublicUrl('ebay.svg');
+          .getPublicUrl('free-ebay-logo-ico'); // Updated eBay logo filename
 
         setMarketplaces(prev => prev.map(marketplace => {
           if (marketplace.id === 'amazon') {
