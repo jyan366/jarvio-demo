@@ -59,7 +59,7 @@ export function MarketplaceSelector() {
         
         const walmartUrl = supabase.storage
           .from('marketplace-icons')
-          .getPublicUrl('walmart.svg'); // Changed from .png to .svg
+          .getPublicUrl('5977595.png'); // Updated to use correct filename
 
         setMarketplaces(prev => prev.map(marketplace => {
           if (marketplace.id === 'amazon') {
