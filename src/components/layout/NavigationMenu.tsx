@@ -93,7 +93,7 @@ export function NavigationMenu() {
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="data-[collapsible=icon]:hidden">Platform</SidebarGroupLabel>
-      <SidebarGroupContent>
+      <SidebarGroupContent className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
         <SidebarMenu>
           {menuItems.map((item, index) => (
             <SidebarMenuItem key={index}>

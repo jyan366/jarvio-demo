@@ -139,15 +139,15 @@ export default function Dashboard() {
 
   return (
     <MainLayout>
-      <div className="space-y-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <div className="flex items-center gap-4">
-            <Button variant="outline" className="flex items-center gap-2">
+      <div className="space-y-6 md:space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4">
+            <Button variant="outline" className="w-full md:w-auto flex items-center gap-2">
               <Plus className="w-4 h-4" />
               Products
             </Button>
-            <div className="border rounded-lg px-4 py-2">
+            <div className="w-full md:w-auto border rounded-lg px-4 py-2 text-sm">
               Jan 24, 2025 - Feb 23, 2025
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function Dashboard() {
               >
                 <div className="flex flex-col space-y-2">
                   <p className="text-sm text-muted-foreground font-medium">{metric.label}</p>
-                  <p className="text-xl font-bold">{metric.value}</p>
+                  <p className="text-lg md:text-xl font-bold">{metric.value}</p>
                   {metric.change !== 0 && (
                     <div className={`flex items-center ${
                       metric.inverseColor 
@@ -192,19 +192,19 @@ export default function Dashboard() {
 
         {/* Kanban Board */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-4">
-              <Button variant="outline">Select Category</Button>
-              <Button variant="outline">Select Priority</Button>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 w-full md:w-auto">
+              <Button variant="outline" className="w-full md:w-auto">Select Category</Button>
+              <Button variant="outline" className="w-full md:w-auto">Select Priority</Button>
             </div>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full md:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Create Task
             </Button>
           </div>
 
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {Object.entries(tasks).map(([status, items]) => (
                 <div key={status} className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -234,15 +234,15 @@ export default function Dashboard() {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className="p-4 space-y-4"
+                                className="p-4 space-y-3"
                               >
-                                <div className="flex items-start justify-between">
+                                <div className="flex items-start justify-between gap-2">
                                   <h4 className="font-medium">{task.title}</h4>
-                                  <span className={`px-2 py-1 rounded-full text-xs ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
+                                  <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
                                     {task.priority}
                                   </span>
                                 </div>
-                                <p className="text-sm text-muted-foreground">{task.description}</p>
+                                <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
                                 {task.products && (
                                   <div className="flex flex-wrap gap-2">
                                     {task.products.map((product, i) => (
