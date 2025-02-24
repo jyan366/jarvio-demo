@@ -125,19 +125,19 @@ export default function SalesHub() {
 
   return (
     <MainLayout>
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 md:space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
               {showCosts ? 'Cost Breakdown' : 'Sales Summary'}
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-sm md:text-lg text-muted-foreground">
               24 January - 23 February 2025
             </p>
           </div>
           <Button
             variant="outline"
-            className="rounded-full"
+            className="w-full md:w-auto rounded-full"
             onClick={() => setShowCosts(!showCosts)}
           >
             {showCosts ? 'Show Sales' : 'Show Costs'}
@@ -146,24 +146,24 @@ export default function SalesHub() {
 
         {!showCosts ? (
           <>
-            <div className="grid lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-4 grid gap-4 grid-cols-2">
+            <div className="grid gap-4 md:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 {statsCards.map((card, index) => (
-                  <Card key={index} className="p-6">
+                  <Card key={index} className="p-4">
                     <div>
-                      <p className="text-base text-muted-foreground font-medium">{card.title}</p>
-                      <p className="text-2xl font-bold mt-2">{card.value}</p>
+                      <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
+                      <p className="text-lg md:text-xl font-bold mt-2">{card.value}</p>
                     </div>
                   </Card>
                 ))}
               </div>
 
-              <Card className="lg:col-span-8">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl font-semibold">24 January 2025 - 23 February 2025</CardTitle>
+                  <CardTitle className="text-lg md:text-xl font-semibold">24 January 2025 - 23 February 2025</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-[400px] w-full">
+                <CardContent className="overflow-x-auto">
+                  <div className="min-w-[600px] md:min-w-0 h-[300px] md:h-[400px]">
                     <BarChart 
                       data={salesData} 
                       width={700} 
@@ -199,11 +199,11 @@ export default function SalesHub() {
             </div>
           </>
         ) : (
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl font-semibold flex items-center justify-between">
-                  Cost Breakdown
+                <CardTitle className="text-lg md:text-xl font-semibold flex flex-col md:flex-row md:items-center justify-between gap-2">
+                  <span>Cost Breakdown</span>
                   <span className="text-sm text-muted-foreground">
                     1-31 January 2025
                   </span>
@@ -243,28 +243,30 @@ export default function SalesHub() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl font-semibold">
+                <CardTitle className="text-lg md:text-xl font-semibold">
                   Cost Distribution
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px] flex items-center justify-center">
-                  <PieChart width={300} height={300}>
-                    <Pie
-                      data={costData.distribution}
-                      cx={150}
-                      cy={150}
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {costData.distribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                  <div className="ml-8">
+                <div className="flex flex-col md:flex-row items-center gap-6 overflow-x-auto">
+                  <div className="w-[300px] h-[300px] flex-shrink-0">
+                    <PieChart width={300} height={300}>
+                      <Pie
+                        data={costData.distribution}
+                        cx={150}
+                        cy={150}
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {costData.distribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
                     {costData.distribution.map((item, index) => (
                       <div key={index} className="flex items-center gap-2 text-sm">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
@@ -278,39 +280,41 @@ export default function SalesHub() {
           </div>
         )}
 
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Image</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>ASIN</TableHead>
-                <TableHead>Units Sold</TableHead>
-                <TableHead>Total Sales</TableHead>
-                <TableHead>Total Costs</TableHead>
-                <TableHead>Avg Price</TableHead>
-                <TableHead>Profit</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {productData.map((product, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
-                      <Image className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-[300px]">{product.name}</TableCell>
-                  <TableCell>{product.asin}</TableCell>
-                  <TableCell>{product.unitsSold}</TableCell>
-                  <TableCell>{product.totalSales}</TableCell>
-                  <TableCell>{product.totalCosts}</TableCell>
-                  <TableCell>{product.avgPrice}</TableCell>
-                  <TableCell>{product.profit}</TableCell>
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Image</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>ASIN</TableHead>
+                  <TableHead>Units Sold</TableHead>
+                  <TableHead>Total Sales</TableHead>
+                  <TableHead>Total Costs</TableHead>
+                  <TableHead>Avg Price</TableHead>
+                  <TableHead>Profit</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {productData.map((product, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
+                        <Image className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
+                    <TableCell>{product.asin}</TableCell>
+                    <TableCell>{product.unitsSold}</TableCell>
+                    <TableCell>{product.totalSales}</TableCell>
+                    <TableCell>{product.totalCosts}</TableCell>
+                    <TableCell>{product.avgPrice}</TableCell>
+                    <TableCell>{product.profit}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </Card>
       </div>
     </MainLayout>

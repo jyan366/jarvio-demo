@@ -95,14 +95,14 @@ export default function MyInventory() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold tracking-tight">Inventory</h1>
-          <div className="flex items-center gap-4">
-            <Button variant="outline" className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Inventory</h1>
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+            <Button variant="outline" className="flex items-center justify-between gap-2">
               <span>Select tags...</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center justify-between gap-2">
               <span>Select products...</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
@@ -112,16 +112,16 @@ export default function MyInventory() {
           </div>
         </div>
 
-        <div className="grid grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {statsCards.map((card, index) => (
             <Card key={index} className="p-4">
               <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
-              <p className="text-2xl font-bold mt-1">{card.value}</p>
+              <p className="text-lg md:text-2xl font-bold mt-1">{card.value}</p>
             </Card>
           ))}
         </div>
 
-        <Card>
+        <Card className="overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -183,7 +183,7 @@ export default function MyInventory() {
                         <Image className="h-8 w-8 text-muted-foreground" />
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-xl">{product.name}</TableCell>
+                    <TableCell className="max-w-[200px] md:max-w-xl">{product.name}</TableCell>
                     <TableCell>{product.availableQuantity}</TableCell>
                     <TableCell>{product.inboundQuantity}</TableCell>
                     <TableCell>{product.salesPrice}</TableCell>
