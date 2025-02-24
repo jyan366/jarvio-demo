@@ -120,7 +120,7 @@ export function NavigationMenu() {
     if (!status) return null;
 
     return (
-      <div className="ml-auto flex items-center gap-1.5 text-xs">
+      <div className="ml-auto flex items-center gap-1.5 text-xs group-data-[collapsible=icon]:hidden">
         <div className={cn(
           "h-4 flex items-center rounded-full px-2 transition-colors duration-150",
           status === 'active' 
