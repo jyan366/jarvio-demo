@@ -4,6 +4,7 @@ import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, Side
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LucideIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface SubMenuItem {
   label: string;
@@ -15,6 +16,7 @@ interface MenuItem {
   label: string;
   href: string;
   submenu?: SubMenuItem[];
+  status?: 'active' | 'coming-soon';
 }
 
 const workflowItems: MenuItem[] = [
@@ -27,6 +29,7 @@ const brandToolkitItems: MenuItem[] = [
     icon: ShoppingCart, 
     label: 'Sales Center', 
     href: '#',
+    status: 'active',
     submenu: [
       { label: 'Sales Hub', href: '/sales-hub' },
       { label: 'My Offers', href: '/my-offers' },
@@ -38,6 +41,7 @@ const brandToolkitItems: MenuItem[] = [
     icon: BarChart3, 
     label: 'Inventory', 
     href: '#',
+    status: 'active',
     submenu: [
       { label: 'My Inventory', href: '/inventory' },
     ]
@@ -46,6 +50,7 @@ const brandToolkitItems: MenuItem[] = [
     icon: FileText, 
     label: 'Listing Hub', 
     href: '#',
+    status: 'active',
     submenu: [
       { label: 'Listing Quality', href: '/listing-quality' },
       { label: 'Listing Builder', href: '/listing-builder' },
@@ -55,6 +60,7 @@ const brandToolkitItems: MenuItem[] = [
     icon: Users, 
     label: 'Customers', 
     href: '#',
+    status: 'coming-soon',
     submenu: [
       { label: 'Customer Insights', href: '/customer-insights' },
     ]
@@ -63,6 +69,7 @@ const brandToolkitItems: MenuItem[] = [
     icon: Target, 
     label: 'Competitors', 
     href: '#',
+    status: 'coming-soon',
     submenu: [
       { label: 'My Competitors', href: '/my-competitors' },
     ]
@@ -71,6 +78,7 @@ const brandToolkitItems: MenuItem[] = [
     icon: Megaphone, 
     label: 'Advertising', 
     href: '#',
+    status: 'coming-soon',
     submenu: [
       { label: 'Ads Manager', href: '/ads-manager' },
     ]
@@ -115,19 +123,29 @@ export function NavigationMenu() {
           <div className="w-full">
             <SidebarMenuButton
               onClick={() => toggleSubmenu(item.label)}
-              tooltip={item.label}
-              className="w-full relative p-2"
+              tooltip={item.status === 'coming-soon' ? 'Coming Soon - Beta Feature' : item.label}
+              className={`w-full relative p-2 ${item.status === 'coming-soon' ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-2">
                   <item.icon className="w-4 h-4 shrink-0" />
                   <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                  {item.status === 'active' && (
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
+                      Active
+                    </Badge>
+                  )}
+                  {item.status === 'coming-soon' && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-gray-300 text-gray-500">
+                      Soon
+                    </Badge>
+                  )}
                 </div>
                 <ChevronDown className="w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden" />
               </div>
             </SidebarMenuButton>
             <div className="group-data-[collapsible=icon]:hidden">
-              {expandedMenus[item.label] && (
+              {expandedMenus[item.label] && !item.status?.includes('coming-soon') && (
                 <SidebarMenu className="ml-6 mt-2 relative">
                   <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200" />
                   {item.submenu.map((subitem, subindex) => (
