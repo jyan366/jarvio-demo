@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Image } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const statsCards = [
   {
@@ -26,7 +27,20 @@ const statsCards = [
   {
     title: "Profit per unit",
     value: "0.29"
+  },
+  {
+    title: "Out of stock",
+    value: "2"
   }
+];
+
+const chartData = [
+  { name: 'Jan', value: 400 },
+  { name: 'Feb', value: 300 },
+  { name: 'Mar', value: 600 },
+  { name: 'Apr', value: 800 },
+  { name: 'May', value: 500 },
+  { name: 'Jun', value: 700 },
 ];
 
 const products = [
@@ -78,13 +92,31 @@ export default function MyOffers() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {statsCards.map((card, index) => (
-            <Card key={index} className="p-4">
-              <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
-              <p className="text-xl md:text-2xl font-bold mt-1">{card.value}</p>
-            </Card>
-          ))}
+        <div className="grid lg:grid-cols-12 gap-6">
+          {/* Stats Cards - Takes up 7 columns on desktop */}
+          <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-4">
+            {statsCards.map((card, index) => (
+              <Card key={index} className="p-4">
+                <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
+                <p className="text-xl md:text-2xl font-bold mt-1">{card.value}</p>
+              </Card>
+            ))}
+          </div>
+
+          {/* Chart - Takes up 5 columns on desktop */}
+          <Card className="lg:col-span-5 p-4">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
         </div>
 
         <Card className="overflow-hidden">
