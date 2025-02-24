@@ -9,13 +9,13 @@ import { CreateTaskDialog } from '@/components/tasks/CreateTaskDialog';
 import { useToast } from '@/components/ui/use-toast';
 
 const metrics = [
-  { label: 'Total Sales', value: '£12,954.99', change: 20.65 },
-  { label: 'Total Cost', value: '£9,471.61', change: -15.71 },
-  { label: 'Total Profit', value: '£3,483.38', change: 43.32 },
-  { label: 'Advertising Cost', value: '£890.00', change: -12.5 },
-  { label: 'Inventory Value', value: '£12,570.47', change: 15.3 },
-  { label: 'Profit Margin', value: '26.89%', change: 18.58 },
-  { label: 'Units Sold', value: '950', change: 25.44 },
+  { label: 'Total Sales', value: '£89,954.99', change: 35.65 },
+  { label: 'Total Cost', value: '£52,471.61', change: -8.71 },
+  { label: 'Total Profit', value: '£37,483.38', change: 68.32 },
+  { label: 'Advertising Cost', value: '£2,890.00', change: -12.5 },
+  { label: 'Inventory Value', value: '£142,570.47', change: 45.3 },
+  { label: 'Profit Margin', value: '41.67%', change: 28.58 },
+  { label: 'Units Sold', value: '4,950', change: 55.44 },
 ];
 
 const initialTasks = {
