@@ -6,55 +6,23 @@ import { NavigationMenu } from './NavigationMenu';
 import { ThemeToggle } from '../ThemeToggle';
 import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
 import { LogOut, User } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
-import { useToast } from '../ui/use-toast';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is authenticated
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate('/auth');
-      }
-    });
-
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate('/auth');
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    if (!isAuthenticated) {
+      navigate('/auth');
+    }
   }, [navigate]);
 
-  const handleSignOut = async () => {
-    try {
-      // First get the session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/auth');
-        return;
-      }
-
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      navigate('/auth');
-    } catch (error: any) {
-      toast({
-        title: "Error signing out",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
+  const handleSignOut = () => {
+    localStorage.removeItem('isAuthenticated');
+    navigate('/auth');
   };
 
   return (
@@ -83,8 +51,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                   <User className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <div className="group-data-[collapsible=icon]:hidden">
-                  <p className="text-sm font-medium">User Profile</p>
-                  <p className="text-xs text-muted-foreground">user@example.com</p>
+                  <p className="text-sm font-medium">Demo User</p>
+                  <p className="text-xs text-muted-foreground">demo@jarvio.io</p>
                 </div>
               </div>
               <Button variant="ghost" size="icon" onClick={handleSignOut}>
