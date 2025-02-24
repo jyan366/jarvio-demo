@@ -17,7 +17,7 @@ export const SalesChart: React.FC<SalesChartProps> = ({ data }) => {
         <CardTitle className="text-lg md:text-xl font-semibold">25 January 2025 - 24 February 2025</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[400px] w-full">
+        <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={data}

@@ -11,10 +11,10 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ cards }) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
       {cards.map((card, index) => (
-        <Card key={index} className="p-4">
+        <Card key={index} className="p-6">
           <div>
             <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
-            <p className="text-lg md:text-xl font-bold mt-2">{card.value}</p>
+            <p className="text-2xl font-bold mt-3">{card.value}</p>
           </div>
         </Card>
       ))}
