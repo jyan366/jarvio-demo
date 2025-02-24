@@ -81,8 +81,8 @@ export default function ListingQuality() {
       <div className="space-y-6">
         <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Listings Hub</h1>
         
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          <div className="lg:col-span-3 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="space-y-4">
             <Card className="p-4 md:p-6">
               <div className="flex justify-between items-start">
                 <div>
@@ -120,9 +120,9 @@ export default function ListingQuality() {
             </Card>
           </div>
 
-          <Card className="p-4 md:p-6 flex flex-col items-center justify-center text-center">
+          <Card className="p-4 md:p-6 flex flex-col items-center justify-center text-center h-full">
             <h3 className="text-base font-semibold mb-4">Listing Quality Score</h3>
-            <div className="relative w-24 h-24 md:w-32 md:h-32">
+            <div className="relative w-32 h-32 md:w-48 md:h-48">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" strokeWidth="10" />
                 <circle cx="50" cy="50" r="45" fill="none" stroke="#ef4444" strokeWidth="10" strokeDasharray={`${47 * 2.83} ${100 * 2.83}`} strokeDashoffset="0" transform="rotate(-90 50 50)" />
