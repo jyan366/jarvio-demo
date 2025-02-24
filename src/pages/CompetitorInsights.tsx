@@ -59,67 +59,69 @@ export default function CompetitorInsights() {
   return (
     <MainLayout>
       <div className="space-y-8">
-        {/* Powered By SmartScout */}
-        <div className="flex justify-end items-center mb-4">
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-sm text-muted-foreground">Powered By</span>
-            <img 
-              src="/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png" 
-              alt="SmartScout" 
-              className="h-8"
-            />
-          </div>
-        </div>
-
         {/* Header Section */}
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-4xl font-bold">Beauty & Personal Care</h1>
             <p className="text-lg text-muted-foreground mt-1">Subcategory: Hair Care Products</p>
           </div>
-          <Card className="p-4">
-            <div className="text-sm text-muted-foreground">Monthly Revenue</div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold">$12.5M</span>
-              <span className="text-sm text-green-600 flex items-center">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                +8.2% growth
-              </span>
-            </div>
-          </Card>
+          {/* Prominent SmartScout Branding */}
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-lg font-medium text-muted-foreground">Powered By</span>
+            <img 
+              src="/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png" 
+              alt="SmartScout" 
+              className="h-12"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-8">
-          {/* Growth Comparison */}
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-2">Your Growth vs Market</h2>
-            <p className="text-sm text-green-600 mb-6">Growing 2.3x faster than category average</p>
-            
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Your Growth</span>
-                  <span className="text-sm text-green-600">+18.5%</span>
-                </div>
-                <Progress value={85} className="h-2" />
+          {/* Left Column */}
+          <div className="space-y-8">
+            {/* Monthly Revenue */}
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-4">Monthly Revenue</h2>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">$12.5M</span>
+                <span className="text-sm text-green-600 flex items-center">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  +8.2% growth
+                </span>
               </div>
+            </Card>
+
+            {/* Growth Comparison */}
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-2">Your Growth vs Market</h2>
+              <p className="text-sm text-green-600 mb-6">Growing 2.3x faster than category average</p>
               
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Category Growth</span>
-                  <span className="text-sm text-muted-foreground">+8.2%</span>
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium">Your Growth</span>
+                    <span className="text-sm text-green-600">+18.5%</span>
+                  </div>
+                  <Progress value={85} className="h-2" />
                 </div>
-                <Progress value={37} className="h-2" />
+                
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium">Category Growth</span>
+                    <span className="text-sm text-muted-foreground">+8.2%</span>
+                  </div>
+                  <Progress value={37} className="h-2" />
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
 
           {/* Market Share Distribution */}
           <Card className="p-6">
             <h2 className="text-xl font-bold mb-2">Market Share Distribution</h2>
             <p className="text-sm text-muted-foreground mb-6">Revenue share across top competitors</p>
             
-            <div className="h-[200px]">
+            <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={marketShareData}>
                   <CartesianGrid strokeDasharray="3 3" />
