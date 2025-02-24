@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -70,7 +71,7 @@ export function MarketplaceSelector() {
           .from('marketplace-icons')
           .getPublicUrl('5977595.png');
 
-        const ebayUrl = { data: { publicUrl: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/marketplace-icons/ebay.png' } };
+        const ebayUrl = { data: { publicUrl: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/marketplace-icons//free-ebay-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-2-pack-logos-icons-2944843.webp' } };
 
         setMarketplaces(prev => prev.map(marketplace => {
           if (marketplace.id === 'amazon') {
