@@ -43,6 +43,10 @@ export function MarketplaceSelector() {
     console.log(`Connecting to ${marketplaceId}`);
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error('Image failed to load:', e.currentTarget.src);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -51,6 +55,7 @@ export function MarketplaceSelector() {
             src={marketplaces[0].logo} 
             alt={marketplaces[0].name}
             className="h-5 w-5 object-contain"
+            onError={handleImageError}
           />
           <span className="font-medium">{marketplaces[0].name}</span>
           <Check className="h-4 w-4 text-green-500" />
@@ -69,6 +74,7 @@ export function MarketplaceSelector() {
                 src={marketplace.logo} 
                 alt={marketplace.name}
                 className="h-5 w-5 object-contain"
+                onError={handleImageError}
               />
               <span className="font-medium">{marketplace.name}</span>
             </div>
