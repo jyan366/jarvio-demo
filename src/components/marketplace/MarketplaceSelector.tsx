@@ -9,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Check, Plus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 interface Marketplace {
   id: string;
@@ -17,28 +19,73 @@ interface Marketplace {
   logo: string;
 }
 
-const marketplaces: Marketplace[] = [
+const defaultMarketplaces: Marketplace[] = [
   {
     id: 'amazon',
     name: 'Amazon',
     status: 'connected',
-    logo: 'https://companieslogo.com/img/orig/AMZN-e9f942e4.png'
+    logo: '' // Will be updated with Supabase URL
   },
   {
     id: 'shopify',
     name: 'Shopify',
     status: 'available',
-    logo: 'https://cdn.worldvectorlogo.com/logos/shopify.svg'
+    logo: '' // Will be updated with Supabase URL
   },
   {
     id: 'walmart',
     name: 'Walmart',
     status: 'available',
-    logo: 'https://companieslogo.com/img/orig/WMT-0d8e7e26.png?v=2023-03-05'
+    logo: '' // Will be updated with Supabase URL
   }
 ];
 
 export function MarketplaceSelector() {
+  const [marketplaces, setMarketplaces] = useState<Marketplace[]>(defaultMarketplaces);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const initializeMarketplaces = async () => {
+      setIsLoading(true);
+      try {
+        // First, ensure icons are uploaded to storage
+        await supabase.functions.invoke('upload-marketplace-icons');
+
+        // Get the URLs for each icon
+        const amazonUrl = supabase.storage
+          .from('marketplace-icons')
+          .getPublicUrl('amazon.png');
+        
+        const shopifyUrl = supabase.storage
+          .from('marketplace-icons')
+          .getPublicUrl('shopify.svg');
+        
+        const walmartUrl = supabase.storage
+          .from('marketplace-icons')
+          .getPublicUrl('walmart.png');
+
+        setMarketplaces(prev => prev.map(marketplace => {
+          if (marketplace.id === 'amazon') {
+            return { ...marketplace, logo: amazonUrl.data.publicUrl };
+          }
+          if (marketplace.id === 'shopify') {
+            return { ...marketplace, logo: shopifyUrl.data.publicUrl };
+          }
+          if (marketplace.id === 'walmart') {
+            return { ...marketplace, logo: walmartUrl.data.publicUrl };
+          }
+          return marketplace;
+        }));
+      } catch (error) {
+        console.error('Error initializing marketplaces:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeMarketplaces();
+  }, []);
+
   const handleConnect = (marketplaceId: string) => {
     console.log(`Connecting to ${marketplaceId}`);
   };
@@ -48,6 +95,14 @@ export function MarketplaceSelector() {
     // Fallback to a default icon if the image fails to load
     e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M7 8h.01"/><path d="M20.5 10.5 15 15"/><path d="M15 10.5 20.5 15"/></svg>';
   };
+
+  if (isLoading) {
+    return (
+      <Button variant="outline" className="gap-2" disabled>
+        Loading...
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>

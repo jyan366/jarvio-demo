@@ -1,8 +1,4 @@
 
-project_id = "lovable"
-
-[functions.chat]
-verify_jwt = false
-
-[functions.suggest-tasks]
+project_id = "aojrdgobdavxjpnymskc"
+[functions.upload-marketplace-icons]
 verify_jwt = false
