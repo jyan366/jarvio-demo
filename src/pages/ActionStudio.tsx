@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronLeft, ChevronRight, Eye, Link, BarChart2, Trash2, MoreHorizontal } from 'lucide-react';
 import { CreateInsightDialog } from '@/components/tasks/CreateInsightDialog';
+import { MarketplaceSelector } from '@/components/marketplace/MarketplaceSelector';
 
 interface Task {
   id: string;
@@ -99,7 +100,6 @@ const backlogTasks: Task[] = [
     status: 'Backlog',
     priority: 'Medium',
   },
-  // ... add more backlog tasks as needed
 ];
 
 const categoryColors = {
@@ -166,14 +166,16 @@ export default function ActionStudio() {
       <div className="space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Action Studio</h1>
-          <div className="flex items-center gap-2">
-            <span className="font-medium">Cultured Food Company</span>
-            <span className="text-muted-foreground">UK</span>
+          <div className="flex items-center gap-4">
+            <MarketplaceSelector />
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Cultured Food Company</span>
+              <span className="text-muted-foreground">UK</span>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
-          {/* Insights Section */}
           <Card className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Insights</h2>
@@ -252,7 +254,6 @@ export default function ActionStudio() {
             </div>
           </Card>
 
-          {/* Scheduled Tasks Section */}
           <Card className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Scheduled Tasks</h2>
@@ -292,7 +293,6 @@ export default function ActionStudio() {
             </div>
           </Card>
 
-          {/* Backlog Section */}
           <Card className="col-span-2 p-6">
             <div className="flex items-center gap-2 mb-6">
               <h2 className="text-xl font-semibold">Backlog</h2>
