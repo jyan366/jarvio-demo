@@ -1,7 +1,7 @@
 
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const menuItems = [
@@ -65,6 +65,23 @@ const menuItems = [
 export function NavigationMenu() {
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
   const location = useLocation();
+
+  // Initialize and update expanded menus based on current route
+  useEffect(() => {
+    const newExpandedMenus: { [key: string]: boolean } = {};
+    menuItems.forEach(item => {
+      if (item.submenu) {
+        const isSubmenuActive = item.submenu.some(subitem => location.pathname === subitem.href);
+        if (isSubmenuActive) {
+          newExpandedMenus[item.label] = true;
+        }
+      }
+    });
+    setExpandedMenus(prev => ({
+      ...prev,
+      ...newExpandedMenus
+    }));
+  }, [location.pathname]);
 
   const toggleSubmenu = (label: string) => {
     setExpandedMenus(prev => ({
