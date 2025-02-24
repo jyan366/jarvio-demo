@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -143,8 +144,8 @@ export default function Dashboard() {
         </div>
 
         <div className="relative">
-          <div className="overflow-x-auto md:overflow-x-scroll lg:overflow-visible pb-4 md:pb-2 lg:pb-0 -mx-4 md:mx-0">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-4 min-w-[768px] md:min-w-[1000px] lg:min-w-0 px-4 md:px-0">
+          <div className="overflow-x-auto md:overflow-x-scroll xl:overflow-visible pb-4 md:pb-2 xl:pb-0 -mx-4 md:mx-0">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-4 min-w-[768px] xl:min-w-0 px-4 md:px-0">
               {metrics.map((metric, index) => (
                 <Card 
                   key={index} 
