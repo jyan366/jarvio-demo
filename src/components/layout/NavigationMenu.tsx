@@ -4,9 +4,12 @@ import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, Side
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-const menuItems = [
+const workflowItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
   { icon: Box, label: 'Action Studio', href: '/action-studio' },
+];
+
+const brandToolkitItems = [
   { 
     icon: ShoppingCart, 
     label: 'Sales Center', 
@@ -59,6 +62,9 @@ const menuItems = [
       { label: 'Ads Manager', href: '/ads-manager' },
     ]
   },
+];
+
+const aiAssistantItems = [
   { icon: MessageSquare, label: 'Jarvio Assistant', href: '/ai-assistant' },
 ];
 
@@ -68,7 +74,7 @@ export function NavigationMenu() {
 
   useEffect(() => {
     const newExpandedMenus: { [key: string]: boolean } = {};
-    menuItems.forEach(item => {
+    [...workflowItems, ...brandToolkitItems, ...aiAssistantItems].forEach(item => {
       if (item.submenu) {
         const isSubmenuActive = item.submenu.some(subitem => location.pathname === subitem.href);
         if (isSubmenuActive) {
@@ -89,71 +95,94 @@ export function NavigationMenu() {
     }));
   };
 
+  const renderMenuItems = (items: typeof workflowItems) => {
+    return items.map((item, index) => (
+      <SidebarMenuItem key={index}>
+        {item.submenu ? (
+          <div className="w-full">
+            <SidebarMenuButton
+              onClick={() => toggleSubmenu(item.label)}
+              tooltip={item.label}
+              className="w-full relative p-2"
+            >
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                </div>
+                <ChevronDown className="w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden" />
+              </div>
+            </SidebarMenuButton>
+            <div className="group-data-[collapsible=icon]:hidden">
+              {expandedMenus[item.label] && (
+                <SidebarMenu className="ml-6 mt-2 relative">
+                  <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200" />
+                  {item.submenu.map((subitem, subindex) => (
+                    <SidebarMenuItem key={`${index}-${subindex}`}>
+                      <SidebarMenuButton 
+                        asChild
+                        data-active={location.pathname === subitem.href}
+                        className="relative"
+                      >
+                        <Link to={subitem.href} className="text-sm">
+                          {subitem.label}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              )}
+            </div>
+          </div>
+        ) : (
+          <SidebarMenuButton 
+            asChild
+            tooltip={item.label}
+            data-active={location.pathname === item.href}
+            className="p-2"
+          >
+            <Link 
+              to={item.href} 
+              className="flex items-center gap-2"
+            >
+              <item.icon className="w-4 h-4 shrink-0" />
+              <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+            </Link>
+          </SidebarMenuButton>
+        )}
+      </SidebarMenuItem>
+    ));
+  };
+
   return (
     <div className="w-full h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
       <SidebarGroup>
-        <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Platform</SidebarGroupLabel>
+        <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Workflow</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            {menuItems.map((item, index) => (
-              <SidebarMenuItem key={index}>
-                {item.submenu ? (
-                  <div className="w-full">
-                    <SidebarMenuButton
-                      onClick={() => toggleSubmenu(item.label)}
-                      tooltip={item.label}
-                      className="w-full relative p-2"
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          <item.icon className="w-4 h-4 shrink-0" />
-                          <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                        </div>
-                        <ChevronDown className="w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden" />
-                      </div>
-                    </SidebarMenuButton>
-                    <div className="group-data-[collapsible=icon]:hidden">
-                      {expandedMenus[item.label] && (
-                        <SidebarMenu className="ml-6 mt-2 relative">
-                          <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200" />
-                          {item.submenu.map((subitem, subindex) => (
-                            <SidebarMenuItem key={`${index}-${subindex}`}>
-                              <SidebarMenuButton 
-                                asChild
-                                data-active={location.pathname === subitem.href}
-                                className="relative"
-                              >
-                                <Link to={subitem.href} className="text-sm">
-                                  {subitem.label}
-                                </Link>
-                              </SidebarMenuButton>
-                            </SidebarMenuItem>
-                          ))}
-                        </SidebarMenu>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <SidebarMenuButton 
-                    asChild
-                    tooltip={item.label}
-                    data-active={location.pathname === item.href}
-                    className="p-2"
-                  >
-                    <Link 
-                      to={item.href} 
-                      className="flex items-center gap-2"
-                    >
-                      <item.icon className="w-4 h-4 shrink-0" />
-                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                )}
-              </SidebarMenuItem>
-            ))}
+            {renderMenuItems(workflowItems)}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      <SidebarGroup>
+        <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Brand Toolkit</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {renderMenuItems(brandToolkitItems)}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      <SidebarGroup>
+        <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">AI Assistant</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {renderMenuItems(aiAssistantItems)}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
     </div>
   );
 }
+
