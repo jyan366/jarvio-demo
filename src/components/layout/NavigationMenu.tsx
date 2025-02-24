@@ -155,7 +155,12 @@ export function NavigationMenu() {
                   <span className="ml-2 truncate group-data-[collapsible=icon]:hidden">{item.label}</span>
                 </div>
                 {renderStatusIndicator(item.status)}
-                <ChevronDown className="w-4 h-4 ml-2 transition-transform duration-200 group-data-[collapsible=icon]:hidden" />
+                <ChevronDown 
+                  className={cn(
+                    "w-4 h-4 ml-2 transition-transform duration-200 group-data-[collapsible=icon]:hidden",
+                    expandedMenus[item.label] ? "rotate-180" : "rotate-0"
+                  )} 
+                />
               </div>
             </SidebarMenuButton>
             <div className="group-data-[collapsible=icon]:hidden">
