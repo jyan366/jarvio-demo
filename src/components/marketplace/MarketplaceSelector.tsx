@@ -74,7 +74,7 @@ export function MarketplaceSelector() {
 
         const ebayUrl = supabase.storage
           .from('marketplace-icons')
-          .getPublicUrl('free-ebay-logo-ico.png');  // Adding .png extension
+          .getPublicUrl('free-ebay-logo-ico-0.png');  // Updated to full filename
 
         setMarketplaces(prev => prev.map(marketplace => {
           if (marketplace.id === 'amazon') {
@@ -140,38 +140,6 @@ export function MarketplaceSelector() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel className="text-base font-semibold">Linked Websites</DropdownMenuLabel>
-        {websites.map((website) => (
-          <DropdownMenuItem
-            key={website.id}
-            className="flex items-center justify-between py-3"
-          >
-            <div className="flex items-center gap-2">
-              <img 
-                src={website.logo} 
-                alt={website.name}
-                className="h-5 w-5 object-contain"
-                onError={handleImageError}
-              />
-              <span className="font-medium">{website.name}</span>
-            </div>
-            {website.status === 'connected' ? (
-              <Check className="h-4 w-4 text-green-500" />
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2"
-                onClick={() => handleConnect(website.id)}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Connect
-              </Button>
-            )}
-          </DropdownMenuItem>
-        ))}
-        
-        <DropdownMenuSeparator className="my-2" />
         <DropdownMenuLabel className="text-base font-semibold">Marketplaces</DropdownMenuLabel>
         {marketplacesOnly.map((marketplace) => (
           <DropdownMenuItem
@@ -195,6 +163,38 @@ export function MarketplaceSelector() {
                 size="sm"
                 className="h-7 px-2"
                 onClick={() => handleConnect(marketplace.id)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Connect
+              </Button>
+            )}
+          </DropdownMenuItem>
+        ))}
+        
+        <DropdownMenuSeparator className="my-2" />
+        <DropdownMenuLabel className="text-base font-semibold">Linked Websites</DropdownMenuLabel>
+        {websites.map((website) => (
+          <DropdownMenuItem
+            key={website.id}
+            className="flex items-center justify-between py-3"
+          >
+            <div className="flex items-center gap-2">
+              <img 
+                src={website.logo} 
+                alt={website.name}
+                className="h-5 w-5 object-contain"
+                onError={handleImageError}
+              />
+              <span className="font-medium">{website.name}</span>
+            </div>
+            {website.status === 'connected' ? (
+              <Check className="h-4 w-4 text-green-500" />
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => handleConnect(website.id)}
               >
                 <Plus className="h-4 w-4 mr-1" />
                 Connect
