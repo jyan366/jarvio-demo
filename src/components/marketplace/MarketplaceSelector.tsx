@@ -22,18 +22,18 @@ interface Marketplace {
 
 const defaultMarketplaces: Marketplace[] = [
   {
-    id: 'shopify',
-    name: 'Shopify',
-    status: 'connected',
-    logo: '',
-    type: 'website'
-  },
-  {
     id: 'amazon',
     name: 'Amazon',
     status: 'connected',
     logo: '',
     type: 'marketplace'
+  },
+  {
+    id: 'shopify',
+    name: 'Shopify',
+    status: 'connected',
+    logo: '',
+    type: 'website'
   },
   {
     id: 'walmart',
@@ -118,7 +118,10 @@ export function MarketplaceSelector() {
   const websites = marketplaces.filter(m => m.type === 'website');
   const marketplacesOnly = marketplaces.filter(m => m.type === 'marketplace');
 
-  const connectedItem = marketplaces.find(m => m.status === 'connected') || marketplaces[0];
+  // Find Amazon first, or fall back to any connected item, or finally to the first item
+  const connectedItem = marketplaces.find(m => m.id === 'amazon') || 
+                       marketplaces.find(m => m.status === 'connected') || 
+                       marketplaces[0];
 
   return (
     <DropdownMenu>
