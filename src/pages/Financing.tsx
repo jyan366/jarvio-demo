@@ -58,11 +58,15 @@ export default function Financing() {
               <CheckCircle2 className="w-5 h-5 text-green-600 mt-1" />
               <div>
                 <h3 className="font-semibold text-green-900">Congratulations! You're pre-approved for funding</h3>
-                <p className="text-green-700">Based on your revenue, you're eligible for up to €245,000 in growth capital</p>
+                <p className="text-green-700">Based on your revenue, you're eligible for €245,000 in growth capital</p>
               </div>
             </div>
           </CardContent>
         </Card>
+        
+        <div className="text-sm text-muted-foreground">
+          * This pre-approval amount of €245,000 is calculated based on Jarvio's analysis of your business performance and revenue data
+        </div>
 
         <div className="grid grid-cols-3 gap-6">
           <Card className="p-6">
@@ -135,7 +139,7 @@ export default function Financing() {
                     name="desiredAmount"
                     value={formData.desiredAmount}
                     onChange={handleInputChange}
-                    placeholder="How much funding do you need? (up to €245,000)"
+                    placeholder="How much funding do you need?"
                     type="number"
                     required
                   />
