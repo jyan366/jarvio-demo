@@ -4,88 +4,79 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { Star, Zap, TrendingUp, AlertCircle, DollarSign, ThumbsUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-
 export default function CustomerInsights() {
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
-
-  const ratings = [
-    { stars: 5, percentage: 70 },
-    { stars: 4, percentage: 20 },
-    { stars: 3, percentage: 5 },
-    { stars: 2, percentage: 2 },
-    { stars: 1, percentage: 3 },
-  ];
-
-  const products = [
-    {
-      image: "/placeholder.svg",
-      name: "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's",
-      asin: "B00CD1D8OY",
-      rating: 4.7,
-      reviews: 147,
-      quality: "Good"
-    },
-    {
-      image: "/placeholder.svg",
-      name: "Chilli Kimchi 2x300g Jar - The Cultured Food Company's",
-      asin: "B00ZGAUNYW",
-      rating: 4.1,
-      reviews: 293,
-      quality: "Fair"
-    },
-    {
-      image: "/placeholder.svg",
-      name: "Carrot & Fennel Kimchi 2x300g Jar - The Cultured Food Company's",
-      asin: "B071144YXD",
-      rating: 3.7,
-      reviews: 12,
-      quality: "Poor"
-    }
-  ];
-
-  const insights = [
-    {
-      title: "Unmet Feature Expectations",
-      icon: AlertCircle,
-      preview: "27% of customers expected additional features",
-      color: "bg-blue-50 text-blue-700 border-blue-200",
-      details: "Customers frequently mention certain functionalities they expected but didn't find, highlighting missed opportunities for product enhancements."
-    },
-    {
-      title: "Consistent Quality Concerns",
-      icon: Zap,
-      preview: "Quality mentioned in 42% of recent reviews",
-      color: "bg-amber-50 text-amber-700 border-amber-200",
-      details: "Reviews show patterns questioning product durability and performance, indicating potential quality control improvements needed."
-    },
-    {
-      title: "Value vs. Price Perception",
-      icon: DollarSign,
-      preview: "68% consider the product fairly priced",
-      color: "bg-green-50 text-green-700 border-green-200",
-      details: "Customer reviews consistently comment on price-value relationship, providing insights for pricing strategy optimization."
-    },
-    {
-      title: "Positive Differentiators",
-      icon: ThumbsUp,
-      preview: "Packaging praised in 89% of reviews",
-      color: "bg-indigo-50 text-indigo-700 border-indigo-200",
-      details: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages."
-    }
-  ];
-
+  const ratings = [{
+    stars: 5,
+    percentage: 70
+  }, {
+    stars: 4,
+    percentage: 20
+  }, {
+    stars: 3,
+    percentage: 5
+  }, {
+    stars: 2,
+    percentage: 2
+  }, {
+    stars: 1,
+    percentage: 3
+  }];
+  const products = [{
+    image: "/placeholder.svg",
+    name: "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's",
+    asin: "B00CD1D8OY",
+    rating: 4.7,
+    reviews: 147,
+    quality: "Good"
+  }, {
+    image: "/placeholder.svg",
+    name: "Chilli Kimchi 2x300g Jar - The Cultured Food Company's",
+    asin: "B00ZGAUNYW",
+    rating: 4.1,
+    reviews: 293,
+    quality: "Fair"
+  }, {
+    image: "/placeholder.svg",
+    name: "Carrot & Fennel Kimchi 2x300g Jar - The Cultured Food Company's",
+    asin: "B071144YXD",
+    rating: 3.7,
+    reviews: 12,
+    quality: "Poor"
+  }];
+  const insights = [{
+    title: "Unmet Feature Expectations",
+    icon: AlertCircle,
+    preview: "27% of customers expected additional features",
+    color: "bg-blue-50 text-blue-700 border-blue-200",
+    details: "Customers frequently mention certain functionalities they expected but didn't find, highlighting missed opportunities for product enhancements."
+  }, {
+    title: "Consistent Quality Concerns",
+    icon: Zap,
+    preview: "Quality mentioned in 42% of recent reviews",
+    color: "bg-amber-50 text-amber-700 border-amber-200",
+    details: "Reviews show patterns questioning product durability and performance, indicating potential quality control improvements needed."
+  }, {
+    title: "Value vs. Price Perception",
+    icon: DollarSign,
+    preview: "68% consider the product fairly priced",
+    color: "bg-green-50 text-green-700 border-green-200",
+    details: "Customer reviews consistently comment on price-value relationship, providing insights for pricing strategy optimization."
+  }, {
+    title: "Positive Differentiators",
+    icon: ThumbsUp,
+    preview: "Packaging praised in 89% of reviews",
+    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    details: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages."
+  }];
   const nextInsight = () => {
-    setCurrentInsightIndex((prev) => (prev + 1) % insights.length);
+    setCurrentInsightIndex(prev => (prev + 1) % insights.length);
   };
-
   const previousInsight = () => {
-    setCurrentInsightIndex((prev) => (prev - 1 + insights.length) % insights.length);
+    setCurrentInsightIndex(prev => (prev - 1 + insights.length) % insights.length);
   };
-
   const currentInsight = insights[currentInsightIndex];
-
-  return (
-    <MainLayout>
+  return <MainLayout>
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Customer Insights</h1>
@@ -101,25 +92,20 @@ export default function CustomerInsights() {
             <h2 className="text-lg md:text-xl font-semibold mb-6">Customer Feedback</h2>
             <div className="space-y-6">
               <div className="flex items-center gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                ))}
+                {[1, 2, 3, 4, 5].map(star => <Star key={star} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
                 <span className="font-semibold ml-2">4.7 out of 5</span>
               </div>
               <p className="text-sm text-muted-foreground">Based on 456 reviews</p>
               <div className="space-y-3">
-                {ratings.map((rating) => (
-                  <div key={rating.stars} className="flex items-center gap-4">
+                {ratings.map(rating => <div key={rating.stars} className="flex items-center gap-4">
                     <span className="w-12 text-sm">{rating.stars} Star</span>
                     <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-primary"
-                        style={{ width: `${rating.percentage}%` }}
-                      />
+                      <div className="h-full bg-primary" style={{
+                    width: `${rating.percentage}%`
+                  }} />
                     </div>
                     <span className="text-sm text-muted-foreground">{rating.percentage}%</span>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
           </Card>
@@ -127,7 +113,7 @@ export default function CustomerInsights() {
           {/* Inventory Score Card */}
           <Card className="p-4 md:p-6">
             <div className="flex justify-between items-start">
-              <h2 className="text-lg md:text-xl font-semibold">Inventory Score</h2>
+              <h2 className="text-lg md:text-xl font-semibold">Feedback Score</h2>
               <Zap className="w-5 h-5 text-primary" />
             </div>
             <div className="flex flex-col items-center justify-center h-[calc(100%-2rem)]">
@@ -138,7 +124,9 @@ export default function CustomerInsights() {
                     <div className="text-sm text-muted-foreground">out of 100</div>
                   </div>
                 </div>
-                <div className="absolute inset-0 border-8 border-primary rounded-full" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 75%)' }} />
+                <div className="absolute inset-0 border-8 border-primary rounded-full" style={{
+                clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 75%)'
+              }} />
               </div>
               <div className="text-center mt-6">
                 <p className="text-sm text-muted-foreground">Current Performance</p>
@@ -158,9 +146,7 @@ export default function CustomerInsights() {
               <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
             </div>
             <div className="space-y-6">
-              <Card 
-                className={`p-4 md:p-6 border ${currentInsight.color} transition-all duration-300 min-h-[200px] flex flex-col`}
-              >
+              <Card className={`p-4 md:p-6 border ${currentInsight.color} transition-all duration-300 min-h-[200px] flex flex-col`}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex gap-3 items-center">
                     <currentInsight.icon className="w-5 h-5" />
@@ -173,20 +159,10 @@ export default function CustomerInsights() {
                 <p className="text-sm font-medium mb-2">{currentInsight.preview}</p>
                 <p className="text-sm flex-1">{currentInsight.details}</p>
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-current/10">
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={previousInsight}
-                    className="h-8 w-8"
-                  >
+                  <Button variant="outline" size="icon" onClick={previousInsight} className="h-8 w-8">
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={nextInsight}
-                    className="h-8 w-8"
-                  >
+                  <Button variant="outline" size="icon" onClick={nextInsight} className="h-8 w-8">
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -218,8 +194,7 @@ export default function CustomerInsights() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.asin}>
+                {products.map(product => <TableRow key={product.asin}>
                     <TableCell>
                       <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
                         <img src={product.image} alt="Product" className="h-8 w-8 text-muted-foreground" />
@@ -234,13 +209,11 @@ export default function CustomerInsights() {
                         {product.quality}
                       </span>
                     </TableCell>
-                  </TableRow>
-                ))}
+                  </TableRow>)}
               </TableBody>
             </Table>
           </div>
         </Card>
       </div>
-    </MainLayout>
-  );
+    </MainLayout>;
 }
