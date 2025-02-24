@@ -5,13 +5,14 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { NavigationMenu } from './NavigationMenu';
 import { ThemeToggle } from '../ThemeToggle';
 import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
+import { User } from 'lucide-react';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar className="border-r" collapsible="icon">
-          <SidebarHeader className="p-4 border-b">
+          <SidebarHeader className="p-4 border-b bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
             <div className="flex items-center gap-3">
               <div className="w-6 shrink-0">
                 <img 
@@ -26,9 +27,11 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <SidebarContent>
             <NavigationMenu />
           </SidebarContent>
-          <SidebarFooter className="p-4 border-t">
+          <SidebarFooter className="p-4 border-t bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gray-200 rounded-full shrink-0"></div>
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                <User className="w-4 h-4 text-muted-foreground" />
+              </div>
               <div className="group-data-[collapsible=icon]:hidden">
                 <p className="text-sm font-medium">User Profile</p>
                 <p className="text-xs text-muted-foreground">user@example.com</p>
