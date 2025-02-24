@@ -3,13 +3,26 @@ import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, Chev
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { LucideIcon } from 'lucide-react';
 
-const workflowItems = [
+interface SubMenuItem {
+  label: string;
+  href: string;
+}
+
+interface MenuItem {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  submenu?: SubMenuItem[];
+}
+
+const workflowItems: MenuItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
   { icon: Box, label: 'Action Studio', href: '/action-studio' },
 ];
 
-const brandToolkitItems = [
+const brandToolkitItems: MenuItem[] = [
   { 
     icon: ShoppingCart, 
     label: 'Sales Center', 
@@ -64,7 +77,7 @@ const brandToolkitItems = [
   },
 ];
 
-const aiAssistantItems = [
+const aiAssistantItems: MenuItem[] = [
   { icon: MessageSquare, label: 'Jarvio Assistant', href: '/ai-assistant' },
 ];
 
@@ -95,7 +108,7 @@ export function NavigationMenu() {
     }));
   };
 
-  const renderMenuItems = (items: typeof workflowItems) => {
+  const renderMenuItems = (items: MenuItem[]) => {
     return items.map((item, index) => (
       <SidebarMenuItem key={index}>
         {item.submenu ? (
@@ -185,4 +198,3 @@ export function NavigationMenu() {
     </div>
   );
 }
-
