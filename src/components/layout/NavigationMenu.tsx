@@ -59,7 +59,7 @@ const menuItems = [
       { label: 'Ads Manager', href: '/ads-manager' },
     ]
   },
-  { icon: MessageSquare, label: 'AI Assistant', href: '/ai-assistant' },
+  { icon: MessageSquare, label: 'Jarvio Assistant', href: '/ai-assistant' },
 ];
 
 export function NavigationMenu() {
