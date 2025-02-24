@@ -158,7 +158,7 @@ export function NavigationMenu() {
                 <ChevronRight 
                   className={cn(
                     "w-4 h-4 ml-2 transition-transform duration-200 group-data-[collapsible=icon]:hidden",
-                    expandedMenus[item.label] ? "-rotate-90" : "rotate-0"
+                    expandedMenus[item.label] ? "rotate-90" : "rotate-0"
                   )} 
                 />
               </div>
