@@ -1,4 +1,5 @@
-import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle } from 'lucide-react';
+
+import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -42,9 +43,6 @@ const brandToolkitItems: MenuItem[] = [{
   }, {
     label: 'Reports Builder',
     href: '/reports-builder'
-  }, {
-    label: 'Financing',
-    href: '/financing'
   }]
 }, {
   icon: BarChart3,
@@ -100,6 +98,10 @@ const aiAssistantItems: MenuItem[] = [{
   icon: MessageSquare,
   label: 'Jarvio Assistant',
   href: '/ai-assistant'
+}, {
+  icon: DollarSign,
+  label: 'Financing',
+  href: '/financing'
 }, {
   icon: HelpCircle,
   label: 'Get Support',
