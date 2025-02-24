@@ -92,7 +92,7 @@ export function NavigationMenu() {
   return (
     <div className="w-full h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
       <SidebarGroup>
-        <SidebarGroupLabel className="data-[collapsible=icon]:hidden">Platform</SidebarGroupLabel>
+        <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Platform</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             {menuItems.map((item, index) => (
@@ -107,16 +107,12 @@ export function NavigationMenu() {
                       <div className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-2">
                           <item.icon className="w-4 h-4 shrink-0" />
-                          <span className="data-[collapsible=icon]:hidden">{item.label}</span>
+                          <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                         </div>
-                        {expandedMenus[item.label] ? (
-                          <ChevronDown className="w-4 h-4 transition-transform duration-200 data-[collapsible=icon]:hidden" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 transition-transform duration-200 data-[collapsible=icon]:hidden" />
-                        )}
+                        <ChevronDown className="w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden" />
                       </div>
                     </SidebarMenuButton>
-                    <div className="data-[collapsible=icon]:hidden">
+                    <div className="group-data-[collapsible=icon]:hidden">
                       {expandedMenus[item.label] && (
                         <SidebarMenu className="ml-6 mt-2 relative">
                           <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200" />
@@ -149,7 +145,7 @@ export function NavigationMenu() {
                       className="flex items-center gap-2"
                     >
                       <item.icon className="w-4 h-4 shrink-0" />
-                      <span className="data-[collapsible=icon]:hidden">{item.label}</span>
+                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
                 )}
