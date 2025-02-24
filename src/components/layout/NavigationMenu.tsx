@@ -1,3 +1,4 @@
+
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
@@ -121,16 +122,18 @@ export function NavigationMenu() {
     return (
       <div className="ml-auto flex items-center gap-1.5 text-xs">
         <div className={cn(
-          "h-4 flex items-center rounded-full px-2",
+          "h-4 flex items-center rounded-full px-2 transition-colors duration-150",
           status === 'active' 
-            ? "bg-gradient-to-r from-green-500/10 to-green-500/5 text-green-600" 
-            : "bg-gradient-to-r from-amber-500/10 to-amber-500/5 text-amber-600"
-        )}>
+            ? "bg-gradient-to-r from-green-500/10 to-green-500/5 text-green-600 hover:from-green-500/20 hover:to-green-500/10" 
+            : "bg-gradient-to-r from-amber-500/10 to-amber-500/5 text-amber-600 hover:from-amber-500/20 hover:to-amber-500/10"
+        )}
+        title={status === 'active' ? 'Feature is live' : 'Demo data available'}
+        >
           <div className={cn(
             "w-1 h-1 rounded-full mr-1.5",
             status === 'active' ? "bg-green-500" : "bg-amber-500"
           )} />
-          {status === 'active' ? 'Live' : 'Soon'}
+          {status === 'active' ? 'Live' : 'Demo'}
         </div>
       </div>
     );
@@ -143,7 +146,7 @@ export function NavigationMenu() {
           <div className="w-full">
             <SidebarMenuButton
               onClick={() => toggleSubmenu(item.label)}
-              tooltip={item.status === 'coming-soon' ? 'Demo Data' : item.label}
+              tooltip={item.status === 'coming-soon' ? 'Demo data available' : item.label}
               className="w-full relative p-2"
             >
               <div className="flex items-center w-full pr-2">
