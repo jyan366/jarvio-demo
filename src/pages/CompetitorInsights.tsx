@@ -60,10 +60,10 @@ export default function CompetitorInsights() {
     <MainLayout>
       <div className="space-y-8">
         {/* Header Section */}
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div>
-            <h1 className="text-4xl font-bold">Beauty & Personal Care</h1>
-            <p className="text-lg text-muted-foreground mt-1">Subcategory: Hair Care Products</p>
+            <h1 className="text-2xl md:text-4xl font-bold">Beauty & Personal Care</h1>
+            <p className="text-base md:text-lg text-muted-foreground mt-1">Subcategory: Hair Care Products</p>
           </div>
           {/* Prominent SmartScout Branding */}
           <div className="flex flex-col items-center gap-2">
@@ -76,14 +76,14 @@ export default function CompetitorInsights() {
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column */}
-          <div className="col-span-5 space-y-8 flex flex-col">
+          <div className="lg:col-span-5 space-y-8 flex flex-col">
             {/* Monthly Revenue */}
-            <Card className="p-6 flex-1">
-              <h2 className="text-xl font-bold mb-4">Monthly Revenue</h2>
+            <Card className="p-4 md:p-6 flex-1">
+              <h2 className="text-lg md:text-xl font-bold mb-4">Monthly Revenue</h2>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">$12.5M</span>
+                <span className="text-2xl md:text-3xl font-bold">$12.5M</span>
                 <span className="text-sm text-green-600 flex items-center">
                   <TrendingUp className="w-4 h-4 mr-1" />
                   +8.2% growth
@@ -92,8 +92,8 @@ export default function CompetitorInsights() {
             </Card>
 
             {/* Growth Comparison */}
-            <Card className="p-6 flex-1">
-              <h2 className="text-xl font-bold mb-2">Your Growth vs Market</h2>
+            <Card className="p-4 md:p-6 flex-1">
+              <h2 className="text-lg md:text-xl font-bold mb-2">Your Growth vs Market</h2>
               <p className="text-sm text-green-600 mb-6">Growing 2.3x faster than category average</p>
               
               <div className="space-y-6">
@@ -117,11 +117,11 @@ export default function CompetitorInsights() {
           </div>
 
           {/* Market Share Distribution */}
-          <Card className="col-span-7 p-6">
-            <h2 className="text-xl font-bold mb-2">Market Share Distribution</h2>
+          <Card className="lg:col-span-7 p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold mb-2">Market Share Distribution</h2>
             <p className="text-sm text-muted-foreground mb-6">Revenue share across top competitors</p>
             
-            <div className="h-[350px]">
+            <div className="h-[300px] md:h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={marketShareData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -136,10 +136,10 @@ export default function CompetitorInsights() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Revenue Trend */}
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-2">Subcategory Revenue Trend</h2>
+          <Card className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold mb-2">Subcategory Revenue Trend</h2>
             <p className="text-sm text-muted-foreground mb-6">Monthly revenue performance</p>
             
             <div className="h-[200px]">
@@ -157,8 +157,8 @@ export default function CompetitorInsights() {
           </Card>
 
           {/* Feature Analysis */}
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-2">Competitor Feature Analysis</h2>
+          <Card className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold mb-2">Competitor Feature Analysis</h2>
             <p className="text-sm text-muted-foreground mb-6">Features implemented by top competitors</p>
             
             <div className="space-y-4">
@@ -182,19 +182,19 @@ export default function CompetitorInsights() {
         </div>
 
         {/* Recommended Actions */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold mb-2">Recommended Actions</h2>
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold mb-2">Recommended Actions</h2>
           <p className="text-sm text-muted-foreground mb-6">Based on competitor analysis</p>
           
           <div className="space-y-4">
             {actions.map((action) => (
               <Card key={action.title} className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div>
                     <h3 className="font-medium">{action.title}</h3>
                     <p className="text-sm text-muted-foreground">{action.description}</p>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 w-full md:w-auto">
                     <span className={`text-sm ${
                       action.priority === 'High' ? 'text-red-600' : 
                       action.priority === 'Medium' ? 'text-yellow-600' : 
@@ -202,7 +202,7 @@ export default function CompetitorInsights() {
                     }`}>
                       {action.priority}
                     </span>
-                    <Button variant="default">Take Action</Button>
+                    <Button variant="default" className="w-full md:w-auto">Take Action</Button>
                   </div>
                 </div>
               </Card>

@@ -1,4 +1,3 @@
-
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
@@ -88,18 +87,18 @@ export default function CustomerInsights() {
   return (
     <MainLayout>
       <div className="space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold tracking-tight">Customer Insights</h1>
-          <div className="flex gap-4">
-            <Button variant="outline">All Products</Button>
-            <Button variant="outline">Last 30 Days</Button>
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Customer Insights</h1>
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
+            <Button variant="outline" className="w-full md:w-auto">All Products</Button>
+            <Button variant="outline" className="w-full md:w-auto">Last 30 Days</Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Customer Feedback Card */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-6">Customer Feedback</h2>
+          <Card className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-semibold mb-6">Customer Feedback</h2>
             <div className="space-y-6">
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -126,16 +125,16 @@ export default function CustomerInsights() {
           </Card>
 
           {/* Inventory Score Card */}
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex justify-between items-start">
-              <h2 className="text-xl font-semibold">Inventory Score</h2>
+              <h2 className="text-lg md:text-xl font-semibold">Inventory Score</h2>
               <Zap className="w-5 h-5 text-primary" />
             </div>
             <div className="flex flex-col items-center justify-center h-[calc(100%-2rem)]">
-              <div className="relative w-40 h-40">
+              <div className="relative w-32 h-32 md:w-40 md:h-40">
                 <div className="w-full h-full rounded-full border-8 border-muted flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-4xl font-bold">89</div>
+                    <div className="text-3xl md:text-4xl font-bold">89</div>
                     <div className="text-sm text-muted-foreground">out of 100</div>
                   </div>
                 </div>
@@ -153,14 +152,14 @@ export default function CustomerInsights() {
           </Card>
 
           {/* Insights Assistant Card */}
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-6">
               <Zap className="w-6 h-6 text-primary" />
-              <h2 className="text-xl font-semibold">Customer Insights Assistant</h2>
+              <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
             </div>
             <div className="space-y-6">
               <Card 
-                className={`p-6 border ${currentInsight.color} transition-all duration-300 min-h-[200px] flex flex-col`}
+                className={`p-4 md:p-6 border ${currentInsight.color} transition-all duration-300 min-h-[200px] flex flex-col`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex gap-3 items-center">
@@ -206,53 +205,40 @@ export default function CustomerInsights() {
 
         {/* Products Table */}
         <Card>
-          <div className="p-6 flex justify-between items-center border-b">
-            <h2 className="text-xl font-semibold">Listings</h2>
-            <div className="flex items-center gap-4">
-              <Button variant="outline">Sort By</Button>
-              <Button variant="outline" size="icon">
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 2H11V3H4V2ZM4 7H11V8H4V7ZM4 12H11V13H4V12Z" fill="currentColor"></path></svg>
-              </Button>
-            </div>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>IMAGE</TableHead>
-                <TableHead>NAME</TableHead>
-                <TableHead>ASIN</TableHead>
-                <TableHead>Review Rating</TableHead>
-                <TableHead>Number of Reviews</TableHead>
-                <TableHead>Feedback Quality</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.asin}>
-                  <TableCell>
-                    <img src={product.image} alt={product.name} className="w-16 h-16 object-contain" />
-                  </TableCell>
-                  <TableCell className="font-medium max-w-[300px]">{product.name}</TableCell>
-                  <TableCell>{product.asin}</TableCell>
-                  <TableCell>{product.rating}</TableCell>
-                  <TableCell>{product.reviews}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded text-sm ${
-                      product.quality === 'Good' ? 'bg-green-100 text-green-800' :
-                      product.quality === 'Fair' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {product.quality}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="secondary">See Insights</Button>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>IMAGE</TableHead>
+                  <TableHead>NAME</TableHead>
+                  <TableHead>ASIN</TableHead>
+                  <TableHead>Review Rating</TableHead>
+                  <TableHead>Number of Reviews</TableHead>
+                  <TableHead>Feedback Quality</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {products.map((product) => (
+                  <TableRow key={product.asin}>
+                    <TableCell>
+                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
+                        <img src={product.image} alt="Product" className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
+                    <TableCell>{product.asin}</TableCell>
+                    <TableCell>{product.rating}</TableCell>
+                    <TableCell>{product.reviews}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded text-sm ${product.quality === 'Good' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {product.quality}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </Card>
       </div>
     </MainLayout>
