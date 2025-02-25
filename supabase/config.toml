@@ -1,4 +1,8 @@
 
 project_id = "aojrdgobdavxjpnymskc"
+
 [functions.upload-marketplace-icons]
+verify_jwt = false
+
+[functions.upload-product-images]
 verify_jwt = false
