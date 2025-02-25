@@ -29,4 +29,5 @@ export interface ProductItem {
   totalCosts: string;
   avgPrice: string;
   profit: string;
+  image?: string; // Added image property as optional
 }
