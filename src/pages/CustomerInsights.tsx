@@ -1,30 +1,27 @@
-
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Star, Zap, TrendingUp, AlertCircle, DollarSign, ThumbsUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, Zap, TrendingUp, AlertCircle, DollarSign, ThumbsUp, ChevronLeft, ChevronRight, BookOpen, BarChart2 } from 'lucide-react';
 import { useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ReviewsDialog } from '@/components/insights/ReviewsDialog';
+import { InsightsDialog } from '@/components/insights/InsightsDialog';
 
 export default function CustomerInsights() {
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [reviewsDialogOpen, setReviewsDialogOpen] = useState(false);
+  const [insightsDialogOpen, setInsightsDialogOpen] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState<string>("");
 
-  const ratings = [{
-    stars: 5,
-    percentage: 70
-  }, {
-    stars: 4,
-    percentage: 20
-  }, {
-    stars: 3,
-    percentage: 5
-  }, {
-    stars: 2,
-    percentage: 2
-  }, {
-    stars: 1,
-    percentage: 3
-  }];
+  const ratings = [
+    { stars: 5, percentage: 70 },
+    { stars: 4, percentage: 20 },
+    { stars: 3, percentage: 5 },
+    { stars: 2, percentage: 2 },
+    { stars: 1, percentage: 3 }
+  ];
 
   const products = [{
     image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg",
@@ -85,14 +82,46 @@ export default function CustomerInsights() {
 
   const currentInsight = insights[currentInsightIndex];
 
+  const handleProductSelect = (asin: string) => {
+    setSelectedProducts(prev => 
+      prev.includes(asin)
+        ? prev.filter(p => p !== asin)
+        : [...prev, asin]
+    );
+  };
+
+  const handleViewReviews = (productName: string) => {
+    setCurrentProduct(productName);
+    setReviewsDialogOpen(true);
+  };
+
+  const handleViewInsights = (productName: string) => {
+    setCurrentProduct(productName);
+    setInsightsDialogOpen(true);
+  };
+
+  const handleGroupInsights = () => {
+    const selectedProductNames = products
+      .filter(p => selectedProducts.includes(p.asin))
+      .map(p => p.name);
+    setCurrentProduct("");
+    setInsightsDialogOpen(true);
+  };
+
   return (
     <MainLayout>
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Customer Insights</h1>
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
-            <Button variant="outline" className="w-full md:w-auto">All Products</Button>
-            <Button variant="outline" className="w-full md:w-auto">Last 30 Days</Button>
+            <Button 
+              variant="outline" 
+              className="w-full md:w-auto"
+              onClick={handleGroupInsights}
+              disabled={selectedProducts.length === 0}
+            >
+              Get Group Insights ({selectedProducts.length})
+            </Button>
           </div>
         </div>
 
@@ -191,17 +220,28 @@ export default function CustomerInsights() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[30px]">
+                    <span className="sr-only">Select</span>
+                  </TableHead>
                   <TableHead>IMAGE</TableHead>
                   <TableHead>NAME</TableHead>
                   <TableHead>ASIN</TableHead>
                   <TableHead>Review Rating</TableHead>
                   <TableHead>Number of Reviews</TableHead>
                   <TableHead>Feedback Quality</TableHead>
+                  <TableHead>Reviews</TableHead>
+                  <TableHead>Insights</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {products.map(product => (
                   <TableRow key={product.asin}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedProducts.includes(product.asin)}
+                        onCheckedChange={() => handleProductSelect(product.asin)}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
                         <img 
@@ -217,10 +257,33 @@ export default function CustomerInsights() {
                     <TableCell>{product.reviews}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-sm ${
-                        product.quality === 'Good' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        product.quality === 'Good' ? 'bg-green-100 text-green-800' : 
+                        product.quality === 'Fair' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
                       }`}>
                         {product.quality}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleViewReviews(product.name)}
+                        className="w-full"
+                      >
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        View Reviews
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewInsights(product.name)}
+                        className="w-full"
+                      >
+                        <BarChart2 className="w-4 h-4 mr-2" />
+                        View Insights
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -229,6 +292,18 @@ export default function CustomerInsights() {
           </div>
         </Card>
       </div>
+
+      <ReviewsDialog 
+        open={reviewsDialogOpen}
+        onOpenChange={setReviewsDialogOpen}
+        productName={currentProduct}
+      />
+
+      <InsightsDialog
+        open={insightsDialogOpen}
+        onOpenChange={setInsightsDialogOpen}
+        productNames={currentProduct ? [currentProduct] : products.filter(p => selectedProducts.includes(p.asin)).map(p => p.name)}
+      />
     </MainLayout>
   );
 }
