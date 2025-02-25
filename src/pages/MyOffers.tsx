@@ -33,6 +33,7 @@ const products = [
   {
     id: 1,
     name: "Kimchi 1 Kg Jar - Raw & Unpasteurised - Traditionally Fermented - By The Cultured Food Company",
+    image: "/product-images/kimchi-large.png",
     price: "$21.24",
     margin: "30.86%",
     breakeven: "$14.78",
@@ -41,6 +42,7 @@ const products = [
   {
     id: 2,
     name: "Ruby Red Sauerkraut 1kg Jar - Raw & Unpasteurised - Traditionally Fermented - By The Cultured Food",
+    image: "/product-images/ruby-red-sauerkraut.png",
     price: "$18.74",
     margin: "11.79%",
     breakeven: "$13.73",
@@ -49,6 +51,7 @@ const products = [
   {
     id: 3,
     name: "Carrot & Fennel Sauerkraut - Organic, Raw & Unpasteurised - Traditionally Fermented - 2 X 400g Jar - By The Cultured Food Company",
+    image: "/product-images/juniper-berry-sauerkraut.png",
     price: "$18.11",
     margin: "24.1%",
     breakeven: "$14.10",
@@ -104,8 +107,12 @@ export default function MyOffers() {
                 {products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
-                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
-                        <Image className="h-8 w-8 text-muted-foreground" />
+                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
+                        <img 
+                          src={product.image} 
+                          alt={product.name}
+                          className="w-full h-full object-contain" 
+                        />
                       </div>
                     </TableCell>
                     <TableCell className="font-medium max-w-[300px] md:max-w-xl">

@@ -4,8 +4,10 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { Star, Zap, TrendingUp, AlertCircle, DollarSign, ThumbsUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+
 export default function CustomerInsights() {
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
+
   const ratings = [{
     stars: 5,
     percentage: 70
@@ -22,28 +24,30 @@ export default function CustomerInsights() {
     stars: 1,
     percentage: 3
   }];
+
   const products = [{
-    image: "/placeholder.svg",
+    image: "/product-images/natural-sauerkraut-and-kimchi.png",
     name: "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's",
     asin: "B00CD1D8OY",
     rating: 4.7,
     reviews: 147,
     quality: "Good"
   }, {
-    image: "/placeholder.svg",
+    image: "/product-images/natural-sauerkraut-duo.png",
     name: "Chilli Kimchi 2x300g Jar - The Cultured Food Company's",
     asin: "B00ZGAUNYW",
     rating: 4.1,
     reviews: 293,
     quality: "Fair"
   }, {
-    image: "/placeholder.svg",
+    image: "/product-images/kimchi-large.png",
     name: "Carrot & Fennel Kimchi 2x300g Jar - The Cultured Food Company's",
     asin: "B071144YXD",
     rating: 3.7,
     reviews: 12,
     quality: "Poor"
   }];
+
   const insights = [{
     title: "Unmet Feature Expectations",
     icon: AlertCircle,
@@ -69,14 +73,19 @@ export default function CustomerInsights() {
     color: "bg-indigo-50 text-indigo-700 border-indigo-200",
     details: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages."
   }];
+
   const nextInsight = () => {
     setCurrentInsightIndex(prev => (prev + 1) % insights.length);
   };
+
   const previousInsight = () => {
     setCurrentInsightIndex(prev => (prev - 1 + insights.length) % insights.length);
   };
+
   const currentInsight = insights[currentInsightIndex];
-  return <MainLayout>
+
+  return (
+    <MainLayout>
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Customer Insights</h1>
@@ -87,7 +96,6 @@ export default function CustomerInsights() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Customer Feedback Card */}
           <Card className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-semibold mb-6">Customer Feedback</h2>
             <div className="space-y-6">
@@ -110,7 +118,6 @@ export default function CustomerInsights() {
             </div>
           </Card>
 
-          {/* Inventory Score Card */}
           <Card className="p-4 md:p-6">
             <div className="flex justify-between items-start">
               <h2 className="text-lg md:text-xl font-semibold">Feedback Score</h2>
@@ -139,7 +146,6 @@ export default function CustomerInsights() {
             </div>
           </Card>
 
-          {/* Insights Assistant Card */}
           <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-6">
               <Zap className="w-6 h-6 text-primary" />
@@ -179,7 +185,6 @@ export default function CustomerInsights() {
           </Card>
         </div>
 
-        {/* Products Table */}
         <Card>
           <div className="overflow-x-auto">
             <Table>
@@ -194,10 +199,15 @@ export default function CustomerInsights() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map(product => <TableRow key={product.asin}>
+                {products.map(product => (
+                  <TableRow key={product.asin}>
                     <TableCell>
-                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
-                        <img src={product.image} alt="Product" className="h-8 w-8 text-muted-foreground" />
+                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
+                        <img 
+                          src={product.image} 
+                          alt={product.name}
+                          className="w-full h-full object-contain" 
+                        />
                       </div>
                     </TableCell>
                     <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
@@ -205,15 +215,19 @@ export default function CustomerInsights() {
                     <TableCell>{product.rating}</TableCell>
                     <TableCell>{product.reviews}</TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded text-sm ${product.quality === 'Good' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      <span className={`px-2 py-1 rounded text-sm ${
+                        product.quality === 'Good' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
                         {product.quality}
                       </span>
                     </TableCell>
-                  </TableRow>)}
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
         </Card>
       </div>
-    </MainLayout>;
+    </MainLayout>
+  );
 }
