@@ -33,7 +33,7 @@ const products = [
   {
     id: 1,
     name: "Kimchi 1 Kg Jar - Raw & Unpasteurised - Traditionally Fermented - By The Cultured Food Company",
-    image: "product-images/kimchi-large.png",
+    image: "/product-images/kimchi-large.png",
     price: "$21.24",
     margin: "30.86%",
     breakeven: "$14.78",
@@ -42,7 +42,7 @@ const products = [
   {
     id: 2,
     name: "Ruby Red Sauerkraut 1kg Jar - Raw & Unpasteurised - Traditionally Fermented - By The Cultured Food",
-    image: "product-images/ruby-red-sauerkraut.png",
+    image: "/product-images/ruby-red-sauerkraut.png",
     price: "$18.74",
     margin: "11.79%",
     breakeven: "$13.73",
@@ -51,7 +51,7 @@ const products = [
   {
     id: 3,
     name: "Carrot & Fennel Sauerkraut - Organic, Raw & Unpasteurised - Traditionally Fermented - 2 X 400g Jar - By The Cultured Food Company",
-    image: "product-images/juniper-berry-sauerkraut.png",
+    image: "/product-images/juniper-berry-sauerkraut.png",
     price: "$18.11",
     margin: "24.1%",
     breakeven: "$14.10",
