@@ -1,3 +1,4 @@
+
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
@@ -26,21 +27,21 @@ export default function CustomerInsights() {
   }];
 
   const products = [{
-    image: "/product-images/natural-sauerkraut-and-kimchi.png",
+    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg",
     name: "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's",
     asin: "B00CD1D8OY",
     rating: 4.7,
     reviews: 147,
     quality: "Good"
   }, {
-    image: "/product-images/natural-sauerkraut-duo.png",
+    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//415+Np8jrQL.jpg",
     name: "Chilli Kimchi 2x300g Jar - The Cultured Food Company's",
     asin: "B00ZGAUNYW",
     rating: 4.1,
     reviews: 293,
     quality: "Fair"
   }, {
-    image: "/product-images/kimchi-large.png",
+    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//41SF9iv9eXL.jpg",
     name: "Carrot & Fennel Kimchi 2x300g Jar - The Cultured Food Company's",
     asin: "B071144YXD",
     rating: 3.7,

@@ -5,37 +5,44 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Check, X, Image, ListTodo, Target, TrendingUp } from 'lucide-react';
+
 const products = [{
   id: 1,
   asin: 'B08P5PVDS3',
+  image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg",
   potentialSales: '£2935',
   recommendations: 5,
   score: 33
 }, {
   id: 2,
   asin: 'B082J56YCV',
+  image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//415+Np8jrQL.jpg",
   potentialSales: '£485',
   recommendations: 4,
   score: 55
 }, {
   id: 3,
   asin: 'B0CJYLQQS8',
+  image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//41SF9iv9eXL.jpg",
   potentialSales: '£0',
   recommendations: 3,
   score: 67
 }, {
   id: 4,
   asin: 'B0CK4XV6QV',
+  image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//51BwE63CnHL.jpg",
   potentialSales: '£0',
   recommendations: 3,
   score: 74
 }, {
   id: 5,
   asin: 'B0CVL54ZDV',
+  image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//51VG-OB2nML.jpg",
   potentialSales: '£54',
   recommendations: 3,
   score: 70
 }];
+
 const recommendations = [{
   section: 'Title',
   items: [{
@@ -69,6 +76,7 @@ const recommendations = [{
     status: 'error'
   }]
 }];
+
 export default function ListingQuality() {
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   return <MainLayout>
@@ -147,8 +155,12 @@ export default function ListingQuality() {
               <TableBody>
                 {products.map(product => <TableRow key={product.id}>
                     <TableCell>
-                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
-                        <Image className="h-8 w-8 text-muted-foreground" />
+                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
+                        <img 
+                          src={product.image} 
+                          alt={`Product ${product.asin}`}
+                          className="w-full h-full object-contain" 
+                        />
                       </div>
                     </TableCell>
                     <TableCell>{product.asin}</TableCell>
@@ -177,8 +189,14 @@ export default function ListingQuality() {
           <div className="mt-6">
             <div className="mb-8">
               <div className="w-32 h-32 md:w-48 md:h-48 mx-auto">
-                <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
-                  <Image className="w-12 h-12 md:h-16 md:w-16 text-muted-foreground" />
+                <div className="w-full h-full flex items-center justify-center bg-muted rounded-md overflow-hidden">
+                  {selectedProduct && (
+                    <img 
+                      src={products.find(p => p.asin === selectedProduct)?.image} 
+                      alt={`Product ${selectedProduct}`}
+                      className="w-full h-full object-contain" 
+                    />
+                  )}
                 </div>
               </div>
             </div>
