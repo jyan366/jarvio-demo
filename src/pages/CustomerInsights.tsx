@@ -112,16 +112,11 @@ export default function CustomerInsights() {
     <MainLayout>
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-          <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Customer Insights</h1>
-          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
-            <Button 
-              variant="outline" 
-              className="w-full md:w-auto"
-              onClick={handleGroupInsights}
-              disabled={selectedProducts.length === 0}
-            >
-              Get Group Insights ({selectedProducts.length})
-            </Button>
+          <div className="space-y-2">
+            <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Customer Insights</h1>
+            <p className="text-muted-foreground">
+              Analyze customer feedback and compare product performance
+            </p>
           </div>
         </div>
 
@@ -215,13 +210,45 @@ export default function CustomerInsights() {
           </Card>
         </div>
 
+        <div className="flex items-center justify-between gap-4 bg-blue-50 p-4 rounded-lg">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-blue-500" />
+            <span className="text-blue-700 font-medium">
+              {selectedProducts.length === 0 
+                ? "Select products to compare" 
+                : `${selectedProducts.length} product${selectedProducts.length > 1 ? 's' : ''} selected`
+              }
+            </span>
+          </div>
+          <Button 
+            size="lg"
+            onClick={handleGroupInsights}
+            disabled={selectedProducts.length < 2}
+          >
+            <BarChart2 className="w-5 h-5 mr-2" />
+            {selectedProducts.length < 2 
+              ? "Select at least 2 products to compare" 
+              : `Compare ${selectedProducts.length} Products`
+            }
+          </Button>
+        </div>
+
         <Card>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[30px]">
-                    <span className="sr-only">Select</span>
+                    <Checkbox 
+                      checked={selectedProducts.length === products.length}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedProducts(products.map(p => p.asin));
+                        } else {
+                          setSelectedProducts([]);
+                        }
+                      }}
+                    />
                   </TableHead>
                   <TableHead>IMAGE</TableHead>
                   <TableHead>NAME</TableHead>
@@ -235,7 +262,10 @@ export default function CustomerInsights() {
               </TableHeader>
               <TableBody>
                 {products.map(product => (
-                  <TableRow key={product.asin}>
+                  <TableRow 
+                    key={product.asin}
+                    className={selectedProducts.includes(product.asin) ? "bg-blue-50" : ""}
+                  >
                     <TableCell>
                       <Checkbox
                         checked={selectedProducts.includes(product.asin)}
