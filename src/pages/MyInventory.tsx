@@ -38,7 +38,7 @@ const products = [
   {
     id: 1,
     name: "Raw Natural Sauerkraut 1kg Jar - Organic, Raw & Unpasteurised - Traditionally Fermented - By The Cultured Food Company",
-    image: "/product-images/natural-sauerkraut-and-kimchi.png",
+    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg",
     availableQuantity: 503,
     inboundQuantity: 0,
     salesPrice: 16,
@@ -48,7 +48,7 @@ const products = [
   {
     id: 2,
     name: "The Cultured Food Company Natural Sauerkraut (400g) & Kimchi (300g) Pack - Probiotic-Rich, Gluten-Free Fermented Foods For Digestive Health & Immunity Support - Unpasteurised, Organic Ingredients",
-    image: "/product-images/natural-sauerkraut-duo.png",
+    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//415+Np8jrQL.jpg",
     availableQuantity: 89,
     inboundQuantity: 0,
     salesPrice: 20,
@@ -58,7 +58,7 @@ const products = [
   {
     id: 3,
     name: "Kimchi 300g - The Cultured Food Company",
-    image: "/product-images/kimchi-large.png",
+    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//41SF9iv9eXL.jpg",
     availableQuantity: 160,
     inboundQuantity: 0,
     salesPrice: 10,
@@ -68,7 +68,7 @@ const products = [
   {
     id: 4,
     name: "Vegan Kimchi 2 X 300g Jar - The Cultured Food Company's Authentic Plant-Based Korean Delight - Raw, Unpasteurised & Bursting With Flavour.",
-    image: "/product-images/chilli-dill-sauerkraut.png",
+    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//51BwE63CnHL.jpg",
     availableQuantity: 75,
     inboundQuantity: 0,
     salesPrice: 17.5,
@@ -78,7 +78,7 @@ const products = [
   {
     id: 5,
     name: "Ruby Red Sauerkraut - Organic, Raw & Unpasteurised - Traditionally Fermented - 2 X 400g Jar - By The Cultured Food Company",
-    image: "/product-images/ruby-red-sauerkraut.png",
+    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//51VG-OB2nML.jpg",
     availableQuantity: 59,
     inboundQuantity: 0,
     salesPrice: 17.5,
@@ -88,7 +88,7 @@ const products = [
   {
     id: 6,
     name: "Fermented Beetroot Infused With Ginger - Organic, Raw & Unpasteurised - Traditionally Fermented - 1 Kg Jar - By The Cultured Food Company",
-    image: "/product-images/juniper-berry-sauerkraut.png",
+    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//51Vodw2iQCL.jpg",
     availableQuantity: 27,
     inboundQuantity: 0,
     salesPrice: 18.75,

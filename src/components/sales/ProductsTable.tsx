@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Image } from 'lucide-react';
 import { ProductItem } from '@/types/sales';
 
 interface ProductsTableProps {
@@ -30,8 +29,12 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({ products }) => {
             {products.map((product, index) => (
               <TableRow key={index}>
                 <TableCell>
-                  <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
-                    <Image className="h-8 w-8 text-muted-foreground" />
+                  <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
+                    <img 
+                      src={product.image || "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg"} 
+                      alt={product.name}
+                      className="w-full h-full object-contain" 
+                    />
                   </div>
                 </TableCell>
                 <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
