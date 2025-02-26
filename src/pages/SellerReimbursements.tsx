@@ -8,16 +8,13 @@ export default function SellerReimbursements() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Seller Reimbursements</h1>
-            <img 
-              src="/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png" 
-              alt="Carbon6 Logo" 
-              className="h-8 md:h-10"
-            />
-          </div>
-          <p className="text-muted-foreground">Powered by Carbon6</p>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Seller Reimbursements</h1>
+          <img 
+            src="/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png" 
+            alt="Carbon6 Logo" 
+            className="h-6 md:h-8"
+          />
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -88,10 +85,20 @@ export default function SellerReimbursements() {
                 </div>
               </div>
             </div>
-            <Button size="lg" className="mt-8">
-              Connect with Carbon6
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <div className="mt-8 flex flex-col items-start gap-4">
+              <Button size="lg">
+                Connect with Carbon6
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Powered by</span>
+                <img 
+                  src="/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png" 
+                  alt="Carbon6 Logo" 
+                  className="h-5"
+                />
+              </div>
+            </div>
           </div>
         </Card>
       </div>
