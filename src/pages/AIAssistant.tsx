@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Send, Bot, ChevronDown } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -225,13 +226,14 @@ export default function AIAssistant() {
 
           <div className="border-t border-primary/10 p-4 bg-card/50">
             <div className="flex gap-2">
-              <Input
+              <Textarea
                 placeholder="Ask me anything about managing your Amazon business..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyPress}
                 disabled={isLoading}
-                className="flex-1"
+                className="flex-1 min-h-[44px] max-h-32 resize-none"
+                rows={1}
               />
               <Button 
                 onClick={handleSend} 
