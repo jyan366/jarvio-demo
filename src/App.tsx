@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,7 @@ import MyOffers from "./pages/MyOffers";
 import ReportsBuilder from "./pages/ReportsBuilder";
 import Financing from "./pages/Financing";
 import MyInventory from "./pages/MyInventory";
+import SellerReimbursements from "./pages/SellerReimbursements";
 import ListingQuality from "./pages/ListingQuality";
 import ListingBuilder from "./pages/ListingBuilder";
 import CustomerInsights from "./pages/CustomerInsights";
@@ -42,6 +44,7 @@ export default function App() {
               <Route path="/reports-builder" element={<ReportsBuilder />} />
               <Route path="/financing" element={<Financing />} />
               <Route path="/inventory" element={<MyInventory />} />
+              <Route path="/seller-reimbursements" element={<SellerReimbursements />} />
               <Route path="/listing-quality" element={<ListingQuality />} />
               <Route path="/listing-builder" element={<ListingBuilder />} />
               <Route path="/customer-insights" element={<CustomerInsights />} />
