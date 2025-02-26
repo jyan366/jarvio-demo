@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -166,7 +165,7 @@ export default function AIAssistant() {
 
   return (
     <MainLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         <Card className="p-6 bg-gradient-to-br from-[#1A1F2C] to-[#2C1F3C] text-white border-none">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -179,95 +178,79 @@ export default function AIAssistant() {
           </div>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Card className="flex flex-col h-[600px] border-primary/20">
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((message, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 ${
-                        message.role === 'user'
-                          ? 'bg-primary text-primary-foreground ml-4'
-                          : 'bg-muted/50 border border-primary/10 mr-4'
-                      }`}
-                    >
-                      {message.content}
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-
-              <div className="border-t border-primary/10 p-4 bg-card/50">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Ask me anything about managing your Amazon business..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    disabled={isLoading}
-                    className="flex-1"
-                  />
-                  <Button 
-                    onClick={handleSend} 
-                    size="icon"
-                    disabled={isLoading}
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          <div className="space-y-4">
-            <Card className="p-4 bg-muted/5">
-              <h2 className="font-semibold mb-2">Knowledge Base</h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                Explore common questions by category or ask your own question above.
-              </p>
-              <div className="space-y-2">
+        <Card className="flex flex-col h-[600px] border-primary/20">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.length === 1 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 {knowledgeBase.map((category) => (
-                  <Collapsible
+                  <Card 
                     key={category.title}
-                    open={openCategory === category.title}
-                    onOpenChange={() => setOpenCategory(openCategory === category.title ? null : category.title)}
+                    className="p-4 hover:bg-muted/50 transition-colors cursor-pointer border-primary/20"
+                    onClick={() => setOpenCategory(openCategory === category.title ? null : category.title)}
                   >
-                    <Card className="p-3 hover:bg-muted/50 transition-colors cursor-pointer">
-                      <CollapsibleTrigger className="flex items-center justify-between w-full">
-                        <div>
-                          <h3 className="font-medium">{category.title}</h3>
-                          <p className="text-sm text-muted-foreground">{category.description}</p>
-                        </div>
-                        {openCategory === category.title ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                      </CollapsibleTrigger>
+                    <h3 className="font-semibold mb-1">{category.title}</h3>
+                    <p className="text-sm text-muted-foreground">{category.description}</p>
+                    <Collapsible open={openCategory === category.title}>
                       <CollapsibleContent className="mt-2 space-y-1">
                         {category.questions.map((question, index) => (
                           <div
                             key={index}
-                            onClick={() => handleQuestionClick(question)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleQuestionClick(question);
+                            }}
                             className="text-sm p-2 hover:bg-muted rounded-md cursor-pointer transition-colors"
                           >
                             {question}
                           </div>
                         ))}
                       </CollapsibleContent>
-                    </Card>
-                  </Collapsible>
+                    </Collapsible>
+                  </Card>
                 ))}
               </div>
-            </Card>
+            )}
+            
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground ml-4'
+                      : 'bg-muted/50 border border-primary/10 mr-4'
+                  }`}
+                >
+                  {message.content}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
           </div>
-        </div>
+
+          <div className="border-t border-primary/10 p-4 bg-card/50">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Ask me anything about managing your Amazon business..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isLoading}
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleSend} 
+                size="icon"
+                disabled={isLoading}
+                className="bg-primary hover:bg-primary/90"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </Card>
       </div>
     </MainLayout>
   );
