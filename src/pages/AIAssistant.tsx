@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -175,33 +176,32 @@ export default function AIAssistant() {
 
         <Card className="flex flex-col h-[600px] border-primary/20">
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.length === 1 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {messages.length === 0 && (
+              <div className="space-y-3">
                 {knowledgeBase.map((category) => (
-                  <Card 
-                    key={category.title}
-                    className="p-4 hover:bg-muted/50 transition-colors cursor-pointer border-primary/20"
-                    onClick={() => setOpenCategory(openCategory === category.title ? null : category.title)}
-                  >
-                    <h3 className="font-semibold mb-1">{category.title}</h3>
-                    <p className="text-sm text-muted-foreground">{category.description}</p>
-                    <Collapsible open={openCategory === category.title}>
-                      <CollapsibleContent className="mt-2 space-y-1">
-                        {category.questions.map((question, index) => (
-                          <div
-                            key={index}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleQuestionClick(question);
-                            }}
-                            className="text-sm p-2 hover:bg-muted rounded-md cursor-pointer transition-colors"
-                          >
-                            {question}
-                          </div>
-                        ))}
+                  <Collapsible key={category.title}>
+                    <Card className="border-primary/10">
+                      <CollapsibleTrigger className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <h3 className="font-medium text-left">{category.title}</h3>
+                        </div>
+                        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="p-4 pt-0 space-y-2">
+                          {category.questions.map((question, index) => (
+                            <button
+                              key={index}
+                              onClick={() => handleQuestionClick(question)}
+                              className="w-full text-left text-sm p-2 hover:bg-muted rounded-md cursor-pointer transition-colors text-muted-foreground hover:text-foreground"
+                            >
+                              {question}
+                            </button>
+                          ))}
+                        </div>
                       </CollapsibleContent>
-                    </Collapsible>
-                  </Card>
+                    </Card>
+                  </Collapsible>
                 ))}
               </div>
             )}
