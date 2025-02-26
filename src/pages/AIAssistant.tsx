@@ -105,7 +105,20 @@ export default function AIAssistant() {
   const [input, setInput] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
+  React.useEffect(() => {
+    adjustTextareaHeight();
+  }, [input]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -227,12 +240,14 @@ export default function AIAssistant() {
           <div className="border-t border-primary/10 p-4 bg-card/50">
             <div className="flex gap-2">
               <Textarea
+                ref={textareaRef}
                 placeholder="Ask me anything about managing your Amazon business..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 disabled={isLoading}
-                className="flex-1 min-h-[44px] max-h-32 resize-none"
+                className="flex-1 min-h-[44px] resize-none overflow-hidden"
+                style={{ height: 'auto' }}
                 rows={1}
               />
               <Button 
