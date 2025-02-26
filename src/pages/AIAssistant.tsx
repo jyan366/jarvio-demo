@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -129,52 +128,55 @@ export default function AIAssistant() {
   }, [messages]);
 
   const handleSend = async () => {
-    if (input.trim() && !isLoading) {
-      const userMessage = input.trim();
-      setInput('');
-      setIsLoading(true);
-      
-      setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    if (!input.trim() || isLoading) return;
 
-      // Add the loading message
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: '🤔 Thinking and browsing through our Amazon SOPs...' 
-      }]);
+    const userMessage = input.trim();
+    setInput('');
+    setIsLoading(true);
+    
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setMessages(prev => [...prev, { 
+      role: 'assistant', 
+      content: '🤔 Thinking and browsing through our Amazon SOPs...' 
+    }]);
 
-      try {
-        const { data, error } = await supabase.functions.invoke('chat', {
-          body: { prompt: userMessage }
-        });
+    try {
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: { prompt: userMessage }
+      });
 
-        if (error) throw error;
-
-        // Replace the loading message with the actual response
-        setMessages(prev => [
-          ...prev.slice(0, -1), // Remove the loading message
-          {
-            role: 'assistant',
-            content: data.generatedText
-          }
-        ]);
-      } catch (error) {
-        console.error('Error:', error);
-        // Replace the loading message with the error
-        setMessages(prev => [
-          ...prev.slice(0, -1),
-          {
-            role: 'assistant',
-            content: 'Sorry, I encountered an error. Please try again.'
-          }
-        ]);
-        toast({
-          title: "Error",
-          description: "Failed to get response from AI. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message);
       }
+
+      if (!data?.generatedText) {
+        throw new Error('No response received from the assistant');
+      }
+
+      setMessages(prev => [
+        ...prev.slice(0, -1),
+        {
+          role: 'assistant',
+          content: data.generatedText
+        }
+      ]);
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages(prev => [
+        ...prev.slice(0, -1),
+        {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please try again.'
+        }
+      ]);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to get response from AI. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
