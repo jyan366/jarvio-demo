@@ -7,6 +7,7 @@ import { Bot, Send, ChevronDown } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import Markdown from 'markdown-to-jsx';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -236,13 +237,59 @@ export default function AIAssistant() {
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 whitespace-pre-line ${
+                  className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground ml-4'
                       : 'bg-muted/50 border border-primary/10 mr-4'
                   }`}
                 >
-                  {formatMessageContent(message.content)}
+                  {message.role === 'assistant' ? (
+                    <div className="prose prose-sm dark:prose-invert">
+                      <Markdown
+                        options={{
+                          forceBlock: true,
+                          overrides: {
+                            h1: {
+                              component: 'h3',
+                              props: {
+                                className: 'text-lg font-bold mb-2',
+                              },
+                            },
+                            h2: {
+                              component: 'h4',
+                              props: {
+                                className: 'text-base font-semibold mb-2',
+                              },
+                            },
+                            p: {
+                              props: {
+                                className: 'mb-2',
+                              },
+                            },
+                            ul: {
+                              props: {
+                                className: 'my-2 list-disc pl-4 space-y-1',
+                              },
+                            },
+                            ol: {
+                              props: {
+                                className: 'my-2 list-decimal pl-4 space-y-1',
+                              },
+                            },
+                            li: {
+                              props: {
+                                className: 'ml-2',
+                              },
+                            },
+                          },
+                        }}
+                      >
+                        {message.content}
+                      </Markdown>
+                    </div>
+                  ) : (
+                    message.content
+                  )}
                 </div>
               </div>
             ))}

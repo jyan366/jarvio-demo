@@ -7,19 +7,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const formatAssistantResponse = (text: string) => {
-  // Remove double asterisks and replace with appropriate formatting
-  let formattedText = text.replace(/\*\*(.*?)\*\*/g, '$1');
-  
-  // Add line breaks before numbered points
-  formattedText = formattedText.replace(/(\d+\.)/g, '\n$1');
-  
-  // Add bullet points for sub-items
-  formattedText = formattedText.replace(/- /g, '\n• ');
-  
-  return formattedText;
-};
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -39,7 +26,7 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: 'You are an Amazon seller support assistant. Format your responses with:\n- Clear headings (no asterisks)\n- Bullet points for lists\n- Line breaks between sections\n- No markdown formatting' 
+            content: 'You are an Amazon seller support assistant. Format your responses using markdown:\n- Use # for main headings\n- Use ## for subheadings\n- Use * or - for bullet points\n- Use numbered lists where appropriate\n- Use **bold** for emphasis\n- Add line breaks between sections' 
           },
           { role: 'user', content: prompt }
         ],
@@ -47,10 +34,9 @@ serve(async (req) => {
     });
 
     const data = await response.json();
-    const formattedText = formatAssistantResponse(data.choices[0].message.content);
     
     return new Response(JSON.stringify({ 
-      text: formattedText 
+      text: data.choices[0].message.content 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
