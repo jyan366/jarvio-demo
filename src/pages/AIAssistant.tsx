@@ -238,23 +238,25 @@ export default function AIAssistant() {
           </div>
 
           <div className="border-t border-primary/10 p-4 bg-card/50">
-            <div className="flex gap-2">
-              <Textarea
-                ref={textareaRef}
-                placeholder="Ask me anything about managing your Amazon business..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyPress}
-                disabled={isLoading}
-                className="flex-1 min-h-[44px] resize-none overflow-hidden"
-                style={{ height: 'auto' }}
-                rows={1}
-              />
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <Textarea
+                  ref={textareaRef}
+                  placeholder="Ask me anything about managing your Amazon business..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  disabled={isLoading}
+                  className="min-h-[44px] resize-none overflow-hidden w-full"
+                  style={{ height: 'auto' }}
+                  rows={1}
+                />
+              </div>
               <Button 
                 onClick={handleSend} 
                 size="icon"
                 disabled={isLoading}
-                className="bg-primary hover:bg-primary/90"
+                className="bg-primary hover:bg-primary/90 shrink-0"
               >
                 <Send className="h-4 w-4" />
               </Button>
