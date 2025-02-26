@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Image } from 'lucide-react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const statsCards = [
   {
@@ -97,39 +97,6 @@ const products = [
   }
 ];
 
-const stockoutData = [
-  {
-    id: 1,
-    name: "Raw Natural Sauerkraut 1kg Jar",
-    stockoutDays: 12,
-    lostSales: 156,
-    lostRevenue: 2496
-  },
-  {
-    id: 2,
-    name: "Kimchi 300g",
-    stockoutDays: 8,
-    lostSales: 87,
-    lostRevenue: 870
-  },
-  {
-    id: 3,
-    name: "Ruby Red Sauerkraut",
-    stockoutDays: 15,
-    lostSales: 142,
-    lostRevenue: 2485
-  }
-];
-
-const stockoutTrendData = [
-  { month: 'Jan', stockouts: 5, lostSales: 45 },
-  { month: 'Feb', stockouts: 8, lostSales: 72 },
-  { month: 'Mar', stockouts: 12, lostSales: 156 },
-  { month: 'Apr', stockouts: 7, lostSales: 89 },
-  { month: 'May', stockouts: 15, lostSales: 142 },
-  { month: 'Jun', stockouts: 9, lostSales: 98 }
-];
-
 export default function MyInventory() {
   return (
     <MainLayout>
@@ -158,51 +125,6 @@ export default function MyInventory() {
               <p className="text-lg md:text-2xl font-bold mt-1">{card.value}</p>
             </Card>
           ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Stockout Impact Analysis</h2>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Stockout Days</TableHead>
-                    <TableHead>Lost Sales</TableHead>
-                    <TableHead>Lost Revenue</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stockoutData.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell>{item.stockoutDays}</TableCell>
-                      <TableCell>{item.lostSales} units</TableCell>
-                      <TableCell>${item.lostRevenue}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Stockout Trends</h2>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stockoutTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip />
-                  <Bar yAxisId="left" dataKey="stockouts" fill="#f97316" name="Stockouts" />
-                  <Bar yAxisId="right" dataKey="lostSales" fill="#ef4444" name="Lost Sales" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
         </div>
 
         <Card className="overflow-hidden">
