@@ -9,7 +9,7 @@ export default function SellerReimbursements() {
     <MainLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Seller Reimbursements</h1>
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Reimbursements</h1>
           <img 
             src="/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png" 
             alt="Carbon6 Logo" 
