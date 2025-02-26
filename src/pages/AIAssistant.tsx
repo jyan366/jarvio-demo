@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Send, Bot, ChevronDown } from 'lucide-react';
+import { Bot, Send, ChevronDown } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -107,18 +107,6 @@ export default function AIAssistant() {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
 
-  const adjustTextareaHeight = () => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  };
-
-  React.useEffect(() => {
-    adjustTextareaHeight();
-  }, [input]);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -130,51 +118,34 @@ export default function AIAssistant() {
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
+    setIsLoading(true);
     const userMessage = input.trim();
     setInput('');
-    setIsLoading(true);
-    
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    setMessages(prev => [...prev, { 
-      role: 'assistant', 
-      content: '🤔 Thinking and browsing through our Amazon SOPs...' 
-    }]);
+
+    setMessages(prev => [
+      ...prev, 
+      { role: 'user', content: userMessage },
+      { role: 'assistant', content: '🤔 Thinking...' }
+    ]);
 
     try {
       const { data, error } = await supabase.functions.invoke('chat', {
         body: { prompt: userMessage }
       });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw new Error(error.message);
-      }
+      if (error) throw error;
 
-      if (!data?.generatedText) {
-        throw new Error('No response received from the assistant');
-      }
-
-      setMessages(prev => [
-        ...prev.slice(0, -1),
-        {
-          role: 'assistant',
-          content: data.generatedText
-        }
-      ]);
+      setMessages(prev => [...prev.slice(0, -1), { 
+        role: 'assistant', 
+        content: data.text 
+      }]);
     } catch (error) {
-      console.error('Error:', error);
-      setMessages(prev => [
-        ...prev.slice(0, -1),
-        {
-          role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.'
-        }
-      ]);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to get response from AI. Please try again.",
+        description: "Failed to get a response. Please try again.",
         variant: "destructive",
       });
+      setMessages(prev => [...prev.slice(0, -1)]);
     } finally {
       setIsLoading(false);
     }
@@ -190,6 +161,18 @@ export default function AIAssistant() {
   const handleQuestionClick = (question: string) => {
     setInput(question);
   };
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
+  React.useEffect(() => {
+    adjustTextareaHeight();
+  }, [input]);
 
   return (
     <MainLayout>
