@@ -1,7 +1,6 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, Loader2, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface InsightsDialogProps {
   open: boolean;
@@ -10,15 +9,19 @@ interface InsightsDialogProps {
 }
 
 export function InsightsDialog({ open, onOpenChange, productNames }: InsightsDialogProps) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  // Simulate loading state
-  useState(() => {
+  // Mock loading state when dialog opens
+  useEffect(() => {
     if (open) {
       setLoading(true);
-      setTimeout(() => setLoading(false), 1500);
+      // Simulate API call delay
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
     }
-  });
+  }, [open]);
 
   const insights = {
     commonPositives: [
@@ -68,7 +71,7 @@ export function InsightsDialog({ open, onOpenChange, productNames }: InsightsDia
         </DialogHeader>
 
         {loading ? (
-          <div className="h-[400px] flex items-center justify-center">
+          <div className="h-[300px] flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
               <p className="text-sm text-muted-foreground">Analyzing customer feedback...</p>
