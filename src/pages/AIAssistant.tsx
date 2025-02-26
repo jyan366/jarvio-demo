@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -124,50 +123,16 @@ export default function AIAssistant() {
       setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
       try {
-        // Create a new assistant message with empty content
-        setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-        const response = await supabase.functions.invoke('chat', {
-          body: { prompt: userMessage },
-          responseType: 'stream',
+        const { data, error } = await supabase.functions.invoke('chat', {
+          body: { prompt: userMessage }
         });
 
-        if (!response.data) throw new Error('No response data');
+        if (error) throw error;
 
-        const reader = response.data.getReader();
-        const decoder = new TextDecoder();
-        let accumulatedContent = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          // Decode the chunk and accumulate it
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(5);
-              if (data === '[DONE]') continue;
-              
-              try {
-                const parsed = JSON.parse(data);
-                const content = parsed.choices[0]?.delta?.content || '';
-                accumulatedContent += content;
-                
-                // Update the last message with accumulated content
-                setMessages(prev => {
-                  const newMessages = [...prev];
-                  newMessages[newMessages.length - 1].content = accumulatedContent;
-                  return newMessages;
-                });
-              } catch (e) {
-                console.error('Error parsing chunk:', e);
-              }
-            }
-          }
-        }
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.generatedText
+        }]);
       } catch (error) {
         console.error('Error:', error);
         toast({
@@ -175,8 +140,6 @@ export default function AIAssistant() {
           description: "Failed to get response from AI. Please try again.",
           variant: "destructive",
         });
-        // Remove the empty assistant message if there was an error
-        setMessages(prev => prev.slice(0, -1));
       } finally {
         setIsLoading(false);
       }
