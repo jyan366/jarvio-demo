@@ -13,7 +13,7 @@ export default function SellerReimbursements() {
           <img 
             src="/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png" 
             alt="Carbon6 Logo" 
-            className="h-6 md:h-8"
+            className="h-8 md:h-12"
           />
         </div>
 
@@ -85,22 +85,26 @@ export default function SellerReimbursements() {
                 </div>
               </div>
             </div>
-            <div className="mt-8 flex flex-col items-start gap-4">
+            <div className="mt-8">
               <Button size="lg">
                 Connect with Carbon6
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Powered by</span>
-                <img 
-                  src="/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png" 
-                  alt="Carbon6 Logo" 
-                  className="h-5"
-                />
-              </div>
             </div>
           </div>
         </Card>
+
+        {/* Centered bottom logo */}
+        <div className="flex justify-center items-center mt-8 mb-4">
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-sm text-muted-foreground">Powered By</span>
+            <img 
+              src="/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png" 
+              alt="Carbon6 Logo" 
+              className="h-8"
+            />
+          </div>
+        </div>
       </div>
     </MainLayout>
   );
