@@ -4,14 +4,101 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Send, Bot } from 'lucide-react';
+import { MessageSquare, Send, Bot, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
+
+interface KnowledgeCategory {
+  title: string;
+  description: string;
+  questions: string[];
+}
+
+const knowledgeBase: KnowledgeCategory[] = [
+  {
+    title: "Account Health",
+    description: "Keep your Amazon account healthy and compliant",
+    questions: [
+      "How do I keep my Amazon account in good standing?",
+      "What are the common reasons for account suspensions, and how do I avoid them?",
+      "How do I appeal a suspension or policy violation?",
+      "What should I do if I receive an Intellectual Property complaint?",
+      "How can I improve my Order Defect Rate and Customer Service Performance?"
+    ]
+  },
+  {
+    title: "Sales",
+    description: "Optimize your sales performance and strategy",
+    questions: [
+      "What are the key factors that influence my sales on Amazon?",
+      "How do I create a sales forecast for my products?",
+      "What strategies can I use to increase conversions on my product pages?",
+      "How do I handle seasonal fluctuations in sales?",
+      "What are the best ways to track and analyse my sales performance?"
+    ]
+  },
+  {
+    title: "Inventory",
+    description: "Manage your inventory efficiently",
+    questions: [
+      "How should I manage my inventory to avoid stockouts or overstocking?",
+      "What's the best way to handle stranded inventory?",
+      "How do I set up automated restock alerts?",
+      "What are Amazon's storage fees, and how can I reduce them?",
+      "Should I use FBA, FBM, or a hybrid model for my business?"
+    ]
+  },
+  {
+    title: "Listings",
+    description: "Optimize your product listings for better visibility",
+    questions: [
+      "How do I write a high-converting product title and bullet points?",
+      "What are the best practices for optimising product images on Amazon?",
+      "How does A+ Content help improve sales, and how do I create it?",
+      "What factors affect my listing's organic ranking?",
+      "How do I update or change a product listing that Amazon has locked?"
+    ]
+  },
+  {
+    title: "Customers",
+    description: "Build strong customer relationships",
+    questions: [
+      "How do I encourage customers to leave positive reviews?",
+      "What's the best way to handle negative reviews and customer complaints?",
+      "How do Amazon's customer service expectations differ for FBA vs. FBM sellers?",
+      "What are the best practices for creating an effective customer service strategy?",
+      "How do I reduce my return rate and prevent excessive refunds?"
+    ]
+  },
+  {
+    title: "Competitors",
+    description: "Stay ahead of your competition",
+    questions: [
+      "How do I identify my main competitors on Amazon?",
+      "What strategies can I use to differentiate my products from competitors?",
+      "How do I track competitor pricing and adjust my strategy accordingly?",
+      "How do I protect my listing from hijackers and counterfeit sellers?",
+      "What are some common mistakes sellers make when competing in a crowded market?"
+    ]
+  },
+  {
+    title: "Advertising",
+    description: "Maximize your advertising ROI",
+    questions: [
+      "What are the different types of Amazon ads, and when should I use them?",
+      "How do I structure my PPC campaigns for the best results?",
+      "What's a good ACOS for my product, and how do I improve it?",
+      "How do I find and test the best keywords for my ads?",
+      "What are some common Amazon PPC mistakes and how can I avoid them?"
+    ]
+  }
+];
 
 export default function AIAssistant() {
   const [messages, setMessages] = React.useState<Message[]>([
@@ -22,6 +109,7 @@ export default function AIAssistant() {
   ]);
   const [input, setInput] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [openCategory, setOpenCategory] = React.useState<string | null>(null);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -72,9 +160,13 @@ export default function AIAssistant() {
     }
   };
 
+  const handleQuestionClick = (question: string) => {
+    setInput(question);
+  };
+
   return (
     <MainLayout>
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <Card className="p-6 bg-gradient-to-br from-[#1A1F2C] to-[#2C1F3C] text-white border-none">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -87,62 +179,94 @@ export default function AIAssistant() {
           </div>
         </Card>
 
-        <Card className="flex flex-col h-[600px] border-primary/20">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground ml-4'
-                      : 'bg-muted/50 border border-primary/10 mr-4'
-                  }`}
-                >
-                  {message.content}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Card className="flex flex-col h-[600px] border-primary/20">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 ${
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground ml-4'
+                          : 'bg-muted/50 border border-primary/10 mr-4'
+                      }`}
+                    >
+                      {message.content}
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+
+              <div className="border-t border-primary/10 p-4 bg-card/50">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Ask me anything about managing your Amazon business..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    disabled={isLoading}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={handleSend} 
+                    size="icon"
+                    disabled={isLoading}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
+            </Card>
           </div>
 
-          <div className="border-t border-primary/10 p-4 bg-card/50">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Ask me anything about managing your Amazon business..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                disabled={isLoading}
-                className="flex-1"
-              />
-              <Button 
-                onClick={handleSend} 
-                size="icon"
-                disabled={isLoading}
-                className="bg-primary hover:bg-primary/90"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="space-y-4">
+            <Card className="p-4 bg-muted/5">
+              <h2 className="font-semibold mb-2">Knowledge Base</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Explore common questions by category or ask your own question above.
+              </p>
+              <div className="space-y-2">
+                {knowledgeBase.map((category) => (
+                  <Collapsible
+                    key={category.title}
+                    open={openCategory === category.title}
+                    onOpenChange={() => setOpenCategory(openCategory === category.title ? null : category.title)}
+                  >
+                    <Card className="p-3 hover:bg-muted/50 transition-colors cursor-pointer">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full">
+                        <div>
+                          <h3 className="font-medium">{category.title}</h3>
+                          <p className="text-sm text-muted-foreground">{category.description}</p>
+                        </div>
+                        {openCategory === category.title ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-2 space-y-1">
+                        {category.questions.map((question, index) => (
+                          <div
+                            key={index}
+                            onClick={() => handleQuestionClick(question)}
+                            className="text-sm p-2 hover:bg-muted rounded-md cursor-pointer transition-colors"
+                          >
+                            {question}
+                          </div>
+                        ))}
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
+                ))}
+              </div>
+            </Card>
           </div>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer border-primary/20">
-            <h3 className="font-semibold mb-2">Inventory Analysis</h3>
-            <p className="text-sm text-muted-foreground">Ask me about your inventory levels, stockouts, and reordering recommendations.</p>
-          </Card>
-          <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer border-primary/20">
-            <h3 className="font-semibold mb-2">Performance Metrics</h3>
-            <p className="text-sm text-muted-foreground">Get insights about your sales performance, rankings, and competitive analysis.</p>
-          </Card>
-          <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer border-primary/20">
-            <h3 className="font-semibold mb-2">Listing Optimization</h3>
-            <p className="text-sm text-muted-foreground">Let me help you optimize your product listings for better visibility and conversion.</p>
-          </Card>
         </div>
       </div>
     </MainLayout>
