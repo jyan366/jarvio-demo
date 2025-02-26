@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +20,8 @@ import AIAssistant from "./pages/AIAssistant";
 import GetSupport from "./pages/GetSupport";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import AdsPerformance from "./pages/AdsPerformance";
+import AdsManager from "./pages/AdsManager";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +46,8 @@ export default function App() {
               <Route path="/listing-builder" element={<ListingBuilder />} />
               <Route path="/customer-insights" element={<CustomerInsights />} />
               <Route path="/my-competitors" element={<CompetitorInsights />} />
-              <Route path="/ads-manager" element={<AdvertisingInsights />} />
+              <Route path="/ads-manager" element={<AdsManager />} />
+              <Route path="/ads-performance" element={<AdsPerformance />} />
               <Route path="/ai-assistant" element={<AIAssistant />} />
               <Route path="/get-support" element={<GetSupport />} />
               <Route path="*" element={<NotFound />} />
