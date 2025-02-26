@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Send } from 'lucide-react';
+import { MessageSquare, Send, Bot } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -39,7 +39,6 @@ export default function AIAssistant() {
       setInput('');
       setIsLoading(true);
       
-      // Add user message immediately
       setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
       try {
@@ -75,24 +74,31 @@ export default function AIAssistant() {
 
   return (
     <MainLayout>
-      <div className="max-w-4xl mx-auto space-y-4">
-        <div className="flex items-center gap-2 mb-4 md:mb-8">
-          <MessageSquare className="w-6 md:w-8 h-6 md:h-8" />
-          <h1 className="text-2xl md:text-3xl font-bold">AI Assistant</h1>
-        </div>
+      <div className="max-w-5xl mx-auto space-y-6">
+        <Card className="p-6 bg-gradient-to-br from-[#1A1F2C] to-[#2C1F3C] text-white border-none">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Bot className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">Jarvio AI Assistant</h1>
+              <p className="text-white/70">Your Amazon brand management companion</p>
+            </div>
+          </div>
+        </Card>
 
-        <Card className="h-[500px] md:h-[600px] flex flex-col">
-          <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4">
+        <Card className="flex flex-col h-[600px] border-primary/20">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((message, index) => (
               <div
                 key={index}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[85%] md:max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground ml-4'
-                      : 'bg-muted mr-4'
+                      : 'bg-muted/50 border border-primary/10 mr-4'
                   }`}
                 >
                   {message.content}
@@ -102,10 +108,10 @@ export default function AIAssistant() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="border-t p-3 md:p-4">
+          <div className="border-t border-primary/10 p-4 bg-card/50">
             <div className="flex gap-2">
               <Input
-                placeholder="Type your message..."
+                placeholder="Ask me anything about managing your Amazon business..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
@@ -116,12 +122,28 @@ export default function AIAssistant() {
                 onClick={handleSend} 
                 size="icon"
                 disabled={isLoading}
+                className="bg-primary hover:bg-primary/90"
               >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer border-primary/20">
+            <h3 className="font-semibold mb-2">Inventory Analysis</h3>
+            <p className="text-sm text-muted-foreground">Ask me about your inventory levels, stockouts, and reordering recommendations.</p>
+          </Card>
+          <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer border-primary/20">
+            <h3 className="font-semibold mb-2">Performance Metrics</h3>
+            <p className="text-sm text-muted-foreground">Get insights about your sales performance, rankings, and competitive analysis.</p>
+          </Card>
+          <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer border-primary/20">
+            <h3 className="font-semibold mb-2">Listing Optimization</h3>
+            <p className="text-sm text-muted-foreground">Let me help you optimize your product listings for better visibility and conversion.</p>
+          </Card>
+        </div>
       </div>
     </MainLayout>
   );
