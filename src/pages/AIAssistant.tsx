@@ -100,12 +100,7 @@ const knowledgeBase: KnowledgeCategory[] = [
 ];
 
 export default function AIAssistant() {
-  const [messages, setMessages] = React.useState<Message[]>([
-    {
-      role: 'assistant',
-      content: "Hi! I'm Jarvio, your Amazon selling assistant. I'm here to help you optimize your business and answer any questions about selling on Amazon. How can I assist you today?"
-    }
-  ]);
+  const [messages, setMessages] = React.useState<Message[]>([]);
   const [input, setInput] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [openCategory, setOpenCategory] = React.useState<string | null>(null);
@@ -166,14 +161,14 @@ export default function AIAssistant() {
   return (
     <MainLayout>
       <div className="max-w-4xl mx-auto space-y-6">
-        <Card className="p-6 bg-gradient-to-br from-[#1A1F2C] to-[#2C1F3C] text-white border-none">
+        <Card className="p-6 border-primary/20">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
               <Bot className="w-6 h-6 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl font-bold">Jarvio AI Assistant</h1>
-              <p className="text-white/70">Your Amazon brand management companion</p>
+              <p className="text-muted-foreground">Your Amazon brand management companion</p>
             </div>
           </div>
         </Card>
