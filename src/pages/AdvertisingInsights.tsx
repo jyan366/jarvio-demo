@@ -1,11 +1,13 @@
-
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, BarChart3, Target, Search, Download, Filter, AlertCircle, RefreshCw } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, BarChart3, Target, Search, Download, Filter, AlertCircle, RefreshCw, Plus, Clock, ArrowRight, Clipboard, PlayCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const performanceData = [
   { month: '2023-01', adSpend: 5000, sales: 15000, acos: 33.33, impressions: 150000, clicks: 7500 },
@@ -54,10 +56,24 @@ const recommendations = [
 ];
 
 export default function AdvertisingInsights() {
+  const navigate = useNavigate();
+  const [selectedTab, setSelectedTab] = useState("overview");
+
+  const handleCreateTask = (recommendation: any) => {
+    navigate('/tasks/new', {
+      state: {
+        title: recommendation.title,
+        description: recommendation.description,
+        category: 'Advertising',
+        priority: recommendation.impact.toLowerCase(),
+        metrics: recommendation.metrics
+      }
+    });
+  };
+
   return (
     <MainLayout>
       <div className="space-y-8">
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div>
             <h1 className="text-2xl md:text-4xl font-bold">Advertising Insights</h1>
@@ -65,261 +81,287 @@ export default function AdvertisingInsights() {
               Optimize your Amazon advertising performance
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-            <Card className="p-4 flex-1">
-              <div className="text-sm text-muted-foreground">Target ACoS</div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold">25%</span>
-                <Input type="number" className="w-20 h-8" defaultValue="25" />
-              </div>
-            </Card>
-            <Card className="p-4 flex-1">
-              <div className="text-sm text-muted-foreground">Performance Score</div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold">78/100</span>
-                <span className="text-sm text-green-600 flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  +5
-                </span>
-              </div>
-            </Card>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="outline" onClick={() => navigate('/automation/new')}>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Automation
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/bulk-operations')}>
+              <Clipboard className="w-4 h-4 mr-2" />
+              Bulk Operations
+            </Button>
+            <Button variant="default">
+              <PlayCircle className="w-4 h-4 mr-2" />
+              Start Optimization
+            </Button>
           </div>
         </div>
 
-        {/* Key Metrics Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Total Ad Spend</span>
-            </div>
-            <div className="mt-2">
-              <span className="text-xl md:text-2xl font-bold">$37,500</span>
-              <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
-                <TrendingUp className="w-4 h-4" />
-                +12% from last month
-              </div>
-            </div>
-          </Card>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid grid-cols-4 lg:grid-cols-6 h-auto gap-4">
+            <TabsTrigger value="overview" className="py-2">Overview</TabsTrigger>
+            <TabsTrigger value="campaigns" className="py-2">Campaigns</TabsTrigger>
+            <TabsTrigger value="keywords" className="py-2">Keywords</TabsTrigger>
+            <TabsTrigger value="automation" className="py-2">Automation</TabsTrigger>
+            <TabsTrigger value="analytics" className="py-2">Analytics</TabsTrigger>
+            <TabsTrigger value="history" className="py-2">History</TabsTrigger>
+          </TabsList>
 
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Ad-Attributed Sales</span>
-            </div>
-            <div className="mt-2">
-              <span className="text-xl md:text-2xl font-bold">$140,000</span>
-              <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
-                <TrendingUp className="w-4 h-4" />
-                +18% from last month
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Current ACoS</span>
-            </div>
-            <div className="mt-2">
-              <span className="text-xl md:text-2xl font-bold">26.79%</span>
-              <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
-                <TrendingDown className="w-4 h-4" />
-                -2.3% from last month
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2">
-              <Search className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">CTR</span>
-            </div>
-            <div className="mt-2">
-              <span className="text-xl md:text-2xl font-bold">5.2%</span>
-              <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
-                <TrendingUp className="w-4 h-4" />
-                +0.3% from last month
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Main Performance Chart */}
-        <Card className="p-4 md:p-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-            <h2 className="text-lg md:text-xl font-bold">Advertising Performance Over Time</h2>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="w-4 h-4 mr-2" />
-                Filters
-              </Button>
-              <Button variant="outline" size="sm">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Last 30 Days
-              </Button>
-            </div>
-          </div>
-          <div className="h-[300px] md:h-[400px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={performanceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip />
-                <Line yAxisId="left" type="monotone" dataKey="adSpend" stroke="#8884d8" name="Ad Spend ($)" />
-                <Line yAxisId="left" type="monotone" dataKey="sales" stroke="#82ca9d" name="Sales ($)" />
-                <Line yAxisId="right" type="monotone" dataKey="acos" stroke="#ffc658" name="ACoS (%)" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Keywords Table */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg md:text-xl font-bold">Top Performing Keywords</h2>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-            </div>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Keyword</TableHead>
-                    <TableHead className="text-right">Impressions</TableHead>
-                    <TableHead className="text-right">Clicks</TableHead>
-                    <TableHead className="text-right">Conv.</TableHead>
-                    <TableHead className="text-right">ACoS</TableHead>
-                    <TableHead className="text-right">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {topKeywords.map((keyword) => (
-                    <TableRow key={keyword.keyword}>
-                      <TableCell className="min-w-[150px] font-medium">{keyword.keyword}</TableCell>
-                      <TableCell className="text-right">{keyword.impressions.toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{keyword.clicks.toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{keyword.conversions}</TableCell>
-                      <TableCell className="text-right">{keyword.acos}%</TableCell>
-                      <TableCell className="text-right">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          keyword.status === 'improving' ? 'bg-green-100 text-green-800' :
-                          keyword.status === 'declining' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {keyword.status}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </Card>
-
-          {/* Campaign Performance Chart */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg md:text-xl font-bold">Campaign Budget Utilization</h2>
-              <Button variant="outline" size="sm">
-                <Filter className="w-4 h-4 mr-2" />
-                Filter
-              </Button>
-            </div>
-            <div className="space-y-4">
-              {campaignPerformance.map((campaign) => (
-                <div key={campaign.name} className="p-4 border rounded-lg">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="font-medium">{campaign.name}</h3>
-                      <p className="text-sm text-muted-foreground">ACoS: {campaign.acos}%</p>
-                    </div>
-                    {campaign.status === 'warning' && (
-                      <AlertCircle className="w-5 h-5 text-yellow-500" />
-                    )}
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                    <div 
-                      className={`h-2.5 rounded-full ${
-                        (campaign.spent / campaign.budget) > 0.9 
-                          ? 'bg-red-500' 
-                          : (campaign.spent / campaign.budget) > 0.7 
-                            ? 'bg-yellow-500' 
-                            : 'bg-green-500'
-                      }`}
-                      style={{ width: `${(campaign.spent / campaign.budget) * 100}%` }}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      ${campaign.spent.toLocaleString()} spent
-                    </span>
-                    <span className="text-muted-foreground">
-                      ${campaign.budget.toLocaleString()} budget
-                    </span>
-                  </div>
+          <TabsContent value="overview" className="space-y-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="p-4">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Target ACoS</span>
                 </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-
-        {/* Recommendations Section */}
-        <Card className="p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold mb-2">Optimization Recommendations</h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            AI-powered suggestions to improve your advertising performance
-          </p>
-          
-          <div className="space-y-4">
-            {recommendations.map((rec) => (
-              <Card key={rec.title} className="p-4">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-2">
-                      <h3 className="font-medium">{rec.title}</h3>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        rec.impact === 'High' ? 'bg-red-100 text-red-800' : 
-                        rec.impact === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
-                        'bg-green-100 text-green-800'
-                      }`}>
-                        {rec.impact} Impact
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{rec.description}</p>
-                    <div className="flex flex-wrap gap-4 text-sm">
-                      {Object.entries(rec.metrics).map(([key, value]) => (
-                        <div key={key} className="flex items-center gap-1">
-                          <span className="text-muted-foreground capitalize">
-                            {key.replace(/([A-Z])/g, ' $1').trim()}:
-                          </span>
-                          <span className="font-medium">{value}</span>
-                        </div>
-                      ))}
-                    </div>
+                <div className="mt-2 space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold">25%</span>
+                    <Input type="number" className="w-20 h-8" defaultValue="25" />
                   </div>
-                  <Button variant="default">Apply</Button>
+                  <div className="text-xs text-muted-foreground">
+                    Portfolio Average: 23.5%
+                  </div>
                 </div>
               </Card>
-            ))}
-          </div>
+              
+              <Card className="p-4">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Ad-Attributed Sales</span>
+                </div>
+                <div className="mt-2">
+                  <span className="text-xl md:text-2xl font-bold">$140,000</span>
+                  <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
+                    <TrendingUp className="w-4 h-4" />
+                    +18% from last month
+                  </div>
+                </div>
+              </Card>
 
-          <div className="flex flex-col md:flex-row justify-end gap-4 mt-6">
-            <Button variant="outline" className="w-full md:w-auto gap-2">
-              <Download className="w-4 h-4" />
-              Download Negative Keywords
-            </Button>
-            <Button variant="outline" className="w-full md:w-auto gap-2">
-              <Download className="w-4 h-4" />
-              Download Search Terms
-            </Button>
-          </div>
-        </Card>
+              <Card className="p-4">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Current ACoS</span>
+                </div>
+                <div className="mt-2">
+                  <span className="text-xl md:text-2xl font-bold">26.79%</span>
+                  <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
+                    <TrendingDown className="w-4 h-4" />
+                    -2.3% from last month
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-2">
+                  <Search className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">CTR</span>
+                </div>
+                <div className="mt-2">
+                  <span className="text-xl md:text-2xl font-bold">5.2%</span>
+                  <div className="text-sm text-green-600 flex items-center gap-1 mt-1">
+                    <TrendingUp className="w-4 h-4" />
+                    +0.3% from last month
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="p-4 hover:bg-accent cursor-pointer transition-colors">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-blue-500" />
+                  <div>
+                    <h3 className="font-medium">Scheduled Tasks</h3>
+                    <p className="text-sm text-muted-foreground">3 tasks pending</p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 ml-auto" />
+                </div>
+              </Card>
+              <Card className="p-4 hover:bg-accent cursor-pointer transition-colors">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-yellow-500" />
+                  <div>
+                    <h3 className="font-medium">Optimization Alert</h3>
+                    <p className="text-sm text-muted-foreground">2 campaigns need attention</p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 ml-auto" />
+                </div>
+              </Card>
+              <Card className="p-4 hover:bg-accent cursor-pointer transition-colors">
+                <div className="flex items-center gap-3">
+                  <Target className="w-5 h-5 text-green-500" />
+                  <div>
+                    <h3 className="font-medium">Performance Goals</h3>
+                    <p className="text-sm text-muted-foreground">On track: 8/10 metrics</p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 ml-auto" />
+                </div>
+              </Card>
+            </div>
+
+            <Card className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <h2 className="text-lg md:text-xl font-bold">Advertising Performance Over Time</h2>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filters
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Last 30 Days
+                  </Button>
+                </div>
+              </div>
+              <div className="h-[300px] md:h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={performanceData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip />
+                    <Line yAxisId="left" type="monotone" dataKey="adSpend" stroke="#8884d8" name="Ad Spend ($)" />
+                    <Line yAxisId="left" type="monotone" dataKey="sales" stroke="#82ca9d" name="Sales ($)" />
+                    <Line yAxisId="right" type="monotone" dataKey="acos" stroke="#ffc658" name="ACoS (%)" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+
+            <Card className="p-4 md:p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-lg md:text-xl font-bold">Optimization Recommendations</h2>
+                  <p className="text-sm text-muted-foreground">
+                    AI-powered suggestions based on your campaign performance
+                  </p>
+                </div>
+                <Button variant="outline" size="sm">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filter by Impact
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                {recommendations.map((rec) => (
+                  <Card key={rec.title} className="p-4">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <h3 className="font-medium">{rec.title}</h3>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            rec.impact === 'High' ? 'bg-red-100 text-red-800' : 
+                            rec.impact === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
+                            'bg-green-100 text-green-800'
+                          }`}>
+                            {rec.impact} Impact
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{rec.description}</p>
+                        <div className="flex flex-wrap gap-4 text-sm">
+                          {Object.entries(rec.metrics).map(([key, value]) => (
+                            <div key={key} className="flex items-center gap-1">
+                              <span className="text-muted-foreground capitalize">
+                                {key.replace(/([A-Z])/g, ' $1').trim()}:
+                              </span>
+                              <span className="font-medium">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline"
+                          onClick={() => handleCreateTask(rec)}
+                        >
+                          Create Task
+                        </Button>
+                        <Button>Apply Now</Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="campaigns">
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-4">Campaign Management</h2>
+              <p className="text-muted-foreground">Select a campaign to view detailed metrics and optimizations.</p>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="keywords">
+            <Card className="p-4 md:p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg md:text-xl font-bold">Top Performing Keywords</h2>
+                <Button variant="outline" size="sm">
+                  <Download className="w-4 h-4 mr-2" />
+                  Export
+                </Button>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Keyword</TableHead>
+                      <TableHead className="text-right">Impressions</TableHead>
+                      <TableHead className="text-right">Clicks</TableHead>
+                      <TableHead className="text-right">Conv.</TableHead>
+                      <TableHead className="text-right">ACoS</TableHead>
+                      <TableHead className="text-right">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {topKeywords.map((keyword) => (
+                      <TableRow key={keyword.keyword}>
+                        <TableCell className="min-w-[150px] font-medium">{keyword.keyword}</TableCell>
+                        <TableCell className="text-right">{keyword.impressions.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{keyword.clicks.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{keyword.conversions}</TableCell>
+                        <TableCell className="text-right">{keyword.acos}%</TableCell>
+                        <TableCell className="text-right">
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            keyword.status === 'improving' ? 'bg-green-100 text-green-800' :
+                            keyword.status === 'declining' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {keyword.status}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="automation">
+            <Card className="p-4 md:p-6">
+              <h2 className="text-xl font-bold mb-4">Automation</h2>
+              <p className="text-muted-foreground">Manage and optimize your automated campaigns.</p>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <Card className="p-4 md:p-6">
+              <h2 className="text-xl font-bold mb-4">Analytics</h2>
+              <p className="text-muted-foreground">View detailed analytics and insights.</p>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="history">
+            <Card className="p-4 md:p-6">
+              <h2 className="text-xl font-bold mb-4">History</h2>
+              <p className="text-muted-foreground">Review past performance and campaigns.</p>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
