@@ -1,3 +1,4 @@
+
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
@@ -52,7 +53,7 @@ const brandToolkitItems: MenuItem[] = [{
     label: 'My Inventory',
     href: '/inventory'
   }, {
-    label: 'Seller Reimbursements',
+    label: 'Reimbursements',
     href: '/seller-reimbursements'
   }]
 }, {
