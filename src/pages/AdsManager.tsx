@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Plus, Download, Upload, Copy, Star, StarOff, Filter } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from 'react-router-dom';
 
 const templateCategories = [
   { name: 'Product Launch', count: 5 },
@@ -40,6 +41,8 @@ const templates = [
 ];
 
 export default function AdsManager() {
+  const navigate = useNavigate();
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -53,7 +56,10 @@ export default function AdsManager() {
               <Upload className="w-4 h-4 mr-2" />
               Import
             </Button>
-            <Button variant="default">
+            <Button 
+              variant="default"
+              onClick={() => navigate('/template-builder')}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Create Template
             </Button>
