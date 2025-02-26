@@ -87,7 +87,7 @@ const brandToolkitItems: MenuItem[] = [{
   icon: Megaphone,
   label: 'Advertising',
   href: '#',
-  status: 'active',
+  status: 'coming-soon',
   submenu: [{
     label: 'Ads Performance',
     href: '/ads-performance'
