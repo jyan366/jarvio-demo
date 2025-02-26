@@ -136,6 +136,12 @@ export default function AIAssistant() {
       
       setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
+      // Add the loading message
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: '🤔 Thinking and browsing through our Amazon SOPs...' 
+      }]);
+
       try {
         const { data, error } = await supabase.functions.invoke('chat', {
           body: { prompt: userMessage }
@@ -143,12 +149,24 @@ export default function AIAssistant() {
 
         if (error) throw error;
 
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: data.generatedText
-        }]);
+        // Replace the loading message with the actual response
+        setMessages(prev => [
+          ...prev.slice(0, -1), // Remove the loading message
+          {
+            role: 'assistant',
+            content: data.generatedText
+          }
+        ]);
       } catch (error) {
         console.error('Error:', error);
+        // Replace the loading message with the error
+        setMessages(prev => [
+          ...prev.slice(0, -1),
+          {
+            role: 'assistant',
+            content: 'Sorry, I encountered an error. Please try again.'
+          }
+        ]);
         toast({
           title: "Error",
           description: "Failed to get response from AI. Please try again.",

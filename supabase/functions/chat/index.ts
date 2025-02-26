@@ -17,8 +17,8 @@ serve(async (req) => {
 
   try {
     const { prompt } = await req.json();
+    console.log('Received prompt:', prompt);
 
-    // Make streaming request to OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -28,22 +28,22 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          {
-            role: 'system',
-            content: 'You are an AI assistant specialized in helping Amazon sellers optimize their business. Provide clear, concise, and actionable advice.'
+          { 
+            role: 'system', 
+            content: 'You are an AI assistant specialized in Amazon seller support. You have access to Standard Operating Procedures (SOPs) and best practices for Amazon sellers. Provide clear, actionable advice based on these established procedures.' 
           },
           { role: 'user', content: prompt }
         ],
-        stream: true,
       }),
     });
 
-    // Return the streaming response directly
-    return new Response(response.body, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'text/event-stream',
-      },
+    const data = await response.json();
+    console.log('OpenAI response:', data);
+    
+    const generatedText = data.choices[0].message.content;
+
+    return new Response(JSON.stringify({ generatedText }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in chat function:', error);
