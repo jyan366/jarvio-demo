@@ -22,7 +22,6 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import AdsPerformance from "./pages/AdsPerformance";
 import AdsManager from "./pages/AdsManager";
-import TemplatePPCBuilder from "./pages/TemplatePPCBuilder";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +50,6 @@ export default function App() {
               <Route path="/ads-performance" element={<AdsPerformance />} />
               <Route path="/ai-assistant" element={<AIAssistant />} />
               <Route path="/get-support" element={<GetSupport />} />
-              <Route path="/template-builder" element={<TemplatePPCBuilder />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
