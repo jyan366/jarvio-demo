@@ -1,4 +1,3 @@
-
 import * as React from "react"
 
 const TOAST_LIMIT = 1
@@ -9,7 +8,9 @@ type ToastProps = {
   title?: React.ReactNode
   description?: React.ReactNode
   action?: React.ReactNode
+  open?: boolean
   variant?: "default" | "destructive"
+  onOpenChange?: (open: boolean) => void
 }
 
 const actionTypes = {
