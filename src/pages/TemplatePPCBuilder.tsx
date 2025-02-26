@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { DragHandleDots2Icon } from '@radix-ui/react-icons';
-import { Save, X, Plus, Settings, PlusCircle, Play, ArrowLeft, Download } from 'lucide-react';
+import { Save, X, Plus, Settings, PlusCircle, Play, ArrowLeft, Download, GripVertical } from 'lucide-react';
 import { useState } from 'react';
 
 interface CampaignElement {
@@ -87,7 +86,7 @@ export default function TemplatePPCBuilder() {
                   onDragStart={(e) => handleDragStart(e, 'campaign')}
                   className="p-3 border rounded-lg cursor-move hover:bg-accent flex items-center gap-2"
                 >
-                  <DragHandleDots2Icon className="w-4 h-4" />
+                  <GripVertical className="w-4 h-4" />
                   Campaign
                 </div>
                 <div
@@ -95,7 +94,7 @@ export default function TemplatePPCBuilder() {
                   onDragStart={(e) => handleDragStart(e, 'adGroup')}
                   className="p-3 border rounded-lg cursor-move hover:bg-accent flex items-center gap-2"
                 >
-                  <DragHandleDots2Icon className="w-4 h-4" />
+                  <GripVertical className="w-4 h-4" />
                   Ad Group
                 </div>
                 <div
@@ -103,7 +102,7 @@ export default function TemplatePPCBuilder() {
                   onDragStart={(e) => handleDragStart(e, 'keyword')}
                   className="p-3 border rounded-lg cursor-move hover:bg-accent flex items-center gap-2"
                 >
-                  <DragHandleDots2Icon className="w-4 h-4" />
+                  <GripVertical className="w-4 h-4" />
                   Keywords
                 </div>
                 <div
@@ -111,7 +110,7 @@ export default function TemplatePPCBuilder() {
                   onDragStart={(e) => handleDragStart(e, 'target')}
                   className="p-3 border rounded-lg cursor-move hover:bg-accent flex items-center gap-2"
                 >
-                  <DragHandleDots2Icon className="w-4 h-4" />
+                  <GripVertical className="w-4 h-4" />
                   Targeting
                 </div>
               </div>
@@ -176,7 +175,7 @@ export default function TemplatePPCBuilder() {
                       <Card key={element.id} className="border-2 border-dashed p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <DragHandleDots2Icon className="w-4 h-4" />
+                            <GripVertical className="w-4 h-4" />
                             <span className="font-medium">{element.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
