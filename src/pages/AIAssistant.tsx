@@ -174,6 +174,15 @@ export default function AIAssistant() {
     adjustTextareaHeight();
   }, [input]);
 
+  const formatMessageContent = (content: string) => {
+    return content.split('\n').map((line, i) => (
+      <React.Fragment key={i}>
+        {line}
+        <br />
+      </React.Fragment>
+    ));
+  };
+
   return (
     <MainLayout>
       <div className="max-w-4xl mx-auto space-y-6">
@@ -227,13 +236,13 @@ export default function AIAssistant() {
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 ${
+                  className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 whitespace-pre-line ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground ml-4'
                       : 'bg-muted/50 border border-primary/10 mr-4'
                   }`}
                 >
-                  {message.content}
+                  {formatMessageContent(message.content)}
                 </div>
               </div>
             ))}

@@ -7,6 +7,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const formatAssistantResponse = (text: string) => {
+  // Remove double asterisks and replace with appropriate formatting
+  let formattedText = text.replace(/\*\*(.*?)\*\*/g, '$1');
+  
+  // Add line breaks before numbered points
+  formattedText = formattedText.replace(/(\d+\.)/g, '\n$1');
+  
+  // Add bullet points for sub-items
+  formattedText = formattedText.replace(/- /g, '\n• ');
+  
+  return formattedText;
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -24,15 +37,20 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are an Amazon seller support assistant.' },
+          { 
+            role: 'system', 
+            content: 'You are an Amazon seller support assistant. Format your responses with:\n- Clear headings (no asterisks)\n- Bullet points for lists\n- Line breaks between sections\n- No markdown formatting' 
+          },
           { role: 'user', content: prompt }
         ],
       }),
     });
 
     const data = await response.json();
+    const formattedText = formatAssistantResponse(data.choices[0].message.content);
+    
     return new Response(JSON.stringify({ 
-      text: data.choices[0].message.content 
+      text: formattedText 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
