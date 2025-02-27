@@ -1,11 +1,13 @@
+
 import React, { useState, useRef } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
-import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { CreateTaskDialog } from '@/components/tasks/CreateTaskDialog';
 import { useToast } from '@/components/ui/use-toast';
+import { cn } from '@/lib/utils';
 
 const metrics = [
   { label: 'Total Sales', value: '$112,443.74', change: 35.65, inverseColor: false },
@@ -82,6 +84,7 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState(initialTasks);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleDragEnd = (result: any) => {
     const { source, destination } = result;
@@ -126,6 +129,12 @@ export default function Dashboard() {
     });
   };
 
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6 md:space-y-8">
@@ -143,29 +152,40 @@ export default function Dashboard() {
         </div>
 
         <div className="relative -mx-4 md:mx-0">
-          <div className="overflow-x-auto pb-4 md:pb-0">
-            <div className="flex gap-4 px-4 md:px-0 min-w-max">
-              {metrics.map((metric, index) => (
-                <Card 
-                  key={index} 
-                  className="p-4 border rounded-2xl w-[180px] shrink-0"
-                >
-                  <div className="flex flex-col space-y-2">
-                    <p className="text-sm text-muted-foreground font-medium truncate">{metric.label}</p>
-                    <p className="text-lg md:text-xl font-bold">{metric.value}</p>
-                    {metric.change !== 0 && (
-                      <div className={`flex items-center ${
-                        metric.inverseColor 
-                          ? (metric.change < 0 ? 'text-green-500' : 'text-red-500')
-                          : (metric.change < 0 ? 'text-red-500' : 'text-green-500')
-                      } text-sm font-medium`}>
-                        {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                        <span>{Math.abs(metric.change)}%</span>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-              ))}
+          <div className="relative overflow-hidden">
+            <div 
+              ref={scrollContainerRef}
+              className="overflow-x-auto scrollbar-hide pb-4 md:pb-0"
+            >
+              <div className="flex gap-4 px-4 md:px-0 min-w-max">
+                {metrics.map((metric, index) => (
+                  <Card 
+                    key={index} 
+                    className="p-4 border rounded-2xl w-[180px] shrink-0"
+                  >
+                    <div className="flex flex-col space-y-2">
+                      <p className="text-sm text-muted-foreground font-medium truncate">{metric.label}</p>
+                      <p className="text-lg md:text-xl font-bold">{metric.value}</p>
+                      {metric.change !== 0 && (
+                        <div className={`flex items-center ${
+                          metric.inverseColor 
+                            ? (metric.change < 0 ? 'text-green-500' : 'text-red-500')
+                            : (metric.change < 0 ? 'text-red-500' : 'text-green-500')
+                        } text-sm font-medium`}>
+                          {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                          <span>{Math.abs(metric.change)}%</span>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+            <div 
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-l-lg shadow-md opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+              onClick={scrollRight}
+            >
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </div>
           </div>
         </div>
