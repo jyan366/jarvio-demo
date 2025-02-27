@@ -1,8 +1,8 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
-import { ChevronDown, ChevronUp, Plus, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { CreateTaskDialog } from '@/components/tasks/CreateTaskDialog';
@@ -83,8 +83,33 @@ const tagColors = {
 export default function Dashboard() {
   const [tasks, setTasks] = useState(initialTasks);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const { toast } = useToast();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Check if scroll is possible in either direction
+  useEffect(() => {
+    const checkScroll = () => {
+      if (scrollContainerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+        setCanScrollLeft(scrollLeft > 0);
+        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5); // 5px buffer
+      }
+    };
+
+    const container = scrollContainerRef.current;
+    if (container) {
+      checkScroll();
+      container.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      
+      return () => {
+        container.removeEventListener('scroll', checkScroll);
+        window.addEventListener('resize', checkScroll);
+      };
+    }
+  }, []);
 
   const handleDragEnd = (result: any) => {
     const { source, destination } = result;
@@ -135,6 +160,12 @@ export default function Dashboard() {
     }
   };
 
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6 md:space-y-8">
@@ -181,8 +212,18 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
+            
+            {/* Left scroll button */}
             <div 
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-l-lg shadow-md opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+              className={`absolute left-0 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-r-lg shadow-md opacity-0 hover:opacity-100 transition-opacity cursor-pointer ${!canScrollLeft && 'pointer-events-none'}`}
+              onClick={scrollLeft}
+            >
+              <ChevronLeft className="h-5 w-5 text-muted-foreground" />
+            </div>
+            
+            {/* Right scroll button */}
+            <div 
+              className={`absolute right-0 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-l-lg shadow-md opacity-0 hover:opacity-100 transition-opacity cursor-pointer ${!canScrollRight && 'pointer-events-none'}`}
               onClick={scrollRight}
             >
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
