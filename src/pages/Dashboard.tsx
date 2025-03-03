@@ -1,8 +1,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { 
   Bell, 
   ChevronRight, 
@@ -13,7 +14,13 @@ import {
   ChevronLeft,
   ChevronDown,
   ChevronUp,
-  Percent
+  Percent,
+  AlertCircle,
+  BarChart3,
+  ArrowRight,
+  Check,
+  Clock,
+  ListChecks
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { 
@@ -28,7 +35,10 @@ import {
   LineChart,
   Line,
   BarChart,
-  Bar
+  Bar,
+  PieChart,
+  Pie,
+  Cell
 } from 'recharts';
 import { cn } from '@/lib/utils';
 
@@ -50,6 +60,45 @@ const rankingData = [
   {day: '15 Nov', rank: 17},
   {day: '21 Nov', rank: 14},
   {day: '2 Dec', rank: 13},
+];
+
+// Task completion data for the week
+const taskCompletionData = [
+  { day: 'Mon', completed: 8, total: 10 },
+  { day: 'Tue', completed: 6, total: 7 },
+  { day: 'Wed', completed: 9, total: 12 },
+  { day: 'Thu', completed: 7, total: 8 },
+  { day: 'Fri', completed: 4, total: 9 },
+  { day: 'Sat', completed: 3, total: 5 },
+  { day: 'Sun', completed: 2, total: 3 },
+];
+
+// Top insights data
+const topInsights = [
+  { 
+    title: "Competitor Price Drop", 
+    description: "Your main competitor dropped prices by 15% on similar products.", 
+    impact: "high",
+    category: "Pricing"
+  },
+  { 
+    title: "Keyword Opportunity", 
+    description: "Adding 'organic' to your product titles could increase visibility by 23%.", 
+    impact: "medium",
+    category: "SEO"
+  },
+  { 
+    title: "Inventory Alert", 
+    description: "Kimchi 1kg Jar will run out in 5 days at current sales velocity.", 
+    impact: "high",
+    category: "Inventory"
+  },
+  { 
+    title: "Review Sentiment", 
+    description: "Positive sentiment increased by 12% this week compared to last week.", 
+    impact: "low",
+    category: "Reviews"
+  },
 ];
 
 // This is the set of metrics from the Task Manager
@@ -108,6 +157,16 @@ export default function Dashboard() {
       scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
     }
   };
+
+  // Calculate the overall task completion rate
+  const calculateCompletionRate = () => {
+    const totalTasks = taskCompletionData.reduce((sum, day) => sum + day.total, 0);
+    const completedTasks = taskCompletionData.reduce((sum, day) => sum + day.completed, 0);
+    return (completedTasks / totalTasks * 100).toFixed(1);
+  };
+
+  // Colors for the pie chart
+  const COLORS = ['#8B5CF6', '#E2E8F0'];
 
   return (
     <MainLayout>
@@ -176,6 +235,7 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* New Task Overview + Insights Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Today's Tasks */}
           <Card className="p-6 overflow-hidden">
@@ -219,37 +279,102 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          {/* Notifications Section */}
-          <Card className="p-6 col-span-1 md:col-span-2">
-            <h2 className="text-xl font-semibold mb-4">Notifications</h2>
-            
-            <div className="space-y-4">
-              {/* Growth Opportunities */}
-              <Card className="p-4 border">
-                <h3 className="text-lg font-medium mb-2">Growth Opportunities</h3>
-                <p className="mb-3">You have 3 new high potential growth opportunities!</p>
-                <div className="flex justify-end">
-                  <Button variant="outline" size="sm" className="flex items-center gap-1">
-                    All Growth Opportunities
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+          {/* Task Completion Rate */}
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-0">
+              <CardTitle className="text-xl font-semibold">Task Completion Rate</CardTitle>
+              <p className="text-sm text-muted-foreground">Last 7 days</p>
+            </CardHeader>
+            <CardContent className="p-6 flex flex-col h-full">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+                <div className="w-32 h-32">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Completed', value: parseFloat(calculateCompletionRate()) },
+                          { name: 'Remaining', value: 100 - parseFloat(calculateCompletionRate()) }
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={30}
+                        outerRadius={50}
+                        fill="#8884d8"
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {[0, 1].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-              </Card>
+                <div className="text-center md:text-left">
+                  <h3 className="text-4xl font-bold text-primary">{calculateCompletionRate()}%</h3>
+                  <p className="text-sm text-muted-foreground">Completion Rate</p>
+                  <p className="text-sm mt-2">
+                    <span className="font-medium">39</span> completed of <span className="font-medium">54</span> total tasks
+                  </p>
+                </div>
+              </div>
               
-              {/* Inventory Levels */}
-              <Card className="p-4 border">
-                <h3 className="text-lg font-medium mb-2">Inventory Levels</h3>
-                <p className="mb-3">You have 1 product with less than 30 days of stock remaining!</p>
-                <div className="flex justify-end">
-                  <Button variant="outline" size="sm" asChild className="flex items-center gap-1">
-                    <Link to="/inventory">
-                      Go to Inventory
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </Card>
-            </div>
+              <div className="h-36 mt-auto">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={taskCompletionData}
+                    margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="day" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip 
+                      formatter={(value, name) => [value, name === 'completed' ? 'Completed Tasks' : 'Total Tasks']} 
+                    />
+                    <Bar dataKey="completed" name="Completed" fill="#8B5CF6" />
+                    <Bar dataKey="total" name="Total" fill="#E2E8F0" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Today's Top Insights */}
+          <Card className="overflow-hidden">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold">Today's Top Insights</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-0 max-h-[285px] overflow-auto">
+                {topInsights.map((insight, index) => (
+                  <div key={index} className="p-4 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-start gap-3">
+                      {insight.impact === 'high' && <AlertCircle className="text-red-500 h-5 w-5 mt-0.5" />}
+                      {insight.impact === 'medium' && <BarChart3 className="text-amber-500 h-5 w-5 mt-0.5" />}
+                      {insight.impact === 'low' && <BarChart3 className="text-green-500 h-5 w-5 mt-0.5" />}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium">{insight.title}</h3>
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                            {insight.category}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">{insight.description}</p>
+                      </div>
+                    </div>
+                    {index < topInsights.length - 1 && <Separator className="mt-4" />}
+                  </div>
+                ))}
+              </div>
+              <div className="p-3 bg-muted/30">
+                <Button variant="ghost" className="w-full justify-between" asChild>
+                  <Link to="/customer-insights">
+                    View all insights
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
           </Card>
         </div>
 
