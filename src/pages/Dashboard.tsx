@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,11 +8,11 @@ import {
   ChevronRight, 
   FileCheck, 
   Package, 
-  ChevronDown, 
   Calendar, 
   Plus,
-  ArrowUp,
-  ArrowDown,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Percent
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -52,67 +52,62 @@ const rankingData = [
   {day: '2 Dec', rank: 13},
 ];
 
-interface MetricCardProps {
-  title: string;
-  value: string;
-  percentChange: number;
-  icon?: React.ReactNode;
-}
-
-const MetricCard: React.FC<MetricCardProps> = ({ title, value, percentChange, icon }) => {
-  const isPositive = percentChange >= 0;
-  
-  return (
-    <Card className="p-6 shadow-sm rounded-lg hover:shadow-md transition-shadow">
-      <div className="flex flex-col">
-        <h3 className="text-lg font-medium text-gray-700">{title}</h3>
-        <p className="text-2xl font-bold mt-2">{value}</p>
-        <div className="flex items-center mt-2">
-          {isPositive ? (
-            <ArrowUp className="h-4 w-4 text-green-500 mr-1" />
-          ) : (
-            <ArrowDown className="h-4 w-4 text-amber-500 mr-1" />
-          )}
-          <span 
-            className={cn(
-              "text-sm font-medium",
-              isPositive ? "text-green-500" : "text-amber-500"
-            )}
-          >
-            {isPositive ? '+' : ''}{percentChange}%
-          </span>
-        </div>
-      </div>
-    </Card>
-  );
-};
+// This is the set of metrics from the Task Manager
+const metrics = [
+  { label: 'Total Sales', value: '$112,443.74', change: 35.65, inverseColor: false },
+  { label: 'Total Cost', value: '$65,589.51', change: -8.71, inverseColor: true },
+  { label: 'Total Profit', value: '$46,854.23', change: 68.32, inverseColor: false },
+  { label: 'Advertising Cost', value: '$3,612.50', change: -12.5, inverseColor: true },
+  { label: 'Inventory Value', value: '$178,213.09', change: 45.3, inverseColor: false },
+  { label: 'Profit Margin', value: '41.67%', change: 28.58, inverseColor: false },
+  { label: 'Units Sold', value: '4,950', change: 55.44, inverseColor: false },
+];
 
 export default function Dashboard() {
   const [timeframe, setTimeframe] = useState('7');
   const [rankTimeframe, setRankTimeframe] = useState('30');
-  const userName = "Hazel";
-  const timeOfDay = getTimeOfDay();
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Check if scroll is possible in either direction
+  useEffect(() => {
+    const checkScroll = () => {
+      if (scrollContainerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+        setCanScrollLeft(scrollLeft > 0);
+        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5); // 5px buffer
+      }
+    };
 
-  function getTimeOfDay() {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Morning";
-    if (hour < 18) return "Afternoon";
-    return "Evening";
-  }
+    const container = scrollContainerRef.current;
+    if (container) {
+      checkScroll();
+      container.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      
+      return () => {
+        container.removeEventListener('scroll', checkScroll);
+        window.addEventListener('resize', checkScroll);
+      };
+    }
+  }, []);
 
   const formatCurrency = (value: number) => {
     return `£${value.toFixed(2)}`;
   };
 
-  // Metrics for the dashboard based on screenshot
-  const metrics = [
-    { title: "Total Sales", value: "£112,443.74", percentChange: 35.65 },
-    { title: "Total Cost", value: "£65,589.51", percentChange: -8.71 },
-    { title: "Total Profit", value: "£46,854.23", percentChange: 68.32 },
-    { title: "Advertising Cost", value: "£3,612.50", percentChange: -12.5 },
-    { title: "Inventory Value", value: "£178,213.09", percentChange: 45.3 },
-    { title: "Profit Margin", value: "41.67%", percentChange: 28.58 },
-  ];
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
 
   return (
     <MainLayout>
@@ -131,16 +126,54 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Metrics Grid - Styled like the screenshot */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          {metrics.map((metric, index) => (
-            <MetricCard 
-              key={index}
-              title={metric.title}
-              value={metric.value}
-              percentChange={metric.percentChange}
-            />
-          ))}
+        {/* Metrics from TaskManager.tsx */}
+        <div className="relative -mx-4 md:mx-0">
+          <div className="relative overflow-hidden">
+            <div 
+              ref={scrollContainerRef}
+              className="overflow-x-auto scrollbar-hide pb-4 md:pb-0"
+            >
+              <div className="flex gap-4 px-4 md:px-0 min-w-max">
+                {metrics.map((metric, index) => (
+                  <Card 
+                    key={index} 
+                    className="p-4 border rounded-2xl w-[180px] shrink-0"
+                  >
+                    <div className="flex flex-col space-y-2">
+                      <p className="text-sm text-muted-foreground font-medium truncate">{metric.label}</p>
+                      <p className="text-lg md:text-xl font-bold">{metric.value}</p>
+                      {metric.change !== 0 && (
+                        <div className={`flex items-center ${
+                          metric.inverseColor 
+                            ? (metric.change < 0 ? 'text-green-500' : 'text-red-500')
+                            : (metric.change < 0 ? 'text-red-500' : 'text-green-500')
+                        } text-sm font-medium`}>
+                          {metric.change < 0 ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                          <span>{Math.abs(metric.change)}%</span>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+            
+            {/* Left scroll button */}
+            <div 
+              className={`absolute left-0 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-r-lg shadow-md opacity-0 hover:opacity-100 transition-opacity cursor-pointer ${!canScrollLeft && 'pointer-events-none'}`}
+              onClick={scrollLeft}
+            >
+              <ChevronLeft className="h-5 w-5 text-muted-foreground" />
+            </div>
+            
+            {/* Right scroll button */}
+            <div 
+              className={`absolute right-0 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-l-lg shadow-md opacity-0 hover:opacity-100 transition-opacity cursor-pointer ${!canScrollRight && 'pointer-events-none'}`}
+              onClick={scrollRight}
+            >
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
