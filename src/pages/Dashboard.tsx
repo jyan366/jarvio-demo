@@ -20,7 +20,12 @@ import {
   ArrowRight,
   Check,
   Clock,
-  ListChecks
+  ListChecks,
+  Users,
+  Target,
+  Megaphone,
+  ShoppingCart,
+  CircleDot
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { 
@@ -112,6 +117,52 @@ const metrics = [
   { label: 'Units Sold', value: '4,950', change: 55.44, inverseColor: false },
 ];
 
+// Brand toolkit sections with notification status
+const brandToolkitSections = [
+  { 
+    title: "Sales Center", 
+    icon: ShoppingCart, 
+    path: "/sales-hub", 
+    description: "Monitor sales performance across all channels",
+    hasNotification: true 
+  },
+  { 
+    title: "Inventory Management", 
+    icon: Package, 
+    path: "/inventory", 
+    description: "Track stock levels and manage your inventory",
+    hasNotification: true 
+  },
+  { 
+    title: "Listing Hub", 
+    icon: FileCheck, 
+    path: "/listing-quality", 
+    description: "Optimize product listings and improve visibility",
+    hasNotification: false 
+  },
+  { 
+    title: "Customers", 
+    icon: Users, 
+    path: "/customer-insights", 
+    description: "Understand customer behavior and demographics",
+    hasNotification: true 
+  },
+  { 
+    title: "Competitors", 
+    icon: Target, 
+    path: "/my-competitors", 
+    description: "Monitor competitor activities and market trends",
+    hasNotification: false 
+  },
+  { 
+    title: "Advertising", 
+    icon: Megaphone, 
+    path: "/ads-manager", 
+    description: "Manage campaigns and track ad performance",
+    hasNotification: true 
+  }
+];
+
 export default function Dashboard() {
   const [timeframe, setTimeframe] = useState('7');
   const [rankTimeframe, setRankTimeframe] = useState('30');
@@ -165,8 +216,8 @@ export default function Dashboard() {
     return (completedTasks / totalTasks * 100).toFixed(1);
   };
 
-  // Colors for the pie chart
-  const COLORS = ['#8B5CF6', '#E2E8F0'];
+  // Colors for the pie chart - using blue palette
+  const COLORS = ['#4457ff', '#E2E8F0'];
 
   return (
     <MainLayout>
@@ -243,40 +294,32 @@ export default function Dashboard() {
               <CardTitle className="text-xl font-semibold">Today's Tasks</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="bg-gray-50 rounded-lg mx-6 mb-4">
-                <div className="flex items-center justify-between p-4">
+              <div className="grid grid-cols-2 gap-4 p-6">
+                <div className="bg-blue-50 rounded-lg p-4">
                   <div className="flex items-center">
-                    <Bell className="text-primary h-8 w-8 mr-3" />
+                    <Bell className="text-[#4457ff] h-8 w-8 mr-3" />
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Due</p>
+                      <p className="text-sm font-medium text-gray-600">Due Today</p>
                       <p className="text-3xl font-bold">0</p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-primary" asChild>
-                    <Link to="/task-manager">View All</Link>
-                  </Button>
                 </div>
-              </div>
-              
-              <div className="bg-gray-50 rounded-lg mx-6 mb-6">
-                <div className="flex items-center justify-between p-4">
+                
+                <div className="bg-blue-50 rounded-lg p-4">
                   <div className="flex items-center">
-                    <FileCheck className="text-primary h-8 w-8 mr-3" />
+                    <FileCheck className="text-[#4457ff] h-8 w-8 mr-3" />
                     <div>
                       <p className="text-sm font-medium text-gray-600">Upcoming</p>
                       <p className="text-3xl font-bold">11</p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-primary" asChild>
-                    <Link to="/task-manager">View All</Link>
-                  </Button>
                 </div>
               </div>
               
               <div className="p-3 px-6 pb-6">
                 <Button variant="outline" className="w-full justify-between" asChild>
                   <Link to="/task-manager">
-                    Go to workflow
+                    Go to Task Manager
                     <ChevronRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -291,8 +334,8 @@ export default function Dashboard() {
               <p className="text-sm text-muted-foreground">Last 7 days</p>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="flex items-center justify-around gap-4 mb-4">
-                <div className="w-32 h-32">
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <div className="w-24 h-24">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -302,8 +345,8 @@ export default function Dashboard() {
                         ]}
                         cx="50%"
                         cy="50%"
-                        innerRadius={30}
-                        outerRadius={50}
+                        innerRadius={25}
+                        outerRadius={40}
                         fill="#8884d8"
                         paddingAngle={2}
                         dataKey="value"
@@ -315,8 +358,8 @@ export default function Dashboard() {
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="text-center md:text-left">
-                  <h3 className="text-4xl font-bold text-primary">{calculateCompletionRate()}%</h3>
+                <div className="text-center md:text-left flex-1">
+                  <h3 className="text-3xl font-bold text-[#4457ff]">{calculateCompletionRate()}%</h3>
                   <p className="text-sm text-muted-foreground">Completion Rate</p>
                   <p className="text-sm mt-2">
                     <span className="font-medium">39</span> completed of <span className="font-medium">54</span> total tasks
@@ -328,7 +371,7 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={taskCompletionData}
-                    margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
+                    margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="day" />
@@ -336,7 +379,7 @@ export default function Dashboard() {
                     <Tooltip 
                       formatter={(value, name) => [value, name === 'completed' ? 'Completed Tasks' : 'Total Tasks']} 
                     />
-                    <Bar dataKey="completed" name="Completed" fill="#8B5CF6" />
+                    <Bar dataKey="completed" name="Completed" fill="#4457ff" />
                     <Bar dataKey="total" name="Total" fill="#E2E8F0" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -355,7 +398,7 @@ export default function Dashboard() {
                   <div key={index} className="px-6 py-4 hover:bg-muted/50 transition-colors">
                     <div className="flex items-start gap-3">
                       {insight.impact === 'high' && 
-                        <AlertCircle className="text-primary h-5 w-5 mt-0.5 shrink-0" />}
+                        <AlertCircle className="text-[#4457ff] h-5 w-5 mt-0.5 shrink-0" />}
                       {insight.impact === 'medium' && 
                         <BarChart3 className="text-amber-500 h-5 w-5 mt-0.5 shrink-0" />}
                       {insight.impact === 'low' && 
@@ -375,7 +418,7 @@ export default function Dashboard() {
                 ))}
               </div>
               <div className="p-6 pt-3">
-                <Button variant="ghost" className="w-full justify-between text-primary" asChild>
+                <Button variant="ghost" className="w-full justify-between text-[#4457ff]" asChild>
                   <Link to="/customer-insights">
                     View all insights
                     <ArrowRight className="h-4 w-4" />
@@ -418,8 +461,8 @@ export default function Dashboard() {
                     }} 
                   />
                   <Legend />
-                  <Bar dataKey="profit" fill="#8B5CF6" />
-                  <Bar dataKey="sales" fill="#9b87f5" />
+                  <Bar dataKey="profit" fill="#4457ff" />
+                  <Bar dataKey="sales" fill="#95A4FC" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -450,10 +493,10 @@ export default function Dashboard() {
                   <Line
                     type="monotone"
                     dataKey="rank"
-                    stroke="#8B5CF6"
+                    stroke="#4457ff"
                     strokeWidth={3}
                     dot={{ r: 2 }}
-                    activeDot={{ r: 6, fill: '#8B5CF6' }}
+                    activeDot={{ r: 6, fill: '#4457ff' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -461,39 +504,23 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Quick Access to Key Areas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="p-6 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-white">
-            <Link to="/inventory" className="flex flex-col items-center text-center">
-              <Package className="h-10 w-10 text-primary mb-4" />
-              <h3 className="text-lg font-semibold">Inventory Management</h3>
-              <p className="text-sm text-muted-foreground mt-2">Track stock levels and manage your inventory</p>
-            </Link>
-          </Card>
-          
-          <Card className="p-6 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-white">
-            <Link to="/sales-hub" className="flex flex-col items-center text-center">
-              <Bell className="h-10 w-10 text-primary mb-4" />
-              <h3 className="text-lg font-semibold">Sales Center</h3>
-              <p className="text-sm text-muted-foreground mt-2">Monitor sales performance across all channels</p>
-            </Link>
-          </Card>
-          
-          <Card className="p-6 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-white">
-            <Link to="/listing-quality" className="flex flex-col items-center text-center">
-              <FileCheck className="h-10 w-10 text-primary mb-4" />
-              <h3 className="text-lg font-semibold">Listing Hub</h3>
-              <p className="text-sm text-muted-foreground mt-2">Optimize product listings and improve visibility</p>
-            </Link>
-          </Card>
-          
-          <Card className="p-6 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-white">
-            <Link to="/ads-manager" className="flex flex-col items-center text-center">
-              <Percent className="h-10 w-10 text-primary mb-4" />
-              <h3 className="text-lg font-semibold">Advertising</h3>
-              <p className="text-sm text-muted-foreground mt-2">Manage campaigns and track ad performance</p>
-            </Link>
-          </Card>
+        {/* Brand Toolkit Sections */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {brandToolkitSections.map((section, index) => (
+            <Card key={index} className="p-6 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-blue-50 to-white">
+              <Link to={section.path} className="flex flex-col items-center text-center relative">
+                {section.hasNotification && (
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                  </span>
+                )}
+                <section.icon className="h-10 w-10 text-[#4457ff] mb-4" />
+                <h3 className="text-lg font-semibold">{section.title}</h3>
+                <p className="text-sm text-muted-foreground mt-2">{section.description}</p>
+              </Link>
+            </Card>
+          ))}
         </div>
       </div>
     </MainLayout>
