@@ -3,7 +3,18 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bell, ChevronRight, FileCheck, ArrowRight, TrendingUp, Package, ChevronDown } from 'lucide-react';
+import { 
+  Bell, 
+  ChevronRight, 
+  FileCheck, 
+  Package, 
+  ChevronDown, 
+  Calendar, 
+  Plus,
+  ArrowUp,
+  ArrowDown,
+  Percent
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { 
   AreaChart, 
@@ -19,7 +30,9 @@ import {
   BarChart,
   Bar
 } from 'recharts';
+import { cn } from '@/lib/utils';
 
+// Sample data for charts and metrics
 const salesData = [
   {day: '05 Nov', sales: 430, profit: 120},
   {day: '06 Nov', sales: 380, profit: 100},
@@ -39,6 +52,41 @@ const rankingData = [
   {day: '2 Dec', rank: 13},
 ];
 
+interface MetricCardProps {
+  title: string;
+  value: string;
+  percentChange: number;
+  icon?: React.ReactNode;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({ title, value, percentChange, icon }) => {
+  const isPositive = percentChange >= 0;
+  
+  return (
+    <Card className="p-6 shadow-sm rounded-lg hover:shadow-md transition-shadow">
+      <div className="flex flex-col">
+        <h3 className="text-lg font-medium text-gray-700">{title}</h3>
+        <p className="text-2xl font-bold mt-2">{value}</p>
+        <div className="flex items-center mt-2">
+          {isPositive ? (
+            <ArrowUp className="h-4 w-4 text-green-500 mr-1" />
+          ) : (
+            <ArrowDown className="h-4 w-4 text-amber-500 mr-1" />
+          )}
+          <span 
+            className={cn(
+              "text-sm font-medium",
+              isPositive ? "text-green-500" : "text-amber-500"
+            )}
+          >
+            {isPositive ? '+' : ''}{percentChange}%
+          </span>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
 export default function Dashboard() {
   const [timeframe, setTimeframe] = useState('7');
   const [rankTimeframe, setRankTimeframe] = useState('30');
@@ -56,18 +104,43 @@ export default function Dashboard() {
     return `£${value.toFixed(2)}`;
   };
 
+  // Metrics for the dashboard based on screenshot
+  const metrics = [
+    { title: "Total Sales", value: "£112,443.74", percentChange: 35.65 },
+    { title: "Total Cost", value: "£65,589.51", percentChange: -8.71 },
+    { title: "Total Profit", value: "£46,854.23", percentChange: 68.32 },
+    { title: "Advertising Cost", value: "£3,612.50", percentChange: -12.5 },
+    { title: "Inventory Value", value: "£178,213.09", percentChange: 45.3 },
+    { title: "Profit Margin", value: "41.67%", percentChange: 28.58 },
+  ];
+
   return (
     <MainLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">
-            Good {timeOfDay}, {userName}!
-          </h1>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon">
-              <Bell className="h-5 w-5" />
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Products
+            </Button>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Jan 24, 2025 - Feb 23, 2025
             </Button>
           </div>
+        </div>
+
+        {/* Metrics Grid - Styled like the screenshot */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          {metrics.map((metric, index) => (
+            <MetricCard 
+              key={index}
+              title={metric.title}
+              value={metric.value}
+              percentChange={metric.percentChange}
+            />
+          ))}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -78,7 +151,7 @@ export default function Dashboard() {
               
               <div className="bg-gray-50 rounded-lg p-4 mb-4 flex items-center justify-between">
                 <div className="flex items-center">
-                  <Bell className="text-red-500 h-8 w-8 mr-3" />
+                  <Bell className="text-primary h-8 w-8 mr-3" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">Due</p>
                     <p className="text-3xl font-bold">0</p>
@@ -91,7 +164,7 @@ export default function Dashboard() {
               
               <div className="bg-gray-50 rounded-lg p-4 mb-4 flex items-center justify-between">
                 <div className="flex items-center">
-                  <FileCheck className="text-red-500 h-8 w-8 mr-3" />
+                  <FileCheck className="text-primary h-8 w-8 mr-3" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">Upcoming</p>
                     <p className="text-3xl font-bold">11</p>
@@ -147,32 +220,6 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Metrics Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Today's Sales */}
-          <Card className="p-6 shadow-md rounded-xl">
-            <h3 className="text-lg font-medium text-gray-700">Today's Sales:</h3>
-            <p className="text-3xl font-bold mt-2">£572.87</p>
-          </Card>
-          
-          {/* Today's Profit */}
-          <Card className="p-6 shadow-md rounded-xl">
-            <h3 className="text-lg font-medium text-gray-700">Today's Profit:</h3>
-            <p className="text-3xl font-bold mt-2">£117.87</p>
-          </Card>
-          
-          {/* Brand Rank */}
-          <Card className="p-6 shadow-md rounded-xl flex justify-between items-center">
-            <div>
-              <h3 className="text-lg font-medium text-gray-700">Brand Rank:</h3>
-              <p className="text-3xl font-bold mt-2">13</p>
-            </div>
-            <div className="flex items-center justify-center bg-black text-white rounded-full w-8 h-8 font-bold">
-              4
-            </div>
-          </Card>
-        </div>
-
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Sales & Profit Chart */}
@@ -194,14 +241,19 @@ export default function Dashboard() {
                   <XAxis dataKey="day" />
                   <YAxis />
                   <Tooltip 
-                    formatter={(value, name) => [
-                      formatCurrency(Number(value)), 
-                      name.charAt(0).toUpperCase() + name.slice(1)
-                    ]} 
+                    formatter={(value, name) => {
+                      if (typeof name === 'string') {
+                        return [
+                          formatCurrency(Number(value)), 
+                          name.charAt(0).toUpperCase() + name.slice(1)
+                        ];
+                      }
+                      return ['', ''];
+                    }} 
                   />
                   <Legend />
-                  <Bar dataKey="profit" fill="#FD8A8A" />
-                  <Bar dataKey="sales" fill="#E74C3C" />
+                  <Bar dataKey="profit" fill="#8B5CF6" />
+                  <Bar dataKey="sales" fill="#9b87f5" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -232,14 +284,49 @@ export default function Dashboard() {
                   <Line
                     type="monotone"
                     dataKey="rank"
-                    stroke="#E74C3C"
+                    stroke="#8B5CF6"
                     strokeWidth={3}
                     dot={{ r: 2 }}
-                    activeDot={{ r: 6, fill: '#E74C3C' }}
+                    activeDot={{ r: 6, fill: '#8B5CF6' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
+          </Card>
+        </div>
+
+        {/* Quick Access to Key Areas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="p-6 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-white">
+            <Link to="/inventory" className="flex flex-col items-center text-center">
+              <Package className="h-10 w-10 text-primary mb-4" />
+              <h3 className="text-lg font-semibold">Inventory Management</h3>
+              <p className="text-sm text-muted-foreground mt-2">Track stock levels and manage your inventory</p>
+            </Link>
+          </Card>
+          
+          <Card className="p-6 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-white">
+            <Link to="/sales-hub" className="flex flex-col items-center text-center">
+              <Bell className="h-10 w-10 text-primary mb-4" />
+              <h3 className="text-lg font-semibold">Sales Center</h3>
+              <p className="text-sm text-muted-foreground mt-2">Monitor sales performance across all channels</p>
+            </Link>
+          </Card>
+          
+          <Card className="p-6 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-white">
+            <Link to="/listing-quality" className="flex flex-col items-center text-center">
+              <FileCheck className="h-10 w-10 text-primary mb-4" />
+              <h3 className="text-lg font-semibold">Listing Hub</h3>
+              <p className="text-sm text-muted-foreground mt-2">Optimize product listings and improve visibility</p>
+            </Link>
+          </Card>
+          
+          <Card className="p-6 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-white">
+            <Link to="/ads-manager" className="flex flex-col items-center text-center">
+              <Percent className="h-10 w-10 text-primary mb-4" />
+              <h3 className="text-lg font-semibold">Advertising</h3>
+              <p className="text-sm text-muted-foreground mt-2">Manage campaigns and track ad performance</p>
+            </Link>
           </Card>
         </div>
       </div>
