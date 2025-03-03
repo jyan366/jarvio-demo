@@ -238,37 +238,42 @@ export default function Dashboard() {
         {/* New Task Overview + Insights Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Today's Tasks */}
-          <Card className="p-6 overflow-hidden">
-            <div className="flex flex-col h-full">
-              <h2 className="text-xl font-semibold mb-4">Today's Tasks</h2>
-              
-              <div className="bg-gray-50 rounded-lg p-4 mb-4 flex items-center justify-between">
-                <div className="flex items-center">
-                  <Bell className="text-primary h-8 w-8 mr-3" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Due</p>
-                    <p className="text-3xl font-bold">0</p>
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl font-semibold">Today's Tasks</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="bg-gray-50 rounded-lg mx-6 mb-4">
+                <div className="flex items-center justify-between p-4">
+                  <div className="flex items-center">
+                    <Bell className="text-primary h-8 w-8 mr-3" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Due</p>
+                      <p className="text-3xl font-bold">0</p>
+                    </div>
                   </div>
+                  <Button variant="ghost" size="sm" className="text-primary" asChild>
+                    <Link to="/task-manager">View All</Link>
+                  </Button>
                 </div>
-                <Button variant="secondary" size="sm" asChild>
-                  <Link to="/task-manager">View All</Link>
-                </Button>
               </div>
               
-              <div className="bg-gray-50 rounded-lg p-4 mb-4 flex items-center justify-between">
-                <div className="flex items-center">
-                  <FileCheck className="text-primary h-8 w-8 mr-3" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Upcoming</p>
-                    <p className="text-3xl font-bold">11</p>
+              <div className="bg-gray-50 rounded-lg mx-6 mb-6">
+                <div className="flex items-center justify-between p-4">
+                  <div className="flex items-center">
+                    <FileCheck className="text-primary h-8 w-8 mr-3" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Upcoming</p>
+                      <p className="text-3xl font-bold">11</p>
+                    </div>
                   </div>
+                  <Button variant="ghost" size="sm" className="text-primary" asChild>
+                    <Link to="/task-manager">View All</Link>
+                  </Button>
                 </div>
-                <Button variant="secondary" size="sm" asChild>
-                  <Link to="/task-manager">View All</Link>
-                </Button>
               </div>
               
-              <div className="mt-auto">
+              <div className="p-3 px-6 pb-6">
                 <Button variant="outline" className="w-full justify-between" asChild>
                   <Link to="/task-manager">
                     Go to workflow
@@ -276,7 +281,7 @@ export default function Dashboard() {
                   </Link>
                 </Button>
               </div>
-            </div>
+            </CardContent>
           </Card>
 
           {/* Task Completion Rate */}
@@ -285,8 +290,8 @@ export default function Dashboard() {
               <CardTitle className="text-xl font-semibold">Task Completion Rate</CardTitle>
               <p className="text-sm text-muted-foreground">Last 7 days</p>
             </CardHeader>
-            <CardContent className="p-6 flex flex-col h-full">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-around gap-4 mb-4">
                 <div className="w-32 h-32">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -319,7 +324,7 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              <div className="h-36 mt-auto">
+              <div className="h-36 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={taskCompletionData}
@@ -347,15 +352,18 @@ export default function Dashboard() {
             <CardContent className="p-0">
               <div className="space-y-0 max-h-[285px] overflow-auto">
                 {topInsights.map((insight, index) => (
-                  <div key={index} className="p-4 hover:bg-muted/50 transition-colors">
+                  <div key={index} className="px-6 py-4 hover:bg-muted/50 transition-colors">
                     <div className="flex items-start gap-3">
-                      {insight.impact === 'high' && <AlertCircle className="text-red-500 h-5 w-5 mt-0.5" />}
-                      {insight.impact === 'medium' && <BarChart3 className="text-amber-500 h-5 w-5 mt-0.5" />}
-                      {insight.impact === 'low' && <BarChart3 className="text-green-500 h-5 w-5 mt-0.5" />}
+                      {insight.impact === 'high' && 
+                        <AlertCircle className="text-primary h-5 w-5 mt-0.5 shrink-0" />}
+                      {insight.impact === 'medium' && 
+                        <BarChart3 className="text-amber-500 h-5 w-5 mt-0.5 shrink-0" />}
+                      {insight.impact === 'low' && 
+                        <BarChart3 className="text-green-500 h-5 w-5 mt-0.5 shrink-0" />}
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-medium">{insight.title}</h3>
-                          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                          <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">
                             {insight.category}
                           </span>
                         </div>
@@ -366,8 +374,8 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              <div className="p-3 bg-muted/30">
-                <Button variant="ghost" className="w-full justify-between" asChild>
+              <div className="p-6 pt-3">
+                <Button variant="ghost" className="w-full justify-between text-primary" asChild>
                   <Link to="/customer-insights">
                     View all insights
                     <ArrowRight className="h-4 w-4" />
