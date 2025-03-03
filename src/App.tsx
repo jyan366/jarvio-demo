@@ -5,7 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
-import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import TaskManager from "./pages/TaskManager";
 import ActionStudio from "./pages/ActionStudio";
 import SalesHub from "./pages/SalesHub";
 import MyOffers from "./pages/MyOffers";
@@ -37,7 +38,8 @@ export default function App() {
           <Router>
             <Routes>
               <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/task-manager" element={<TaskManager />} />
               <Route path="/action-studio" element={<ActionStudio />} />
               <Route path="/sales-hub" element={<SalesHub />} />
               <Route path="/my-offers" element={<MyOffers />} />

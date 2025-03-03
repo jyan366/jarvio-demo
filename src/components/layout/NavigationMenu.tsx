@@ -1,5 +1,5 @@
 
-import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign } from 'lucide-react';
+import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -23,6 +23,10 @@ const workflowItems: MenuItem[] = [{
   icon: LayoutDashboard,
   label: 'Dashboard',
   href: '/'
+}, {
+  icon: CheckSquare,
+  label: 'Task Manager',
+  href: '/task-manager'
 }, {
   icon: Box,
   label: 'Action Studio',
