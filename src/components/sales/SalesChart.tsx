@@ -1,20 +1,42 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Legend 
+} from 'recharts';
 import { SalesDataPoint } from '@/types/sales';
 
 interface SalesChartProps {
   data: SalesDataPoint[];
+  title?: string;
+  barColor?: string;
+  comparisonData?: SalesDataPoint[];
+  comparisonLabel?: string;
+  dataKey?: string;
+  yAxisFormatter?: (value: number) => string;
 }
 
-export const SalesChart: React.FC<SalesChartProps> = ({ data }) => {
-  const formatYAxis = (value: number) => `£${value}`;
-
+export const SalesChart: React.FC<SalesChartProps> = ({ 
+  data, 
+  title = "25 January 2025 - 24 February 2025",
+  barColor = "#4457ff",
+  comparisonData,
+  comparisonLabel = "Previous Period",
+  dataKey = "amount",
+  yAxisFormatter = (value: number) => `£${value}`
+}) => {
+  
   return (
     <Card className="lg:col-span-7">
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl font-semibold">25 January 2025 - 24 February 2025</CardTitle>
+        <CardTitle className="text-lg md:text-xl font-semibold">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[300px] w-full">
@@ -26,25 +48,38 @@ export const SalesChart: React.FC<SalesChartProps> = ({ data }) => {
               <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
               <XAxis dataKey="date" stroke="#888" fontSize={12} />
               <YAxis 
-                tickFormatter={formatYAxis} 
+                tickFormatter={yAxisFormatter} 
                 stroke="#888" 
                 fontSize={12}
                 tickMargin={8}
               />
               <Tooltip 
-                formatter={(value: number) => [`£${value}`, 'Amount']}
+                formatter={(value: number) => [`£${value.toLocaleString()}`, dataKey.charAt(0).toUpperCase() + dataKey.slice(1)]}
                 contentStyle={{ 
                   background: 'white',
                   border: '1px solid #eee',
                   borderRadius: '8px',
                   padding: '8px 12px'
                 }}
+                labelFormatter={(label) => `Date: ${label}`}
               />
+              <Legend />
               <Bar 
-                dataKey="amount" 
-                fill="#4457ff"
+                dataKey={dataKey} 
+                fill={barColor}
+                name={dataKey.charAt(0).toUpperCase() + dataKey.slice(1)} 
                 radius={[4, 4, 0, 0]}
               />
+              {comparisonData && (
+                <Bar 
+                  dataKey={dataKey} 
+                  data={comparisonData}
+                  fill={barColor}
+                  fillOpacity={0.5}
+                  name={comparisonLabel}
+                  radius={[4, 4, 0, 0]}
+                />
+              )}
             </BarChart>
           </ResponsiveContainer>
         </div>
