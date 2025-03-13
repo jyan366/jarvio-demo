@@ -73,7 +73,7 @@ export const SalesChart: React.FC<SalesChartProps> = ({
               {comparisonData && (
                 <Bar 
                   dataKey={dataKey} 
-                  data={comparisonData}
+                  // Remove the data property, as it should come from the parent BarChart
                   fill={barColor}
                   fillOpacity={0.5}
                   name={comparisonLabel}

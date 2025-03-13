@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -177,6 +176,12 @@ const generateMonthlyData = (timeframe, product, metric, isComparison = false) =
   });
 };
 
+// Define a type for our date range to match the Calendar component
+interface DateRangeType {
+  from: Date;
+  to: Date | undefined;
+}
+
 export default function AnalyticsStudio() {
   const navigate = useNavigate();
   const [viewType, setViewType] = useState('overall'); // overall, product, comparison
@@ -187,7 +192,7 @@ export default function AnalyticsStudio() {
   const [comparisonProduct, setComparisonProduct] = useState('');
   const [comparisonTimeframe, setComparisonTimeframe] = useState('');
   const [compareWithPrevious, setCompareWithPrevious] = useState(false);
-  const [dateRange, setDateRange] = useState({ from: sub(new Date(), { days: 30 }), to: new Date() });
+  const [dateRange, setDateRange] = useState<DateRangeType>({ from: sub(new Date(), { days: 30 }), to: new Date() });
   const [showCalendar, setShowCalendar] = useState(false);
   
   // Generate chart data based on selected parameters
@@ -378,14 +383,15 @@ export default function AnalyticsStudio() {
                 radius={[4, 4, 0, 0]}
               />
               {viewType === 'comparison' && comparisonData && (
-                <Bar 
-                  dataKey={metric} 
-                  data={comparisonData}
-                  fill={getColor(metric)}
-                  fillOpacity={0.6}
-                  name={getComparisonLabel()}
-                  radius={[4, 4, 0, 0]}
-                />
+                <RechartsBarChart data={comparisonData}>
+                  <Bar 
+                    dataKey={metric} 
+                    fill={getColor(metric)}
+                    fillOpacity={0.6}
+                    name={getComparisonLabel()}
+                    radius={[4, 4, 0, 0]}
+                  />
+                </RechartsBarChart>
               )}
             </RechartsBarChart>
           </ResponsiveContainer>
@@ -453,6 +459,19 @@ export default function AnalyticsStudio() {
         </ResponsiveContainer>
       </div>
     );
+  };
+
+  // Using updated handler that properly handles the DateRange type
+  const handleDateRangeSelect = (selectedRange: DateRangeType | undefined) => {
+    if (selectedRange?.from) {
+      setDateRange({
+        from: selectedRange.from,
+        to: selectedRange.to || selectedRange.from
+      });
+      if (selectedRange.to) {
+        setShowCalendar(false);
+      }
+    }
   };
 
   return (
@@ -584,12 +603,7 @@ export default function AnalyticsStudio() {
                           from: dateRange.from,
                           to: dateRange.to,
                         }}
-                        onSelect={(range) => {
-                          if (range?.from && range?.to) {
-                            setDateRange(range);
-                            setShowCalendar(false);
-                          }
-                        }}
+                        onSelect={handleDateRangeSelect}
                         initialFocus
                       />
                     </PopoverContent>
@@ -714,3 +728,4 @@ export default function AnalyticsStudio() {
     </MainLayout>
   );
 }
+
