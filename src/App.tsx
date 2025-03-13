@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import TaskManager from "./pages/TaskManager";
 import ActionStudio from "./pages/ActionStudio";
 import SalesHub from "./pages/SalesHub";
+import AnalyticsStudio from "./pages/AnalyticsStudio";
 import MyOffers from "./pages/MyOffers";
 import ReportsBuilder from "./pages/ReportsBuilder";
 import Financing from "./pages/Financing";
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="/task-manager" element={<TaskManager />} />
               <Route path="/action-studio" element={<ActionStudio />} />
               <Route path="/sales-hub" element={<SalesHub />} />
+              <Route path="/analytics-studio" element={<AnalyticsStudio />} />
               <Route path="/my-offers" element={<MyOffers />} />
               <Route path="/reports-builder" element={<ReportsBuilder />} />
               <Route path="/financing" element={<Financing />} />

@@ -8,9 +8,12 @@ import { CostBreakdown } from '@/components/sales/CostBreakdown';
 import { CostDistribution } from '@/components/sales/CostDistribution';
 import { ProductsTable } from '@/components/sales/ProductsTable';
 import { statsCards, salesData, costData, productData } from '@/data/salesData';
+import { BarChart3, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function SalesHub() {
   const [showCosts, setShowCosts] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <MainLayout>
@@ -24,13 +27,22 @@ export default function SalesHub() {
               25 January - 24 February 2025
             </p>
           </div>
-          <Button
-            variant="outline"
-            className="w-full md:w-auto rounded-full"
-            onClick={() => setShowCosts(!showCosts)}
-          >
-            {showCosts ? 'Show Sales' : 'Show Costs'}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              className="w-full md:w-auto rounded-full"
+              onClick={() => setShowCosts(!showCosts)}
+            >
+              {showCosts ? 'Show Sales' : 'Show Costs'}
+            </Button>
+            <Button
+              className="w-full md:w-auto rounded-full"
+              onClick={() => navigate('/analytics-studio')}
+            >
+              <BarChart3 className="mr-2 h-4 w-4" /> 
+              Analytics Studio
+            </Button>
+          </div>
         </div>
 
         {!showCosts ? (
