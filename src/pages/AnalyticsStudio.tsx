@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,6 +39,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ProductSelector } from '@/components/marketplace/ProductSelector';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const products = [
   { id: 'all', name: 'All Products' },
@@ -216,10 +216,7 @@ export default function AnalyticsStudio() {
   };
   
   useEffect(() => {
-    // Remove the condition that hides comparison options when not in comparison view
-    // This allows comparison with previous period even in overall view
-    if (viewType === 'product') {
-      setCompareWithPrevious(false);
+    if (viewType === 'overall') {
       setComparisonProduct('');
     }
   }, [viewType]);
@@ -676,10 +673,9 @@ export default function AnalyticsStudio() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">View Type</label>
                 <Tabs value={viewType} onValueChange={setViewType} className="w-full">
-                  <TabsList className="grid grid-cols-3 w-full">
+                  <TabsList className="grid grid-cols-2 w-full">
                     <TabsTrigger value="overall">Overall</TabsTrigger>
-                    <TabsTrigger value="product">Product</TabsTrigger>
-                    <TabsTrigger value="comparison">Compare</TabsTrigger>
+                    <TabsTrigger value="compare">Compare</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -744,65 +740,61 @@ export default function AnalyticsStudio() {
                 )}
               </div>
 
-              {viewType === 'comparison' && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Products to Compare</label>
-                  <ProductSelector 
-                    products={products}
-                    selectedProducts={selectedProducts}
-                    onProductSelect={handleProductSelection}
-                  />
-                </div>
-              )}
-
-              {(viewType === 'overall' || viewType === 'comparison') && selectedProducts.length <= 1 && (
-                <div className="pt-4 border-t">
-                  <label className="text-sm font-medium">Comparison Options</label>
-                  <div className="mt-2">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="compare-previous"
-                        checked={compareWithPrevious}
-                        onChange={(e) => {
-                          setCompareWithPrevious(e.target.checked);
-                          if (e.target.checked) {
-                            setComparisonProduct('');
-                          }
-                        }}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <label htmlFor="compare-previous" className="text-sm">
-                        Compare with Previous Period
-                      </label>
-                    </div>
-                  
-                    {!compareWithPrevious && viewType === 'comparison' && (
-                      <div className="space-y-2 mt-4">
-                        <label className="text-sm font-medium">Compare With Product</label>
-                        <Select 
-                          value={comparisonProduct} 
-                          onValueChange={(value) => {
-                            setComparisonProduct(value);
-                          }}
-                          disabled={compareWithPrevious}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select product to compare" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {products.filter(p => p.id !== product).map((option) => (
-                              <SelectItem key={option.id} value={option.id}>
-                                {option.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {viewType === 'compare' ? 'Select Products to Compare' : 'Select Products'}
+                </label>
+                <ProductSelector 
+                  products={products}
+                  selectedProducts={selectedProducts}
+                  onProductSelect={handleProductSelection}
+                />
+              </div>
+              
+              <div className="pt-4 border-t">
+                <label className="text-sm font-medium">Comparison Options</label>
+                <div className="mt-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="compare-previous"
+                      checked={compareWithPrevious}
+                      onCheckedChange={(checked) => {
+                        setCompareWithPrevious(checked === true);
+                        if (checked) {
+                          setComparisonProduct('');
+                        }
+                      }}
+                    />
+                    <label htmlFor="compare-previous" className="text-sm cursor-pointer">
+                      Compare with Previous Period
+                    </label>
                   </div>
+                
+                  {!compareWithPrevious && viewType === 'compare' && selectedProducts.length <= 1 && (
+                    <div className="space-y-2 mt-4">
+                      <label className="text-sm font-medium">Compare With Product</label>
+                      <Select 
+                        value={comparisonProduct} 
+                        onValueChange={(value) => {
+                          setComparisonProduct(value);
+                        }}
+                        disabled={compareWithPrevious}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select product to compare" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {products.filter(p => p.id !== product).map((option) => (
+                            <SelectItem key={option.id} value={option.id}>
+                              {option.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
 
@@ -811,11 +803,9 @@ export default function AnalyticsStudio() {
               <CardTitle className="text-lg">
                 {viewType === 'overall' 
                   ? 'Overall Performance' 
-                  : viewType === 'product' 
-                    ? `Product Performance: ${products.find(p => p.id === product)?.name || 'All Products'}`
-                    : selectedProducts.length > 1 
-                      ? `Comparing ${selectedProducts.length} Products` 
-                      : 'Performance Comparison'}
+                  : selectedProducts.length > 1 
+                    ? `Comparing ${selectedProducts.length} Products` 
+                    : 'Performance Comparison'}
               </CardTitle>
               <ToggleGroup type="single" value={chartType} onValueChange={(value) => value && setChartType(value)}>
                 <ToggleGroupItem value="line" aria-label="Line Chart">

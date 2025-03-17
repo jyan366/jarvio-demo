@@ -6,8 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Product {
   id: string;
@@ -41,31 +42,27 @@ export function ProductSelector({ products, selectedProducts, onProductSelect }:
       <DropdownMenuContent className="w-full min-w-[240px] p-2" align="start">
         <div className="space-y-2 max-h-60 overflow-y-auto">
           <div className="flex items-center space-x-2 py-1 px-2">
-            <input
-              type="checkbox"
+            <Checkbox
               id="product-all"
               checked={selectedProducts.includes('all')}
-              onChange={() => onProductSelect('all')}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              onCheckedChange={() => onProductSelect('all')}
             />
-            <label htmlFor="product-all" className="text-sm font-medium">
+            <label htmlFor="product-all" className="text-sm font-medium cursor-pointer">
               All Products
             </label>
           </div>
           
           {products.filter(p => p.id !== 'all').map((product) => (
             <div key={product.id} className="flex items-center space-x-2 py-1 px-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 id={`product-${product.id}`}
                 checked={selectedProducts.includes(product.id)}
-                onChange={() => onProductSelect(product.id)}
+                onCheckedChange={() => onProductSelect(product.id)}
                 disabled={selectedProducts.includes('all')}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <label 
                 htmlFor={`product-${product.id}`} 
-                className={`text-sm font-medium ${selectedProducts.includes('all') ? 'text-muted-foreground' : ''}`}
+                className={`text-sm font-medium cursor-pointer ${selectedProducts.includes('all') ? 'text-muted-foreground' : ''}`}
               >
                 {product.name}
               </label>
