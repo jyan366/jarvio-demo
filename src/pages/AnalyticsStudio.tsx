@@ -215,7 +215,9 @@ export default function AnalyticsStudio() {
   };
   
   useEffect(() => {
-    if (viewType !== 'comparison') {
+    // Remove the condition that hides comparison options when not in comparison view
+    // This allows comparison with previous period even in overall view
+    if (viewType === 'product') {
       setCompareWithPrevious(false);
       setComparisonProduct('');
     }
@@ -752,7 +754,7 @@ export default function AnalyticsStudio() {
                 </div>
               )}
 
-              {viewType === 'comparison' && selectedProducts.length <= 1 && (
+              {(viewType === 'overall' || viewType === 'comparison') && selectedProducts.length <= 1 && (
                 <div className="pt-4 border-t">
                   <label className="text-sm font-medium">Comparison Options</label>
                   <div className="mt-2">
@@ -774,7 +776,7 @@ export default function AnalyticsStudio() {
                       </label>
                     </div>
                   
-                    {!compareWithPrevious && (
+                    {!compareWithPrevious && viewType === 'comparison' && (
                       <div className="space-y-2 mt-4">
                         <label className="text-sm font-medium">Compare With Product</label>
                         <Select 
@@ -859,72 +861,4 @@ export default function AnalyticsStudio() {
                           ? 'text-green-600'
                           : item.trend < 0
                             ? 'text-red-600'
-                            : 'text-yellow-600'
-                      }>
-                        <div className="flex items-center">
-                          {getTrendIcon(item.trend)}
-                          <span className="ml-2">{item.trend > 0 ? '+' : ''}{item.trend.toFixed(2)}%</span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        )}
-        
-        {summaryData && (compareWithPrevious || comparisonProduct) && selectedProducts.length <= 1 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Performance Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Metric</TableHead>
-                    <TableHead>Current Period</TableHead>
-                    <TableHead>Previous Period</TableHead>
-                    <TableHead>Change</TableHead>
-                    <TableHead>Trend</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">
-                      {metrics.find(m => m.value === metric)?.label}
-                    </TableCell>
-                    <TableCell>{formatMetricValue(summaryData.currentTotal)}</TableCell>
-                    <TableCell>{formatMetricValue(summaryData.previousTotal)}</TableCell>
-                    <TableCell className={
-                      summaryData.percentChange > 0 
-                        ? 'text-green-600'
-                        : summaryData.percentChange < 0
-                          ? 'text-red-600'
-                          : 'text-yellow-600'
-                    }>
-                      {summaryData.percentChange.toFixed(2)}%
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        {getTrendIcon(summaryData.percentChange)}
-                        <span className="ml-2">
-                          {Math.abs(summaryData.percentChange) > 30
-                            ? 'Significant change'
-                            : Math.abs(summaryData.percentChange) > 10
-                              ? 'Moderate change'
-                              : 'Minor change'}
-                        </span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    </MainLayout>
-  );
-}
+                            : 'text-yellow-600
