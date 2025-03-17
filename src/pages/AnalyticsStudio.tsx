@@ -179,7 +179,7 @@ export default function AnalyticsStudio() {
   const [compareWithPrevious, setCompareWithPrevious] = useState(false);
   const [dateRange, setDateRange] = useState<DateRangeType>({ from: sub(new Date(), { days: 30 }), to: new Date() });
   const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>(['all']);
   
   const chartData = useMemo(() => {
     if (timeframe === '12months' || timeframe === '6months') {
@@ -369,93 +369,13 @@ export default function AnalyticsStudio() {
     }
   };
 
-  const renderChart = () => {
-    if (selectedProducts.length > 1) {
-      return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-[400px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <RechartsPieChart>
-                <Pie
-                  data={productComparisonData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={120}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {productComparisonData?.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value) => [`${formatMetricValue(value as number)}`, `Total ${metrics.find(m => m.value === metric)?.label}`]}
-                  contentStyle={{ 
-                    background: 'white',
-                    border: '1px solid #eee',
-                    borderRadius: '8px',
-                    padding: '8px 12px'
-                  }}
-                />
-              </RechartsPieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="h-[400px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <RechartsBarChart
-                data={productTimeSeriesData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="period" />
-                <YAxis 
-                  tickFormatter={(value) => {
-                    if (metric === 'revenue' || metric === 'profit' || metric === 'fees') {
-                      return `£${value.toLocaleString(undefined, { 
-                        notation: 'compact', 
-                        compactDisplay: 'short' 
-                      })}`;
-                    }
-                    return value.toLocaleString(undefined, { 
-                      notation: 'compact', 
-                      compactDisplay: 'short' 
-                    });
-                  }}
-                />
-                <Tooltip 
-                  formatter={(value) => [formatMetricValue(value as number), metrics.find(m => m.value === metric)?.label]}
-                  contentStyle={{ 
-                    background: 'white',
-                    border: '1px solid #eee',
-                    borderRadius: '8px',
-                    padding: '8px 12px'
-                  }}
-                />
-                <Legend />
-                {selectedProducts.map((productId, index) => (
-                  <Bar 
-                    key={productId}
-                    dataKey={productId} 
-                    name={products.find(p => p.id === productId)?.name || productId}
-                    fill={COLORS[index % COLORS.length]} 
-                    radius={[4, 4, 0, 0]}
-                  />
-                ))}
-              </RechartsBarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      );
-    }
-    
+  const renderMainChart = () => {
     if (chartType === 'bar') {
       return (
         <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <RechartsBarChart
-              data={combinedChartData}
+              data={selectedProducts.length > 1 ? totalProductsData : combinedChartData}
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
@@ -487,10 +407,10 @@ export default function AnalyticsStudio() {
               <Bar 
                 dataKey={metric} 
                 fill={getColor(metric)} 
-                name={metrics.find(m => m.value === metric)?.label}
+                name={selectedProducts.length > 1 ? "Combined Total" : metrics.find(m => m.value === metric)?.label}
                 radius={[4, 4, 0, 0]}
               />
-              {(compareWithPrevious || comparisonProduct) && (
+              {(compareWithPrevious || comparisonProduct) && selectedProducts.length <= 1 && (
                 <Bar 
                   dataKey={`${metric}_comparison`}
                   fill={getColor(metric)}
@@ -509,7 +429,7 @@ export default function AnalyticsStudio() {
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <RechartsLineChart
-            data={chartData}
+            data={selectedProducts.length > 1 ? totalProductsData : chartData}
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
@@ -542,12 +462,12 @@ export default function AnalyticsStudio() {
               type="monotone" 
               dataKey={metric} 
               stroke={getColor(metric)} 
-              name={metrics.find(m => m.value === metric)?.label}
+              name={selectedProducts.length > 1 ? "Combined Total" : metrics.find(m => m.value === metric)?.label}
               strokeWidth={2}
               dot={{ r: 4 }}
               activeDot={{ r: 6 }}
             />
-            {(compareWithPrevious || comparisonProduct) && comparisonData && (
+            {(compareWithPrevious || comparisonProduct) && comparisonData && selectedProducts.length <= 1 && (
               <Line 
                 type="monotone" 
                 dataKey={metric} 
@@ -567,6 +487,95 @@ export default function AnalyticsStudio() {
     );
   };
 
+  const renderProductComparisonCharts = () => {
+    if (selectedProducts.length <= 1) return null;
+    
+    return (
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-lg">Product Comparison</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsPieChart>
+                  <Pie
+                    data={productComparisonData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={true}
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    outerRadius={120}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {productComparisonData?.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value) => [`${formatMetricValue(value as number)}`, `Total ${metrics.find(m => m.value === metric)?.label}`]}
+                    contentStyle={{ 
+                      background: 'white',
+                      border: '1px solid #eee',
+                      borderRadius: '8px',
+                      padding: '8px 12px'
+                    }}
+                  />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsBarChart
+                  data={productTimeSeriesData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="period" />
+                  <YAxis 
+                    tickFormatter={(value) => {
+                      if (metric === 'revenue' || metric === 'profit' || metric === 'fees') {
+                        return `£${value.toLocaleString(undefined, { 
+                          notation: 'compact', 
+                          compactDisplay: 'short' 
+                        })}`;
+                      }
+                      return value.toLocaleString(undefined, { 
+                        notation: 'compact', 
+                        compactDisplay: 'short' 
+                      });
+                    }}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [formatMetricValue(value as number), metrics.find(m => m.value === metric)?.label]}
+                    contentStyle={{ 
+                      background: 'white',
+                      border: '1px solid #eee',
+                      borderRadius: '8px',
+                      padding: '8px 12px'
+                    }}
+                  />
+                  <Legend />
+                  {selectedProducts.map((productId, index) => (
+                    <Bar 
+                      key={productId}
+                      dataKey={productId} 
+                      name={products.find(p => p.id === productId)?.name || productId}
+                      fill={COLORS[index % COLORS.length]} 
+                      radius={[4, 4, 0, 0]}
+                    />
+                  ))}
+                </RechartsBarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   const handleDateRangeSelect = (selectedRange: DateRangeType | undefined) => {
     if (selectedRange?.from) {
       setDateRange({
@@ -578,6 +587,26 @@ export default function AnalyticsStudio() {
       }
     }
   };
+
+  const totalProductsData = useMemo(() => {
+    if (selectedProducts.length <= 1 || selectedProducts.includes('all')) return chartData;
+    
+    const productsData = selectedProducts.map(productId => 
+      timeframe === '12months' || timeframe === '6months'
+        ? generateMonthlyData(timeframe, productId, metric)
+        : generateSampleData(timeframe, productId, metric)
+    );
+    
+    if (productsData.length === 0) return chartData;
+    
+    return productsData[0].map((item, dateIndex) => {
+      const result = { ...item };
+      result[metric] = productsData.reduce((sum, productData) => 
+        sum + (productData[dateIndex]?.[metric] || 0), 0
+      );
+      return result;
+    });
+  }, [selectedProducts, timeframe, metric, chartData]);
 
   const productComparisonTableData = useMemo(() => {
     if (selectedProducts.length <= 1) return null;
@@ -756,7 +785,7 @@ export default function AnalyticsStudio() {
                   {viewType === 'comparison' && selectedProducts.length <= 1 && (
                     <div className="pt-4 border-t">
                       <label className="text-sm font-medium">Comparison Options</label>
-                      <div className="mt-2 space-y-4">
+                      <div className="mt-2">
                         <div className="flex items-center space-x-2">
                           <input
                             type="checkbox"
@@ -776,7 +805,7 @@ export default function AnalyticsStudio() {
                         </div>
                       
                         {!compareWithPrevious && (
-                          <div className="space-y-2">
+                          <div className="space-y-2 mt-4">
                             <label className="text-sm font-medium">Compare With Product</label>
                             <Select 
                               value={comparisonProduct} 
@@ -817,28 +846,22 @@ export default function AnalyticsStudio() {
                       ? `Comparing ${selectedProducts.length} Products` 
                       : 'Performance Comparison'}
               </CardTitle>
-              {selectedProducts.length <= 1 && (
-                <ToggleGroup type="single" value={chartType} onValueChange={(value) => value && setChartType(value)}>
-                  <ToggleGroupItem value="line" aria-label="Line Chart">
-                    <LineChart className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="bar" aria-label="Bar Chart">
-                    <BarChart className="h-4 w-4" />
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              )}
-              {selectedProducts.length > 1 && (
-                <div className="flex items-center gap-2">
-                  <PieChart className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Product Comparison View</span>
-                </div>
-              )}
+              <ToggleGroup type="single" value={chartType} onValueChange={(value) => value && setChartType(value)}>
+                <ToggleGroupItem value="line" aria-label="Line Chart">
+                  <LineChart className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="bar" aria-label="Bar Chart">
+                  <BarChart className="h-4 w-4" />
+                </ToggleGroupItem>
+              </ToggleGroup>
             </CardHeader>
             <CardContent>
-              {renderChart()}
+              {renderMainChart()}
             </CardContent>
           </Card>
         </div>
+        
+        {renderProductComparisonCharts()}
         
         {selectedProducts.length > 1 && productComparisonTableData && (
           <Card>

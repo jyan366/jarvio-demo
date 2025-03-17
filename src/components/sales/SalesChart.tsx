@@ -44,7 +44,7 @@ export const SalesChart: React.FC<SalesChartProps> = ({
   
   return (
     <Card className="lg:col-span-7">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg md:text-xl font-semibold">{title}</CardTitle>
       </CardHeader>
       <CardContent>
