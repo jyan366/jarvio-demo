@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -861,4 +862,72 @@ export default function AnalyticsStudio() {
                           ? 'text-green-600'
                           : item.trend < 0
                             ? 'text-red-600'
-                            : 'text-yellow-600
+                            : 'text-yellow-600'
+                      }>
+                        <div className="flex items-center">
+                          {getTrendIcon(item.trend)}
+                          <span className="ml-2">{item.trend > 0 ? '+' : ''}{item.trend.toFixed(2)}%</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+        
+        {summaryData && (compareWithPrevious || comparisonProduct) && selectedProducts.length <= 1 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Performance Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Metric</TableHead>
+                    <TableHead>Current Period</TableHead>
+                    <TableHead>Previous Period</TableHead>
+                    <TableHead>Change</TableHead>
+                    <TableHead>Trend</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">
+                      {metrics.find(m => m.value === metric)?.label}
+                    </TableCell>
+                    <TableCell>{formatMetricValue(summaryData.currentTotal)}</TableCell>
+                    <TableCell>{formatMetricValue(summaryData.previousTotal)}</TableCell>
+                    <TableCell className={
+                      summaryData.percentChange > 0 
+                        ? 'text-green-600'
+                        : summaryData.percentChange < 0
+                          ? 'text-red-600'
+                          : 'text-yellow-600'
+                    }>
+                      {summaryData.percentChange.toFixed(2)}%
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        {getTrendIcon(summaryData.percentChange)}
+                        <span className="ml-2">
+                          {Math.abs(summaryData.percentChange) > 30
+                            ? 'Significant change'
+                            : Math.abs(summaryData.percentChange) > 10
+                              ? 'Moderate change'
+                              : 'Minor change'}
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </MainLayout>
+  );
+}
