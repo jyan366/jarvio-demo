@@ -12,7 +12,10 @@ import {
   Download, 
   RefreshCw, 
   Calendar,
-  ChevronDown 
+  ChevronDown,
+  TrendingUp,
+  TrendingDown,
+  Equal
 } from 'lucide-react';
 import { 
   ChartContainer,
@@ -36,8 +39,8 @@ import { format, sub, startOfMonth, endOfMonth, eachDayOfInterval, parseISO } fr
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
-// Sample data for products
 const products = [
   { id: 'all', name: 'All Products' },
   { id: 'B08P5P3QCG', name: 'Kimchi 1kg Jar - Raw & Unpasteurised' },
@@ -47,7 +50,6 @@ const products = [
   { id: 'B07X5KSBMF', name: 'Premium Fermentation Weights Set of 8' },
 ];
 
-// Timeframe options
 const timeframes = [
   { value: '7days', label: 'Last 7 Days' },
   { value: '30days', label: 'Last 30 Days' },
@@ -58,7 +60,6 @@ const timeframes = [
   { value: 'custom', label: 'Custom Range' },
 ];
 
-// Metric options
 const metrics = [
   { value: 'revenue', label: 'Revenue' },
   { value: 'units', label: 'Units Sold' },
@@ -67,12 +68,10 @@ const metrics = [
   { value: 'fees', label: 'Amazon Fees' },
 ];
 
-// Function to generate sample data based on selected parameters
 const generateSampleData = (timeframe, product, metric, isComparison = false) => {
   const now = new Date();
   let startDate, endDate;
   
-  // Define date range based on timeframe
   switch(timeframe) {
     case '7days':
       startDate = sub(now, { days: 7 });
@@ -99,22 +98,16 @@ const generateSampleData = (timeframe, product, metric, isComparison = false) =>
       endDate = now;
   }
   
-  // Generate daily data for selected date range
   const dates = eachDayOfInterval({ start: startDate, end: endDate });
   
-  // Add some randomness based on product
   const productFactor = product === 'all' ? 1 : 
     products.findIndex(p => p.id === product) * 0.2 + 0.5;
   
-  // Add randomness based on metric
   const metricFactor = metrics.findIndex(m => m.value === metric) * 0.3 + 0.7;
   
-  // Comparison data will be slightly different
   const comparisonFactor = isComparison ? 0.8 : 1;
   
-  // Generate data points
   return dates.map(date => {
-    // Base value with some randomness
     const baseValue = Math.floor(
       (Math.random() * 1000 + 500) * 
       productFactor * 
@@ -122,7 +115,6 @@ const generateSampleData = (timeframe, product, metric, isComparison = false) =>
       comparisonFactor
     );
     
-    // Add trends and patterns
     const dayOfWeek = date.getDay();
     const weekendFactor = (dayOfWeek === 0 || dayOfWeek === 6) ? 1.3 : 1;
     
@@ -136,7 +128,6 @@ const generateSampleData = (timeframe, product, metric, isComparison = false) =>
   });
 };
 
-// Generate monthly aggregate data
 const generateMonthlyData = (timeframe, product, metric, isComparison = false) => {
   const now = new Date();
   let months = 12;
@@ -145,20 +136,16 @@ const generateMonthlyData = (timeframe, product, metric, isComparison = false) =
   if (timeframe === '90days') months = 3;
   if (timeframe === '30days') months = 1;
   
-  // Add some randomness based on product
   const productFactor = product === 'all' ? 1 : 
     products.findIndex(p => p.id === product) * 0.2 + 0.5;
   
-  // Add randomness based on metric
   const metricFactor = metrics.findIndex(m => m.value === metric) * 0.3 + 0.7;
   
-  // Comparison data will be slightly different
   const comparisonFactor = isComparison ? 0.8 : 1;
   
   return Array.from({ length: months }).map((_, index) => {
     const date = sub(now, { months: months - index - 1 });
     
-    // Base value with some randomness
     const baseValue = Math.floor(
       (Math.random() * 30000 + 5000) * 
       productFactor * 
@@ -176,7 +163,6 @@ const generateMonthlyData = (timeframe, product, metric, isComparison = false) =
   });
 };
 
-// Define a type for our date range to match the Calendar component
 interface DateRangeType {
   from: Date;
   to: Date | undefined;
@@ -184,9 +170,9 @@ interface DateRangeType {
 
 export default function AnalyticsStudio() {
   const navigate = useNavigate();
-  const [viewType, setViewType] = useState('overall'); // overall, product, comparison
-  const [chartType, setChartType] = useState('line'); // line, bar, table
-  const [metric, setMetric] = useState('revenue'); // revenue, units, orders, profit, fees
+  const [viewType, setViewType] = useState('overall');
+  const [chartType, setChartType] = useState('line');
+  const [metric, setMetric] = useState('revenue');
   const [timeframe, setTimeframe] = useState('30days');
   const [product, setProduct] = useState('all');
   const [comparisonProduct, setComparisonProduct] = useState('');
@@ -195,7 +181,6 @@ export default function AnalyticsStudio() {
   const [dateRange, setDateRange] = useState<DateRangeType>({ from: sub(new Date(), { days: 30 }), to: new Date() });
   const [showCalendar, setShowCalendar] = useState(false);
   
-  // Generate chart data based on selected parameters
   const chartData = useMemo(() => {
     if (timeframe === '12months' || timeframe === '6months') {
       return generateMonthlyData(timeframe, product, metric);
@@ -203,26 +188,22 @@ export default function AnalyticsStudio() {
     return generateSampleData(timeframe, product, metric);
   }, [timeframe, product, metric]);
   
-  // Generate comparison data
   const comparisonData = useMemo(() => {
     if (!compareWithPrevious && !comparisonProduct && !comparisonTimeframe) return null;
     
     if (compareWithPrevious) {
-      // Compare with previous period
       return timeframe === '12months' || timeframe === '6months'
         ? generateMonthlyData(timeframe, product, metric, true)
         : generateSampleData(timeframe, product, metric, true);
     }
     
     if (comparisonProduct) {
-      // Compare with another product
       return timeframe === '12months' || timeframe === '6months'
         ? generateMonthlyData(timeframe, comparisonProduct, metric)
         : generateSampleData(timeframe, comparisonProduct, metric);
     }
     
     if (comparisonTimeframe) {
-      // Compare with another timeframe
       return timeframe === '12months' || timeframe === '6months'
         ? generateMonthlyData(comparisonTimeframe, product, metric)
         : generateSampleData(comparisonTimeframe, product, metric);
@@ -231,7 +212,6 @@ export default function AnalyticsStudio() {
     return null;
   }, [timeframe, product, metric, compareWithPrevious, comparisonProduct, comparisonTimeframe]);
   
-  // Format metric values appropriately
   const formatMetricValue = (value) => {
     if (metric === 'revenue' || metric === 'profit' || metric === 'fees') {
       return `£${value.toLocaleString()}`;
@@ -239,7 +219,6 @@ export default function AnalyticsStudio() {
     return value.toLocaleString();
   };
   
-  // Clear comparison selections when view type changes
   useEffect(() => {
     if (viewType !== 'comparison') {
       setCompareWithPrevious(false);
@@ -248,7 +227,6 @@ export default function AnalyticsStudio() {
     }
   }, [viewType]);
   
-  // Update dateRange when timeframe changes
   useEffect(() => {
     if (timeframe !== 'custom') {
       const now = new Date();
@@ -278,7 +256,6 @@ export default function AnalyticsStudio() {
     }
   }, [timeframe]);
   
-  // Format date range for display
   const dateRangeText = useMemo(() => {
     if (!dateRange.from || !dateRange.to) return '';
     return `${format(dateRange.from, 'dd MMM yyyy')} - ${format(dateRange.to, 'dd MMM yyyy')}`;
@@ -308,6 +285,34 @@ export default function AnalyticsStudio() {
   
   const goBackToSalesHub = () => {
     navigate('/sales-hub');
+  };
+
+  const summaryData = useMemo(() => {
+    if (!chartData || chartData.length === 0) return null;
+    
+    const currentTotal = chartData.reduce((sum, item) => sum + item[metric], 0);
+    
+    let previousTotal = 0;
+    let percentChange = 0;
+    
+    if (comparisonData && comparisonData.length > 0) {
+      previousTotal = comparisonData.reduce((sum, item) => sum + item[metric], 0);
+      percentChange = previousTotal !== 0 
+        ? ((currentTotal - previousTotal) / previousTotal) * 100 
+        : 0;
+    }
+    
+    return {
+      currentTotal,
+      previousTotal,
+      percentChange
+    };
+  }, [chartData, comparisonData, metric]);
+
+  const getTrendIcon = (percentChange) => {
+    if (percentChange > 5) return <TrendingUp className="text-green-500" />;
+    if (percentChange < -5) return <TrendingDown className="text-red-500" />;
+    return <Equal className="text-yellow-500" />;
   };
 
   const renderChart = () => {
@@ -461,7 +466,6 @@ export default function AnalyticsStudio() {
     );
   };
 
-  // Using updated handler that properly handles the DateRange type
   const handleDateRangeSelect = (selectedRange: DateRangeType | undefined) => {
     if (selectedRange?.from) {
       setDateRange({
@@ -521,34 +525,6 @@ export default function AnalyticsStudio() {
                     <TabsTrigger value="comparison">Compare</TabsTrigger>
                   </TabsList>
                 </Tabs>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Chart Type</label>
-                <div className="flex gap-2">
-                  <Button 
-                    variant={chartType === 'line' ? 'default' : 'outline'} 
-                    size="icon" 
-                    onClick={() => setChartType('line')}
-                  >
-                    <LineChart className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant={chartType === 'bar' ? 'default' : 'outline'} 
-                    size="icon" 
-                    onClick={() => setChartType('bar')}
-                  >
-                    <BarChart className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant={chartType === 'table' ? 'default' : 'outline'} 
-                    size="icon" 
-                    onClick={() => setChartType('table')}
-                    className="flex-1"
-                  >
-                    Table View
-                  </Button>
-                </div>
               </div>
 
               <div className="space-y-2">
@@ -710,7 +686,7 @@ export default function AnalyticsStudio() {
           </Card>
 
           <Card className="lg:col-span-9">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg">
                 {viewType === 'overall' 
                   ? 'Overall Performance' 
@@ -718,14 +694,87 @@ export default function AnalyticsStudio() {
                     ? `Product Performance: ${products.find(p => p.id === product)?.name || 'All Products'}`
                     : 'Performance Comparison'}
               </CardTitle>
+              <ToggleGroup type="single" value={chartType} onValueChange={(value) => value && setChartType(value)}>
+                <ToggleGroupItem value="line" aria-label="Line Chart">
+                  <LineChart className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="bar" aria-label="Bar Chart">
+                  <BarChart className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="table" aria-label="Table View">
+                  Table
+                </ToggleGroupItem>
+              </ToggleGroup>
             </CardHeader>
             <CardContent>
               {renderChart()}
             </CardContent>
           </Card>
         </div>
+        
+        {summaryData && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Performance Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Metric</TableHead>
+                    <TableHead>Current Period</TableHead>
+                    {(compareWithPrevious || comparisonProduct || comparisonTimeframe) && (
+                      <TableHead>Previous Period</TableHead>
+                    )}
+                    {(compareWithPrevious || comparisonProduct || comparisonTimeframe) && (
+                      <TableHead>Change</TableHead>
+                    )}
+                    {(compareWithPrevious || comparisonProduct || comparisonTimeframe) && (
+                      <TableHead>Trend</TableHead>
+                    )}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">
+                      {metrics.find(m => m.value === metric)?.label}
+                    </TableCell>
+                    <TableCell>{formatMetricValue(summaryData.currentTotal)}</TableCell>
+                    {(compareWithPrevious || comparisonProduct || comparisonTimeframe) && (
+                      <TableCell>{formatMetricValue(summaryData.previousTotal)}</TableCell>
+                    )}
+                    {(compareWithPrevious || comparisonProduct || comparisonTimeframe) && (
+                      <TableCell className={
+                        summaryData.percentChange > 0 
+                          ? 'text-green-600'
+                          : summaryData.percentChange < 0
+                            ? 'text-red-600'
+                            : 'text-yellow-600'
+                      }>
+                        {summaryData.percentChange.toFixed(2)}%
+                      </TableCell>
+                    )}
+                    {(compareWithPrevious || comparisonProduct || comparisonTimeframe) && (
+                      <TableCell>
+                        <div className="flex items-center">
+                          {getTrendIcon(summaryData.percentChange)}
+                          <span className="ml-2">
+                            {Math.abs(summaryData.percentChange) > 30
+                              ? 'Significant change'
+                              : Math.abs(summaryData.percentChange) > 10
+                                ? 'Moderate change'
+                                : 'Minor change'}
+                          </span>
+                        </div>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </MainLayout>
   );
 }
-
