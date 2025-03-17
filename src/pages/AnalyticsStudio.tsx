@@ -14,7 +14,8 @@ import {
   TrendingUp,
   TrendingDown,
   Equal,
-  ArrowLeft
+  ArrowLeft,
+  PieChart
 } from 'lucide-react';
 import {
   BarChart as RechartsBarChart, 
@@ -26,7 +27,10 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  Legend
+  Legend,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell
 } from 'recharts';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { format, sub, parseISO, eachDayOfInterval } from 'date-fns';
@@ -162,6 +166,8 @@ interface DateRangeType {
   to: Date | undefined;
 }
 
+const COLORS = ['#4457ff', '#10b981', '#8b5cf6', '#3b82f6', '#f97316', '#ec4899', '#f43f5e', '#f59e0b'];
+
 export default function AnalyticsStudio() {
   const navigate = useNavigate();
   const [viewType, setViewType] = useState('overall');
@@ -173,6 +179,7 @@ export default function AnalyticsStudio() {
   const [compareWithPrevious, setCompareWithPrevious] = useState(false);
   const [dateRange, setDateRange] = useState<DateRangeType>({ from: sub(new Date(), { days: 30 }), to: new Date() });
   const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   
   const chartData = useMemo(() => {
     if (timeframe === '12months' || timeframe === '6months') {
@@ -310,7 +317,139 @@ export default function AnalyticsStudio() {
     });
   }, [chartData, comparisonData, metric]);
 
+  const productComparisonData = useMemo(() => {
+    if (selectedProducts.length <= 1) return null;
+    
+    return selectedProducts.map((productId, index) => {
+      const productName = products.find(p => p.id === productId)?.name || productId;
+      const baseValue = Math.floor(Math.random() * 100000 + 10000);
+      
+      return {
+        name: productName.length > 20 ? productName.substring(0, 20) + '...' : productName,
+        value: baseValue,
+        fullName: productName,
+        color: COLORS[index % COLORS.length]
+      };
+    });
+  }, [selectedProducts]);
+
+  const productTimeSeriesData = useMemo(() => {
+    if (selectedProducts.length <= 1) return null;
+    
+    const periods = timeframe === '12months' || timeframe === '6months' 
+      ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].slice(0, timeframe === '6months' ? 6 : 12)
+      : Array.from({ length: 7 }, (_, i) => `Day ${i+1}`);
+    
+    return periods.map(period => {
+      const result: any = { period };
+      
+      selectedProducts.forEach((productId) => {
+        const productName = products.find(p => p.id === productId)?.name || productId;
+        const displayName = productId;
+        result[displayName] = Math.floor(Math.random() * 20000 + 5000);
+      });
+      
+      return result;
+    });
+  }, [selectedProducts, timeframe]);
+
+  const handleProductSelection = (productId: string) => {
+    if (productId === 'all') {
+      setSelectedProducts(['all']);
+    } else {
+      setSelectedProducts(prev => {
+        if (prev.includes(productId)) {
+          const newSelection = prev.filter(id => id !== productId);
+          return newSelection.length === 0 ? ['all'] : newSelection;
+        } else {
+          const newSelection = prev.filter(id => id !== 'all').concat(productId);
+          return newSelection;
+        }
+      });
+    }
+  };
+
   const renderChart = () => {
+    if (selectedProducts.length > 1) {
+      return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-[400px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsPieChart>
+                <Pie
+                  data={productComparisonData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={true}
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  outerRadius={120}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {productComparisonData?.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value) => [`${formatMetricValue(value as number)}`, `Total ${metrics.find(m => m.value === metric)?.label}`]}
+                  contentStyle={{ 
+                    background: 'white',
+                    border: '1px solid #eee',
+                    borderRadius: '8px',
+                    padding: '8px 12px'
+                  }}
+                />
+              </RechartsPieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="h-[400px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsBarChart
+                data={productTimeSeriesData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="period" />
+                <YAxis 
+                  tickFormatter={(value) => {
+                    if (metric === 'revenue' || metric === 'profit' || metric === 'fees') {
+                      return `£${value.toLocaleString(undefined, { 
+                        notation: 'compact', 
+                        compactDisplay: 'short' 
+                      })}`;
+                    }
+                    return value.toLocaleString(undefined, { 
+                      notation: 'compact', 
+                      compactDisplay: 'short' 
+                    });
+                  }}
+                />
+                <Tooltip 
+                  formatter={(value) => [formatMetricValue(value as number), metrics.find(m => m.value === metric)?.label]}
+                  contentStyle={{ 
+                    background: 'white',
+                    border: '1px solid #eee',
+                    borderRadius: '8px',
+                    padding: '8px 12px'
+                  }}
+                />
+                <Legend />
+                {selectedProducts.map((productId, index) => (
+                  <Bar 
+                    key={productId}
+                    dataKey={productId} 
+                    name={products.find(p => p.id === productId)?.name || productId}
+                    fill={COLORS[index % COLORS.length]} 
+                    radius={[4, 4, 0, 0]}
+                  />
+                ))}
+              </RechartsBarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      );
+    }
+    
     if (chartType === 'bar') {
       return (
         <div className="h-[400px] w-full">
@@ -336,7 +475,7 @@ export default function AnalyticsStudio() {
                 }}
               />
               <Tooltip 
-                formatter={(value) => [formatMetricValue(value), metrics.find(m => m.value === metric)?.label]}
+                formatter={(value) => [formatMetricValue(value as number), metrics.find(m => m.value === metric)?.label]}
                 contentStyle={{ 
                   background: 'white',
                   border: '1px solid #eee',
@@ -390,7 +529,7 @@ export default function AnalyticsStudio() {
               }}
             />
             <Tooltip 
-              formatter={(value) => [formatMetricValue(value), metrics.find(m => m.value === metric)?.label]}
+              formatter={(value) => [formatMetricValue(value as number), metrics.find(m => m.value === metric)?.label]}
               contentStyle={{ 
                 background: 'white',
                 border: '1px solid #eee',
@@ -439,6 +578,29 @@ export default function AnalyticsStudio() {
       }
     }
   };
+
+  const productComparisonTableData = useMemo(() => {
+    if (selectedProducts.length <= 1) return null;
+    
+    return selectedProducts.map(productId => {
+      const productName = products.find(p => p.id === productId)?.name || productId;
+      const baseValue = Math.floor(Math.random() * 100000 + 10000);
+      
+      return {
+        productId,
+        productName,
+        value: baseValue,
+        percentOfTotal: 0,
+        trend: Math.floor(Math.random() * 60) - 30,
+      };
+    }).map(item => {
+      const total = productComparisonData?.reduce((sum, pd) => sum + pd.value, 0) || 1;
+      return {
+        ...item,
+        percentOfTotal: (item.value / total) * 100
+      };
+    });
+  }, [selectedProducts, productComparisonData]);
 
   return (
     <MainLayout>
@@ -550,71 +712,95 @@ export default function AnalyticsStudio() {
               </div>
 
               {(viewType === 'product' || viewType === 'comparison') && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Product</label>
-                  <Select value={product} onValueChange={setProduct}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select product" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products.map((option) => (
-                        <SelectItem key={option.id} value={option.id}>
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {viewType === 'comparison' && (
                 <>
-                  <div className="pt-4 border-t">
-                    <label className="text-sm font-medium">Comparison Options</label>
-                    <div className="mt-2 space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="compare-previous"
-                          checked={compareWithPrevious}
-                          onChange={(e) => {
-                            setCompareWithPrevious(e.target.checked);
-                            if (e.target.checked) {
-                              setComparisonProduct('');
-                            }
-                          }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <label htmlFor="compare-previous" className="text-sm">
-                          Compare with Previous Period
-                        </label>
-                      </div>
-                    
-                      {!compareWithPrevious && (
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Compare With Product</label>
-                          <Select 
-                            value={comparisonProduct} 
-                            onValueChange={(value) => {
-                              setComparisonProduct(value);
-                            }}
-                            disabled={compareWithPrevious}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select product to compare" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {products.filter(p => p.id !== product).map((option) => (
-                                <SelectItem key={option.id} value={option.id}>
-                                  {option.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
+                  {viewType === 'product' && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Product</label>
+                      <Select value={product} onValueChange={setProduct}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select product" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {products.map((option) => (
+                            <SelectItem key={option.id} value={option.id}>
+                              {option.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </div>
+                  )}
+                  
+                  {viewType === 'comparison' && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Select Products to Compare</label>
+                      <div className="mt-2 space-y-2 max-h-60 overflow-y-auto pr-2">
+                        {products.map((p) => (
+                          <div key={p.id} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id={`product-${p.id}`}
+                              checked={selectedProducts.includes(p.id)}
+                              onChange={() => handleProductSelection(p.id)}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <label htmlFor={`product-${p.id}`} className="text-sm">
+                              {p.name}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {viewType === 'comparison' && selectedProducts.length <= 1 && (
+                    <div className="pt-4 border-t">
+                      <label className="text-sm font-medium">Comparison Options</label>
+                      <div className="mt-2 space-y-4">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="compare-previous"
+                            checked={compareWithPrevious}
+                            onChange={(e) => {
+                              setCompareWithPrevious(e.target.checked);
+                              if (e.target.checked) {
+                                setComparisonProduct('');
+                              }
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <label htmlFor="compare-previous" className="text-sm">
+                            Compare with Previous Period
+                          </label>
+                        </div>
+                      
+                        {!compareWithPrevious && (
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Compare With Product</label>
+                            <Select 
+                              value={comparisonProduct} 
+                              onValueChange={(value) => {
+                                setComparisonProduct(value);
+                              }}
+                              disabled={compareWithPrevious}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select product to compare" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {products.filter(p => p.id !== product).map((option) => (
+                                  <SelectItem key={option.id} value={option.id}>
+                                    {option.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </CardContent>
@@ -627,16 +813,26 @@ export default function AnalyticsStudio() {
                   ? 'Overall Performance' 
                   : viewType === 'product' 
                     ? `Product Performance: ${products.find(p => p.id === product)?.name || 'All Products'}`
-                    : 'Performance Comparison'}
+                    : selectedProducts.length > 1 
+                      ? `Comparing ${selectedProducts.length} Products` 
+                      : 'Performance Comparison'}
               </CardTitle>
-              <ToggleGroup type="single" value={chartType} onValueChange={(value) => value && setChartType(value)}>
-                <ToggleGroupItem value="line" aria-label="Line Chart">
-                  <LineChart className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="bar" aria-label="Bar Chart">
-                  <BarChart className="h-4 w-4" />
-                </ToggleGroupItem>
-              </ToggleGroup>
+              {selectedProducts.length <= 1 && (
+                <ToggleGroup type="single" value={chartType} onValueChange={(value) => value && setChartType(value)}>
+                  <ToggleGroupItem value="line" aria-label="Line Chart">
+                    <LineChart className="h-4 w-4" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="bar" aria-label="Bar Chart">
+                    <BarChart className="h-4 w-4" />
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              )}
+              {selectedProducts.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <PieChart className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Product Comparison View</span>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               {renderChart()}
@@ -644,7 +840,50 @@ export default function AnalyticsStudio() {
           </Card>
         </div>
         
-        {summaryData && (
+        {selectedProducts.length > 1 && productComparisonTableData && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Product Comparison Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Total {metrics.find(m => m.value === metric)?.label}</TableHead>
+                    <TableHead>% of Total</TableHead>
+                    <TableHead>30-Day Trend</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {productComparisonTableData.map((item) => (
+                    <TableRow key={item.productId}>
+                      <TableCell className="font-medium">
+                        {item.productName}
+                      </TableCell>
+                      <TableCell>{formatMetricValue(item.value)}</TableCell>
+                      <TableCell>{item.percentOfTotal.toFixed(2)}%</TableCell>
+                      <TableCell className={
+                        item.trend > 0 
+                          ? 'text-green-600'
+                          : item.trend < 0
+                            ? 'text-red-600'
+                            : 'text-yellow-600'
+                      }>
+                        <div className="flex items-center">
+                          {getTrendIcon(item.trend)}
+                          <span className="ml-2">{item.trend > 0 ? '+' : ''}{item.trend.toFixed(2)}%</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+        
+        {summaryData && (compareWithPrevious || comparisonProduct) && selectedProducts.length <= 1 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Performance Summary</CardTitle>
@@ -655,15 +894,9 @@ export default function AnalyticsStudio() {
                   <TableRow>
                     <TableHead>Metric</TableHead>
                     <TableHead>Current Period</TableHead>
-                    {(compareWithPrevious || comparisonProduct) && (
-                      <TableHead>Previous Period</TableHead>
-                    )}
-                    {(compareWithPrevious || comparisonProduct) && (
-                      <TableHead>Change</TableHead>
-                    )}
-                    {(compareWithPrevious || comparisonProduct) && (
-                      <TableHead>Trend</TableHead>
-                    )}
+                    <TableHead>Previous Period</TableHead>
+                    <TableHead>Change</TableHead>
+                    <TableHead>Trend</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -672,34 +905,28 @@ export default function AnalyticsStudio() {
                       {metrics.find(m => m.value === metric)?.label}
                     </TableCell>
                     <TableCell>{formatMetricValue(summaryData.currentTotal)}</TableCell>
-                    {(compareWithPrevious || comparisonProduct) && (
-                      <TableCell>{formatMetricValue(summaryData.previousTotal)}</TableCell>
-                    )}
-                    {(compareWithPrevious || comparisonProduct) && (
-                      <TableCell className={
-                        summaryData.percentChange > 0 
-                          ? 'text-green-600'
-                          : summaryData.percentChange < 0
-                            ? 'text-red-600'
-                            : 'text-yellow-600'
-                      }>
-                        {summaryData.percentChange.toFixed(2)}%
-                      </TableCell>
-                    )}
-                    {(compareWithPrevious || comparisonProduct) && (
-                      <TableCell>
-                        <div className="flex items-center">
-                          {getTrendIcon(summaryData.percentChange)}
-                          <span className="ml-2">
-                            {Math.abs(summaryData.percentChange) > 30
-                              ? 'Significant change'
-                              : Math.abs(summaryData.percentChange) > 10
-                                ? 'Moderate change'
-                                : 'Minor change'}
-                          </span>
-                        </div>
-                      </TableCell>
-                    )}
+                    <TableCell>{formatMetricValue(summaryData.previousTotal)}</TableCell>
+                    <TableCell className={
+                      summaryData.percentChange > 0 
+                        ? 'text-green-600'
+                        : summaryData.percentChange < 0
+                          ? 'text-red-600'
+                          : 'text-yellow-600'
+                    }>
+                      {summaryData.percentChange.toFixed(2)}%
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        {getTrendIcon(summaryData.percentChange)}
+                        <span className="ml-2">
+                          {Math.abs(summaryData.percentChange) > 30
+                            ? 'Significant change'
+                            : Math.abs(summaryData.percentChange) > 10
+                              ? 'Moderate change'
+                              : 'Minor change'}
+                        </span>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
