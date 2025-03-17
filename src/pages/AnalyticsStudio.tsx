@@ -38,6 +38,7 @@ import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { ProductSelector } from '@/components/marketplace/ProductSelector';
 
 const products = [
   { id: 'all', name: 'All Products' },
@@ -740,97 +741,64 @@ export default function AnalyticsStudio() {
                 )}
               </div>
 
-              {(viewType === 'product' || viewType === 'comparison') && (
-                <>
-                  {viewType === 'product' && (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Product</label>
-                      <Select value={product} onValueChange={setProduct}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select product" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.map((option) => (
-                            <SelectItem key={option.id} value={option.id}>
-                              {option.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                  
-                  {viewType === 'comparison' && (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Select Products to Compare</label>
-                      <div className="mt-2 space-y-2 max-h-60 overflow-y-auto pr-2">
-                        {products.map((p) => (
-                          <div key={p.id} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              id={`product-${p.id}`}
-                              checked={selectedProducts.includes(p.id)}
-                              onChange={() => handleProductSelection(p.id)}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <label htmlFor={`product-${p.id}`} className="text-sm">
-                              {p.name}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+              {viewType === 'comparison' && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Select Products to Compare</label>
+                  <ProductSelector 
+                    products={products}
+                    selectedProducts={selectedProducts}
+                    onProductSelect={handleProductSelection}
+                  />
+                </div>
+              )}
 
-                  {viewType === 'comparison' && selectedProducts.length <= 1 && (
-                    <div className="pt-4 border-t">
-                      <label className="text-sm font-medium">Comparison Options</label>
-                      <div className="mt-2">
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            id="compare-previous"
-                            checked={compareWithPrevious}
-                            onChange={(e) => {
-                              setCompareWithPrevious(e.target.checked);
-                              if (e.target.checked) {
-                                setComparisonProduct('');
-                              }
-                            }}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                          <label htmlFor="compare-previous" className="text-sm">
-                            Compare with Previous Period
-                          </label>
-                        </div>
-                      
-                        {!compareWithPrevious && (
-                          <div className="space-y-2 mt-4">
-                            <label className="text-sm font-medium">Compare With Product</label>
-                            <Select 
-                              value={comparisonProduct} 
-                              onValueChange={(value) => {
-                                setComparisonProduct(value);
-                              }}
-                              disabled={compareWithPrevious}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select product to compare" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {products.filter(p => p.id !== product).map((option) => (
-                                  <SelectItem key={option.id} value={option.id}>
-                                    {option.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
+              {viewType === 'comparison' && selectedProducts.length <= 1 && (
+                <div className="pt-4 border-t">
+                  <label className="text-sm font-medium">Comparison Options</label>
+                  <div className="mt-2">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="compare-previous"
+                        checked={compareWithPrevious}
+                        onChange={(e) => {
+                          setCompareWithPrevious(e.target.checked);
+                          if (e.target.checked) {
+                            setComparisonProduct('');
+                          }
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <label htmlFor="compare-previous" className="text-sm">
+                        Compare with Previous Period
+                      </label>
                     </div>
-                  )}
-                </>
+                  
+                    {!compareWithPrevious && (
+                      <div className="space-y-2 mt-4">
+                        <label className="text-sm font-medium">Compare With Product</label>
+                        <Select 
+                          value={comparisonProduct} 
+                          onValueChange={(value) => {
+                            setComparisonProduct(value);
+                          }}
+                          disabled={compareWithPrevious}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select product to compare" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {products.filter(p => p.id !== product).map((option) => (
+                              <SelectItem key={option.id} value={option.id}>
+                                {option.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
