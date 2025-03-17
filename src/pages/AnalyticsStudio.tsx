@@ -217,6 +217,11 @@ export default function AnalyticsStudio() {
   
   useEffect(() => {
     if (viewType === 'overall') {
+      setSelectedProducts(['all']);
+      setComparisonProduct('');
+    } else if (viewType === 'compare') {
+      setSelectedProducts([]);
+      setCompareWithPrevious(false);
       setComparisonProduct('');
     }
   }, [viewType]);
@@ -355,18 +360,29 @@ export default function AnalyticsStudio() {
   }, [selectedProducts, timeframe]);
 
   const handleProductSelection = (productId: string) => {
-    if (productId === 'all') {
-      setSelectedProducts(['all']);
-    } else {
+    if (viewType === 'compare') {
       setSelectedProducts(prev => {
         if (prev.includes(productId)) {
           const newSelection = prev.filter(id => id !== productId);
-          return newSelection.length === 0 ? ['all'] : newSelection;
+          return newSelection.length === 0 ? [] : newSelection;
         } else {
-          const newSelection = prev.filter(id => id !== 'all').concat(productId);
-          return newSelection;
+          return [...prev, productId];
         }
       });
+    } else {
+      if (productId === 'all') {
+        setSelectedProducts(['all']);
+      } else {
+        setSelectedProducts(prev => {
+          if (prev.includes(productId)) {
+            const newSelection = prev.filter(id => id !== productId);
+            return newSelection.length === 0 ? ['all'] : newSelection;
+          } else {
+            const newSelection = prev.filter(id => id !== 'all').concat(productId);
+            return newSelection;
+          }
+        });
+      }
     }
   };
 
@@ -748,53 +764,32 @@ export default function AnalyticsStudio() {
                   products={products}
                   selectedProducts={selectedProducts}
                   onProductSelect={handleProductSelection}
+                  multiSelect={viewType === 'compare'}
                 />
               </div>
               
-              <div className="pt-4 border-t">
-                <label className="text-sm font-medium">Comparison Options</label>
-                <div className="mt-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="compare-previous"
-                      checked={compareWithPrevious}
-                      onCheckedChange={(checked) => {
-                        setCompareWithPrevious(checked === true);
-                        if (checked) {
-                          setComparisonProduct('');
-                        }
-                      }}
-                    />
-                    <label htmlFor="compare-previous" className="text-sm cursor-pointer">
-                      Compare with Previous Period
-                    </label>
-                  </div>
-                
-                  {!compareWithPrevious && viewType === 'compare' && selectedProducts.length <= 1 && (
-                    <div className="space-y-2 mt-4">
-                      <label className="text-sm font-medium">Compare With Product</label>
-                      <Select 
-                        value={comparisonProduct} 
-                        onValueChange={(value) => {
-                          setComparisonProduct(value);
+              {viewType === 'overall' && (
+                <div className="pt-4 border-t">
+                  <label className="text-sm font-medium">Comparison Options</label>
+                  <div className="mt-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="compare-previous"
+                        checked={compareWithPrevious}
+                        onCheckedChange={(checked) => {
+                          setCompareWithPrevious(checked === true);
+                          if (checked) {
+                            setComparisonProduct('');
+                          }
                         }}
-                        disabled={compareWithPrevious}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select product to compare" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.filter(p => p.id !== product).map((option) => (
-                            <SelectItem key={option.id} value={option.id}>
-                              {option.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
+                      <label htmlFor="compare-previous" className="text-sm cursor-pointer">
+                        Compare with Previous Period
+                      </label>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -803,9 +798,9 @@ export default function AnalyticsStudio() {
               <CardTitle className="text-lg">
                 {viewType === 'overall' 
                   ? 'Overall Performance' 
-                  : selectedProducts.length > 1 
+                  : selectedProducts.length > 0 
                     ? `Comparing ${selectedProducts.length} Products` 
-                    : 'Performance Comparison'}
+                    : 'Select Products to Compare'}
               </CardTitle>
               <ToggleGroup type="single" value={chartType} onValueChange={(value) => value && setChartType(value)}>
                 <ToggleGroupItem value="line" aria-label="Line Chart">
@@ -817,14 +812,20 @@ export default function AnalyticsStudio() {
               </ToggleGroup>
             </CardHeader>
             <CardContent>
-              {renderMainChart()}
+              {viewType === 'compare' && selectedProducts.length < 2 ? (
+                <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+                  Please select at least 2 products to compare
+                </div>
+              ) : (
+                renderMainChart()
+              )}
             </CardContent>
           </Card>
         </div>
         
-        {renderProductComparisonCharts()}
+        {viewType === 'compare' && selectedProducts.length >= 2 && renderProductComparisonCharts()}
         
-        {selectedProducts.length > 1 && productComparisonTableData && (
+        {viewType === 'compare' && selectedProducts.length >= 2 && productComparisonTableData && (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Product Comparison Summary</CardTitle>

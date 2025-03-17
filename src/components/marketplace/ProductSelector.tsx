@@ -19,17 +19,29 @@ interface ProductSelectorProps {
   products: Product[];
   selectedProducts: string[];
   onProductSelect: (productId: string) => void;
+  multiSelect?: boolean;
 }
 
-export function ProductSelector({ products, selectedProducts, onProductSelect }: ProductSelectorProps) {
+export function ProductSelector({ 
+  products, 
+  selectedProducts, 
+  onProductSelect, 
+  multiSelect = false 
+}: ProductSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   // Find the displayed product name
-  const displayText = selectedProducts.includes('all') 
-    ? "All Products" 
-    : selectedProducts.length === 1 
-      ? products.find(p => p.id === selectedProducts[0])?.name || "Select Products" 
-      : `${selectedProducts.length} Products Selected`;
+  const displayText = multiSelect
+    ? selectedProducts.length === 0
+      ? "Select Products"
+      : selectedProducts.length === 1
+        ? products.find(p => p.id === selectedProducts[0])?.name || "Select Products"
+        : `${selectedProducts.length} Products Selected`
+    : selectedProducts.includes('all')
+      ? "All Products"
+      : selectedProducts.length === 1
+        ? products.find(p => p.id === selectedProducts[0])?.name || "Select Products"
+        : `${selectedProducts.length} Products Selected`;
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -41,16 +53,18 @@ export function ProductSelector({ products, selectedProducts, onProductSelect }:
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-full min-w-[240px] p-2" align="start">
         <div className="space-y-2 max-h-60 overflow-y-auto">
-          <div className="flex items-center space-x-2 py-1 px-2">
-            <Checkbox
-              id="product-all"
-              checked={selectedProducts.includes('all')}
-              onCheckedChange={() => onProductSelect('all')}
-            />
-            <label htmlFor="product-all" className="text-sm font-medium cursor-pointer">
-              All Products
-            </label>
-          </div>
+          {!multiSelect && (
+            <div className="flex items-center space-x-2 py-1 px-2">
+              <Checkbox
+                id="product-all"
+                checked={selectedProducts.includes('all')}
+                onCheckedChange={() => onProductSelect('all')}
+              />
+              <label htmlFor="product-all" className="text-sm font-medium cursor-pointer">
+                All Products
+              </label>
+            </div>
+          )}
           
           {products.filter(p => p.id !== 'all').map((product) => (
             <div key={product.id} className="flex items-center space-x-2 py-1 px-2">
@@ -58,11 +72,11 @@ export function ProductSelector({ products, selectedProducts, onProductSelect }:
                 id={`product-${product.id}`}
                 checked={selectedProducts.includes(product.id)}
                 onCheckedChange={() => onProductSelect(product.id)}
-                disabled={selectedProducts.includes('all')}
+                disabled={!multiSelect && selectedProducts.includes('all')}
               />
               <label 
                 htmlFor={`product-${product.id}`} 
-                className={`text-sm font-medium cursor-pointer ${selectedProducts.includes('all') ? 'text-muted-foreground' : ''}`}
+                className={`text-sm font-medium cursor-pointer ${!multiSelect && selectedProducts.includes('all') ? 'text-muted-foreground' : ''}`}
               >
                 {product.name}
               </label>
