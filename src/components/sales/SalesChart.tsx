@@ -33,6 +33,15 @@ export const SalesChart: React.FC<SalesChartProps> = ({
   yAxisFormatter = (value: number) => `£${value}`
 }) => {
   
+  // Merge the two datasets for proper comparison display
+  const combinedData = data.map((item, index) => {
+    const comparisonItem = comparisonData?.[index];
+    return {
+      ...item,
+      [`${dataKey}_comparison`]: comparisonItem?.[dataKey]
+    };
+  });
+  
   return (
     <Card className="lg:col-span-7">
       <CardHeader>
@@ -42,7 +51,7 @@ export const SalesChart: React.FC<SalesChartProps> = ({
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
-              data={data}
+              data={combinedData}
               margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
@@ -72,8 +81,7 @@ export const SalesChart: React.FC<SalesChartProps> = ({
               />
               {comparisonData && (
                 <Bar 
-                  dataKey={dataKey} 
-                  // Remove the data property, as it should come from the parent BarChart
+                  dataKey={`${dataKey}_comparison`}
                   fill={barColor}
                   fillOpacity={0.5}
                   name={comparisonLabel}
