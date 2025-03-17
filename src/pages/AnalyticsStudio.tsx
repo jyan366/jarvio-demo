@@ -400,15 +400,9 @@ export default function AnalyticsStudio() {
               <YAxis 
                 tickFormatter={(value) => {
                   if (metric === 'revenue' || metric === 'profit' || metric === 'fees') {
-                    return `£${value.toLocaleString(undefined, { 
-                      notation: 'compact', 
-                      compactDisplay: 'short' 
-                    })}`;
+                    return `£${value.toLocaleString()}`;
                   }
-                  return value.toLocaleString(undefined, { 
-                    notation: 'compact', 
-                    compactDisplay: 'short' 
-                  });
+                  return value.toLocaleString();
                 }}
               />
               <Tooltip 
@@ -454,15 +448,9 @@ export default function AnalyticsStudio() {
             <YAxis 
               tickFormatter={(value) => {
                 if (metric === 'revenue' || metric === 'profit' || metric === 'fees') {
-                  return `£${value.toLocaleString(undefined, { 
-                    notation: 'compact', 
-                    compactDisplay: 'short' 
-                  })}`;
+                  return `£${value.toLocaleString()}`;
                 }
-                return value.toLocaleString(undefined, { 
-                  notation: 'compact', 
-                  compactDisplay: 'short' 
-                });
+                return value.toLocaleString();
               }}
             />
             <Tooltip 
@@ -648,6 +636,17 @@ export default function AnalyticsStudio() {
     });
   }, [selectedProducts, productComparisonData]);
 
+  const getChartTitle = () => {
+    if (viewType === 'compare' && selectedProducts.length > 1) {
+      return `Comparing ${selectedProducts.length} Products`;
+    } else if (selectedProducts.length > 1) {
+      const metricLabel = metrics.find(m => m.value === metric)?.label || 'Metric';
+      return `${metricLabel} summary for ${selectedProducts.length} products`;
+    } else {
+      return 'Overall Performance';
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -796,11 +795,7 @@ export default function AnalyticsStudio() {
           <Card className="lg:col-span-9">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg">
-                {viewType === 'overall' 
-                  ? 'Overall Performance' 
-                  : selectedProducts.length > 0 
-                    ? `Comparing ${selectedProducts.length} Products` 
-                    : 'Select Products to Compare'}
+                {getChartTitle()}
               </CardTitle>
               <ToggleGroup type="single" value={chartType} onValueChange={(value) => value && setChartType(value)}>
                 <ToggleGroupItem value="line" aria-label="Line Chart">
