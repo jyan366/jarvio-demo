@@ -326,7 +326,11 @@ export default function AnalyticsStudio() {
   const productComparisonData = useMemo(() => {
     if (selectedProducts.length <= 1) return null;
     
-    return selectedProducts.map((productId, index) => {
+    const productsToDisplay = selectedProducts.length > 6 
+      ? selectedProducts.slice(0, 6) 
+      : selectedProducts;
+    
+    return productsToDisplay.map((productId, index) => {
       const productName = products.find(p => p.id === productId)?.name || productId;
       const baseValue = Math.floor(Math.random() * 100000 + 10000);
       
@@ -342,15 +346,19 @@ export default function AnalyticsStudio() {
   const productTimeSeriesData = useMemo(() => {
     if (selectedProducts.length <= 1) return null;
     
+    const periodsCount = selectedProducts.length > 3 ? 4 : 7;
     const periods = timeframe === '12months' || timeframe === '6months' 
-      ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].slice(0, timeframe === '6months' ? 6 : 12)
-      : Array.from({ length: 7 }, (_, i) => `Day ${i+1}`);
+      ? ['Jan', 'Apr', 'Jul', 'Oct'].slice(0, periodsCount)
+      : Array.from({ length: periodsCount }, (_, i) => `Day ${i+1}`);
+    
+    const productsToDisplay = selectedProducts.length > 6 
+      ? selectedProducts.slice(0, 6) 
+      : selectedProducts;
     
     return periods.map(period => {
       const result: any = { period };
       
-      selectedProducts.forEach((productId) => {
-        const productName = products.find(p => p.id === productId)?.name || productId;
+      productsToDisplay.forEach((productId) => {
         const displayName = productId;
         result[displayName] = Math.floor(Math.random() * 20000 + 5000);
       });
@@ -387,6 +395,52 @@ export default function AnalyticsStudio() {
   };
 
   const renderMainChart = () => {
+    if (selectedProducts.length > 3) {
+      return (
+        <div className="h-[400px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <RechartsBarChart
+              data={totalProductsData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 12 }}
+                tickFormatter={(value) => {
+                  return value.substring(0, 3);
+                }}
+              />
+              <YAxis 
+                tickFormatter={(value) => {
+                  if (metric === 'revenue' || metric === 'profit' || metric === 'fees') {
+                    return `£${Math.round(value / 1000)}k`;
+                  }
+                  return value >= 1000 ? `${Math.round(value / 1000)}k` : value;
+                }}
+              />
+              <Tooltip 
+                formatter={(value) => [formatMetricValue(value as number), metrics.find(m => m.value === metric)?.label]}
+                contentStyle={{ 
+                  background: 'white',
+                  border: '1px solid #eee',
+                  borderRadius: '8px',
+                  padding: '8px 12px'
+                }}
+              />
+              <Legend />
+              <Bar 
+                dataKey={metric} 
+                fill={getColor(metric)} 
+                name={selectedProducts.length > 1 ? "Combined Total" : metrics.find(m => m.value === metric)?.label}
+                radius={[4, 4, 0, 0]}
+              />
+            </RechartsBarChart>
+          </ResponsiveContainer>
+        </div>
+      );
+    }
+    
     if (chartType === 'bar') {
       return (
         <div className="h-[400px] w-full">
@@ -495,10 +549,15 @@ export default function AnalyticsStudio() {
   const renderProductComparisonCharts = () => {
     if (selectedProducts.length <= 1) return null;
     
+    const tooManyProducts = selectedProducts.length > 6;
+    
     return (
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle className="text-lg">Product Comparison</CardTitle>
+          <CardTitle className="text-lg">
+            Product Comparison
+            {tooManyProducts && <span className="text-sm font-normal text-muted-foreground ml-2">(showing top 6 products)</span>}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -509,8 +568,10 @@ export default function AnalyticsStudio() {
                     data={productComparisonData}
                     cx="50%"
                     cy="50%"
-                    labelLine={true}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    labelLine={selectedProducts.length <= 4}
+                    label={selectedProducts.length <= 4 ? 
+                      ({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)` : 
+                      undefined}
                     outerRadius={120}
                     fill="#8884d8"
                     dataKey="value"
@@ -519,6 +580,7 @@ export default function AnalyticsStudio() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
+                  <Legend />
                   <Tooltip 
                     formatter={(value) => [`${formatMetricValue(value as number)}`, `Total ${metrics.find(m => m.value === metric)?.label}`]}
                     contentStyle={{ 
@@ -542,15 +604,9 @@ export default function AnalyticsStudio() {
                   <YAxis 
                     tickFormatter={(value) => {
                       if (metric === 'revenue' || metric === 'profit' || metric === 'fees') {
-                        return `£${value.toLocaleString(undefined, { 
-                          notation: 'compact', 
-                          compactDisplay: 'short' 
-                        })}`;
+                        return `£${Math.round(value / 1000)}k`;
                       }
-                      return value.toLocaleString(undefined, { 
-                        notation: 'compact', 
-                        compactDisplay: 'short' 
-                      });
+                      return value >= 1000 ? `${Math.round(value / 1000)}k` : value;
                     }}
                   />
                   <Tooltip 
@@ -563,7 +619,7 @@ export default function AnalyticsStudio() {
                     }}
                   />
                   <Legend />
-                  {selectedProducts.map((productId, index) => (
+                  {selectedProducts.slice(0, 6).map((productId, index) => (
                     <Bar 
                       key={productId}
                       dataKey={productId} 
@@ -616,7 +672,7 @@ export default function AnalyticsStudio() {
   const productComparisonTableData = useMemo(() => {
     if (selectedProducts.length <= 1) return null;
     
-    return selectedProducts.map(productId => {
+    const allProducts = selectedProducts.map(productId => {
       const productName = products.find(p => p.id === productId)?.name || productId;
       const baseValue = Math.floor(Math.random() * 100000 + 10000);
       
@@ -634,6 +690,8 @@ export default function AnalyticsStudio() {
         percentOfTotal: (item.value / total) * 100
       };
     });
+    
+    return allProducts.sort((a, b) => b.value - a.value);
   }, [selectedProducts, productComparisonData]);
 
   const getChartTitle = () => {
@@ -758,6 +816,11 @@ export default function AnalyticsStudio() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">
                   {viewType === 'compare' ? 'Select Products to Compare' : 'Select Products'}
+                  {selectedProducts.length > 6 && (
+                    <span className="text-xs text-amber-600 ml-1">
+                      (Only 6 products will be shown in charts)
+                    </span>
+                  )}
                 </label>
                 <ProductSelector 
                   products={products}
@@ -822,43 +885,48 @@ export default function AnalyticsStudio() {
         
         {viewType === 'compare' && selectedProducts.length >= 2 && productComparisonTableData && (
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">Product Comparison Summary</CardTitle>
+              {selectedProducts.length > 6 && (
+                <div className="text-sm text-muted-foreground">Showing all {selectedProducts.length} products</div>
+              )}
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Total {metrics.find(m => m.value === metric)?.label}</TableHead>
-                    <TableHead>% of Total</TableHead>
-                    <TableHead>30-Day Trend</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {productComparisonTableData.map((item) => (
-                    <TableRow key={item.productId}>
-                      <TableCell className="font-medium">
-                        {item.productName}
-                      </TableCell>
-                      <TableCell>{formatMetricValue(item.value)}</TableCell>
-                      <TableCell>{item.percentOfTotal.toFixed(2)}%</TableCell>
-                      <TableCell className={
-                        item.trend > 0 
-                          ? 'text-green-600'
-                          : item.trend < 0
-                            ? 'text-red-600'
-                            : 'text-yellow-600'
-                      }>
-                        <div className="flex items-center">
-                          {getTrendIcon(item.trend)}
-                          <span className="ml-2">{item.trend > 0 ? '+' : ''}{item.trend.toFixed(2)}%</span>
-                        </div>
-                      </TableCell>
+              <div className="overflow-auto max-h-[500px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product</TableHead>
+                      <TableHead>Total {metrics.find(m => m.value === metric)?.label}</TableHead>
+                      <TableHead>% of Total</TableHead>
+                      <TableHead>30-Day Trend</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {productComparisonTableData.map((item) => (
+                      <TableRow key={item.productId}>
+                        <TableCell className="font-medium whitespace-nowrap truncate max-w-[200px]">
+                          {item.productName}
+                        </TableCell>
+                        <TableCell>{formatMetricValue(item.value)}</TableCell>
+                        <TableCell>{item.percentOfTotal.toFixed(2)}%</TableCell>
+                        <TableCell className={
+                          item.trend > 0 
+                            ? 'text-green-600'
+                            : item.trend < 0
+                              ? 'text-red-600'
+                              : 'text-yellow-600'
+                        }>
+                          <div className="flex items-center">
+                            {getTrendIcon(item.trend)}
+                            <span className="ml-2">{item.trend > 0 ? '+' : ''}{item.trend.toFixed(2)}%</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         )}
