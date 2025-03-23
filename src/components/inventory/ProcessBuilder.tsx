@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Workflow, Save } from "lucide-react";
 import { toast } from "sonner";
@@ -70,31 +70,20 @@ export function ProcessBuilder({ open, onOpenChange }: ProcessBuilderProps) {
             <Workflow className="h-5 w-5 text-blue-500" /> 
             <span>My Amazon Inventory Workflow</span>
           </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Build your inventory workflow by dragging blocks and connecting them in sequence.
+            Each block represents a step in your Amazon inventory management process.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6 mt-4">
-          <p className="text-sm text-muted-foreground">
-            Build your inventory workflow by dragging blocks and connecting them in sequence.
-            Each block represents a step in your Amazon inventory management process.
-          </p>
-          
-          <div className="border rounded-md bg-slate-50/50 dark:bg-slate-900/20 p-6">
-            {blocks.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-md">
-                <Workflow className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                <p className="text-sm">No workflow blocks added yet.</p>
-                <p className="text-xs mt-1">Add your first block from the options above to begin building your workflow.</p>
-              </div>
-            ) : (
-              <WorkflowBlocks 
-                blocks={blocks}
-                onDragEnd={handleDragEnd}
-                onAddBlock={handleAddBlock}
-                onRemoveBlock={handleRemoveBlock}
-                onToggleComplete={toggleComplete}
-              />
-            )}
-          </div>
+          <WorkflowBlocks 
+            blocks={blocks}
+            onDragEnd={handleDragEnd}
+            onAddBlock={handleAddBlock}
+            onRemoveBlock={handleRemoveBlock}
+            onToggleComplete={toggleComplete}
+          />
           
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
