@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Image } from 'lucide-react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Workflow } from 'lucide-react';
+import { ProcessBuilder } from '@/components/inventory/ProcessBuilder';
 
 const statsCards = [
   {
@@ -98,12 +98,22 @@ const products = [
 ];
 
 export default function MyInventory() {
+  const [processDialogOpen, setProcessDialogOpen] = useState(false);
+
   return (
     <MainLayout>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Inventory</h1>
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+            <Button 
+              variant="outline" 
+              className="flex items-center justify-between gap-2"
+              onClick={() => setProcessDialogOpen(true)}
+            >
+              <Workflow className="h-4 w-4" />
+              <span>My Process</span>
+            </Button>
             <Button variant="outline" className="flex items-center justify-between gap-2">
               <span>Select tags...</span>
               <ChevronDown className="h-4 w-4" />
@@ -206,6 +216,8 @@ export default function MyInventory() {
           </div>
         </Card>
       </div>
+      
+      <ProcessBuilder open={processDialogOpen} onOpenChange={setProcessDialogOpen} />
     </MainLayout>
   );
 }
