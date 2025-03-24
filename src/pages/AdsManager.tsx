@@ -13,19 +13,19 @@ import { ProcessBuilder } from "@/components/inventory/ProcessBuilder";
 import { Badge } from "@/components/ui/badge";
 
 const templateCategories = [
-  { name: 'Product Launch', count: 5 },
-  { name: 'Brand Defense', count: 3 },
-  { name: 'Category Targeting', count: 4 },
-  { name: 'Competitor Targeting', count: 2 }
+  { name: 'Campaign Setup', count: 5 },
+  { name: 'Optimization', count: 7 },
+  { name: 'Keyword Research', count: 4 },
+  { name: 'Performance Analysis', count: 6 }
 ];
 
 const templates = [
   {
     name: "High-Performance Auto Campaign",
-    category: "Product Launch",
+    category: "Campaign Setup",
     rating: 4.8,
     uses: 1250,
-    author: "Jarvio",
+    author: "Amazon PPC Pro",
     isFavorite: true,
     expert: false,
     description: "Optimize your product launch with automatic targeting and performance-based adjustments.",
@@ -39,7 +39,7 @@ const templates = [
   },
   {
     name: "Weekly PPC Optimization Workflow",
-    category: "Category Targeting",
+    category: "Optimization",
     rating: 4.9,
     uses: 2180,
     author: "PPC Expert Mark",
@@ -57,19 +57,21 @@ const templates = [
     ]
   },
   {
-    name: "Brand Defense Bundle",
-    category: "Brand Defense",
+    name: "Competitor Keyword Targeting",
+    category: "Keyword Research",
     rating: 4.6,
     uses: 850,
     author: "Community",
     isFavorite: false,
     expert: false,
-    description: "Protect your brand from competitors and maintain market position.",
+    description: "Target competitor keywords and maintain market position with this proven approach.",
     steps: [
-      "Target competitor brand names",
-      "Bid on misspelled brand terms",
-      "Set defensive product targeting",
-      "Monitor share of voice weekly"
+      "Research competitor ASINs",
+      "Extract top-performing keywords",
+      "Create exact match campaigns",
+      "Set competitive bid strategies",
+      "Monitor performance weekly",
+      "Adjust bids based on ACoS"
     ]
   }
 ];
@@ -77,9 +79,9 @@ const templates = [
 export default function AdsManager() {
   const [showTemplate, setShowTemplate] = useState(false);
   const [templateBuilder, setTemplateBuilder] = useState(false);
-  const [currentTemplate, setCurrentTemplate] = useState(null);
+  const [currentTemplate, setCurrentTemplate] = useState<any>(null);
 
-  const openTemplate = (template) => {
+  const openTemplate = (template: any) => {
     setCurrentTemplate(template);
     setShowTemplate(true);
   };
@@ -93,8 +95,8 @@ export default function AdsManager() {
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div>
-            <h1 className="text-2xl md:text-4xl font-bold">Ads Manager</h1>
-            <p className="text-muted-foreground mt-1">Create and manage your PPC campaign templates</p>
+            <h1 className="text-2xl md:text-4xl font-bold">PPC Ads Manager</h1>
+            <p className="text-muted-foreground mt-1">Create and manage your Amazon PPC campaign templates</p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline">
@@ -154,7 +156,7 @@ export default function AdsManager() {
                           <div className="flex items-center gap-2">
                             {template.name}
                             {template.expert && (
-                              <Badge variant="outline" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200">
+                              <Badge variant="blue" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200">
                                 Expert
                               </Badge>
                             )}
@@ -199,7 +201,7 @@ export default function AdsManager() {
             <DialogTitle className="flex items-center gap-2 text-xl">
               {currentTemplate?.name}
               {currentTemplate?.expert && (
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200">
+                <Badge variant="blue" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200">
                   Expert
                 </Badge>
               )}
@@ -212,7 +214,7 @@ export default function AdsManager() {
           <div className="space-y-6 mt-4">
             <div className="bg-muted/40 p-4 rounded-lg space-y-4">
               <h3 className="font-medium text-lg">Workflow Steps</h3>
-              {currentTemplate?.steps.map((step, index) => (
+              {currentTemplate?.steps.map((step: string, index: number) => (
                 <div key={index} className="flex items-center gap-3 p-3 bg-card border rounded-md">
                   <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-medium">
                     {index + 1}
@@ -246,7 +248,7 @@ export default function AdsManager() {
         open={templateBuilder} 
         onOpenChange={setTemplateBuilder} 
         title="Create PPC Campaign Template"
-        description="Build your own PPC campaign workflow by adding steps that represent your optimization process."
+        description="Build your Amazon PPC campaign workflow by adding steps that represent your optimization process."
         blockTypes={[
           "Review Campaign Performance",
           "Adjust Keyword Bids",
@@ -258,8 +260,15 @@ export default function AdsManager() {
           "Generate Performance Report",
           "Competitor Analysis",
           "Seasonal Adjustments",
-          "ACOS Optimization"
+          "ACOS Optimization",
+          "Create Sponsored Products Campaign",
+          "Optimize Bid Strategy",
+          "Mine Search Terms",
+          "Target Competitor ASINs",
+          "Pause Underperforming Keywords",
+          "Implement Dayparting Strategy"
         ]}
+        saveKey="amazonPPCTemplate"
       />
     </MainLayout>
   );

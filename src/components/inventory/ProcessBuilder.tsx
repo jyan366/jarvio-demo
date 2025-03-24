@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Workflow, Save, Plus } from "lucide-react";
@@ -19,17 +19,22 @@ interface ProcessBuilderProps {
 export function ProcessBuilder({ 
   open, 
   onOpenChange, 
-  title = "My Workflow", 
-  description = "Build your workflow by dragging blocks and connecting them in sequence.",
+  title = "PPC Campaign Template", 
+  description = "Build your PPC campaign workflow by adding steps that represent your optimization process.",
   blockTypes = [
-    "Inventory Check",
-    "Order Processing",
-    "Quality Control",
-    "Shipment Preparation",
-    "Customer Communication",
-    "Returns Processing"
+    "Review Campaign Performance",
+    "Adjust Keyword Bids",
+    "Add Negative Keywords",
+    "Analyze Search Terms",
+    "Test New Ad Copy",
+    "Scale Top Performers",
+    "Budget Reallocation",
+    "Generate Performance Report",
+    "Competitor Analysis",
+    "Seasonal Adjustments",
+    "ACOS Optimization"
   ],
-  saveKey = 'inventoryProcessSteps'
+  saveKey = 'ppcProcessSteps'
 }: ProcessBuilderProps) {
   const [blocks, setBlocks] = useState<WorkflowBlock[]>(() => {
     const savedBlocks = localStorage.getItem(saveKey);
@@ -37,6 +42,29 @@ export function ProcessBuilder({
   });
   
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerDimensions, setContainerDimensions] = useState({ width: 0, height: 0 });
+
+  // Update container dimensions when dialog opens
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        setContainerDimensions({
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight
+        });
+      }
+    };
+
+    if (open) {
+      // Small delay to ensure the container is rendered
+      setTimeout(updateDimensions, 100);
+      window.addEventListener('resize', updateDimensions);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+    };
+  }, [open]);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -50,14 +78,36 @@ export function ProcessBuilder({
   };
 
   const handleAddBlock = (blockType: string) => {
+    if (!containerRef.current) return;
+    
+    // Define starting position for the blocks to be more centered
+    const startX = 100;
+    const startY = 100;
+    const blockSpacing = 130; // Vertical spacing between blocks
+    
+    // Calculate position for the new block
+    let newY = startY;
+    
+    if (blocks.length > 0) {
+      // Place the new block below the last one
+      const lastBlock = blocks[blocks.length - 1];
+      newY = (lastBlock.position?.y || 0) + blockSpacing;
+    }
+    
+    // Ensure the block stays within container bounds
+    const maxY = containerDimensions.height - 100; // 100px buffer
+    if (newY > maxY) {
+      newY = maxY;
+    }
+    
     const newBlock: WorkflowBlock = {
       id: Date.now().toString(),
       content: blockType,
       icon: blockType.toLowerCase().replace(/\s+/g, '-'),
       completed: false,
       position: {
-        x: blocks.length ? (blocks[blocks.length-1].position?.x || 0) + 50 : 50,
-        y: blocks.length ? (blocks[blocks.length-1].position?.y || 0) + 100 : 100
+        x: startX,
+        y: newY
       }
     };
     
@@ -82,6 +132,15 @@ export function ProcessBuilder({
   };
 
   const updateBlockPosition = (id: string, position: { x: number, y: number }) => {
+    // Ensure the block stays within container bounds
+    if (containerRef.current) {
+      const maxX = containerDimensions.width - 320; // 300px width plus buffer
+      const maxY = containerDimensions.height - 100; // 100px buffer
+      
+      position.x = Math.max(10, Math.min(position.x, maxX));
+      position.y = Math.max(10, Math.min(position.y, maxY));
+    }
+    
     const updatedBlocks = blocks.map(block => 
       block.id === id ? { ...block, position } : block
     );
@@ -112,7 +171,7 @@ export function ProcessBuilder({
           <div className="flex-1 flex flex-col h-full">
             <div 
               ref={containerRef}
-              className="flex-1 relative overflow-auto bg-slate-50 dark:bg-slate-900 border rounded-md min-h-[300px] grid-bg"
+              className="flex-1 relative overflow-auto bg-slate-50 dark:bg-slate-900 border rounded-md min-h-[400px] grid-bg"
             >
               <WorkflowBlocks 
                 blocks={blocks}
@@ -121,11 +180,12 @@ export function ProcessBuilder({
                 onToggleComplete={toggleComplete}
                 onUpdatePosition={updateBlockPosition}
                 containerRef={containerRef}
+                containerDimensions={containerDimensions}
               />
             </div>
             
             <div className="mt-4">
-              <h3 className="text-sm font-medium mb-2">Available Blocks</h3>
+              <h3 className="text-sm font-medium mb-2">Available PPC Workflow Blocks</h3>
               <div className="flex flex-wrap gap-2">
                 {blockTypes.map((blockType) => (
                   <Badge 

@@ -24,6 +24,7 @@ interface WorkflowBlocksProps {
   onUpdatePosition: (id: string, position: { x: number, y: number }) => void;
   blockTypes?: string[];
   containerRef: React.RefObject<HTMLDivElement>;
+  containerDimensions: { width: number, height: number };
 }
 
 export function WorkflowBlocks({ 
@@ -32,43 +33,73 @@ export function WorkflowBlocks({
   onRemoveBlock, 
   onToggleComplete,
   onUpdatePosition,
-  containerRef
+  containerRef,
+  containerDimensions
 }: WorkflowBlocksProps) {
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const blockRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
+  // Handle mouse movement for dragging
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (draggedBlockId && containerRef.current) {
         const container = containerRef.current;
         const containerRect = container.getBoundingClientRect();
         
-        const x = e.clientX - containerRect.left + container.scrollLeft;
-        const y = e.clientY - containerRect.top + container.scrollTop;
+        // Calculate position relative to container with scroll offset
+        let x = e.clientX - containerRect.left + container.scrollLeft - dragOffset.x;
+        let y = e.clientY - containerRect.top + container.scrollTop - dragOffset.y;
+        
+        // Add bounds checking
+        const blockWidth = 300;
+        const blockHeight = 80;
+        const maxX = containerDimensions.width - blockWidth;
+        const maxY = containerDimensions.height - blockHeight;
+        
+        x = Math.max(0, Math.min(x, maxX));
+        y = Math.max(0, Math.min(y, maxY));
         
         setMousePosition({ x, y });
       }
     };
 
+    const handleMouseUp = () => {
+      if (draggedBlockId) {
+        onUpdatePosition(draggedBlockId, mousePosition);
+        setDraggedBlockId(null);
+      }
+    };
+
     document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [draggedBlockId, containerRef]);
+  }, [draggedBlockId, containerRef, dragOffset, mousePosition, onUpdatePosition, containerDimensions]);
 
-  const startDragging = (blockId: string) => {
-    setDraggedBlockId(blockId);
-  };
-
-  const stopDragging = () => {
-    if (draggedBlockId) {
-      const block = blocks.find(b => b.id === draggedBlockId);
-      if (block) {
-        onUpdatePosition(draggedBlockId, mousePosition);
+  const startDragging = (blockId: string, e: React.MouseEvent) => {
+    const blockElement = blockRefs.current[blockId];
+    if (blockElement && containerRef.current) {
+      const blockRect = blockElement.getBoundingClientRect();
+      const containerRect = containerRef.current.getBoundingClientRect();
+      
+      // Calculate offset within the block
+      const offsetX = e.clientX - blockRect.left;
+      const offsetY = e.clientY - blockRect.top;
+      
+      setDragOffset({ x: offsetX, y: offsetY });
+      setDraggedBlockId(blockId);
+      
+      // Initialize mouse position to current block position
+      const block = blocks.find(b => b.id === blockId);
+      if (block && block.position) {
+        setMousePosition(block.position);
       }
     }
-    setDraggedBlockId(null);
   };
 
   const renderConnections = () => {
@@ -82,14 +113,11 @@ export function WorkflowBlocks({
       
       if (!sourceBlock.position || !targetBlock.position) return null;
       
-      const sourcePos = sourceBlock.position;
-      const targetPos = targetBlock.position;
-      
       // Calculate connection points
-      const sourceX = sourcePos.x + 150; // middle-right of source block
-      const sourceY = sourcePos.y + 35; // middle of source block
-      const targetX = targetPos.x; // middle-left of target block
-      const targetY = targetPos.y + 35; // middle of target block
+      const sourceX = sourceBlock.position.x + 150; // middle-right of source block
+      const sourceY = sourceBlock.position.y + 35; // middle of source block
+      const targetX = targetBlock.position.x; // middle-left of target block
+      const targetY = targetBlock.position.y + 35; // middle of target block
       
       // Calculate control points for curve
       const dx = Math.abs(targetX - sourceX) * 0.5;
@@ -135,19 +163,24 @@ export function WorkflowBlocks({
           ref={(el) => (blockRefs.current[block.id] = el)}
           className={`absolute bg-white dark:bg-slate-800 border ${
             block.completed ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-700'
-          } rounded-md p-4 shadow-sm w-[300px] z-10 cursor-move`}
+          } rounded-md p-4 shadow-sm w-[300px] z-10 cursor-move ${
+            draggedBlockId === block.id ? 'shadow-lg' : ''
+          }`}
           style={{
-            left: block.position?.x || index * 50,
-            top: block.position?.y || index * 100,
-            transform: draggedBlockId === block.id ? 'translate(-50%, -50%)' : 'none',
+            left: draggedBlockId === block.id ? mousePosition.x : block.position?.x,
+            top: draggedBlockId === block.id ? mousePosition.y : block.position?.y,
           }}
-          onMouseDown={() => startDragging(block.id)}
-          onMouseUp={stopDragging}
+          onMouseDown={(e) => {
+            // Only start dragging if the click is not on a button
+            if (!(e.target as HTMLElement).closest('button')) {
+              startDragging(block.id, e);
+            }
+          }}
         >
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <GripVertical className="h-4 w-4 text-slate-400" />
-              <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
+              <Badge variant="blue" className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
                 {index + 1}
               </Badge>
             </div>
