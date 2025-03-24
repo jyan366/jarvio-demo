@@ -25,7 +25,7 @@ export default function SellerReimbursements() {
             <div>
               <h3 className="text-lg font-semibold">Maximize Recovery</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Our partner Carbon6 helps you get reimbursed for lost, damaged, disposed, and overcharged FBA inventory with their automated system.
+                Carbon6's Seller Investigators helps you get reimbursed for lost, damaged, disposed, and overcharged FBA inventory with their automated system.
               </p>
             </div>
           </Card>
@@ -57,10 +57,10 @@ export default function SellerReimbursements() {
 
         <Card className="p-8">
           <div className="max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4">Partner Spotlight: Carbon6 Reimbursements</h2>
+            <h2 className="text-2xl font-bold mb-4">Recover Profits with Seller Investigators by Carbon6</h2>
             <p className="text-muted-foreground mb-6">
               We've partnered with Carbon6 to help Amazon sellers recover lost revenue through FBA reimbursements. 
-              Their comprehensive system analyzes your account for lost, damaged, disposed inventory, and fee discrepancies.
+              Their Seller Investigators tool analyzes your account for lost, damaged, disposed inventory, and fee discrepancies.
             </p>
             <div className="space-y-4">
               <div className="flex items-start gap-4">
@@ -87,7 +87,7 @@ export default function SellerReimbursements() {
             </div>
             <div className="mt-8">
               <Button size="lg" className="gap-2" onClick={() => window.open('https://carbon6.io', '_blank')}>
-                Connect with Carbon6
+                Connect with Seller Investigators
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
