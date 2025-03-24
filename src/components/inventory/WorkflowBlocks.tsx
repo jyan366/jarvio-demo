@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Trash2, CheckCircle2, CircleDashed, GripVertical } from "lucide-react";
+import { Trash2, CheckCircle2, CircleDashed, GripVertical, CircleDot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import * as LucideIcons from 'lucide-react';
 
@@ -106,20 +106,21 @@ export function WorkflowBlocks({
 
   // Dynamic icon rendering from lucide-react
   const renderIcon = (iconName: string) => {
-    const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] || LucideIcons.CircleDot;
+    // Convert kebab-case to PascalCase for the icon name
+    const pascalCaseIconName = iconName
+      .split('-')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join('');
+    
+    // Access the icon component safely using indexing with type assertion
+    const IconComponent = (LucideIcons as any)[pascalCaseIconName] || LucideIcons.CircleDot;
+    
     return <IconComponent className="h-4 w-4" />;
   };
 
   return (
     <>
       {blocks.map((block, index) => {
-        // Convert kebab-case to PascalCase for the icon name
-        const iconName = block.icon.split('-').map(part => 
-          part.charAt(0).toUpperCase() + part.slice(1)
-        ).join('') as keyof typeof LucideIcons;
-        
-        const IconComponent = LucideIcons[iconName] || LucideIcons.CircleDot;
-        
         // Get category-specific color classes or default to a standard color
         const categoryColorClass = block.category && categoryColors[block.category] 
           ? categoryColors[block.category] 
@@ -189,7 +190,7 @@ export function WorkflowBlocks({
               </div>
             </div>
             <div className="ml-6 flex items-center gap-2">
-              {IconComponent && <IconComponent className="h-4 w-4 flex-shrink-0" />}
+              {renderIcon(block.icon)}
               <span className={block.completed ? 'line-through text-muted-foreground' : ''}>
                 {block.content}
               </span>
