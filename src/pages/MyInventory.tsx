@@ -217,7 +217,11 @@ export default function MyInventory() {
         </Card>
       </div>
       
-      <ProcessBuilder open={processDialogOpen} onOpenChange={setProcessDialogOpen} />
+      <ProcessBuilder 
+        open={processDialogOpen} 
+        onOpenChange={setProcessDialogOpen} 
+        pageType="inventory"
+      />
     </MainLayout>
   );
 }

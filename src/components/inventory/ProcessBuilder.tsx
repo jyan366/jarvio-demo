@@ -7,21 +7,9 @@ import { toast } from "sonner";
 import { WorkflowBlocks, WorkflowBlock } from './WorkflowBlocks';
 import { Badge } from "@/components/ui/badge";
 
-interface ProcessBuilderProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title?: string;
-  description?: string;
-  blockTypes?: string[];
-  saveKey?: string;
-}
-
-export function ProcessBuilder({ 
-  open, 
-  onOpenChange, 
-  title = "PPC Campaign Template", 
-  description = "Build your PPC campaign workflow by adding steps that represent your optimization process.",
-  blockTypes = [
+// Predefined block types for each page type
+const BLOCK_TYPES = {
+  ads: [
     "Review Campaign Performance",
     "Adjust Keyword Bids",
     "Add Negative Keywords",
@@ -32,12 +20,78 @@ export function ProcessBuilder({
     "Generate Performance Report",
     "Competitor Analysis",
     "Seasonal Adjustments",
-    "ACOS Optimization"
+    "ACOS Optimization",
+    "Create Sponsored Products Campaign",
+    "Optimize Bid Strategy",
+    "Mine Search Terms",
+    "Target Competitor ASINs",
+    "Pause Underperforming Keywords",
+    "Implement Dayparting Strategy"
   ],
-  saveKey = 'ppcProcessSteps'
+  inventory: [
+    "Check Stock Levels",
+    "Create Restock Plan",
+    "Calculate Reorder Quantity",
+    "Review Sales Velocity",
+    "Forecast Demand",
+    "Analyze Stock Coverage",
+    "Generate FBA Shipment",
+    "Monitor Inbound Shipments",
+    "Track Inventory Aging",
+    "Identify Slow-Moving Items",
+    "Calculate Storage Fees",
+    "Evaluate Supplier Performance",
+    "Optimize Storage Solutions",
+    "Check Competitor Stock Status",
+    "Prepare Inventory Reports"
+  ]
+};
+
+// Save keys for each page type
+const SAVE_KEYS = {
+  ads: "amazonPPCTemplate",
+  inventory: "inventoryProcessSteps"
+};
+
+// Page titles and descriptions
+const PAGE_CONFIG = {
+  ads: {
+    title: "PPC Campaign Template",
+    description: "Build your Amazon PPC campaign workflow by adding steps that represent your optimization process."
+  },
+  inventory: {
+    title: "Inventory Management Process",
+    description: "Create a custom inventory management workflow by adding steps to optimize your stock levels and reordering process."
+  }
+};
+
+interface ProcessBuilderProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  pageType?: 'ads' | 'inventory';
+  title?: string;
+  description?: string;
+  customBlockTypes?: string[];
+  saveKey?: string;
+}
+
+export function ProcessBuilder({ 
+  open, 
+  onOpenChange, 
+  pageType = 'ads',
+  title,
+  description,
+  customBlockTypes,
+  saveKey
 }: ProcessBuilderProps) {
+  // Use provided values or determine from pageType
+  const effectiveTitle = title || PAGE_CONFIG[pageType].title;
+  const effectiveDescription = description || PAGE_CONFIG[pageType].description;
+  const effectiveBlockTypes = customBlockTypes || BLOCK_TYPES[pageType];
+  const effectiveSaveKey = saveKey || SAVE_KEYS[pageType];
+
   const [blocks, setBlocks] = useState<WorkflowBlock[]>(() => {
-    const savedBlocks = localStorage.getItem(saveKey);
+    const savedBlocks = localStorage.getItem(effectiveSaveKey);
     return savedBlocks ? JSON.parse(savedBlocks) : [];
   });
   
@@ -74,7 +128,7 @@ export function ProcessBuilder({
     items.splice(result.destination.index, 0, reorderedItem);
     
     setBlocks(items);
-    localStorage.setItem(saveKey, JSON.stringify(items));
+    localStorage.setItem(effectiveSaveKey, JSON.stringify(items));
   };
 
   const handleAddBlock = (blockType: string) => {
@@ -113,14 +167,14 @@ export function ProcessBuilder({
     
     const updatedBlocks = [...blocks, newBlock];
     setBlocks(updatedBlocks);
-    localStorage.setItem(saveKey, JSON.stringify(updatedBlocks));
+    localStorage.setItem(effectiveSaveKey, JSON.stringify(updatedBlocks));
     toast(`Added "${blockType}" to your workflow`);
   };
 
   const handleRemoveBlock = (id: string) => {
     const updatedBlocks = blocks.filter(block => block.id !== id);
     setBlocks(updatedBlocks);
-    localStorage.setItem(saveKey, JSON.stringify(updatedBlocks));
+    localStorage.setItem(effectiveSaveKey, JSON.stringify(updatedBlocks));
   };
 
   const toggleComplete = (id: string) => {
@@ -128,7 +182,7 @@ export function ProcessBuilder({
       block.id === id ? { ...block, completed: !block.completed } : block
     );
     setBlocks(updatedBlocks);
-    localStorage.setItem(saveKey, JSON.stringify(updatedBlocks));
+    localStorage.setItem(effectiveSaveKey, JSON.stringify(updatedBlocks));
   };
 
   const updateBlockPosition = (id: string, position: { x: number, y: number }) => {
@@ -145,11 +199,11 @@ export function ProcessBuilder({
       block.id === id ? { ...block, position } : block
     );
     setBlocks(updatedBlocks);
-    localStorage.setItem(saveKey, JSON.stringify(updatedBlocks));
+    localStorage.setItem(effectiveSaveKey, JSON.stringify(updatedBlocks));
   };
 
   const saveProcess = () => {
-    localStorage.setItem(saveKey, JSON.stringify(blocks));
+    localStorage.setItem(effectiveSaveKey, JSON.stringify(blocks));
     toast("Workflow saved successfully");
     onOpenChange(false);
   };
@@ -160,10 +214,10 @@ export function ProcessBuilder({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Workflow className="h-5 w-5 text-blue-500" /> 
-            <span>{title}</span>
+            <span>{effectiveTitle}</span>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            {description}
+            {effectiveDescription}
           </DialogDescription>
         </DialogHeader>
         
@@ -185,9 +239,11 @@ export function ProcessBuilder({
             </div>
             
             <div className="mt-4">
-              <h3 className="text-sm font-medium mb-2">Available PPC Workflow Blocks</h3>
+              <h3 className="text-sm font-medium mb-2">
+                {pageType === 'ads' ? 'Available PPC Workflow Blocks' : 'Available Inventory Workflow Blocks'}
+              </h3>
               <div className="flex flex-wrap gap-2">
-                {blockTypes.map((blockType) => (
+                {effectiveBlockTypes.map((blockType) => (
                   <Badge 
                     key={blockType}
                     variant="outline" 

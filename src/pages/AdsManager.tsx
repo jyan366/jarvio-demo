@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -189,12 +188,9 @@ export default function AdsManager() {
               </div>
             </Card>
           </TabsContent>
-
-          {/* Other tab contents would be similar */}
         </Tabs>
       </div>
 
-      {/* Template Viewer Dialog */}
       <Dialog open={showTemplate} onOpenChange={setShowTemplate}>
         <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
           <DialogHeader>
@@ -243,32 +239,10 @@ export default function AdsManager() {
         </DialogContent>
       </Dialog>
 
-      {/* Template Builder Dialog */}
       <ProcessBuilder 
         open={templateBuilder} 
         onOpenChange={setTemplateBuilder} 
-        title="Create PPC Campaign Template"
-        description="Build your Amazon PPC campaign workflow by adding steps that represent your optimization process."
-        blockTypes={[
-          "Review Campaign Performance",
-          "Adjust Keyword Bids",
-          "Add Negative Keywords",
-          "Analyze Search Terms",
-          "Test New Ad Copy",
-          "Scale Top Performers",
-          "Budget Reallocation",
-          "Generate Performance Report",
-          "Competitor Analysis",
-          "Seasonal Adjustments",
-          "ACOS Optimization",
-          "Create Sponsored Products Campaign",
-          "Optimize Bid Strategy",
-          "Mine Search Terms",
-          "Target Competitor ASINs",
-          "Pause Underperforming Keywords",
-          "Implement Dayparting Strategy"
-        ]}
-        saveKey="amazonPPCTemplate"
+        pageType="ads"
       />
     </MainLayout>
   );
