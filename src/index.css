@@ -1,5 +1,4 @@
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -69,4 +68,18 @@
 .scrollbar-hide {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* Workflow builder grid background */
+.grid-bg {
+  background-size: 25px 25px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+.dark .grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }

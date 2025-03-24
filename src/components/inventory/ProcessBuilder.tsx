@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Workflow, Save } from "lucide-react";
+import { Workflow, Save, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { WorkflowBlocks, WorkflowBlock } from './WorkflowBlocks';
+import { Badge } from "@/components/ui/badge";
 
 interface ProcessBuilderProps {
   open: boolean;
@@ -34,6 +35,8 @@ export function ProcessBuilder({
     const savedBlocks = localStorage.getItem(saveKey);
     return savedBlocks ? JSON.parse(savedBlocks) : [];
   });
+  
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -51,7 +54,11 @@ export function ProcessBuilder({
       id: Date.now().toString(),
       content: blockType,
       icon: blockType.toLowerCase().replace(/\s+/g, '-'),
-      completed: false
+      completed: false,
+      position: {
+        x: blocks.length ? (blocks[blocks.length-1].position?.x || 0) + 50 : 50,
+        y: blocks.length ? (blocks[blocks.length-1].position?.y || 0) + 100 : 100
+      }
     };
     
     const updatedBlocks = [...blocks, newBlock];
@@ -74,6 +81,14 @@ export function ProcessBuilder({
     localStorage.setItem(saveKey, JSON.stringify(updatedBlocks));
   };
 
+  const updateBlockPosition = (id: string, position: { x: number, y: number }) => {
+    const updatedBlocks = blocks.map(block => 
+      block.id === id ? { ...block, position } : block
+    );
+    setBlocks(updatedBlocks);
+    localStorage.setItem(saveKey, JSON.stringify(updatedBlocks));
+  };
+
   const saveProcess = () => {
     localStorage.setItem(saveKey, JSON.stringify(blocks));
     toast("Workflow saved successfully");
@@ -82,7 +97,7 @@ export function ProcessBuilder({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
+      <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl h-[80vh] max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Workflow className="h-5 w-5 text-blue-500" /> 
@@ -93,25 +108,49 @@ export function ProcessBuilder({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6 mt-4">
-          <WorkflowBlocks 
-            blocks={blocks}
-            onDragEnd={handleDragEnd}
-            onAddBlock={handleAddBlock}
-            onRemoveBlock={handleRemoveBlock}
-            onToggleComplete={toggleComplete}
-            blockTypes={blockTypes}
-          />
-          
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button onClick={saveProcess} className="gap-2 bg-blue-600 hover:bg-blue-700">
-              <Save className="h-4 w-4" />
-              Save Workflow
-            </Button>
+        <div className="flex flex-1 overflow-hidden mt-4">
+          <div className="flex-1 flex flex-col h-full">
+            <div 
+              ref={containerRef}
+              className="flex-1 relative overflow-auto bg-slate-50 dark:bg-slate-900 border rounded-md min-h-[300px] grid-bg"
+            >
+              <WorkflowBlocks 
+                blocks={blocks}
+                onDragEnd={handleDragEnd}
+                onRemoveBlock={handleRemoveBlock}
+                onToggleComplete={toggleComplete}
+                onUpdatePosition={updateBlockPosition}
+                containerRef={containerRef}
+              />
+            </div>
+            
+            <div className="mt-4">
+              <h3 className="text-sm font-medium mb-2">Available Blocks</h3>
+              <div className="flex flex-wrap gap-2">
+                {blockTypes.map((blockType) => (
+                  <Badge 
+                    key={blockType}
+                    variant="outline" 
+                    className="flex items-center gap-1 cursor-pointer bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    onClick={() => handleAddBlock(blockType)}
+                  >
+                    <Plus className="h-3 w-3" />
+                    {blockType}
+                  </Badge>
+                ))}
+              </div>
+            </div>
           </div>
+        </div>
+          
+        <div className="flex justify-end gap-3 mt-6">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={saveProcess} className="gap-2 bg-blue-600 hover:bg-blue-700">
+            <Save className="h-4 w-4" />
+            Save Workflow
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
