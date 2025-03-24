@@ -25,7 +25,7 @@ export default function SellerReimbursements() {
             <div>
               <h3 className="text-lg font-semibold">Maximize Recovery</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Get reimbursed for lost, damaged, disposed, and overcharged FBA inventory with our automated system.
+                Our partner Carbon6 helps you get reimbursed for lost, damaged, disposed, and overcharged FBA inventory with their automated system.
               </p>
             </div>
           </Card>
@@ -37,7 +37,7 @@ export default function SellerReimbursements() {
             <div>
               <h3 className="text-lg font-semibold">Expert Support</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Our team of Amazon experts handles the entire reimbursement process, from case creation to follow-up.
+                Carbon6's team of Amazon experts handles the entire reimbursement process, from case creation to follow-up.
               </p>
             </div>
           </Card>
@@ -49,7 +49,7 @@ export default function SellerReimbursements() {
             <div>
               <h3 className="text-lg font-semibold">Quick Setup</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Connect your Amazon account and start recovering lost revenue in minutes with our streamlined process.
+                Connect your Amazon account to Carbon6 and start recovering lost revenue in minutes with their streamlined process.
               </p>
             </div>
           </Card>
@@ -57,47 +57,47 @@ export default function SellerReimbursements() {
 
         <Card className="p-8">
           <div className="max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4">Get Started with Carbon6 Reimbursements</h2>
+            <h2 className="text-2xl font-bold mb-4">Partner Spotlight: Carbon6 Reimbursements</h2>
             <p className="text-muted-foreground mb-6">
-              Carbon6 helps Amazon sellers recover lost revenue through FBA reimbursements. Our comprehensive 
-              system analyzes your account for lost, damaged, disposed inventory, and fee discrepancies.
+              We've partnered with Carbon6 to help Amazon sellers recover lost revenue through FBA reimbursements. 
+              Their comprehensive system analyzes your account for lost, damaged, disposed inventory, and fee discrepancies.
             </p>
             <div className="space-y-4">
               <div className="flex items-start gap-4">
                 <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                 <div>
                   <h4 className="font-semibold">Comprehensive Case Analysis</h4>
-                  <p className="text-sm text-muted-foreground">We review up to 18 months of historical data to identify all eligible cases.</p>
+                  <p className="text-sm text-muted-foreground">Carbon6 reviews up to 18 months of historical data to identify all eligible cases.</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                 <div>
                   <h4 className="font-semibold">No Recovery, No Fee</h4>
-                  <p className="text-sm text-muted-foreground">Only pay when we successfully recover funds for your business.</p>
+                  <p className="text-sm text-muted-foreground">You only pay when Carbon6 successfully recovers funds for your business.</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                 <div>
                   <h4 className="font-semibold">Dedicated Support Team</h4>
-                  <p className="text-sm text-muted-foreground">Expert assistance throughout the entire reimbursement process.</p>
+                  <p className="text-sm text-muted-foreground">Expert assistance from Carbon6 throughout the entire reimbursement process.</p>
                 </div>
               </div>
             </div>
             <div className="mt-8">
-              <Button size="lg">
+              <Button size="lg" className="gap-2" onClick={() => window.open('https://carbon6.io', '_blank')}>
                 Connect with Carbon6
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </Card>
 
-        {/* Centered bottom logo */}
+        {/* Centered bottom logo with partnership message */}
         <div className="flex justify-center items-center mt-8 mb-4">
           <div className="flex flex-col items-center gap-1">
-            <span className="text-sm text-muted-foreground">Powered By</span>
+            <span className="text-sm text-muted-foreground">Partner Solution By</span>
             <img 
               src="/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png" 
               alt="Carbon6 Logo" 
