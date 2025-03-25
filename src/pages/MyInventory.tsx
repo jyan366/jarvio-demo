@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Workflow } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ChevronDown, ChevronUp, Workflow, Clock } from 'lucide-react';
 import { ProcessBuilder } from '@/components/inventory/ProcessBuilder';
 
 const statsCards = [
@@ -99,6 +100,13 @@ const products = [
 
 export default function MyInventory() {
   const [processDialogOpen, setProcessDialogOpen] = useState(false);
+  const [hasAutoRun, setHasAutoRun] = useState(false);
+
+  // Check if auto-run is enabled
+  useEffect(() => {
+    const autoRun = localStorage.getItem('inventoryProcessAutoRun');
+    setHasAutoRun(autoRun === 'true');
+  }, []);
 
   return (
     <MainLayout>
@@ -112,7 +120,13 @@ export default function MyInventory() {
               onClick={() => setProcessDialogOpen(true)}
             >
               <Workflow className="h-4 w-4" />
-              <span>My Process</span>
+              <span>Inventory Process</span>
+              {hasAutoRun && (
+                <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-green-300">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Auto
+                </Badge>
+              )}
             </Button>
             <Button variant="outline" className="flex items-center justify-between gap-2">
               <span>Select tags...</span>
@@ -131,7 +145,7 @@ export default function MyInventory() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {statsCards.map((card, index) => (
             <Card key={index} className="p-4">
-              <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
+              <p className="text-sm text-muted-foreground font-medium truncate">{card.title}</p>
               <p className="text-lg md:text-2xl font-bold mt-1">{card.value}</p>
             </Card>
           ))}
