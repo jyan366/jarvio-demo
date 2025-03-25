@@ -2,11 +2,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Workflow, Save, Plus, Package, CircleDollarSign, AlertCircle, TrendingUp } from "lucide-react";
+import { Workflow, Save, Plus, Package, CircleDollarSign, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { WorkflowBlock } from './WorkflowBlocks';
 import { Badge } from "@/components/ui/badge";
-import { WorkflowCanvas } from './WorkflowCanvas';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 // Predefined block types for each page type
 const BLOCK_TYPES = {
@@ -81,6 +80,15 @@ const CATEGORY_COLORS = {
   "Targeting": "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border-red-200"
 };
 
+export interface ProcessStep {
+  id: string;
+  blockId: string;
+  content: string;
+  category: string;
+  icon: string;
+  completed: boolean;
+}
+
 interface ProcessBuilderProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -107,117 +115,15 @@ export function ProcessBuilder({
   const effectiveSaveKey = saveKey || SAVE_KEYS[pageType];
   const pageIcon = PAGE_CONFIG[pageType].icon;
 
-  const [blocks, setBlocks] = useState<WorkflowBlock[]>(() => {
-    const savedBlocks = localStorage.getItem(effectiveSaveKey);
-    return savedBlocks ? JSON.parse(savedBlocks) : [];
+  const [steps, setSteps] = useState<ProcessStep[]>(() => {
+    const savedSteps = localStorage.getItem(effectiveSaveKey);
+    return savedSteps ? JSON.parse(savedSteps) : [];
   });
   
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerDimensions, setContainerDimensions] = useState({ width: 0, height: 0 });
-
-  // Update container dimensions when dialog opens
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        setContainerDimensions({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight
-        });
-      }
-    };
-
-    if (open) {
-      // Small delay to ensure the container is rendered
-      setTimeout(updateDimensions, 100);
-      window.addEventListener('resize', updateDimensions);
-    }
-
-    return () => {
-      window.removeEventListener('resize', updateDimensions);
-    };
-  }, [open]);
-
-  const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-    
-    const items = Array.from(blocks);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    
-    setBlocks(items);
-    localStorage.setItem(effectiveSaveKey, JSON.stringify(items));
-  };
-
-  const handleAddBlock = (blockType: any) => {
-    if (!containerRef.current) return;
-    
-    // Calculate position for the new block
-    const centerX = containerDimensions.width / 2 - 150; // Half of block width
-    const startY = 100;
-    const blockSpacing = 120; // Vertical spacing between blocks
-    
-    // Calculate position for the new block
-    let newY = startY;
-    
-    if (blocks.length > 0) {
-      // Place the new block below the last one
-      const lastBlock = blocks[blocks.length - 1];
-      newY = (lastBlock.position?.y || 0) + blockSpacing;
-    }
-    
-    // Ensure the block stays within container bounds
-    const maxY = containerDimensions.height - 100; // 100px buffer
-    if (newY > maxY) {
-      newY = maxY;
-    }
-    
-    const newBlock: WorkflowBlock = {
-      id: Date.now().toString(),
-      blockId: blockType.id,
-      content: blockType.content,
-      category: blockType.category,
-      icon: blockType.icon,
-      completed: false,
-      position: {
-        x: centerX,
-        y: newY
-      }
-    };
-    
-    const updatedBlocks = [...blocks, newBlock];
-    setBlocks(updatedBlocks);
-    localStorage.setItem(effectiveSaveKey, JSON.stringify(updatedBlocks));
-    toast(`Added "${blockType.content}" to your workflow`);
-  };
-
-  const handleRemoveBlock = (id: string) => {
-    const updatedBlocks = blocks.filter(block => block.id !== id);
-    setBlocks(updatedBlocks);
-    localStorage.setItem(effectiveSaveKey, JSON.stringify(updatedBlocks));
-  };
-
-  const toggleComplete = (id: string) => {
-    const updatedBlocks = blocks.map(block => 
-      block.id === id ? { ...block, completed: !block.completed } : block
-    );
-    setBlocks(updatedBlocks);
-    localStorage.setItem(effectiveSaveKey, JSON.stringify(updatedBlocks));
-  };
-
-  const updateBlockPosition = (id: string, position: { x: number, y: number }) => {
-    const updatedBlocks = blocks.map(block => 
-      block.id === id ? { ...block, position } : block
-    );
-    setBlocks(updatedBlocks);
-    localStorage.setItem(effectiveSaveKey, JSON.stringify(updatedBlocks));
-  };
-
-  const saveProcess = () => {
-    localStorage.setItem(effectiveSaveKey, JSON.stringify(blocks));
-    toast("Workflow saved successfully");
-    onOpenChange(false);
-  };
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggedBlock, setDraggedBlock] = useState<any | null>(null);
 
   // Get all unique categories
   const categories = [...new Set(effectiveBlockTypes.map(block => block.category))];
@@ -227,10 +133,127 @@ export function ProcessBuilder({
     ? effectiveBlockTypes.filter(block => block.category === selectedCategory)
     : effectiveBlockTypes;
 
+  const handleAddStep = (blockType: any) => {
+    const newStep: ProcessStep = {
+      id: `step-${Date.now()}`,
+      blockId: blockType.id,
+      content: blockType.content,
+      category: blockType.category,
+      icon: blockType.icon,
+      completed: false
+    };
+    
+    setSteps([...steps, newStep]);
+    toast.success(`Added "${blockType.content}" to your workflow`);
+  };
+
+  const handleRemoveStep = (stepId: string) => {
+    setSteps(steps.filter(step => step.id !== stepId));
+    toast.info("Step removed from workflow");
+  };
+
+  const moveStep = (dragIndex: number, hoverIndex: number) => {
+    if (dragIndex === hoverIndex) return;
+    
+    const newSteps = [...steps];
+    const draggedStep = newSteps[dragIndex];
+    
+    // Remove the dragged item
+    newSteps.splice(dragIndex, 1);
+    // Insert it at the new position
+    newSteps.splice(hoverIndex, 0, draggedStep);
+    
+    setSteps(newSteps);
+  };
+
+  // Handle starting drag from available blocks area
+  const handleDragStart = (e: React.DragEvent, block: any) => {
+    setIsDragging(true);
+    setDraggedBlock(block);
+    e.dataTransfer.setData('blockId', block.id);
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+  
+  // Handle dropping on the workflow area
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    if (!draggedBlock) return;
+    
+    // Add the dragged block as a new step
+    const newStep: ProcessStep = {
+      id: `step-${Date.now()}`,
+      blockId: draggedBlock.id,
+      content: draggedBlock.content,
+      category: draggedBlock.category,
+      icon: draggedBlock.icon,
+      completed: false
+    };
+    
+    setSteps([...steps, newStep]);
+    setDraggedBlock(null);
+    toast.success(`Added "${draggedBlock.content}" to your workflow`);
+  };
+  
+  // Allow dropping on the workflow area
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    setDraggedBlock(null);
+  };
+
+  const toggleStepComplete = (stepId: string) => {
+    setSteps(steps.map(step => 
+      step.id === stepId ? { ...step, completed: !step.completed } : step
+    ));
+  };
+
+  const saveWorkflow = () => {
+    localStorage.setItem(effectiveSaveKey, JSON.stringify(steps));
+    toast.success("Workflow saved successfully");
+    onOpenChange(false);
+  };
+
+  // Render a block from our block types
+  const renderBlockItem = (block: any, isDraggable = true) => {
+    const categoryColor = CATEGORY_COLORS[block.category] || '';
+    
+    return (
+      <div 
+        key={block.id}
+        draggable={isDraggable}
+        onDragStart={isDraggable ? (e) => handleDragStart(e, block) : undefined}
+        className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer
+                   hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors
+                   ${categoryColor || 'border-slate-200 dark:border-slate-700'}`}
+      >
+        <Badge className={categoryColor}>
+          {block.category}
+        </Badge>
+        <span>{block.content}</span>
+        {!isDraggable && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => handleRemoveStep(block.id)}
+            className="ml-auto h-7 w-7 text-destructive hover:text-destructive/90"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl h-[80vh] max-h-[80vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl max-h-[80vh] p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-2">
           <DialogTitle className="flex items-center gap-2 text-xl">
             {pageIcon}
             <span>{effectiveTitle}</span>
@@ -240,73 +263,118 @@ export function ProcessBuilder({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="flex flex-1 overflow-hidden mt-4">
-          <div className="flex-1 flex flex-col h-full">
-            <div className="bg-slate-50 dark:bg-slate-900 border rounded-md mb-4 p-4">
-              <h3 className="text-sm font-medium mb-2">Filter by category:</h3>
-              <div className="flex flex-wrap gap-2">
+        <div className="p-6 pt-2 pb-0">
+          <div className="bg-slate-50 dark:bg-slate-900 border rounded-md p-4 mb-4">
+            <h3 className="text-sm font-medium mb-2">Filter by category:</h3>
+            <div className="flex flex-wrap gap-2">
+              <Badge 
+                variant="outline" 
+                className={`cursor-pointer ${selectedCategory === null ? 'ring-2 ring-offset-1 ring-blue-500' : ''}`}
+                onClick={() => setSelectedCategory(null)}
+              >
+                All Categories
+              </Badge>
+              {categories.map((category) => (
                 <Badge 
+                  key={category}
                   variant="outline" 
-                  className={`cursor-pointer ${selectedCategory === null ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
-                  onClick={() => setSelectedCategory(null)}
+                  className={`cursor-pointer ${CATEGORY_COLORS[category]} ${selectedCategory === category ? 'ring-2 ring-offset-1 ring-blue-500' : ''}`}
+                  onClick={() => setSelectedCategory(category)}
                 >
-                  All Categories
+                  {category}
                 </Badge>
-                {categories.map((category) => (
-                  <Badge 
-                    key={category}
-                    variant="outline" 
-                    className={`cursor-pointer ${CATEGORY_COLORS[category]} ${selectedCategory === category ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
-                    onClick={() => setSelectedCategory(category)}
-                  >
-                    {category}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            
-            <div 
-              ref={containerRef}
-              className="flex-1 relative overflow-auto bg-slate-50 dark:bg-slate-900 border rounded-md min-h-[400px] workflow-grid-bg"
-            >
-              <WorkflowCanvas 
-                blocks={blocks}
-                onDragEnd={handleDragEnd}
-                onRemoveBlock={handleRemoveBlock}
-                onToggleComplete={toggleComplete}
-                onUpdatePosition={updateBlockPosition}
-                containerRef={containerRef}
-                containerDimensions={containerDimensions}
-                categoryColors={CATEGORY_COLORS}
-              />
-            </div>
-            
-            <div className="mt-4">
-              <h3 className="text-sm font-medium mb-2">
-                Available {pageType === 'ads' ? 'PPC' : 'Inventory'} Workflow Blocks:
-              </h3>
-              <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto p-2 bg-white dark:bg-slate-800 border rounded-md">
-                {filteredBlocks.map((blockType) => (
-                  <Badge 
-                    key={blockType.id}
-                    variant="outline" 
-                    className={`flex items-center gap-1 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 ${CATEGORY_COLORS[blockType.category]}`}
-                    onClick={() => handleAddBlock(blockType)}
-                  >
-                    <Plus className="h-3 w-3" />
-                    {blockType.content}
-                  </Badge>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
         </div>
+        
+        <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
+          <ResizablePanel defaultSize={30} minSize={20}>
+            <div className="h-full flex flex-col p-6 pt-0 overflow-hidden">
+              <h3 className="text-sm font-medium mb-2">Available Blocks:</h3>
+              <div className="flex-1 overflow-y-auto p-2 bg-white dark:bg-slate-800 border rounded-md grid grid-cols-1 gap-2">
+                {filteredBlocks.map((block) => renderBlockItem(block))}
+              </div>
+              <div className="text-xs text-muted-foreground mt-2">
+                Drag blocks to the workflow area →
+              </div>
+            </div>
+          </ResizablePanel>
           
-        <DialogFooter className="flex justify-end gap-3 mt-6">
+          <ResizableHandle withHandle />
+          
+          <ResizablePanel defaultSize={70}>
+            <div className="h-full flex flex-col p-6 pt-0 overflow-hidden">
+              <h3 className="text-sm font-medium mb-2">Workflow Steps:</h3>
+              <div 
+                ref={canvasRef}
+                className="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900 border rounded-md grid grid-cols-1 gap-3"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+              >
+                {steps.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg">
+                    <div className="mb-3">
+                      <Plus className="h-12 w-12 text-slate-400" />
+                    </div>
+                    <h3 className="text-lg font-medium mb-1">No steps added yet</h3>
+                    <p className="text-sm text-muted-foreground max-w-md">
+                      Drag blocks from the left panel to build your workflow, or click on a block to add it directly.
+                    </p>
+                  </div>
+                ) : (
+                  steps.map((step, index) => (
+                    <div 
+                      key={step.id}
+                      className={`flex items-center gap-2 p-3 bg-white dark:bg-slate-800 border rounded-md
+                                ${step.completed ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-700'}`}
+                    >
+                      <div className="flex-shrink-0 h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-medium">
+                        {index + 1}
+                      </div>
+                      <Badge className={CATEGORY_COLORS[step.category]}>
+                        {step.category}
+                      </Badge>
+                      <span className={step.completed ? 'line-through text-muted-foreground' : ''}>
+                        {step.content}
+                      </span>
+                      <div className="ml-auto flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleStepComplete(step.id)}
+                          className="h-7 w-7"
+                        >
+                          <input 
+                            type="checkbox" 
+                            checked={step.completed}
+                            onChange={() => {}}
+                            className="h-4 w-4"
+                          />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveStep(step.id)}
+                          className="h-7 w-7 text-destructive hover:text-destructive/90"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+          
+        <DialogFooter className="p-6">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={saveProcess} className="gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button onClick={saveWorkflow} className="gap-2 bg-blue-600 hover:bg-blue-700">
             <Save className="h-4 w-4" />
             Save Workflow
           </Button>

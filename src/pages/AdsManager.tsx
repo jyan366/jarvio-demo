@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -6,10 +7,8 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Plus, Download, Upload, Copy, Star, StarOff, Filter, ChevronDown, Play, Eye, Workflow } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { ProcessBuilder } from "@/components/inventory/ProcessBuilder";
 import { Badge } from "@/components/ui/badge";
+import { ProcessBuilder } from "@/components/inventory/ProcessBuilder";
 
 const templateCategories = [
   { name: 'Campaign Setup', count: 5 },
