@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Workflow, Save, Plus, Trash2, Package, Clock } from "lucide-react";
+import { Workflow, Save, Plus, Trash2, Package, Clock, ChevronUp, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -59,12 +59,6 @@ export function ProcessBuilder({
     }
   };
 
-  const toggleStepCompletion = (stepId: string) => {
-    setSelectedSteps(selectedSteps.map(step => 
-      step.id === stepId ? { ...step, completed: !step.completed } : step
-    ));
-  };
-
   const moveStepUp = (index: number) => {
     if (index === 0) return;
     const newSteps = [...selectedSteps];
@@ -77,6 +71,12 @@ export function ProcessBuilder({
     const newSteps = [...selectedSteps];
     [newSteps[index], newSteps[index+1]] = [newSteps[index+1], newSteps[index]];
     setSelectedSteps(newSteps);
+  };
+
+  const toggleStepCompletion = (stepId: string) => {
+    setSelectedSteps(selectedSteps.map(step => 
+      step.id === stepId ? { ...step, completed: !step.completed } : step
+    ));
   };
 
   const saveWorkflow = () => {
@@ -145,7 +145,7 @@ export function ProcessBuilder({
                         disabled={index === 0}
                         className="h-7 w-7"
                       >
-                        ↑
+                        <ChevronUp className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -154,7 +154,7 @@ export function ProcessBuilder({
                         disabled={index === selectedSteps.length - 1}
                         className="h-7 w-7"
                       >
-                        ↓
+                        <ChevronDown className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
