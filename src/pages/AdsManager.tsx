@@ -8,7 +8,7 @@ import { Plus, Download, Upload, Copy, Star, StarOff, Filter, ChevronDown, Play,
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { ProcessBuilder } from "@/components/inventory/ProcessBuilder";
+import { ProcessBuilder } from "@/components/ads/ProcessBuilder";
 
 const templateCategories = [
   { name: 'Campaign Setup', count: 5 },
@@ -241,7 +241,6 @@ export default function AdsManager() {
       <ProcessBuilder 
         open={templateBuilder} 
         onOpenChange={setTemplateBuilder} 
-        pageType="ads"
       />
     </MainLayout>
   );
