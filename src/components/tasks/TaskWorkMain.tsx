@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { TaskWorkHeader } from "./TaskWorkHeader";
 import { TaskWorkProductCard } from "./TaskWorkProductCard";
@@ -18,6 +19,7 @@ interface TaskWorkMainProps {
   focusedSubtaskIdx: number | null;
   onFocusSubtask: (idx: number) => void;
   onUpdateSubtask: (field: keyof Subtask, value: any) => void;
+  onOpenSubtask: (idx: number) => void;
 }
 
 export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
@@ -32,6 +34,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   focusedSubtaskIdx,
   onFocusSubtask,
   onUpdateSubtask,
+  onOpenSubtask,
 }) => {
   return (
     <div className="flex flex-col gap-4 w-full h-full">
@@ -74,6 +77,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
           onRemoveSubtask={onRemoveSubtask}
           focusedSubtaskIdx={focusedSubtaskIdx}
           onFocusSubtask={onFocusSubtask}
+          onOpenSubtask={onOpenSubtask}
         />
         {focusedSubtaskIdx !== null && task.subtasks[focusedSubtaskIdx] && (
           <div className="mt-4 border bg-[#F7F6FD] rounded-lg p-4">
