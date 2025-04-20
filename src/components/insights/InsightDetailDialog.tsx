@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -8,20 +7,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AlertTriangle, CheckCircle, ArrowRight, Loader2 } from "lucide-react";
 import { InsightData } from "../tasks/InsightCard";
 import { useToast } from "@/hooks/use-toast";
-import { suggestTasks } from "@/lib/apiUtils";
+import { suggestTasks, SuggestedTask } from "@/lib/apiUtils";
 
 interface InsightDetailDialogProps {
   insight: InsightData | null;
   open: boolean;
   onClose: () => void;
-  onCreateTask: (suggestedTasks?: any[]) => void;
-}
-
-interface SuggestedTask {
-  id: string;
-  name: string;
-  completed: boolean;
-  selected?: boolean;
+  onCreateTask: (suggestedTasks?: SuggestedTask[]) => void;
 }
 
 export function InsightDetailDialog({
@@ -32,11 +24,10 @@ export function InsightDetailDialog({
 }: InsightDetailDialogProps) {
   const [processingTask, setProcessingTask] = useState(false);
   const [taskCreated, setTaskCreated] = useState(false);
-  const [suggestedTasks, setSuggestedTasks] = useState<SuggestedTask[]>([]);
+  const [suggestedTasks, setSuggestedTasks] = useState<(SuggestedTask & { selected?: boolean })[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const { toast } = useToast();
 
-  // Fetch suggested tasks when dialog opens with an insight
   useEffect(() => {
     if (open && insight) {
       fetchSuggestedTasks(insight);
@@ -48,27 +39,23 @@ export function InsightDetailDialog({
   const fetchSuggestedTasks = async (insight: InsightData) => {
     setLoadingSuggestions(true);
     try {
-      // First check if we're authenticated
       if (!localStorage.getItem('isAuthenticated')) {
         localStorage.setItem('isAuthenticated', 'true');
         console.log("Auto-authenticated user for demo in InsightDetailDialog");
       }
-      
-      // Use our apiUtils function to get task suggestions
+
       const tasks = await suggestTasks(insight);
-      
-      // Set all tasks as selected by default
+
       setSuggestedTasks(tasks.map(task => ({
         ...task,
-        selected: true
+        selected: true,
       })));
     } catch (error) {
       console.error('Error fetching suggested tasks:', error);
-      // Set generic fallback tasks as a last resort
       setSuggestedTasks([
-        { id: '1', name: 'Review the detailed insight information', completed: false, selected: true },
-        { id: '2', name: 'Create an action plan addressing the key points', completed: false, selected: true },
-        { id: '3', name: 'Schedule follow-up to verify issue resolution', completed: false, selected: true }
+        { id: '1', title: 'Review the insight', description: "Read through the insight details.", completed: false, selected: true },
+        { id: '2', title: 'Plan next steps', description: "Develop a plan to address the insight.", completed: false, selected: true },
+        { id: '3', title: 'Follow up', description: "Check for improvement or resolution.", completed: false, selected: true }
       ]);
     } finally {
       setLoadingSuggestions(false);
@@ -85,21 +72,19 @@ export function InsightDetailDialog({
 
   const handleCreateTask = () => {
     setProcessingTask(true);
-    
-    // Filter only selected tasks
+
     const selectedTasks = suggestedTasks.filter(task => task.selected);
-    
+
     setTimeout(() => {
       onCreateTask(selectedTasks);
       setProcessingTask(false);
       setTaskCreated(true);
-      
+
       toast({
         title: "Task Created",
         description: `"${insight?.title}" has been added to your tasks with ${selectedTasks.length} subtasks.`,
       });
-      
-      // Reset state for next time dialog is opened
+
       setTimeout(() => {
         setTaskCreated(false);
       }, 2000);
@@ -140,7 +125,6 @@ export function InsightDetailDialog({
           </Badge>
         </div>
 
-        {/* Recommended Actions Section */}
         <Card className="p-4 bg-blue-50 border-blue-100 mb-4">
           <h3 className="font-medium text-sm mb-2">Recommended Actions</h3>
           <ul className="text-sm space-y-1.5">
@@ -159,10 +143,8 @@ export function InsightDetailDialog({
           </ul>
         </Card>
 
-        {/* Suggested Tasks Section */}
         <div className="mb-4">
           <h3 className="font-medium text-sm mb-3">Suggested Tasks</h3>
-          
           {loadingSuggestions ? (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -178,12 +160,19 @@ export function InsightDetailDialog({
                     onCheckedChange={() => toggleTaskSelection(task.id)}
                     className="mt-1"
                   />
-                  <label 
-                    htmlFor={`task-${task.id}`}
-                    className="text-sm leading-tight cursor-pointer"
-                  >
-                    {task.name}
-                  </label>
+                  <div>
+                    <label 
+                      htmlFor={`task-${task.id}`}
+                      className="text-sm leading-tight font-semibold cursor-pointer"
+                    >
+                      {task.title}
+                    </label>
+                    {task.description && (
+                      <div className="text-xs text-muted-foreground mt-0.5 pr-2">
+                        {task.description}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

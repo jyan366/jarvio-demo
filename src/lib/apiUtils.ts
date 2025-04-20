@@ -2,16 +2,18 @@
 import { InsightData } from "@/components/tasks/InsightCard";
 import { supabase } from "@/integrations/supabase/client";
 
-interface SuggestedTask {
+export interface SuggestedTask {
   id: string;
-  name: string;
+  title: string;
+  description: string;
   completed: boolean;
+  // selected?: boolean; // Don't add here; selection is UI state
 }
 
 export async function suggestTasks(insight: InsightData): Promise<SuggestedTask[]> {
   try {
     console.log("Suggesting tasks for insight:", insight);
-    
+
     // Try to call the edge function first
     const { data, error } = await supabase.functions.invoke('suggest-tasks', {
       body: { insight }
@@ -19,9 +21,11 @@ export async function suggestTasks(insight: InsightData): Promise<SuggestedTask[
 
     if (data?.tasks && Array.isArray(data.tasks) && data.tasks.length > 0 && !error) {
       console.log("Successfully received tasks from edge function:", data.tasks);
+      // Robust mapping for safety from any kind of structure (future-proofing)
       return data.tasks.map((task: any) => ({
         id: task.id || crypto.randomUUID(),
-        name: task.name || "Task",
+        title: typeof task.title === "string" ? task.title : (task.name || "Task"),
+        description: typeof task.description === "string" ? task.description : "",
         completed: task.completed === true ? task.completed : false
       }));
     } else if (error) {
@@ -33,42 +37,42 @@ export async function suggestTasks(insight: InsightData): Promise<SuggestedTask[
     switch (insight.category) {
       case 'REVIEW':
         return [
-          { id: crypto.randomUUID(), name: 'Contact customer to resolve the issue', completed: false },
-          { id: crypto.randomUUID(), name: 'Update product listing to address concerns', completed: false },
-          { id: crypto.randomUUID(), name: 'Investigate shipping process for improvements', completed: false }
+          { id: crypto.randomUUID(), title: 'Contact customer', description: 'Reach out to the customer to resolve the issue.', completed: false },
+          { id: crypto.randomUUID(), title: 'Update product listing', description: 'Revise the listing to address the concerns.', completed: false },
+          { id: crypto.randomUUID(), title: 'Investigate shipping', description: 'Check if the shipping process may be improved.', completed: false }
         ];
       case 'PRICING':
         return [
-          { id: crypto.randomUUID(), name: 'Analyze competitor pricing strategy', completed: false },
-          { id: crypto.randomUUID(), name: 'Adjust pricing to remain competitive', completed: false },
-          { id: crypto.randomUUID(), name: 'Monitor Buy Box status after price changes', completed: false }
+          { id: crypto.randomUUID(), title: 'Analyze pricing', description: 'Research competitor pricing strategy and adjust if needed.', completed: false },
+          { id: crypto.randomUUID(), title: 'Adjust pricing', description: 'Update product price to remain competitive.', completed: false },
+          { id: crypto.randomUUID(), title: 'Monitor Buy Box', description: 'Track Buy Box status after price changes.', completed: false }
         ];
       case 'LISTING':
         return [
-          { id: crypto.randomUUID(), name: 'Research keyword opportunities for new listing', completed: false },
-          { id: crypto.randomUUID(), name: 'Create product listing with optimized content', completed: false },
-          { id: crypto.randomUUID(), name: 'Add high-quality product images', completed: false }
+          { id: crypto.randomUUID(), title: 'Research keywords', description: 'Identify keyword opportunities for a new listing.', completed: false },
+          { id: crypto.randomUUID(), title: 'Create optimized listing', description: 'Develop listing content with best practices.', completed: false },
+          { id: crypto.randomUUID(), title: 'Add images', description: 'Add high-quality product photos.', completed: false }
         ];
       case 'COMPETITION':
         return [
-          { id: crypto.randomUUID(), name: 'Analyze competitor price changes', completed: false },
-          { id: crypto.randomUUID(), name: 'Update competitive positioning strategy', completed: false },
-          { id: crypto.randomUUID(), name: 'Monitor market share and adjust tactics', completed: false }
+          { id: crypto.randomUUID(), title: 'Analyze competitors', description: 'Review competitor price changes.', completed: false },
+          { id: crypto.randomUUID(), title: 'Update strategy', description: 'Refine competitive positioning.', completed: false },
+          { id: crypto.randomUUID(), title: 'Monitor share', description: 'Track market share and adapt tactics.', completed: false }
         ];
       default:
         return [
-          { id: crypto.randomUUID(), name: 'Review insight details thoroughly', completed: false },
-          { id: crypto.randomUUID(), name: 'Create action plan to address findings', completed: false },
-          { id: crypto.randomUUID(), name: 'Schedule follow-up to verify resolution', completed: false }
+          { id: crypto.randomUUID(), title: 'Review details', description: 'Read insight details thoroughly.', completed: false },
+          { id: crypto.randomUUID(), title: 'Create action plan', description: 'Develop a plan to address the findings.', completed: false },
+          { id: crypto.randomUUID(), title: 'Schedule follow-up', description: 'Check back to ensure the issue is resolved.', completed: false }
         ];
     }
   } catch (error) {
     console.error("Error in suggestTasks function:", error);
-    // Return generic fallback tasks in case of any error
+    // Return generic fallback tasks
     return [
-      { id: crypto.randomUUID(), name: 'Review insight details', completed: false },
-      { id: crypto.randomUUID(), name: 'Create action plan', completed: false },
-      { id: crypto.randomUUID(), name: 'Schedule follow-up', completed: false }
+      { id: crypto.randomUUID(), title: 'Review details', description: 'Review the insight details.', completed: false },
+      { id: crypto.randomUUID(), title: 'Create action plan', description: 'Create a step-by-step plan.', completed: false },
+      { id: crypto.randomUUID(), title: 'Schedule follow-up', description: 'Verify completion.', completed: false }
     ];
   }
 }

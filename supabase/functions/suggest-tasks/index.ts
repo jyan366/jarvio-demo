@@ -26,27 +26,60 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a business assistant that suggests actionable tasks based on business insights. 
-            Generate 3 specific, practical tasks that would help address the insight.
-            Each task should be clear and actionable.`
+            content: `You are a business assistant that suggests actionable tasks based on business insights.
+
+            Generate 3 specific and practical tasks or subtasks (JSON array).
+            For each, output:
+            - "title": a brief title for the subtask (max 12 words)
+            - "description": a concise 1-2 sentence description explaining what should be done.
+
+            Only reply with a valid JSON array with keys: "title" & "description".`
           },
           {
             role: 'user',
-            content: `Generate 3 tasks for this business insight: "${insight.title}". Context: ${insight.description}. Category: ${insight.category}`
+            content: `Suggest 3 subtasks for this insight: "${insight.title}". Context: ${insight.description}. Category: ${insight.category}`
           }
         ],
       }),
     });
 
     const data = await response.json();
-    const suggestedTasks = data.choices[0].message.content
-      .split('\n')
-      .filter(task => task.trim())
-      .map((task, index) => ({
-        id: crypto.randomUUID(),
-        name: task.replace(/^\d+\.\s*/, '').trim(),
-        completed: false
-      }));
+
+    // Try to robustly parse a JSON array in the large string
+    let jsonStart = -1, jsonEnd = -1, content = data.choices[0]?.message?.content || "";
+    jsonStart = content.indexOf("[");
+    jsonEnd = content.lastIndexOf("]");
+    let array: any[] = [];
+    if (jsonStart !== -1 && jsonEnd !== -1) {
+      try {
+        // Parse as array
+        array = JSON.parse(content.slice(jsonStart, jsonEnd + 1));
+      } catch (e) {
+        // fallback: single object or failed parsing, ignore for now
+      }
+    }
+
+    // fallback: if parsing failed, create generic structure
+    if (!Array.isArray(array) || array.length === 0) {
+      array = [{
+        title: "Review Insight Details",
+        description: "Read through the insight to understand the issue and context."
+      }, {
+        title: "Plan Action",
+        description: "Create a step-by-step strategy to address the problem."
+      }, {
+        title: "Monitor Progress",
+        description: "Track implementation and verify if the issue is resolved."
+      }];
+    }
+
+    // Add id and completed
+    const suggestedTasks = array.map((task) => ({
+      id: crypto.randomUUID(),
+      title: typeof task.title === "string" ? task.title : "Untitled Task",
+      description: typeof task.description === "string" ? task.description : "",
+      completed: false,
+    }));
 
     return new Response(JSON.stringify({ tasks: suggestedTasks }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -59,3 +92,4 @@ serve(async (req) => {
     });
   }
 });
+
