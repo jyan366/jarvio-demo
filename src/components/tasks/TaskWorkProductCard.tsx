@@ -18,11 +18,13 @@ export const TaskWorkProductCard: React.FC<{ product: Product }> = ({
   if (!product) return null;
 
   return (
-    <div className="mb-2 mt-2 transition border rounded-2xl p-3 pl-4 flex flex-col md:flex-row gap-4 bg-[#F7F7FC]">
+    <div className="mb-2 mt-2 transition border rounded-2xl p-3 flex flex-col md:flex-row gap-4 bg-[#F7F7FC] items-center">
+      {/* More prominent responsive product image */}
       <img
         src={product.image}
         alt={product.name}
-        className="w-16 h-16 object-cover rounded"
+        className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg shadow-sm border border-gray-100 bg-white flex-shrink-0"
+        style={{ background: "#fff" }}
       />
       <div className="flex-1 flex flex-col md:flex-row gap-4">
         <div className="flex-1 min-w-0">
