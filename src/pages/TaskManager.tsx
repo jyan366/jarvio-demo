@@ -6,11 +6,11 @@ import { Grid, List, Plus } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
-import { InsightToTaskDialog } from '@/components/tasks/InsightToTaskDialog';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { useToast } from '@/hooks/use-toast';
 import { InsightData, InsightCategory, InsightSeverity } from '@/components/tasks/InsightCard';
+import { useNavigate } from 'react-router-dom';
 
 interface Task {
   id: string;
@@ -196,6 +196,7 @@ export default function TaskManager() {
   const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
 
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -213,25 +214,48 @@ export default function TaskManager() {
   };
 
   const createTaskFromInsight = (insight: InsightData) => {
+    const newTaskId = Math.random().toString(36).substr(2, 9);
+    
     setTasks((prev) => ({
       ...prev,
       todo: [
-        ...prev.todo,
         {
-          id: Math.random().toString(36).substr(2, 9),
+          id: newTaskId,
           title: insight.title,
           description: insight.description,
           status: 'Not Started',
-          priority: 'MEDIUM',
+          priority: insight.severity === 'HIGH' ? 'HIGH' : insight.severity === 'MEDIUM' ? 'MEDIUM' : 'LOW',
           category: insight.category,
           date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          commentsCount: 0,
           fromInsight: true,
-        }
+        },
+        ...prev.todo
       ]
     }));
+    
+    setDetailInsight(null);
+    setIsInsightsDialogOpen(false);
+    
     toast({
       title: "Task Created",
-      description: `"${insight.title}" has been added to your tasks in To Do.`,
+      description: (
+        <div className="flex flex-col gap-2">
+          <p>"{insight.title}" has been added to your tasks in To Do.</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="self-start"
+            onClick={() => {
+              const newTask = { id: newTaskId, title: insight.title };
+              setSelectedTask(newTask as Task);
+              setIsPreviewOpen(true);
+            }}
+          >
+            View Task
+          </Button>
+        </div>
+      )
     });
   };
 
@@ -346,8 +370,6 @@ export default function TaskManager() {
           onCreateTask={() => {
             if (detailInsight) {
               createTaskFromInsight(detailInsight);
-              setDetailInsight(null);
-              setIsInsightsDialogOpen(false);
             }
           }}
         />

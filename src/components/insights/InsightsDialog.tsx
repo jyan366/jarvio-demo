@@ -2,6 +2,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { InsightData, InsightCard } from "../tasks/InsightCard";
+import { useToast } from "@/hooks/use-toast";
 
 interface InsightsDialogProps {
   open: boolean;
@@ -21,12 +22,22 @@ export function InsightsDialog({
   productNames,
   onInsightClick,
 }: InsightsDialogProps) {
+  const { toast } = useToast();
+  
   // Create title based on whether product names are provided
   const dialogTitle = productNames?.length === 1 
     ? `Insights for ${productNames[0]}`
     : productNames?.length > 1
     ? `Insights for ${productNames.length} Products`
     : "Recent Insights";
+
+  const handleCreateTask = (insight: InsightData) => {
+    onCreateTask(insight);
+    toast({
+      title: "Task Created",
+      description: `"${insight.title}" has been added to your tasks.`,
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,7 +60,7 @@ export function InsightsDialog({
                 >
                   <InsightCard
                     {...insight}
-                    onCreateTask={onCreateTask}
+                    onCreateTask={handleCreateTask}
                   />
                 </button>
               ))
