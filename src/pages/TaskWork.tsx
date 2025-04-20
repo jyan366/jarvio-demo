@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -100,30 +99,63 @@ export default function TaskWork() {
   const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
   const [commentValue, setCommentValue] = useState("");
 
+  useEffect(() => {
+    // Fetch subtasks for this task from supabase
+    async function fetch() {
+      if (!taskState.id) return;
+      try {
+        const subtasks = await fetchSubtasks([taskState.id]);
+        setTaskState((prev) => ({
+          ...prev,
+          subtasks: subtasks.map(st => ({
+            id: st.id,
+            title: st.title,
+            done: st.completed,
+          })),
+        }));
+      } catch (e) {
+        // fallback: leave as is
+      }
+    }
+    fetch();
+  }, [taskState.id]);
+
   if (!task) return <div>Task not found</div>;
 
   // Subtask management
-  const handleToggleSubtask = (idx: number) => {
-    setTaskState((prev) => {
-      const newSubs = [...prev.subtasks];
-      newSubs[idx] = { ...newSubs[idx], done: !newSubs[idx].done };
-      return { ...prev, subtasks: newSubs };
-    });
+  const handleToggleSubtask = async (idx: number) => {
+    const sub = taskState.subtasks[idx];
+    try {
+      await toggleSubtask(sub.id, !sub.done);
+      setTaskState((prev) => {
+        const newSubs = [...prev.subtasks];
+        newSubs[idx] = { ...newSubs[idx], done: !newSubs[idx].done };
+        return { ...prev, subtasks: newSubs };
+      });
+    } catch {}
   };
-  const handleAddSubtask = (val: string) => {
+  const handleAddSubtask = async (val: string) => {
     if (val.trim()) {
-      setTaskState((prev) => ({
-        ...prev,
-        subtasks: [...prev.subtasks, { title: val, done: false }],
-      }));
+      try {
+        const st = await addSubtask(taskState.id, val);
+        setTaskState((prev) => ({
+          ...prev,
+          subtasks: [...prev.subtasks, { id: st.id, title: st.title, done: st.completed }],
+        }));
+      } catch {}
     }
   };
-  const handleRemoveSubtask = (idx: number) => {
-    setTaskState((prev) => ({
-      ...prev,
-      subtasks: prev.subtasks.filter((_, i) => i !== idx),
-    }));
+  const handleRemoveSubtask = async (idx: number) => {
+    const st = taskState.subtasks[idx];
+    try {
+      await deleteSubtask(st.id);
+      setTaskState((prev) => ({
+        ...prev,
+        subtasks: prev.subtasks.filter((_, i) => i !== idx),
+      }));
+    } catch {}
   };
+
   // Comment management
   const handleAddComment = (text: string) => {
     if (text.trim()) {
@@ -134,6 +166,7 @@ export default function TaskWork() {
       setCommentValue("");
     }
   };
+
   // Task header/properties inplace editing
   const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
     setTaskState((prev) => ({ ...prev, [field]: value }));

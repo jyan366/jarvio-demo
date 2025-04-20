@@ -11,6 +11,15 @@ import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { useToast } from '@/hooks/use-toast';
 import { InsightData, InsightCategory, InsightSeverity } from '@/components/tasks/InsightCard';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import {
+  fetchTasks,
+  fetchSubtasks,
+  createTask,
+  createSubtasks,
+  SupabaseTask,
+  SupabaseSubtask
+} from '@/lib/supabaseTasks';
 
 interface Task {
   id: string;
@@ -189,7 +198,8 @@ const insightsData: InsightData[] = [
 
 export default function TaskManager() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasksByStatus, setTasksByStatus] = useState<{ [key: string]: Task[] }>({ todo: [], inProgress: [], done: [] });
+  const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
@@ -198,73 +208,138 @@ export default function TaskManager() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Fetch all tasks and subtasks for this user
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const supabaseTasks = await fetchTasks();
+        const taskIds = supabaseTasks.map(t => t.id);
+        const subtasks = await fetchSubtasks(taskIds);
+
+        // Partition tasks by status, attach subtasks
+        const byStatus: { [key: string]: Task[] } = { todo: [], inProgress: [], done: [] };
+        for (const t of supabaseTasks) {
+          const group =
+            t.status === 'Done'
+              ? 'done'
+              : t.status === 'In Progress'
+              ? 'inProgress'
+              : 'todo';
+          byStatus[group].push({
+            ...t,
+            subtasks: subtasks.filter(st => st.task_id === t.id).map(st => ({
+              id: st.id,
+              title: st.title,
+              done: st.completed,
+            })),
+            comments: [],
+            products: [],
+            // fill in other Task properties as needed
+          });
+        }
+
+        setTasksByStatus(byStatus);
+      } catch (e) {
+        toast({ title: "Error", description: String(e) });
+      }
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  // Helper for mapping insight to task properties
+  function mapInsightToTask(insight: InsightData, suggestedTasks?: any[]) {
+    return {
+      title: insight.title,
+      description: insight.description,
+      status: "Not Started",
+      priority: insight.severity === 'HIGH' ? 'HIGH' : insight.severity === 'MEDIUM' ? 'MEDIUM' : 'LOW',
+      category: insight.category,
+      insight_id: insight.id,
+      // Subtasks stored separately
+    };
+  }
+
+  // Handle creating a task from an insight and optional subtasks, syncing with Supabase
+  const createTaskFromInsight = async (insight: InsightData, suggestedTasks?: any[]) => {
+    try {
+      // Step 1: Create the task in Supabase
+      const newTask = await createTask(mapInsightToTask(insight, suggestedTasks));
+      // Step 2: Insert suggested subtasks (if any)
+      let subtasks: SupabaseSubtask[] = [];
+      if (suggestedTasks && suggestedTasks.length > 0) {
+        subtasks = await createSubtasks(
+          suggestedTasks.map((task: any) => ({ task_id: newTask.id, title: task.name }))
+        );
+      }
+
+      // Refetch tasks to update the UI
+      const supabaseTasks = await fetchTasks();
+      const taskIds = supabaseTasks.map(t => t.id);
+      const subtasksData = await fetchSubtasks(taskIds);
+
+      // Rebuild byStatus
+      const byStatus: { [key: string]: Task[] } = { todo: [], inProgress: [], done: [] };
+      for (const t of supabaseTasks) {
+        const group =
+          t.status === 'Done'
+            ? 'done'
+            : t.status === 'In Progress'
+            ? 'inProgress'
+            : 'todo';
+        byStatus[group].push({
+          ...t,
+          subtasks: subtasksData.filter(st => st.task_id === t.id).map(st => ({
+            id: st.id,
+            title: st.title,
+            done: st.completed,
+          })),
+          comments: [],
+          products: [],
+        });
+      }
+      setTasksByStatus(byStatus);
+      setDetailInsight(null);
+      setIsInsightsDialogOpen(false);
+
+      const subtasksMessage = subtasks.length > 0 ? `with ${subtasks.length} subtasks` : '';
+      toast({
+        title: "Task Created",
+        description: (
+          <div className="flex flex-col gap-2">
+            <p>"{insight.title}" has been added to your tasks in To Do {subtasksMessage}.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="self-start"
+              onClick={() => {
+                setSelectedTask({ ...newTask, subtasks, comments: [], products: [] } as Task);
+                setIsPreviewOpen(true);
+              }}
+            >
+              View Task
+            </Button>
+          </div>
+        ),
+      });
+    } catch (e) {
+      toast({ title: "Error", description: String(e) });
+    }
+  };
+
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
-    const sourceColumn = Array.from(tasks[result.source.droppableId]);
-    const destColumn = Array.from(tasks[result.destination.droppableId]);
+    const sourceColumn = Array.from(tasksByStatus[result.source.droppableId]);
+    const destColumn = Array.from(tasksByStatus[result.destination.droppableId]);
     const [removed] = sourceColumn.splice(result.source.index, 1);
     destColumn.splice(result.destination.index, 0, removed);
 
-    setTasks({
-      ...tasks,
+    setTasksByStatus({
+      ...tasksByStatus,
       [result.source.droppableId]: sourceColumn,
       [result.destination.droppableId]: destColumn
-    });
-  };
-
-  const createTaskFromInsight = (insight: InsightData, suggestedTasks?: any[]) => {
-    const newTaskId = Math.random().toString(36).substr(2, 9);
-    
-    const subtasks = suggestedTasks?.map(task => ({
-      id: task.id,
-      title: task.name,
-      completed: false
-    })) || [];
-    
-    setTasks((prev) => ({
-      ...prev,
-      todo: [
-        {
-          id: newTaskId,
-          title: insight.title,
-          description: insight.description,
-          status: 'Not Started',
-          priority: insight.severity === 'HIGH' ? 'HIGH' : insight.severity === 'MEDIUM' ? 'MEDIUM' : 'LOW',
-          category: insight.category,
-          date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-          commentsCount: 0,
-          fromInsight: true,
-          subtasks: subtasks
-        },
-        ...prev.todo
-      ]
-    }));
-    
-    setDetailInsight(null);
-    setIsInsightsDialogOpen(false);
-    
-    const subtasksMessage = subtasks.length > 0 ? `with ${subtasks.length} subtasks` : '';
-    
-    toast({
-      title: "Task Created",
-      description: (
-        <div className="flex flex-col gap-2">
-          <p>"{insight.title}" has been added to your tasks in To Do {subtasksMessage}.</p>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="self-start"
-            onClick={() => {
-              const newTask = { id: newTaskId, title: insight.title };
-              setSelectedTask(newTask as Task);
-              setIsPreviewOpen(true);
-            }}
-          >
-            View Task
-          </Button>
-        </div>
-      )
     });
   };
 
@@ -305,65 +380,66 @@ export default function TaskManager() {
             </Button>
           </div>
         </div>
-
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-            {COLUMN_CONFIG.map((col) => (
-              <div key={col.id} className="rounded-xl p-3 md:p-2">
-                <Card className={`p-0 bg-transparent shadow-none border-0`}>
-                  <div className={`px-3 pt-2 pb-4 ${col.bg} rounded-xl`}>
-                    <h2 className={`font-semibold mb-4 text-lg flex items-center gap-2 ${col.headerColor}`}>
-                      {col.label}
-                      <span className="ml-2 text-base text-gray-400 font-medium">{tasks[col.id]?.length || 0}</span>
-                    </h2>
-                    <Droppable droppableId={col.id}>
-                      {(provided) => (
-                        <div
-                          {...provided.droppableProps}
-                          ref={provided.innerRef}
-                          className="space-y-4"
-                        >
-                          {tasks[col.id]?.map((task, index) => (
-                            <Draggable
-                              key={task.id}
-                              draggableId={task.id}
-                              index={index}
-                            >
-                              {(provided) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                >
-                                  <TaskCard
-                                    task={task}
-                                    onClick={() => {
-                                      setSelectedTask(task);
-                                      setIsPreviewOpen(true);
-                                    }}
-                                    cardBg={col.bg}
-                                  />
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </div>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </DragDropContext>
-
+        {loading ? (
+          <div className="py-12 text-center text-muted-foreground text-lg">Loading your tasks…</div>
+        ) : (
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {COLUMN_CONFIG.map((col) => (
+                <div key={col.id} className="rounded-xl p-3 md:p-2">
+                  <Card className={`p-0 bg-transparent shadow-none border-0`}>
+                    <div className={`px-3 pt-2 pb-4 ${col.bg} rounded-xl`}>
+                      <h2 className={`font-semibold mb-4 text-lg flex items-center gap-2 ${col.headerColor}`}>
+                        {col.label}
+                        <span className="ml-2 text-base text-gray-400 font-medium">{tasksByStatus[col.id]?.length || 0}</span>
+                      </h2>
+                      <Droppable droppableId={col.id}>
+                        {(provided) => (
+                          <div
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            className="space-y-4"
+                          >
+                            {tasksByStatus[col.id]?.map((task, index) => (
+                              <Draggable
+                                key={task.id}
+                                draggableId={task.id}
+                                index={index}
+                              >
+                                {(provided) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                  >
+                                    <TaskCard
+                                      task={task}
+                                      onClick={() => {
+                                        setSelectedTask(task);
+                                        setIsPreviewOpen(true);
+                                      }}
+                                      cardBg={col.bg}
+                                    />
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          </DragDropContext>
+        )}
         <TaskPreviewDialog
           open={isPreviewOpen}
           onOpenChange={setIsPreviewOpen}
           task={selectedTask}
         />
-
         <InsightsDialog
           open={isInsightsDialogOpen}
           onOpenChange={setIsInsightsDialogOpen}
@@ -371,7 +447,6 @@ export default function TaskManager() {
           insights={insightsData}
           onInsightClick={setDetailInsight}
         />
-
         <InsightDetailDialog
           insight={detailInsight}
           open={!!detailInsight}

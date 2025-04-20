@@ -33,6 +33,66 @@ export type Database = {
         }
         Relationships: []
       }
+      subtasks: {
+        Row: {
+          completed: boolean | null
+          id: string
+          task_id: string
+          title: string
+        }
+        Insert: {
+          completed?: boolean | null
+          id?: string
+          task_id: string
+          title: string
+        }
+        Update: {
+          completed?: boolean | null
+          id?: string
+          task_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          data: Json | null
+          description: string | null
+          id: string
+          insight_id: string | null
+          priority: string | null
+          status: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          data?: Json | null
+          description?: string | null
+          id?: string
+          insight_id?: string | null
+          priority?: string | null
+          status?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          data?: Json | null
+          description?: string | null
+          id?: string
+          insight_id?: string | null
+          priority?: string | null
+          status?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
