@@ -8,6 +8,7 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
 import { InsightToTaskDialog } from '@/components/tasks/InsightToTaskDialog';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
+import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { useToast } from '@/hooks/use-toast';
 import { InsightData, InsightCategory, InsightSeverity } from '@/components/tasks/InsightCard';
 
@@ -192,6 +193,7 @@ export default function TaskManager() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
+  const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
 
   const { toast } = useToast();
 
@@ -334,6 +336,20 @@ export default function TaskManager() {
           onOpenChange={setIsInsightsDialogOpen}
           onCreateTask={createTaskFromInsight}
           insights={insightsData}
+          onInsightClick={setDetailInsight}
+        />
+
+        <InsightDetailDialog
+          insight={detailInsight}
+          open={!!detailInsight}
+          onClose={() => setDetailInsight(null)}
+          onCreateTask={() => {
+            if (detailInsight) {
+              createTaskFromInsight(detailInsight);
+              setDetailInsight(null);
+              setIsInsightsDialogOpen(false);
+            }
+          }}
         />
       </div>
     </MainLayout>

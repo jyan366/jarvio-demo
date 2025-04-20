@@ -8,13 +8,16 @@ interface InsightsDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreateTask: (insight: InsightData) => void;
   insights?: InsightData[];
+  // NEW
+  onInsightClick?: (insight: InsightData) => void;
 }
 
 export function InsightsDialog({
   open,
   onOpenChange,
   onCreateTask,
-  insights
+  insights,
+  onInsightClick,
 }: InsightsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -22,17 +25,24 @@ export function InsightsDialog({
         <DialogHeader>
           <DialogTitle>Recent Insights</DialogTitle>
           <DialogDescription>
-            Actionable insights from your account. Click "Create Task" to add to your workflow.
+            Actionable insights from your account. Click on an insight card for full details, or "Create Task" to add to your workflow.
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           {insights?.length
             ? insights.map((insight) => (
-                <InsightCard
+                <button
                   key={insight.id}
-                  {...insight}
-                  onCreateTask={onCreateTask}
-                />
+                  onClick={() => onInsightClick?.(insight)}
+                  type="button"
+                  className="relative p-0 text-left hover:scale-[1.02] transition-transform focus:outline-none rounded-xl"
+                  style={{ background: 'none', border: 'none' }}
+                >
+                  <InsightCard
+                    {...insight}
+                    onCreateTask={onCreateTask}
+                  />
+                </button>
               ))
             : <div className="col-span-2 text-center py-8 text-muted-foreground">No insights available.</div>
           }
