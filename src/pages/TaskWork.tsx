@@ -238,6 +238,7 @@ export default function TaskWork() {
       });
     }
   };
+
   const handleAddSubtask = async (val: string) => {
     if (val.trim()) {
       try {
@@ -252,10 +253,10 @@ export default function TaskWork() {
                 id: st.id,
                 title: st.title,
                 done: st.completed,
-                description: "",
-                status: "",
-                priority: "",
-                category: "",
+                description: st.description || "",
+                status: st.status || "",
+                priority: st.priority || "",
+                category: st.category || "",
               },
             ],
           };
@@ -269,6 +270,7 @@ export default function TaskWork() {
       }
     }
   };
+
   const handleRemoveSubtask = async (idx: number) => {
     const st = taskState.subtasks[idx];
     try {
@@ -313,11 +315,14 @@ export default function TaskWork() {
         if (!prev) return prev;
         const withNew = [
           ...prev.subtasks,
-          ...steps.map((s, i) => ({
-            id: createdSteps[i]?.id || s.id,
+          ...createdSteps.map((s) => ({
+            id: s.id,
             title: s.title,
-            done: false,
-            description: s.description,
+            done: s.completed || false,
+            description: s.description || "",
+            status: s.status || "",
+            priority: s.priority || "",
+            category: s.category || "",
           })),
         ];
         return { ...prev, subtasks: withNew };
@@ -333,9 +338,9 @@ export default function TaskWork() {
         description: typeof err === "object" && err?.message ? err.message : "Could not generate subtasks.",
         variant: "destructive"
       });
+    } finally {
       setIsGenerating(false);
     }
-    setIsGenerating(false);
   };
 
   const handleAddComment = (text: string) => {

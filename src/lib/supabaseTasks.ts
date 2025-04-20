@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface SupabaseTask {
@@ -18,6 +17,10 @@ export interface SupabaseSubtask {
   task_id: string;
   title: string;
   completed: boolean;
+  description?: string | null;
+  status?: string | null;
+  priority?: string | null;
+  category?: string | null;
 }
 
 // Helper function to ensure we have a demo user for the app
@@ -101,7 +104,15 @@ export async function createSubtasks(subtasks: { task_id: string; title: string 
   try {
     if (subtasks.length === 0) return [];
     
-    const payload = subtasks.map(st => ({ ...st, completed: false }));
+    const payload = subtasks.map(st => ({ 
+      ...st, 
+      completed: false,
+      description: "",
+      status: "",
+      priority: "",
+      category: ""
+    }));
+    
     const { data, error } = await supabase
       .from("subtasks")
       .insert(payload)
@@ -123,7 +134,15 @@ export async function addSubtask(task_id: string, title: string) {
   try {
     const { data, error } = await supabase
       .from("subtasks")
-      .insert({ task_id, title, completed: false })
+      .insert({ 
+        task_id, 
+        title, 
+        completed: false,
+        description: "",
+        status: "",
+        priority: "",
+        category: ""
+      })
       .select()
       .single();
       
