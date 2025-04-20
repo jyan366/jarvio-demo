@@ -234,14 +234,6 @@ export default function TaskManager() {
                                     }}
                                     cardBg={col.bg}
                                   />
-                                  <div className="flex gap-2 mt-2">
-                                    <a
-                                      href={`/task/${task.id}`}
-                                      className="text-xs px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition"
-                                    >
-                                      Work on
-                                    </a>
-                                  </div>
                                 </div>
                               )}
                             </Draggable>

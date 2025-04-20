@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Edit, ChevronRight, ChevronLeft, List } from "lucide-react";
+import { Edit, ChevronRight, ChevronLeft, List, ExternalLink } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 // Using one of the product images from Supabase
@@ -52,7 +53,15 @@ const priorityOptions = ['HIGH', 'MEDIUM', 'LOW'];
 const categoryOptions = ['LISTINGS', 'SUPPORT', 'REVIEWS', 'KEYWORDS', 'INVENTORY', 'PRICING'];
 
 export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialogProps) {
+  const navigate = useNavigate();
+  
   if (!task) return null;
+
+  // Handle "Work on" button click
+  const handleWorkOnClick = () => {
+    onOpenChange(false); // Close the dialog
+    navigate(`/task/${task.id}`); // Navigate to the task work page
+  };
 
   // Prep demo product if not present
   const products: Product[] = task.products ?? [
@@ -94,6 +103,15 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
               </div>
             </DialogHeader>
             <div className="flex gap-2 pt-1">
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="flex items-center gap-1"
+                onClick={handleWorkOnClick}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Work on
+              </Button>
               <Button variant="ghost" size="icon">
                 <Edit className="h-4 w-4" />
               </Button>

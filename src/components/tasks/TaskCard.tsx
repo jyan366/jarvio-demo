@@ -2,11 +2,14 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Pencil, MessageSquare, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from 'react-router-dom';
 
 interface TaskCardProps {
   task: {
+    id: string;
     title: string;
     description: string;
     status: 'Not Started' | 'In Progress' | 'Done';
@@ -50,6 +53,13 @@ const categoryColors = {
 };
 
 export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
+  const navigate = useNavigate();
+  
+  const handleWorkOnClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card's onClick
+    navigate(`/task/${task.id}`);
+  };
+  
   return (
     <Card 
       className={cn(
@@ -90,9 +100,20 @@ export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
         )}
       </div>
       
-      <div className="flex items-center gap-1 text-xs text-gray-400">
-        <span className="inline-block">📅</span>
-        <span>{task.date}</span>
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs text-gray-400 flex items-center gap-1">
+          <span className="inline-block">📅</span>
+          <span>{task.date}</span>
+        </div>
+        <Button 
+          onClick={handleWorkOnClick}
+          size="sm"
+          variant="outline"
+          className="ml-auto text-xs px-2 py-1 h-7 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition border-0"
+        >
+          <ExternalLink className="h-3.5 w-3.5 mr-1" />
+          Work on
+        </Button>
       </div>
     </Card>
   );
