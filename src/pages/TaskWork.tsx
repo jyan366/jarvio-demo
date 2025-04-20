@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -110,6 +111,10 @@ export default function TaskWork() {
   const [taskState, setTaskState] = useState<TaskWorkType | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Add the missing state variables
+  const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
+  const [commentValue, setCommentValue] = useState("");
 
   useEffect(() => {
     async function loadTask() {
