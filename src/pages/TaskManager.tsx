@@ -224,8 +224,14 @@ export default function TaskManager() {
               : t.status === 'In Progress'
               ? 'inProgress'
               : 'todo';
+              
+          const statusMapped = t.status as 'Not Started' | 'In Progress' | 'Done';
+          const priorityMapped = (t.priority || 'MEDIUM') as 'HIGH' | 'MEDIUM' | 'LOW';
+          
           byStatus[group].push({
             ...t,
+            status: statusMapped,
+            priority: priorityMapped,
             date: new Date(t.created_at).toLocaleDateString('en-US', { 
               day: 'numeric', 
               month: 'short', 
@@ -254,7 +260,7 @@ export default function TaskManager() {
     return {
       title: insight.title,
       description: insight.description,
-      status: "Not Started",
+      status: "Not Started" as const,
       priority: insight.severity === 'HIGH' ? 'HIGH' : insight.severity === 'MEDIUM' ? 'MEDIUM' : 'LOW',
       category: insight.category,
       insight_id: insight.id,
@@ -283,8 +289,14 @@ export default function TaskManager() {
             : t.status === 'In Progress'
             ? 'inProgress'
             : 'todo';
+            
+        const statusMapped = t.status as 'Not Started' | 'In Progress' | 'Done';
+        const priorityMapped = (t.priority || 'MEDIUM') as 'HIGH' | 'MEDIUM' | 'LOW';
+        
         byStatus[group].push({
           ...t,
+          status: statusMapped,
+          priority: priorityMapped,
           date: new Date(t.created_at).toLocaleDateString('en-US', { 
             day: 'numeric', 
             month: 'short', 
@@ -316,6 +328,8 @@ export default function TaskManager() {
               onClick={() => {
                 setSelectedTask({
                   ...newTask,
+                  status: newTask.status as 'Not Started' | 'In Progress' | 'Done',
+                  priority: (newTask.priority || 'MEDIUM') as 'HIGH' | 'MEDIUM' | 'LOW',
                   date: new Date(newTask.created_at).toLocaleDateString('en-US', { 
                     day: 'numeric', 
                     month: 'short', 

@@ -44,7 +44,7 @@ export async function fetchSubtasks(taskIds: string[]): Promise<SupabaseSubtask[
 }
 
 // Create task, returns created task
-export async function createTask(task: Partial<SupabaseTask>) {
+export async function createTask(task: Partial<SupabaseTask> & { title: string }) {
   const user = (await supabase.auth.getUser()).data.user;
   if (!user) throw new Error("Not authenticated");
   const { data, error } = await supabase
