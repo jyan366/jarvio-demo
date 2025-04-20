@@ -162,6 +162,41 @@ export default function TaskManager() {
   const [isInsightToTaskOpen, setIsInsightToTaskOpen] = useState(false);
   const { toast } = useToast();
 
+  const insightsData = [
+    {
+      id: '1',
+      title: '1 Star Review Detected',
+      description: 'A new 1-star review was detected for Kimchi 1kg Jar mentioning "product arrived damaged".',
+      category: 'REVIEW',
+      severity: 'HIGH',
+      date: '20 Apr 2025',
+    },
+    {
+      id: '2',
+      title: 'Lost Buy Box on Kimchi 500g',
+      description: 'You are no longer the Buy Box winner for Kimchi 500g. Current winner is offering 5% lower price.',
+      category: 'PRICING',
+      severity: 'HIGH',
+      date: '19 Apr 2025',
+    },
+    {
+      id: '3',
+      title: 'New Listing Opportunity',
+      description: 'Based on search trends, "Vegan Kimchi" has high search volume with low competition. Consider creating a listing.',
+      category: 'LISTING',
+      severity: 'MEDIUM',
+      date: '18 Apr 2025',
+    },
+    {
+      id: '4',
+      title: 'Competitor Price Drop',
+      description: 'A main competitor has reduced prices across their fermented food products by an average of 8%.',
+      category: 'COMPETITION',
+      severity: 'MEDIUM',
+      date: '17 Apr 2025',
+    },
+  ];
+
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
@@ -182,21 +217,37 @@ export default function TaskManager() {
     setIsInsightToTaskOpen(true);
   };
 
-  const createTaskFromInsight = (newTask: Task) => {
-    setTasks({
-      ...tasks,
-      todo: [...tasks.todo, newTask]
-    });
-
+  const createTaskFromInsight = (insight: any) => {
+    setTasks((prev) => ({
+      ...prev,
+      todo: [
+        ...prev.todo,
+        {
+          id: Math.random().toString(36).substr(2, 9),
+          title: insight.title,
+          description: insight.description,
+          status: 'Not Started',
+          priority: 'MEDIUM',
+          category: insight.category,
+          date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          fromInsight: true,
+        }
+      ]
+    }));
     toast({
       title: "Task Created",
-      description: `"${newTask.title}" has been added to your tasks`,
+      description: `"${insight.title}" has been added to your tasks in To Do.`,
     });
   };
 
   return (
     <MainLayout>
       <div className="space-y-6">
+        <InsightSection
+          onCreateTask={createTaskFromInsight}
+          insights={insightsData}
+        />
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold">Task Manager</h1>

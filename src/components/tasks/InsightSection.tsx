@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import { InsightCard } from './InsightCard';
+import { useToast } from '@/hooks/use-toast';
 
-// Sample insights data
-const sampleInsights = [
+const defaultInsights = [
   {
     id: '1',
     title: '1 Star Review Detected',
@@ -42,10 +43,20 @@ interface InsightSectionProps {
   onCreateTask: (insight: any) => void;
   hideHeader?: boolean;
   hideActions?: boolean;
+  insights?: typeof defaultInsights;
 }
 
-export function InsightSection({ onCreateTask, hideHeader = false, hideActions = false }: InsightSectionProps) {
-  const [insights, setInsights] = useState(sampleInsights);
+export function InsightSection({ onCreateTask, hideHeader = false, hideActions = false, insights }: InsightSectionProps) {
+  const { toast } = useToast();
+  const data = insights || defaultInsights;
+
+  const handleCreateTask = (insight: any) => {
+    onCreateTask(insight);
+    toast({
+      title: "Task Created",
+      description: `A task for "${insight.title}" was added to your tasks.`,
+    });
+  };
 
   return (
     <Card className="p-0 md:p-0 border-0 shadow-none bg-transparent">
@@ -59,13 +70,12 @@ export function InsightSection({ onCreateTask, hideHeader = false, hideActions =
           </div>
         </div>
       )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {insights.map((insight) => (
+        {data.map((insight) => (
           <InsightCard
             key={insight.id}
             {...insight}
-            onCreateTask={onCreateTask}
+            onCreateTask={handleCreateTask}
           />
         ))}
       </div>
