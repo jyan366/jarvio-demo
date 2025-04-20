@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 interface InsightsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateTask: (insight: InsightData) => void;
+  onCreateTask: (insight: InsightData, suggestedTasks?: any[]) => void;
   insights?: InsightData[];
   // For product-specific insights
   productNames?: string[];

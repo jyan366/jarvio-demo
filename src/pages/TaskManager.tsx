@@ -213,8 +213,14 @@ export default function TaskManager() {
     });
   };
 
-  const createTaskFromInsight = (insight: InsightData) => {
+  const createTaskFromInsight = (insight: InsightData, suggestedTasks?: any[]) => {
     const newTaskId = Math.random().toString(36).substr(2, 9);
+    
+    const subtasks = suggestedTasks?.map(task => ({
+      id: task.id,
+      title: task.name,
+      completed: false
+    })) || [];
     
     setTasks((prev) => ({
       ...prev,
@@ -229,6 +235,7 @@ export default function TaskManager() {
           date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
           commentsCount: 0,
           fromInsight: true,
+          subtasks: subtasks
         },
         ...prev.todo
       ]
@@ -237,11 +244,13 @@ export default function TaskManager() {
     setDetailInsight(null);
     setIsInsightsDialogOpen(false);
     
+    const subtasksMessage = subtasks.length > 0 ? `with ${subtasks.length} subtasks` : '';
+    
     toast({
       title: "Task Created",
       description: (
         <div className="flex flex-col gap-2">
-          <p>"{insight.title}" has been added to your tasks in To Do.</p>
+          <p>"{insight.title}" has been added to your tasks in To Do {subtasksMessage}.</p>
           <Button 
             variant="outline" 
             size="sm" 
@@ -367,9 +376,9 @@ export default function TaskManager() {
           insight={detailInsight}
           open={!!detailInsight}
           onClose={() => setDetailInsight(null)}
-          onCreateTask={() => {
+          onCreateTask={(suggestedTasks) => {
             if (detailInsight) {
-              createTaskFromInsight(detailInsight);
+              createTaskFromInsight(detailInsight, suggestedTasks);
             }
           }}
         />

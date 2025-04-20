@@ -1,10 +1,11 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle, ArrowRight } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AlertTriangle, CheckCircle, ArrowRight, Loader2 } from "lucide-react";
 import { InsightData } from "../tasks/InsightCard";
 import { useToast } from "@/hooks/use-toast";
 
@@ -12,7 +13,14 @@ interface InsightDetailDialogProps {
   insight: InsightData | null;
   open: boolean;
   onClose: () => void;
-  onCreateTask: () => void;
+  onCreateTask: (suggestedTasks?: any[]) => void;
+}
+
+interface SuggestedTask {
+  id: string;
+  name: string;
+  completed: false;
+  selected?: boolean;
 }
 
 export function InsightDetailDialog({
@@ -23,7 +31,80 @@ export function InsightDetailDialog({
 }: InsightDetailDialogProps) {
   const [processingTask, setProcessingTask] = useState(false);
   const [taskCreated, setTaskCreated] = useState(false);
+  const [suggestedTasks, setSuggestedTasks] = useState<SuggestedTask[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const { toast } = useToast();
+
+  // Fetch suggested tasks when dialog opens with an insight
+  useEffect(() => {
+    if (open && insight) {
+      fetchSuggestedTasks(insight);
+    } else {
+      setSuggestedTasks([]);
+    }
+  }, [open, insight]);
+
+  const fetchSuggestedTasks = async (insight: InsightData) => {
+    setLoadingSuggestions(true);
+    try {
+      const response = await fetch('/api/suggest-tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ insight })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch suggested tasks');
+      }
+
+      const data = await response.json();
+      setSuggestedTasks(data.tasks.map((task: SuggestedTask) => ({ 
+        ...task, 
+        selected: true 
+      })));
+    } catch (error) {
+      console.error('Error fetching suggested tasks:', error);
+      // Fallback data if API fails
+      setSuggestedTasks([
+        { id: '1', name: 'Review the detailed insight information', completed: false, selected: true },
+        { id: '2', name: 'Create an action plan addressing the key points', completed: false, selected: true },
+        { id: '3', name: 'Schedule follow-up to verify issue resolution', completed: false, selected: true }
+      ]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  const toggleTaskSelection = (taskId: string) => {
+    setSuggestedTasks(
+      suggestedTasks.map(task => 
+        task.id === taskId ? { ...task, selected: !task.selected } : task
+      )
+    );
+  };
+
+  const handleCreateTask = () => {
+    setProcessingTask(true);
+    
+    // Filter only selected tasks
+    const selectedTasks = suggestedTasks.filter(task => task.selected);
+    
+    setTimeout(() => {
+      onCreateTask(selectedTasks);
+      setProcessingTask(false);
+      setTaskCreated(true);
+      
+      toast({
+        title: "Task Created",
+        description: `"${insight?.title}" has been added to your tasks with ${selectedTasks.length} subtasks.`,
+      });
+      
+      // Reset state for next time dialog is opened
+      setTimeout(() => {
+        setTaskCreated(false);
+      }, 2000);
+    }, 600);
+  };
 
   if (!insight) return null;
 
@@ -38,24 +119,6 @@ export function InsightDetailDialog({
     'HIGH': 'bg-[#FEF2E3] text-[#FFA833] font-medium',
     'MEDIUM': 'bg-yellow-50 text-yellow-700',
     'LOW': 'bg-blue-50 text-blue-700'
-  };
-
-  const handleCreateTask = () => {
-    setProcessingTask(true);
-    setTimeout(() => {
-      onCreateTask();
-      setProcessingTask(false);
-      setTaskCreated(true);
-      toast({
-        title: "Task Created",
-        description: `"${insight.title}" has been added to your tasks.`,
-      });
-      
-      // Reset state for next time dialog is opened
-      setTimeout(() => {
-        setTaskCreated(false);
-      }, 2000);
-    }, 600);
   };
 
   return (
@@ -96,6 +159,37 @@ export function InsightDetailDialog({
           </ul>
         </Card>
 
+        {/* Suggested Tasks Section */}
+        <div className="mb-4">
+          <h3 className="font-medium text-sm mb-3">Suggested Tasks</h3>
+          
+          {loadingSuggestions ? (
+            <div className="flex items-center justify-center p-4">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-sm text-muted-foreground">Loading suggestions...</span>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {suggestedTasks.map(task => (
+                <div key={task.id} className="flex items-start space-x-2">
+                  <Checkbox 
+                    id={`task-${task.id}`}
+                    checked={task.selected} 
+                    onCheckedChange={() => toggleTaskSelection(task.id)}
+                    className="mt-1"
+                  />
+                  <label 
+                    htmlFor={`task-${task.id}`}
+                    className="text-sm leading-tight cursor-pointer"
+                  >
+                    {task.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="flex justify-end gap-2">
           {taskCreated ? (
             <Button variant="default" className="bg-green-600" disabled>
@@ -106,9 +200,9 @@ export function InsightDetailDialog({
             <Button 
               onClick={handleCreateTask} 
               variant="default" 
-              disabled={processingTask}
+              disabled={processingTask || loadingSuggestions || suggestedTasks.filter(t => t.selected).length === 0}
             >
-              {processingTask ? "Creating..." : "Create Task"}
+              {processingTask ? "Creating..." : `Create Task with ${suggestedTasks.filter(t => t.selected).length} Subtasks`}
             </Button>
           )}
           <DialogClose asChild>
