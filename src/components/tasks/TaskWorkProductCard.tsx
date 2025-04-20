@@ -1,9 +1,8 @@
 
 import React from "react";
 
-// This is the exact product image URL used in the inventory page products array (Kimchi photo)
-const KIMCHI_IMAGE_URL =
-  "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg";
+// Use the uploaded kimchi image
+const KIMCHI_IMAGE_URL = "/lovable-uploads/6194ca4c-9763-4396-806a-742978abbe74.png";
 
 interface Product {
   image: string;
@@ -21,8 +20,8 @@ export const TaskWorkProductCard: React.FC<{ product: Product }> = ({
 }) => {
   if (!product) return null;
 
-  // Use the real product photo (from Supabase bucket) or fallback, never a UI screenshot
-  const imgSrc = product.image && product.image !== "" ? product.image : KIMCHI_IMAGE_URL;
+  // Force use of the kimchi image instead of checking product.image
+  const imgSrc = KIMCHI_IMAGE_URL;
 
   return (
     <div className="bg-[#F7F7FC] border border-[#EEE] rounded-xl p-3 flex flex-col md:flex-row gap-4 items-center shadow-none min-h-[90px]">
@@ -66,4 +65,3 @@ export const TaskWorkProductCard: React.FC<{ product: Product }> = ({
     </div>
   );
 };
-
