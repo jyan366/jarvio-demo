@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Edit, Trash, Save } from "lucide-react";
@@ -7,12 +6,18 @@ interface Subtask {
   id: string;
   title: string;
   done: boolean;
+  description?: string;
+  status?: string;
+  priority?: string;
+  category?: string;
 }
 interface TaskWorkSubtasksProps {
   subtasks: Subtask[];
   onToggleSubtask: (idx: number) => void;
   onAddSubtask: (val: string) => void;
   onRemoveSubtask: (idx: number) => void;
+  focusedSubtaskIdx: number | null;
+  onFocusSubtask: (idx: number) => void;
 }
 
 export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
@@ -20,6 +25,8 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
   onToggleSubtask,
   onAddSubtask,
   onRemoveSubtask,
+  focusedSubtaskIdx,
+  onFocusSubtask,
 }) => {
   const [newSubtask, setNewSubtask] = useState("");
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
@@ -67,53 +74,30 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
         {subtasks.map((sub, idx) => (
           <div
             key={sub.id || idx}
-            className={`flex items-center border rounded-lg px-2 py-2 bg-white group hover:bg-gray-50 ${sub.done ? "opacity-50" : ""}`}
+            className={`flex items-center border rounded-lg px-2 py-2 bg-white group hover:bg-gray-50 ${sub.done ? "opacity-50" : ""} ${focusedSubtaskIdx===idx ? 'ring-2 ring-purple-400' : ''}`}
+            tabIndex={0}
+            onClick={() => onFocusSubtask(idx)}
+            role="button"
           >
             <Button
               variant={sub.done ? "default" : "outline"}
               size="icon"
               className="mr-2"
-              onClick={() => onToggleSubtask(idx)}
+              onClick={e => {e.stopPropagation(); onToggleSubtask(idx);}}
               aria-label={sub.done ? "Mark incomplete" : "Mark complete"}
             >
               {sub.done ? <Check className="w-4 h-4" /> : <div className="w-4 h-4 border rounded-full"></div>}
             </Button>
-            {editingIdx === idx ? (
-              <div className="flex-1 flex items-center gap-2">
-                <input
-                  className="border px-2 py-1 rounded text-xs w-full"
-                  value={draftSubTitle}
-                  onChange={(e) => setDraftSubTitle(e.target.value)}
-                  autoFocus
-                />
-                <Button size="icon" variant="outline" onClick={() => handleSaveEdit(idx)}>
-                  <Save className="h-4 w-4" />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={() => setEditingIdx(null)}>
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <span className={`flex-1 text-sm truncate ${sub.done ? "line-through text-gray-400" : ""}`}>
-                {sub.title}
-              </span>
-            )}
+            <span className={`flex-1 text-sm truncate ${sub.done ? "line-through text-gray-400" : ""}`}>
+              {sub.title}
+            </span>
             <div className="flex gap-1">
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="opacity-80 transition"
-                onClick={() => handleEdit(idx)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
                 className="opacity-60 hover:text-red-600 transition"
-                onClick={() => onRemoveSubtask(idx)}
+                onClick={e => {e.stopPropagation(); onRemoveSubtask(idx);}}
               >
                 <Trash className="h-4 w-4" />
               </Button>

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { TaskWorkHeader } from "./TaskWorkHeader";
 import { TaskWorkProductCard } from "./TaskWorkProductCard";
@@ -16,6 +15,9 @@ interface TaskWorkMainProps {
   onOpenSidebarMobile: () => void;
   onGenerateSteps: () => Promise<void>;
   isGenerating: boolean;
+  focusedSubtaskIdx: number | null;
+  onFocusSubtask: (idx: number) => void;
+  onUpdateSubtask: (field: keyof Subtask, value: any) => void;
 }
 
 export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
@@ -27,6 +29,9 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   onOpenSidebarMobile,
   onGenerateSteps,
   isGenerating,
+  focusedSubtaskIdx,
+  onFocusSubtask,
+  onUpdateSubtask,
 }) => {
   return (
     <div className="flex flex-col gap-4 w-full h-full">
@@ -45,7 +50,6 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         onOpenSidebarMobile={onOpenSidebarMobile}
       />
       <div className="flex gap-4 items-center mb-1">
-        {/* New "Generate steps" button */}
         <Button
           variant="outline"
           onClick={onGenerateSteps}
@@ -68,7 +72,48 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
           onToggleSubtask={onToggleSubtask}
           onAddSubtask={onAddSubtask}
           onRemoveSubtask={onRemoveSubtask}
+          focusedSubtaskIdx={focusedSubtaskIdx}
+          onFocusSubtask={onFocusSubtask}
         />
+        {focusedSubtaskIdx !== null && task.subtasks[focusedSubtaskIdx] && (
+          <div className="mt-4 border bg-[#F7F6FD] rounded-lg p-4">
+            <h4 className="font-medium mb-2 text-purple-900">Subtask Details</h4>
+            <div className="flex flex-col gap-2">
+              <input
+                className="px-2 py-1 border rounded text-sm"
+                value={task.subtasks[focusedSubtaskIdx].title}
+                onChange={e => onUpdateSubtask("title", e.target.value)}
+                placeholder="Subtask Title"
+              />
+              <textarea
+                className="px-2 py-1 border rounded text-sm"
+                value={task.subtasks[focusedSubtaskIdx].description || ""}
+                onChange={e => onUpdateSubtask("description", e.target.value)}
+                placeholder="Subtask Description"
+              />
+              <div className="flex gap-2">
+                <input
+                  className="px-2 py-1 border rounded text-sm"
+                  value={task.subtasks[focusedSubtaskIdx].status || ""}
+                  onChange={e => onUpdateSubtask("status", e.target.value)}
+                  placeholder="Status"
+                />
+                <input
+                  className="px-2 py-1 border rounded text-sm"
+                  value={task.subtasks[focusedSubtaskIdx].priority || ""}
+                  onChange={e => onUpdateSubtask("priority", e.target.value)}
+                  placeholder="Priority"
+                />
+                <input
+                  className="px-2 py-1 border rounded text-sm"
+                  value={task.subtasks[focusedSubtaskIdx].category || ""}
+                  onChange={e => onUpdateSubtask("category", e.target.value)}
+                  placeholder="Category"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

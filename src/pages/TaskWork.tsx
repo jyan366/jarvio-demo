@@ -78,6 +78,10 @@ export interface Subtask {
   id: string;
   title: string;
   done: boolean;
+  description?: string;
+  status?: string;
+  priority?: string;
+  category?: string;
 }
 export interface Product {
   image: string;
@@ -110,7 +114,8 @@ export default function TaskWork() {
   const [taskState, setTaskState] = useState<TaskWorkType | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  
+  const [focusedSubtaskIdx, setFocusedSubtaskIdx] = useState<number | null>(null);
+
   const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
   const [commentValue, setCommentValue] = useState("");
 
@@ -337,6 +342,21 @@ export default function TaskWork() {
     });
   };
 
+  const handleFocusSubtask = (idx: number) => {
+    setFocusedSubtaskIdx(idx);
+  };
+
+  const handleUpdateSubtask = (field: keyof Subtask, value: any) => {
+    if (focusedSubtaskIdx === null) return;
+    setTaskState((prev) => {
+      if (!prev) return prev;
+      const updatedSubs = prev.subtasks.map((st, i) =>
+        i === focusedSubtaskIdx ? { ...st, [field]: value } : st
+      );
+      return { ...prev, subtasks: updatedSubs };
+    });
+  };
+
   return (
     <MainLayout>
       <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-0 items-stretch bg-background overflow-hidden">
@@ -351,6 +371,9 @@ export default function TaskWork() {
               onOpenSidebarMobile={() => setSidebarOpen(true)}
               onGenerateSteps={handleGenerateSteps}
               isGenerating={isGenerating}
+              focusedSubtaskIdx={focusedSubtaskIdx}
+              onFocusSubtask={handleFocusSubtask}
+              onUpdateSubtask={handleUpdateSubtask}
             />
           </div>
         </main>
