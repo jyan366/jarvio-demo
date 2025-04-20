@@ -12,8 +12,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Edit, ChevronRight, ChevronLeft, List } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
-// Dummy product image for now
-const PRODUCT_IMAGE = "/lovable-uploads/80a0cdf0-5b6f-4f3f-8cf9-4adc7690d307.png";
+// Using one of the product images from Supabase
+const PRODUCT_IMAGE = "/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png";
 
 interface Product {
   image: string;
@@ -84,7 +84,7 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
   // Make them appear in the same style as the screenshot
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl w-full p-0 overflow-hidden">
+      <DialogContent className="max-w-2xl w-full p-0 overflow-hidden max-h-[90vh]">
         <div className="w-full h-full flex flex-col">
           <div className="flex items-start justify-between px-6 pt-6 pb-2 border-b">
             <DialogHeader className="flex-grow">
@@ -100,7 +100,7 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
               </Button>
             </div>
           </div>
-          <ScrollArea className="flex-1 px-6 py-4">
+          <ScrollArea className="flex-1 px-6 py-4 max-h-[calc(90vh-120px)] overflow-y-auto">
             <div>
               {/* Description */}
               <div className="mb-6">
@@ -113,8 +113,8 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
                 <p className="text-sm text-gray-800">{task.description}</p>
               </div>
               {/* Properties (Status, Priority, Category) */}
-              <div className="flex gap-3 items-center mb-6">
-                <div>
+              <div className="flex flex-wrap gap-3 items-center mb-6">
+                <div className="mb-2 sm:mb-0">
                   <Select defaultValue={task.status}>
                     <SelectTrigger className="w-32 h-9">
                       <SelectValue>{task.status}</SelectValue>
@@ -126,7 +126,7 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
+                <div className="mb-2 sm:mb-0">
                   <Select defaultValue={task.priority}>
                     <SelectTrigger className="w-24 h-9">
                       <SelectValue>{task.priority}</SelectValue>
@@ -138,7 +138,7 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
+                <div className="mb-2 sm:mb-0">
                   <Select defaultValue={task.category}>
                     <SelectTrigger className="w-32 h-9">
                       <SelectValue>{task.category}</SelectValue>
@@ -168,18 +168,18 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
                     className="w-16 h-16 object-cover rounded"
                   />
                   <div className="flex-1 flex flex-col md:flex-row gap-4">
-                    <div>
+                    <div className="flex-1">
                       <p className="font-semibold truncate max-w-xs">{products[0].name}</p>
                       <p className="text-xs text-gray-500 flex gap-2">
                         ASIN: {products[0].asin} <span>•</span> SKU: {products[0].sku}
                       </p>
                     </div>
-                    <div className="flex gap-8">
-                      <div>
+                    <div className="flex flex-wrap gap-4 md:gap-8">
+                      <div className="mr-4">
                         <span className="block uppercase text-gray-400 text-[10px] mb-1">Price</span>
                         <span className="font-bold text-[15px]">£{products[0].price}</span>
                       </div>
-                      <div>
+                      <div className="mr-4">
                         <span className="block uppercase text-gray-400 text-[10px] mb-1">Available Units</span>
                         <span className="font-bold text-[15px]">{products[0].units}</span>
                       </div>
