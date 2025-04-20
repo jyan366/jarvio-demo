@@ -78,10 +78,10 @@ export interface Subtask {
   id: string;
   title: string;
   done: boolean;
-  description?: string;
-  status?: string;
-  priority?: string;
-  category?: string;
+  description: string;
+  status: string;
+  priority: string;
+  category: string;
 }
 export interface Product {
   image: string;
@@ -150,7 +150,16 @@ export default function TaskWork() {
         }
         
         const subtasks = await fetchSubtasks([taskData.id]);
-        
+        const normalizedSubs = subtasks.map(st => ({
+          id: st.id,
+          title: st.title ?? "",
+          done: st.completed ?? false,
+          description: st.description ?? "",
+          status: st.status ?? "",
+          priority: st.priority ?? "",
+          category: st.category ?? "",
+        }));
+
         const task: TaskWorkType = {
           id: taskData.id,
           title: taskData.title,
@@ -175,11 +184,7 @@ export default function TaskWork() {
               last30Units: "68",
             }
           ],
-          subtasks: subtasks.map(st => ({
-            id: st.id,
-            title: st.title,
-            done: st.completed,
-          })),
+          subtasks: normalizedSubs,
           comments: [{ user: "you", text: "new comment", ago: "2 days ago" }],
         };
         
@@ -241,7 +246,18 @@ export default function TaskWork() {
           if (!prev) return prev;
           return {
             ...prev,
-            subtasks: [...prev.subtasks, { id: st.id, title: st.title, done: st.completed }],
+            subtasks: [
+              ...prev.subtasks,
+              {
+                id: st.id,
+                title: st.title,
+                done: st.completed,
+                description: "",
+                status: "",
+                priority: "",
+                category: "",
+              },
+            ],
           };
         });
       } catch (err) {

@@ -1,16 +1,18 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Edit, Trash, Save } from "lucide-react";
+import { Check, Edit, Trash } from "lucide-react";
 
 interface Subtask {
   id: string;
   title: string;
   done: boolean;
-  description?: string;
-  status?: string;
-  priority?: string;
-  category?: string;
+  description: string;
+  status: string;
+  priority: string;
+  category: string;
 }
+
 interface TaskWorkSubtasksProps {
   subtasks: Subtask[];
   onToggleSubtask: (idx: number) => void;
@@ -29,20 +31,6 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
   onFocusSubtask,
 }) => {
   const [newSubtask, setNewSubtask] = useState("");
-  const [editingIdx, setEditingIdx] = useState<number | null>(null);
-  const [draftSubTitle, setDraftSubTitle] = useState("");
-
-  const handleEdit = (idx: number) => {
-    setEditingIdx(idx);
-    setDraftSubTitle(subtasks[idx].title);
-  };
-  const handleSaveEdit = (idx: number) => {
-    if (draftSubTitle.trim()) {
-      // trigger external update since main task state is managed up
-      subtasks[idx].title = draftSubTitle;
-    }
-    setEditingIdx(null);
-  };
 
   return (
     <div className="mb-0 w-full">
@@ -74,7 +62,7 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
         {subtasks.map((sub, idx) => (
           <div
             key={sub.id || idx}
-            className={`flex items-center border rounded-lg px-2 py-2 bg-white group hover:bg-gray-50 ${sub.done ? "opacity-50" : ""} ${focusedSubtaskIdx===idx ? 'ring-2 ring-purple-400' : ''}`}
+            className={`flex items-center border rounded-lg px-2 py-2 bg-white group hover:bg-gray-50 cursor-pointer ${sub.done ? "opacity-50" : ""} ${focusedSubtaskIdx===idx ? 'ring-2 ring-purple-400' : ''}`}
             tabIndex={0}
             onClick={() => onFocusSubtask(idx)}
             role="button"
@@ -88,9 +76,17 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
             >
               {sub.done ? <Check className="w-4 h-4" /> : <div className="w-4 h-4 border rounded-full"></div>}
             </Button>
-            <span className={`flex-1 text-sm truncate ${sub.done ? "line-through text-gray-400" : ""}`}>
-              {sub.title}
-            </span>
+            <div className="flex-1 flex flex-col min-w-0">
+              <span className={`text-sm font-medium truncate ${sub.done ? "line-through text-gray-400" : ""}`}>
+                {sub.title}
+              </span>
+              <div className="text-xs text-gray-500 flex flex-wrap gap-2">
+                {sub.status && <span>Status: {sub.status}</span>}
+                {sub.priority && <span>Priority: {sub.priority}</span>}
+                {sub.category && <span>Category: {sub.category}</span>}
+              </div>
+              {sub.description && <div className="text-xs text-gray-400 mt-0.5 truncate">{sub.description}</div>}
+            </div>
             <div className="flex gap-1">
               <Button
                 type="button"
