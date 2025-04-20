@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -199,7 +198,7 @@ export default function TaskManager() {
         </div>
 
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {COLUMN_CONFIG.map((col) => (
               <div key={col.id} className="rounded-xl p-4" style={{ background: undefined }}>
                 <Card className={`p-0 bg-transparent shadow-none border-0`}>
