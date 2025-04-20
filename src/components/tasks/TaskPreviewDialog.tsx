@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Dialog,
@@ -13,7 +12,7 @@ import { Edit, ChevronRight, ChevronLeft, List } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 // Using one of the product images from Supabase
-const PRODUCT_IMAGE = "/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png";
+const PRODUCT_IMAGE = "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg";
 
 interface Product {
   image: string;
