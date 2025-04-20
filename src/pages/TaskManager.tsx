@@ -208,7 +208,6 @@ export default function TaskManager() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Fetch all tasks and subtasks for this user
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -217,7 +216,6 @@ export default function TaskManager() {
         const taskIds = supabaseTasks.map(t => t.id);
         const subtasks = await fetchSubtasks(taskIds);
 
-        // Partition tasks by status, attach subtasks
         const byStatus: { [key: string]: Task[] } = { todo: [], inProgress: [], done: [] };
         for (const t of supabaseTasks) {
           const group =
@@ -228,6 +226,11 @@ export default function TaskManager() {
               : 'todo';
           byStatus[group].push({
             ...t,
+            date: new Date(t.created_at).toLocaleDateString('en-US', { 
+              day: 'numeric', 
+              month: 'short', 
+              year: 'numeric' 
+            }),
             subtasks: subtasks.filter(st => st.task_id === t.id).map(st => ({
               id: st.id,
               title: st.title,
@@ -235,7 +238,6 @@ export default function TaskManager() {
             })),
             comments: [],
             products: [],
-            // fill in other Task properties as needed
           });
         }
 
@@ -248,7 +250,6 @@ export default function TaskManager() {
     load();
   }, []);
 
-  // Helper for mapping insight to task properties
   function mapInsightToTask(insight: InsightData, suggestedTasks?: any[]) {
     return {
       title: insight.title,
@@ -257,16 +258,12 @@ export default function TaskManager() {
       priority: insight.severity === 'HIGH' ? 'HIGH' : insight.severity === 'MEDIUM' ? 'MEDIUM' : 'LOW',
       category: insight.category,
       insight_id: insight.id,
-      // Subtasks stored separately
     };
   }
 
-  // Handle creating a task from an insight and optional subtasks, syncing with Supabase
   const createTaskFromInsight = async (insight: InsightData, suggestedTasks?: any[]) => {
     try {
-      // Step 1: Create the task in Supabase
       const newTask = await createTask(mapInsightToTask(insight, suggestedTasks));
-      // Step 2: Insert suggested subtasks (if any)
       let subtasks: SupabaseSubtask[] = [];
       if (suggestedTasks && suggestedTasks.length > 0) {
         subtasks = await createSubtasks(
@@ -274,12 +271,10 @@ export default function TaskManager() {
         );
       }
 
-      // Refetch tasks to update the UI
       const supabaseTasks = await fetchTasks();
       const taskIds = supabaseTasks.map(t => t.id);
       const subtasksData = await fetchSubtasks(taskIds);
 
-      // Rebuild byStatus
       const byStatus: { [key: string]: Task[] } = { todo: [], inProgress: [], done: [] };
       for (const t of supabaseTasks) {
         const group =
@@ -290,6 +285,11 @@ export default function TaskManager() {
             : 'todo';
         byStatus[group].push({
           ...t,
+          date: new Date(t.created_at).toLocaleDateString('en-US', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric' 
+          }),
           subtasks: subtasksData.filter(st => st.task_id === t.id).map(st => ({
             id: st.id,
             title: st.title,
@@ -314,7 +314,17 @@ export default function TaskManager() {
               size="sm"
               className="self-start"
               onClick={() => {
-                setSelectedTask({ ...newTask, subtasks, comments: [], products: [] } as Task);
+                setSelectedTask({
+                  ...newTask,
+                  date: new Date(newTask.created_at).toLocaleDateString('en-US', { 
+                    day: 'numeric', 
+                    month: 'short', 
+                    year: 'numeric' 
+                  }),
+                  subtasks: subtasks.map(st => ({ id: st.id, title: st.title, done: st.completed })),
+                  comments: [],
+                  products: []
+                } as Task);
                 setIsPreviewOpen(true);
               }}
             >

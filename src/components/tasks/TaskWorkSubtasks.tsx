@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Edit, Trash, Save } from "lucide-react";
 
 interface Subtask {
+  id: string;
   title: string;
   done: boolean;
 }
@@ -65,7 +66,7 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
       <div className="space-y-2">
         {subtasks.map((sub, idx) => (
           <div
-            key={idx}
+            key={sub.id || idx}
             className={`flex items-center border rounded-lg px-2 py-2 bg-white group hover:bg-gray-50 ${sub.done ? "opacity-50" : ""}`}
           >
             <Button
@@ -122,4 +123,4 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
       </div>
     </div>
   );
-};
+}

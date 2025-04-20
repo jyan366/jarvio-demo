@@ -49,7 +49,7 @@ export async function createTask(task: Partial<SupabaseTask>) {
   if (!user) throw new Error("Not authenticated");
   const { data, error } = await supabase
     .from("tasks")
-    .insert([{ ...task, user_id: user.id }])
+    .insert({ ...task, user_id: user.id })
     .select()
     .single();
 

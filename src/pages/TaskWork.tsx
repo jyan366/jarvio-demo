@@ -1,8 +1,20 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
 import { TaskWorkSidebar } from "@/components/tasks/TaskWorkSidebar";
+import {
+  fetchTasks,
+  fetchSubtasks,
+  createTask,
+  createSubtasks,
+  addSubtask,
+  deleteSubtask,
+  toggleSubtask,
+  SupabaseTask,
+  SupabaseSubtask
+} from "@/lib/supabaseTasks";
 
 // Dummy Data (for demo)
 const PRODUCT_IMAGE = "/lovable-uploads/98f7d2f8-e54c-46c1-bc30-7cea0a73ca70.png";
@@ -28,8 +40,8 @@ const dummyTasks = [
       },
     ],
     subtasks: [
-      { title: "Update Amazon listing images", done: false },
-      { title: "Verify compliance", done: false },
+      { id: "st1", title: "Update Amazon listing images", done: false },
+      { id: "st2", title: "Verify compliance", done: false },
     ],
     comments: [{ user: "you", text: "new comment", ago: "2 days ago" }],
   },
@@ -54,8 +66,8 @@ const dummyTasks = [
       },
     ],
     subtasks: [
-      { title: "Check ingredient report", done: false },
-      { title: "Submit support case", done: true },
+      { id: "st3", title: "Check ingredient report", done: false },
+      { id: "st4", title: "Submit support case", done: true },
     ],
     comments: [{ user: "you", text: "new comment", ago: "2 days ago" }],
   },
@@ -63,6 +75,7 @@ const dummyTasks = [
 
 // Types
 export interface Subtask {
+  id: string;
   title: string;
   done: boolean;
 }
