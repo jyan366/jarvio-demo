@@ -6,11 +6,10 @@ import { Grid, List, Plus } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
-import { InsightSection } from '@/components/tasks/InsightSection';
 import { InsightToTaskDialog } from '@/components/tasks/InsightToTaskDialog';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { useToast } from '@/hooks/use-toast';
-import { InsightData } from '@/components/tasks/InsightCard';
+import { InsightData, InsightCategory, InsightSeverity } from '@/components/tasks/InsightCard';
 
 interface Task {
   id: string;
@@ -152,6 +151,41 @@ const COLUMN_CONFIG = [
   },
 ];
 
+const insightsData: InsightData[] = [
+  {
+    id: '1',
+    title: '1 Star Review Detected',
+    description: 'A new 1-star review was detected for Kimchi 1kg Jar mentioning "product arrived damaged".',
+    category: 'REVIEW',
+    severity: 'HIGH',
+    date: '20 Apr 2025',
+  },
+  {
+    id: '2',
+    title: 'Lost Buy Box on Kimchi 500g',
+    description: 'You are no longer the Buy Box winner for Kimchi 500g. Current winner is offering 5% lower price.',
+    category: 'PRICING',
+    severity: 'HIGH',
+    date: '19 Apr 2025',
+  },
+  {
+    id: '3',
+    title: 'New Listing Opportunity',
+    description: 'Based on search trends, "Vegan Kimchi" has high search volume with low competition. Consider creating a listing.',
+    category: 'LISTING',
+    severity: 'MEDIUM',
+    date: '18 Apr 2025',
+  },
+  {
+    id: '4',
+    title: 'Competitor Price Drop',
+    description: 'A main competitor has reduced prices across their fermented food products by an average of 8%.',
+    category: 'COMPETITION',
+    severity: 'MEDIUM',
+    date: '17 Apr 2025',
+  },
+];
+
 export default function TaskManager() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [tasks, setTasks] = useState(initialTasks);
@@ -159,44 +193,7 @@ export default function TaskManager() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
 
-  const [selectedInsight, setSelectedInsight] = useState<InsightData | null>(null);
-  const [isInsightToTaskOpen, setIsInsightToTaskOpen] = useState(false);
   const { toast } = useToast();
-
-  const insightsData: InsightData[] = [
-    {
-      id: '1',
-      title: '1 Star Review Detected',
-      description: 'A new 1-star review was detected for Kimchi 1kg Jar mentioning "product arrived damaged".',
-      category: 'REVIEW',
-      severity: 'HIGH',
-      date: '20 Apr 2025',
-    },
-    {
-      id: '2',
-      title: 'Lost Buy Box on Kimchi 500g',
-      description: 'You are no longer the Buy Box winner for Kimchi 500g. Current winner is offering 5% lower price.',
-      category: 'PRICING',
-      severity: 'HIGH',
-      date: '19 Apr 2025',
-    },
-    {
-      id: '3',
-      title: 'New Listing Opportunity',
-      description: 'Based on search trends, "Vegan Kimchi" has high search volume with low competition. Consider creating a listing.',
-      category: 'LISTING',
-      severity: 'MEDIUM',
-      date: '18 Apr 2025',
-    },
-    {
-      id: '4',
-      title: 'Competitor Price Drop',
-      description: 'A main competitor has reduced prices across their fermented food products by an average of 8%.',
-      category: 'COMPETITION',
-      severity: 'MEDIUM',
-      date: '17 Apr 2025',
-    },
-  ];
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -211,11 +208,6 @@ export default function TaskManager() {
       [result.source.droppableId]: sourceColumn,
       [result.destination.droppableId]: destColumn
     });
-  };
-
-  const handleInsightToTask = (insight: InsightData) => {
-    setSelectedInsight(insight);
-    setIsInsightToTaskOpen(true);
   };
 
   const createTaskFromInsight = (insight: InsightData) => {
@@ -244,11 +236,6 @@ export default function TaskManager() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <InsightSection
-          onCreateTask={createTaskFromInsight}
-          insights={insightsData}
-        />
-
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold">Task Manager</h1>
@@ -342,17 +329,10 @@ export default function TaskManager() {
           task={selectedTask}
         />
 
-        <InsightToTaskDialog
-          open={isInsightToTaskOpen}
-          onOpenChange={setIsInsightToTaskOpen}
-          insight={selectedInsight}
-          onCreateTask={createTaskFromInsight}
-        />
-
         <InsightsDialog
           open={isInsightsDialogOpen}
           onOpenChange={setIsInsightsDialogOpen}
-          onCreateTask={handleInsightToTask}
+          onCreateTask={createTaskFromInsight}
           insights={insightsData}
         />
       </div>
