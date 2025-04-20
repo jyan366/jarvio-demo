@@ -1,9 +1,6 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { InsightCard } from './InsightCard';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 
 // Sample insights data
 const sampleInsights = [
@@ -43,25 +40,25 @@ const sampleInsights = [
 
 interface InsightSectionProps {
   onCreateTask: (insight: any) => void;
+  hideHeader?: boolean;
+  hideActions?: boolean;
 }
 
-export function InsightSection({ onCreateTask }: InsightSectionProps) {
+export function InsightSection({ onCreateTask, hideHeader = false, hideActions = false }: InsightSectionProps) {
   const [insights, setInsights] = useState(sampleInsights);
 
   return (
-    <Card className="p-4 md:p-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <div>
-          <h2 className="text-xl font-semibold">Recent Insights</h2>
-          <p className="text-sm text-muted-foreground">
-            Actionable insights from your account
-          </p>
+    <Card className="p-0 md:p-0 border-0 shadow-none bg-transparent">
+      {!hideHeader && (
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div>
+            <h2 className="text-xl font-semibold">Recent Insights</h2>
+            <p className="text-sm text-muted-foreground">
+              Actionable insights from your account
+            </p>
+          </div>
         </div>
-        <Button className="w-full md:w-auto flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          View All Insights
-        </Button>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {insights.map((insight) => (
@@ -72,6 +69,11 @@ export function InsightSection({ onCreateTask }: InsightSectionProps) {
           />
         ))}
       </div>
+      {!hideActions && (
+        <div className="flex justify-end mt-4">
+          {/* Placeholder for any actions if needed in the future */}
+        </div>
+      )}
     </Card>
   );
 }

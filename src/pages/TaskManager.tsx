@@ -8,6 +8,7 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
 import { InsightSection } from '@/components/tasks/InsightSection';
 import { InsightToTaskDialog } from '@/components/tasks/InsightToTaskDialog';
+import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { useToast } from '@/hooks/use-toast';
 
 interface Task {
@@ -155,7 +156,8 @@ export default function TaskManager() {
   const [tasks, setTasks] = useState(initialTasks);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  
+  const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
+
   const [selectedInsight, setSelectedInsight] = useState<any>(null);
   const [isInsightToTaskOpen, setIsInsightToTaskOpen] = useState(false);
   const { toast } = useToast();
@@ -215,13 +217,20 @@ export default function TaskManager() {
               </Button>
             </div>
           </div>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            New Task
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsInsightsDialogOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <span>Insights</span>
+            </Button>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              New Task
+            </Button>
+          </div>
         </div>
-
-        <InsightSection onCreateTask={handleInsightToTask} />
 
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -286,6 +295,12 @@ export default function TaskManager() {
           onOpenChange={setIsInsightToTaskOpen}
           insight={selectedInsight}
           onCreateTask={createTaskFromInsight}
+        />
+
+        <InsightsDialog
+          open={isInsightsDialogOpen}
+          onOpenChange={setIsInsightsDialogOpen}
+          onCreateTask={handleInsightToTask}
         />
       </div>
     </MainLayout>
