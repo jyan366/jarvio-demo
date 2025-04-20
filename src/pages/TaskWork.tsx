@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
 import { TaskWorkSidebar } from "@/components/tasks/TaskWorkSidebar";
@@ -15,6 +14,8 @@ import {
   SupabaseTask,
   SupabaseSubtask
 } from "@/lib/supabaseTasks";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 // Dummy Data (for demo)
 const PRODUCT_IMAGE = "/lovable-uploads/98f7d2f8-e54c-46c1-bc30-7cea0a73ca70.png";
@@ -104,8 +105,10 @@ export interface TaskWorkType {
 
 export default function TaskWork() {
   const { id } = useParams<{ id: string }>();
-  const task = dummyTasks.find((t) => t.id === id) || dummyTasks[0];
-  const [taskState, setTaskState] = useState<TaskWorkType>(task);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [taskState, setTaskState] = useState<TaskWorkType | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Tab state for sidebar
@@ -113,27 +116,104 @@ export default function TaskWork() {
   const [commentValue, setCommentValue] = useState("");
 
   useEffect(() => {
-    // Fetch subtasks for this task from supabase
-    async function fetch() {
-      if (!taskState.id) return;
+    // Fetch task and subtasks from Supabase
+    async function loadTask() {
+      if (!id) {
+        toast({
+          title: "Error",
+          description: "No task ID provided",
+          variant: "destructive"
+        });
+        navigate("/task-manager");
+        return;
+      }
+      
+      setLoading(true);
       try {
-        const subtasks = await fetchSubtasks([taskState.id]);
-        setTaskState((prev) => ({
-          ...prev,
+        // Fetch the specific task
+        const { data: taskData, error } = await supabase
+          .from("tasks")
+          .select("*")
+          .eq("id", id)
+          .single();
+          
+        if (error || !taskData) {
+          toast({
+            title: "Task Not Found",
+            description: "The requested task could not be found",
+            variant: "destructive"
+          });
+          navigate("/task-manager");
+          return;
+        }
+        
+        // Fetch subtasks for this task
+        const subtasks = await fetchSubtasks([taskData.id]);
+        
+        // Transform data to match our UI format
+        const task: TaskWorkType = {
+          id: taskData.id,
+          title: taskData.title,
+          description: taskData.description || "",
+          status: taskData.status as string,
+          priority: taskData.priority || "MEDIUM",
+          category: taskData.category || "",
+          date: new Date(taskData.created_at).toLocaleDateString('en-US', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric' 
+          }),
+          products: [
+            {
+              image: "/lovable-uploads/98f7d2f8-e54c-46c1-bc30-7cea0a73ca70.png",
+              name: "Kimchi 1 kg Jar - Raw & Unpasteurised - Traditionally Fermented - by The Cultured Food Company",
+              asin: "B08P5P3QGC",
+              sku: "KM1000",
+              price: "16.99",
+              units: "111",
+              last30Sales: "1155.32",
+              last30Units: "68",
+            }
+          ],
           subtasks: subtasks.map(st => ({
             id: st.id,
             title: st.title,
             done: st.completed,
           })),
-        }));
+          comments: [{ user: "you", text: "new comment", ago: "2 days ago" }],
+        };
+        
+        setTaskState(task);
       } catch (e) {
-        // fallback: leave as is
+        console.error("Error loading task:", e);
+        toast({
+          title: "Error",
+          description: "Failed to load task data",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
     }
-    fetch();
-  }, [taskState.id]);
+    
+    loadTask();
+  }, [id, navigate, toast]);
 
-  if (!task) return <div>Task not found</div>;
+  if (loading) return (
+    <MainLayout>
+      <div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
+        <p className="text-lg text-muted-foreground">Loading task...</p>
+      </div>
+    </MainLayout>
+  );
+  
+  if (!taskState) return (
+    <MainLayout>
+      <div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
+        <p className="text-lg text-muted-foreground">Task not found</p>
+      </div>
+    </MainLayout>
+  );
 
   // Subtask management
   const handleToggleSubtask = async (idx: number) => {
@@ -141,48 +221,79 @@ export default function TaskWork() {
     try {
       await toggleSubtask(sub.id, !sub.done);
       setTaskState((prev) => {
+        if (!prev) return prev;
         const newSubs = [...prev.subtasks];
         newSubs[idx] = { ...newSubs[idx], done: !newSubs[idx].done };
         return { ...prev, subtasks: newSubs };
       });
-    } catch {}
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to update subtask",
+        variant: "destructive"
+      });
+    }
   };
   const handleAddSubtask = async (val: string) => {
     if (val.trim()) {
       try {
         const st = await addSubtask(taskState.id, val);
-        setTaskState((prev) => ({
-          ...prev,
-          subtasks: [...prev.subtasks, { id: st.id, title: st.title, done: st.completed }],
-        }));
-      } catch {}
+        setTaskState((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            subtasks: [...prev.subtasks, { id: st.id, title: st.title, done: st.completed }],
+          };
+        });
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "Failed to add subtask",
+          variant: "destructive"
+        });
+      }
     }
   };
   const handleRemoveSubtask = async (idx: number) => {
     const st = taskState.subtasks[idx];
     try {
       await deleteSubtask(st.id);
-      setTaskState((prev) => ({
-        ...prev,
-        subtasks: prev.subtasks.filter((_, i) => i !== idx),
-      }));
-    } catch {}
+      setTaskState((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          subtasks: prev.subtasks.filter((_, i) => i !== idx),
+        };
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to delete subtask",
+        variant: "destructive"
+      });
+    }
   };
 
   // Comment management
   const handleAddComment = (text: string) => {
     if (text.trim()) {
-      setTaskState((prev) => ({
-        ...prev,
-        comments: [...prev.comments, { user: "you", text, ago: "now" }],
-      }));
+      setTaskState((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          comments: [...prev.comments, { user: "you", text, ago: "now" }],
+        };
+      });
       setCommentValue("");
     }
   };
 
   // Task header/properties inplace editing
   const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
-    setTaskState((prev) => ({ ...prev, [field]: value }));
+    setTaskState((prev) => {
+      if (!prev) return prev;
+      return { ...prev, [field]: value };
+    });
   };
 
   return (

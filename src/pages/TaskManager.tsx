@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,9 @@ import {
   createTask,
   createSubtasks,
   SupabaseTask,
-  SupabaseSubtask
+  SupabaseSubtask,
+  initializeSampleTasks,
+  addSampleSubtasksToTask
 } from '@/lib/supabaseTasks';
 
 interface Task {
@@ -212,7 +215,25 @@ export default function TaskManager() {
     async function load() {
       setLoading(true);
       try {
-        const supabaseTasks = await fetchTasks();
+        // Try to fetch tasks from Supabase
+        let supabaseTasks = await fetchTasks();
+        
+        // If no tasks exist, initialize with sample data
+        if (supabaseTasks.length === 0) {
+          console.log("No tasks found, initializing sample data...");
+          supabaseTasks = await initializeSampleTasks();
+          
+          // Add sample subtasks to each task
+          for (const task of supabaseTasks) {
+            await addSampleSubtasksToTask(task.id, task.title);
+          }
+          
+          toast({ 
+            title: "Sample Tasks Created", 
+            description: "Sample tasks have been added to your task manager."
+          });
+        }
+        
         const taskIds = supabaseTasks.map(t => t.id);
         const subtasks = await fetchSubtasks(taskIds);
 
