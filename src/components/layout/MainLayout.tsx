@@ -16,7 +16,9 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     // Check if user is authenticated
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     if (!isAuthenticated) {
-      navigate('/auth');
+      // For demo purposes, automatically authenticate the user
+      localStorage.setItem('isAuthenticated', 'true');
+      console.log("User automatically authenticated for demo purposes");
     }
   }, [navigate]);
 
