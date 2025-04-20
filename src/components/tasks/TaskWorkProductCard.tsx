@@ -1,6 +1,10 @@
 
 import React from "react";
 
+// This matches the default product photo used in the dialog/table—a real product photo:
+const DEFAULT_KIMCHI_IMG =
+  "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg";
+
 interface Product {
   image: string;
   name: string;
@@ -12,23 +16,20 @@ interface Product {
   last30Units: string;
 }
 
-// Image used in the product preview dialog (from Supabase):
-const kimchiPreviewImg = "/lovable-uploads/7e11c97a-cdb6-4051-a694-ba75c7c84823.png";
-
 export const TaskWorkProductCard: React.FC<{ product: Product }> = ({
   product,
 }) => {
   if (!product) return null;
 
-  // Use the kimchi jar preview if a generic/broken/missing product image is set
-  const imgSrc = (product.image && product.image !== "") ? product.image : kimchiPreviewImg;
+  // Use the real product photo (from Supabase bucket) or fallback, never a UI screenshot
+  const imgSrc = product.image && product.image !== "" ? product.image : DEFAULT_KIMCHI_IMG;
 
   return (
     <div className="bg-[#F7F7FC] border border-[#EEE] rounded-xl p-3 flex flex-col md:flex-row gap-4 items-center shadow-none min-h-[90px]">
-      {/* Image is always the preview jars */}
+      {/* Actual product photo */}
       <div className="flex-shrink-0 flex items-center justify-center min-w-[60px]">
         <img
-          src={kimchiPreviewImg}
+          src={imgSrc}
           alt={product.name}
           className="w-16 h-16 object-cover rounded bg-white border border-gray-200"
           style={{ background: "#fff" }}
@@ -65,3 +66,4 @@ export const TaskWorkProductCard: React.FC<{ product: Product }> = ({
     </div>
   );
 };
+
