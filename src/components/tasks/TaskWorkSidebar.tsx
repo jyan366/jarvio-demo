@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { JarvioAssistant } from "./JarvioAssistant";
+import { Subtask } from "@/pages/TaskWork";
 
 interface TaskWorkSidebarProps {
   open: boolean;
@@ -14,6 +16,13 @@ interface TaskWorkSidebarProps {
   addComment: (t: string) => void;
   commentValue: string;
   setCommentValue: (v: string) => void;
+  taskId: string;
+  taskTitle: string;
+  taskDescription: string;
+  subtasks: Subtask[];
+  currentSubtaskIndex: number;
+  onSubtaskComplete: (idx: number) => Promise<void>;
+  onSubtaskSelect: (idx: number) => void;
 }
 
 export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
@@ -25,6 +34,13 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   addComment,
   commentValue,
   setCommentValue,
+  taskId,
+  taskTitle,
+  taskDescription,
+  subtasks,
+  currentSubtaskIndex,
+  onSubtaskComplete,
+  onSubtaskSelect,
 }) => {
   return (
     <>
@@ -131,10 +147,15 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               </div>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-sm text-muted-foreground p-6">
-              {/* AI Assistant placeholder */}
-              <span className="pb-6 pt-6">AI assistant coming soon!</span>
-            </div>
+            <JarvioAssistant
+              taskId={taskId}
+              taskTitle={taskTitle}
+              taskDescription={taskDescription}
+              subtasks={subtasks}
+              currentSubtaskIndex={currentSubtaskIndex === null ? 0 : currentSubtaskIndex}
+              onSubtaskComplete={onSubtaskComplete}
+              onSubtaskSelect={onSubtaskSelect}
+            />
           )}
         </div>
       </aside>
