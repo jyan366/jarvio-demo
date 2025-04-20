@@ -14,10 +14,10 @@ import {
   SupabaseTask,
   SupabaseSubtask
 } from "@/lib/supabaseTasks";
+import { generateTaskSteps } from "@/lib/apiUtils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-// Dummy Data (for demo)
 const PRODUCT_IMAGE = "/lovable-uploads/98f7d2f8-e54c-46c1-bc30-7cea0a73ca70.png";
 const dummyTasks = [
   {
@@ -74,7 +74,6 @@ const dummyTasks = [
   },
 ];
 
-// Types
 export interface Subtask {
   id: string;
   title: string;
@@ -110,13 +109,9 @@ export default function TaskWork() {
   const [loading, setLoading] = useState(true);
   const [taskState, setTaskState] = useState<TaskWorkType | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Tab state for sidebar
-  const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
-  const [commentValue, setCommentValue] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
-    // Fetch task and subtasks from Supabase
     async function loadTask() {
       if (!id) {
         toast({
@@ -130,7 +125,6 @@ export default function TaskWork() {
       
       setLoading(true);
       try {
-        // Fetch the specific task
         const { data: taskData, error } = await supabase
           .from("tasks")
           .select("*")
@@ -147,10 +141,8 @@ export default function TaskWork() {
           return;
         }
         
-        // Fetch subtasks for this task
         const subtasks = await fetchSubtasks([taskData.id]);
         
-        // Transform data to match our UI format
         const task: TaskWorkType = {
           id: taskData.id,
           title: taskData.title,
@@ -215,7 +207,6 @@ export default function TaskWork() {
     </MainLayout>
   );
 
-  // Subtask management
   const handleToggleSubtask = async (idx: number) => {
     const sub = taskState.subtasks[idx];
     try {
@@ -274,7 +265,55 @@ export default function TaskWork() {
     }
   };
 
-  // Comment management
+  const handleGenerateSteps = async () => {
+    if (!taskState) return;
+    setIsGenerating(true);
+    try {
+      const steps = await generateTaskSteps({ title: taskState.title, description: taskState.description });
+      if (steps.length === 0) {
+        toast({
+          title: "No steps generated",
+          description: "Could not generate subtasks. Try rewording your task.",
+          variant: "destructive"
+        });
+        setIsGenerating(false);
+        return;
+      }
+      const createdSteps = await createSubtasks(
+        steps.map((s) => ({
+          task_id: taskState.id,
+          title: s.title,
+        }))
+      );
+      setTaskState((prev) => {
+        if (!prev) return prev;
+        const withNew = [
+          ...prev.subtasks,
+          ...steps.map((s, i) => ({
+            id: createdSteps[i]?.id || s.id,
+            title: s.title,
+            done: false,
+            description: s.description,
+          })),
+        ];
+        return { ...prev, subtasks: withNew };
+      });
+      toast({
+        title: "Steps generated!",
+        description: "The main task has been broken down into subtasks.",
+        variant: "default"
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error generating steps",
+        description: typeof err === "object" && err?.message ? err.message : "Could not generate subtasks.",
+        variant: "destructive"
+      });
+      setIsGenerating(false);
+    }
+    setIsGenerating(false);
+  };
+
   const handleAddComment = (text: string) => {
     if (text.trim()) {
       setTaskState((prev) => {
@@ -288,7 +327,6 @@ export default function TaskWork() {
     }
   };
 
-  // Task header/properties inplace editing
   const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
     setTaskState((prev) => {
       if (!prev) return prev;
@@ -299,7 +337,6 @@ export default function TaskWork() {
   return (
     <MainLayout>
       <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-0 items-stretch bg-background overflow-hidden">
-        {/* Main panel - with fixed height and scrolling for content overflow */}
         <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-6 lg:p-10 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto">
           <div className="w-full max-w-3xl mx-auto flex flex-col h-full">
             <TaskWorkMain
@@ -309,10 +346,11 @@ export default function TaskWork() {
               onAddSubtask={handleAddSubtask}
               onRemoveSubtask={handleRemoveSubtask}
               onOpenSidebarMobile={() => setSidebarOpen(true)}
+              onGenerateSteps={handleGenerateSteps}
+              isGenerating={isGenerating}
             />
           </div>
         </main>
-        {/* Sidebar (Comments / AI) - with fixed height */}
         <aside className="w-full max-w-full md:max-w-sm bg-white overflow-hidden">
           <TaskWorkSidebar
             open={sidebarOpen}

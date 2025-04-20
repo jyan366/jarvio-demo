@@ -1,4 +1,3 @@
-
 import { InsightData } from "@/components/tasks/InsightCard";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -8,6 +7,12 @@ export interface SuggestedTask {
   description: string;
   completed: boolean;
   // selected?: boolean; // Don't add here; selection is UI state
+}
+
+export interface GeneratedStep {
+  id: string;
+  title: string;
+  description: string;
 }
 
 export async function suggestTasks(insight: InsightData): Promise<SuggestedTask[]> {
@@ -74,5 +79,24 @@ export async function suggestTasks(insight: InsightData): Promise<SuggestedTask[
       { id: crypto.randomUUID(), title: 'Create action plan', description: 'Create a step-by-step plan.', completed: false },
       { id: crypto.randomUUID(), title: 'Schedule follow-up', description: 'Verify completion.', completed: false }
     ];
+  }
+}
+
+export async function generateTaskSteps(task: { title: string; description: string }): Promise<GeneratedStep[]> {
+  try {
+    const { data, error } = await supabase.functions.invoke('generate-task-steps', {
+      body: { title: task.title, description: task.description }
+    });
+    if (!error && data?.steps && Array.isArray(data.steps)) {
+      return data.steps.map((s: any) => ({
+        id: s.id ?? crypto.randomUUID(),
+        title: typeof s.title === "string" ? s.title : "",
+        description: typeof s.description === "string" ? s.description : "",
+      }));
+    }
+    return [];
+  } catch (err) {
+    console.error("generateTaskSteps error", err);
+    return [];
   }
 }
