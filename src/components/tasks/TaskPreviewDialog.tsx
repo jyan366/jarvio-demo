@@ -9,105 +9,219 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Edit, MessageSquare, ChevronRight, ChevronLeft } from "lucide-react";
+import { Edit, ChevronRight, ChevronLeft, List } from "lucide-react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+
+// Dummy product image for now
+const PRODUCT_IMAGE = "/lovable-uploads/80a0cdf0-5b6f-4f3f-8cf9-4adc7690d307.png";
+
+interface Product {
+  image: string;
+  name: string;
+  asin: string;
+  sku: string;
+  price: string;
+  units: string;
+  last30Sales: string;
+  last30Units: string;
+}
+
+interface Subtask {
+  title: string;
+}
+
+interface TaskDetail {
+  title: string;
+  description: string;
+  status: 'Not Started' | 'In Progress' | 'Done';
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  category: string;
+  createdAgo?: string;
+  products?: Product[];
+  subtasks?: Subtask[];
+}
 
 interface TaskPreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  // The parent passes a task. We'll shape it to TaskDetail for nicer UI
   task: any;
 }
+
+const statusOptions = ['Not Started', 'In Progress', 'Done'];
+const priorityOptions = ['HIGH', 'MEDIUM', 'LOW'];
+const categoryOptions = ['LISTINGS', 'SUPPORT', 'REVIEWS', 'KEYWORDS', 'INVENTORY', 'PRICING'];
 
 export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialogProps) {
   if (!task) return null;
 
+  // Prep demo product if not present
+  const products: Product[] = task.products ?? [
+    {
+      image: PRODUCT_IMAGE,
+      name: "Kimchi 1 kg Jar - Raw & Unpasteurised - Traditionally Fermented - by T...",
+      asin: "B08P5P3QGC",
+      sku: "KM1000",
+      price: "16.99",
+      units: "111",
+      last30Sales: "1155.32",
+      last30Units: "68"
+    }
+  ];
+
+  // Prep demo subtasks if not present
+  const subtasks: Subtask[] = task.subtasks ?? [
+    { title: "Task" },
+    { title: "Task" },
+    { title: "task" },
+    { title: "Task" },
+    { title: "Task" }
+  ];
+
+  // Setup "Created X days ago" (using createdAgo if present)
+  const createdAgo = task.createdAgo || "Created 4 days ago";
+
+  // Make them appear in the same style as the screenshot
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[80vh]">
-        <DialogHeader>
-          <div className="flex items-start justify-between">
-            <DialogTitle>{task.title}</DialogTitle>
-            <div className="flex gap-2">
+      <DialogContent className="max-w-2xl w-full p-0 overflow-hidden">
+        <div className="w-full h-full flex flex-col">
+          <div className="flex items-start justify-between px-6 pt-6 pb-2 border-b">
+            <DialogHeader className="flex-grow">
+              <DialogTitle className="text-xl font-semibold">{task.title}</DialogTitle>
+              <div className="text-gray-400 text-sm mt-1 flex items-center gap-2">
+                <List className="w-4 h-4" />
+                <span>{createdAgo}</span>
+              </div>
+            </DialogHeader>
+            <div className="flex gap-2 pt-1">
               <Button variant="ghost" size="icon">
                 <Edit className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        </DialogHeader>
-        
-        <ScrollArea className="h-full pr-4">
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-muted-foreground">Description</h3>
-                <p className="text-sm">{task.description}</p>
+          <ScrollArea className="flex-1 px-6 py-4">
+            <div>
+              {/* Description */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="uppercase text-xs text-muted-foreground font-semibold tracking-wide">Description</h3>
+                  <Button variant="ghost" size="icon">
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-800">{task.description}</p>
               </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Badge>{task.status}</Badge>
-                <Badge variant="secondary">{task.priority}</Badge>
-                <Badge variant="outline">{task.category}</Badge>
+              {/* Properties (Status, Priority, Category) */}
+              <div className="flex gap-3 items-center mb-6">
+                <div>
+                  <Select defaultValue={task.status}>
+                    <SelectTrigger className="w-32 h-9">
+                      <SelectValue>{task.status}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Select defaultValue={task.priority}>
+                    <SelectTrigger className="w-24 h-9">
+                      <SelectValue>{task.priority}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {priorityOptions.map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Select defaultValue={task.category}>
+                    <SelectTrigger className="w-32 h-9">
+                      <SelectValue>{task.category}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categoryOptions.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium text-muted-foreground">Products</h3>
-              {task.products?.map((product: any, index: number) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={product.image || "/placeholder.svg"} 
-                      alt={product.name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                    <div>
-                      <p className="font-medium">{product.name}</p>
-                      <p className="text-sm text-muted-foreground">ASIN: {product.asin}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">£{product.price}</p>
-                    <p className="text-sm text-muted-foreground">{product.units} units</p>
+              {/* Products */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-base mb-2">Products</h3>
+                  <div className="flex gap-2 items-center text-xs text-gray-500">
+                    <span>1 of {products.length}</span>
+                    <ChevronLeft className="w-5 h-5 rounded-full border-2 border-gray-300 bg-white text-gray-400 p-1 cursor-pointer" />
+                    <ChevronRight className="w-5 h-5 rounded-full border-2 border-gray-300 bg-white text-gray-400 p-1 cursor-pointer" />
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-muted-foreground">Subtasks</h3>
-                <Button variant="outline" size="sm">Add Subtask</Button>
-              </div>
-              <div className="space-y-2">
-                {task.subtasks?.map((subtask: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <span className="text-sm">{subtask.title}</span>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-muted-foreground">Comments</h3>
-                <Button variant="outline" size="sm">Add Comment</Button>
-              </div>
-              <div className="space-y-4">
-                {task.comments?.map((comment: any, index: number) => (
-                  <div key={index} className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{comment.author}</span>
-                      <span className="text-sm text-muted-foreground">{comment.date}</span>
+                <div className="border rounded-xl p-3 flex flex-col md:flex-row gap-4 bg-[#f7f7fc]">
+                  <img
+                    src={products[0].image}
+                    alt={products[0].name}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                  <div className="flex-1 flex flex-col md:flex-row gap-4">
+                    <div>
+                      <p className="font-semibold truncate max-w-xs">{products[0].name}</p>
+                      <p className="text-xs text-gray-500 flex gap-2">
+                        ASIN: {products[0].asin} <span>•</span> SKU: {products[0].sku}
+                      </p>
                     </div>
-                    <p className="text-sm">{comment.content}</p>
+                    <div className="flex gap-8">
+                      <div>
+                        <span className="block uppercase text-gray-400 text-[10px] mb-1">Price</span>
+                        <span className="font-bold text-[15px]">£{products[0].price}</span>
+                      </div>
+                      <div>
+                        <span className="block uppercase text-gray-400 text-[10px] mb-1">Available Units</span>
+                        <span className="font-bold text-[15px]">{products[0].units}</span>
+                      </div>
+                      <div>
+                        <span className="block uppercase text-gray-400 text-[10px] mb-1">Last 30D Sales</span>
+                        <span className="font-bold text-[15px]">{products[0].last30Sales}</span>
+                        <span className="block text-xs text-gray-500">Last 30D Units Sold: {products[0].last30Units}</span>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
+              </div>
+              {/* Subtasks */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-semibold text-base">Subtasks</h3>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="h-8 text-xs px-3 py-1">Add Subtask</Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {subtasks.map((sub, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center border rounded-lg px-2 py-2 bg-white group hover:bg-gray-50"
+                    >
+                      {/* Drag handle icon */}
+                      <span className="text-gray-300 cursor-move pr-2">
+                        <List className="w-4 h-4" />
+                      </span>
+                      <span className="flex-1 text-sm">{sub.title}</span>
+                      {/* Edit button */}
+                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        </ScrollArea>
+          </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
