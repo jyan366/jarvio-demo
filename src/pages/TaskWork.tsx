@@ -143,7 +143,7 @@ export default function TaskWork() {
     <MainLayout>
       <div className="w-full h-full max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-0 items-stretch bg-background">
         {/* Main panel */}
-        <main className="flex-1 min-w-0 p-2 sm:p-4 md:p-8 lg:p-12 xl:p-16 bg-white border-r-[1.5px] border-[#F4F4F8] min-h-screen flex flex-col justify-start">
+        <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-8 lg:p-14 xl:p-20 bg-white border-r-[1.5px] border-[#F4F4F8] min-h-screen flex flex-col justify-start">
           <div className="w-full max-w-3xl mx-auto flex flex-col flex-1">
             <TaskWorkMain
               task={taskState}

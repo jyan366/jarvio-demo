@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { TaskWorkHeader } from "./TaskWorkHeader";
 import { TaskWorkProductCard } from "./TaskWorkProductCard";
 import { TaskWorkSubtasks } from "./TaskWorkSubtasks";
@@ -23,7 +23,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   onOpenSidebarMobile,
 }) => {
   return (
-    <div className="flex flex-col gap-6 w-full">
+    <div className="flex flex-col gap-4 sm:gap-7 w-full">
       {/* Header with editable props */}
       <TaskWorkHeader
         title={task.title}
@@ -43,8 +43,8 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
       {/* Product Selection - summary */}
       {task.products && task.products[0] && (
         <div>
-          <div className="text-[15px] font-semibold mb-1 mt-1 flex items-center gap-2">
-            <span className="bg-[#F1F0FB] text-[#3527A0] font-bold px-2 py-1 rounded mr-1 text-base">
+          <div className="flex items-center gap-2 text-[15px] font-semibold mb-2">
+            <span className="bg-[#F1F0FB] text-[#3527A0] font-bold px-2 py-1 rounded mr-1 text-base min-w-[2.2rem] text-center">
               1
             </span>
             <span className="font-semibold text-zinc-700">
@@ -56,7 +56,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
       )}
 
       {/* Actionable subtasks */}
-      <div className="mt-6">
+      <div className="mt-3 sm:mt-6">
         <TaskWorkSubtasks
           subtasks={task.subtasks}
           onToggleSubtask={onToggleSubtask}
