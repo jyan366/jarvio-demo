@@ -40,6 +40,12 @@ export default function TaskBoard() {
     async function load() {
       setLoading(true);
       try {
+        // Ensure user is authenticated for demo purposes
+        if (!localStorage.getItem('isAuthenticated')) {
+          localStorage.setItem('isAuthenticated', 'true');
+          console.log("Auto-authenticated user for demo purposes in TaskBoard");
+        }
+        
         // Try to fetch tasks from Supabase
         let supabaseTasks = await fetchTasks();
 
@@ -95,7 +101,12 @@ export default function TaskBoard() {
 
         setTasksByStatus(byStatus);
       } catch (e) {
-        toast({ title: "Error", description: String(e) });
+        console.error("Error loading tasks:", e);
+        toast({ 
+          title: "Error", 
+          description: String(e),
+          variant: "destructive" 
+        });
       }
       setLoading(false);
     }
@@ -104,14 +115,22 @@ export default function TaskBoard() {
 
   const createTaskFromInsight = async (insight: any, suggestedTasks?: any[]) => {
     try {
+      // Ensure we're authenticated for demo
+      if (!localStorage.getItem('isAuthenticated')) {
+        localStorage.setItem('isAuthenticated', 'true');
+        console.log("Auto-authenticated user before creating task from insight");
+      }
+      
       const newTask = await createTask(mapInsightToTask(insight, suggestedTasks));
       let subtasks: SupabaseSubtask[] = [];
+      
       if (suggestedTasks && suggestedTasks.length > 0) {
         subtasks = await createSubtasks(
           suggestedTasks.map((task: any) => ({ task_id: newTask.id, title: task.name }))
         );
       }
 
+      // Refresh tasks after creating a new one
       const supabaseTasks = await fetchTasks();
       const taskIds = supabaseTasks.map(t => t.id);
       const subtasksData = await fetchSubtasks(taskIds);
@@ -183,7 +202,12 @@ export default function TaskBoard() {
         ),
       });
     } catch (e) {
-      toast({ title: "Error", description: String(e) });
+      console.error("Error creating task from insight:", e);
+      toast({ 
+        title: "Error Creating Task", 
+        description: String(e),
+        variant: "destructive" 
+      });
     }
   };
 
