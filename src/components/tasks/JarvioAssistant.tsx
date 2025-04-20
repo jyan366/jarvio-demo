@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -77,8 +78,17 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     let autoRunTimer: number | undefined;
     
     if (autoRunMode && !autoRunPaused && subtasks && subtasks.length > 0) {
-      if (!isLoading && !pendingApproval) {
+      // Only proceed if not currently loading, not awaiting approval, and not awaiting continue
+      if (!isLoading && !pendingApproval && !awaitingContinue) {
+        // If ready for next subtask and not at the end
         if (readyForNextSubtask && currentSubtaskIndex < subtasks.length - 1) {
+          // Always pause auto-run after completing a subtask
+          setAutoRunPaused(true);
+          toast({
+            title: "Subtask completed",
+            description: "Review the results and continue manually",
+          });
+          
           const moveToNextSubtask = async () => {
             await onSubtaskComplete(currentSubtaskIndex);
             onSubtaskSelect(currentSubtaskIndex + 1);
@@ -93,20 +103,17 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
                 {
                   id: crypto.randomUUID(),
                   isUser: false,
-                  text: `Moving to next subtask: "${nextSubtask?.title}". Using data from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? '...' : ''}`,
+                  text: `Ready to begin next subtask: "${nextSubtask?.title}". Using data from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? '...' : ''}`,
                   timestamp: new Date()
                 }
               ]);
-
-              autoRunTimer = window.setTimeout(() => {
-                handleAutoRunStep();
-              }, 2000);
             }, 1000);
           };
           
           moveToNextSubtask();
         } 
         else if (!readyForNextSubtask && !subtasks[currentSubtaskIndex]?.done) {
+          // Only start a new step if there's no ongoing work
           autoRunTimer = window.setTimeout(() => {
             handleAutoRunStep();
           }, 1000);
@@ -117,7 +124,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     return () => {
       if (autoRunTimer) window.clearTimeout(autoRunTimer);
     };
-  }, [autoRunMode, autoRunPaused, currentSubtaskIndex, isLoading, pendingApproval, readyForNextSubtask, subtasks]);
+  }, [autoRunMode, autoRunPaused, currentSubtaskIndex, isLoading, pendingApproval, readyForNextSubtask, subtasks, awaitingContinue]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -212,7 +219,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           setSubtaskData(prev => ({
             ...prev,
             [currentSubtaskId]: {
-              result: collectedData,
+              result: collectedData || prev[currentSubtaskId]?.result || "",
               completed: subtaskComplete || false
             }
           }));
@@ -221,6 +228,15 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         if (subtaskComplete) {
           setAwaitingContinue(true);
           setReadyForNextSubtask(true);
+          
+          // Always pause auto-run when a subtask is completed
+          if (autoRunMode) {
+            setAutoRunPaused(true);
+            toast({
+              title: "Subtask completed",
+              description: "Review the results and continue manually"
+            });
+          }
         }
 
         if (approvalNeeded) {
@@ -296,12 +312,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             },
           ]);
         }, 1000);
-
-        if (autoRunMode && !autoRunPaused) {
-          setTimeout(() => {
-            handleAutoRunStep();
-          }, 2000);
-        }
       }
     }
   };
@@ -339,10 +349,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             timestamp: new Date(),
           },
         ]);
-        
-        if (autoRunMode && autoRunPaused) {
-          setAutoRunPaused(false);
-        }
       }, 500);
     } else {
       setMessages((prev) => [
@@ -374,7 +380,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   };
 
   const handleAutoRunStep = () => {
-    if (isLoading || pendingApproval) return;
+    if (isLoading || pendingApproval || awaitingContinue) return;
     
     const currentSubtask = subtasks?.[currentSubtaskIndex];
     if (!currentSubtask) return;
@@ -399,10 +405,10 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     setAutoRunMode(newAutoRunState);
     
     if (newAutoRunState) {
-      setAutoRunPaused(false);
+      // Don't auto-unpause - user must explicitly resume
       toast({
         title: "Auto-run activated",
-        description: "Jarvio will work through steps automatically"
+        description: "Click play to start automatic processing"
       });
     } else {
       setAutoRunPaused(false);
@@ -431,6 +437,14 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const completedSubtasks = subtasks?.filter(s => s.done)?.length || 0;
   const totalSubtasks = subtasks?.length || 0;
   const progress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
+
+  // Function to handle clicking on a subtask in history
+  const handleSubtaskHistoryClick = (index: number) => {
+    // Only allow viewing completed subtasks
+    if (subtasks[index] && (index < currentSubtaskIndex || subtasks[index].done)) {
+      onSubtaskSelect(index);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -472,6 +486,25 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             className="bg-purple-600 h-2 rounded-full"
             style={{ width: `${progress}%` }}
           />
+        </div>
+      </div>
+
+      <div className="border-b overflow-x-auto">
+        <div className="flex py-1 px-2">
+          {subtasks && subtasks.map((subtask, idx) => (
+            <button
+              key={subtask.id}
+              onClick={() => handleSubtaskHistoryClick(idx)}
+              className={`px-3 py-1 text-xs whitespace-nowrap rounded-full mr-1 flex items-center gap-1 transition-colors
+                ${idx === currentSubtaskIndex ? 'bg-purple-100 text-purple-800' : ''}
+                ${subtask.done || idx < currentSubtaskIndex ? 'hover:bg-purple-50' : 'opacity-60 cursor-not-allowed'}
+              `}
+              disabled={!subtask.done && idx > currentSubtaskIndex}
+            >
+              {subtask.done && <Check size={12} />}
+              {idx + 1}. {subtask.title.substring(0, 20)}{subtask.title.length > 20 ? '...' : ''}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -551,7 +584,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           {awaitingContinue && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex flex-col gap-3">
               <p className="text-sm font-medium text-green-800 mb-2">
-                Subtask complete! Review the results above. Would you like to continue to the next step or provide feedback?
+                Subtask complete! Review the results above and the collected data below. Would you like to continue to the next step or provide feedback?
               </p>
               <form className="flex flex-col gap-2" onSubmit={handleFeedbackAndContinue}>
                 <Textarea
