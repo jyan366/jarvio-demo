@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,11 +18,14 @@ interface Message {
 }
 
 interface SubtaskData {
-  [subtaskId: string]: {
-    result: string;
-    completed: boolean;
-  };
+  result: string;
+  completed: boolean;
+  completedAt?: string;
 }
+
+type SubtaskDataMap = {
+  [subtaskId: string]: SubtaskData;
+};
 
 interface JarvioAssistantProps {
   taskId: string;
@@ -50,13 +52,13 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const [pendingApproval, setPendingApproval] = useState(false);
   const [autoRunMode, setAutoRunMode] = useState(false);
   const [autoRunPaused, setAutoRunPaused] = useState(false);
-  const [subtaskData, setSubtaskData] = useState<SubtaskData>({});
+  const [subtaskData, setSubtaskData] = useState<SubtaskDataMap>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  
   const [readyForNextSubtask, setReadyForNextSubtask] = useState(false);
   const [awaitingContinue, setAwaitingContinue] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
 
   useEffect(() => {
     if (messages.length === 0 && subtasks && subtasks.length > 0) {
@@ -77,12 +79,15 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   useEffect(() => {
     let autoRunTimer: number | undefined;
     
-    if (autoRunMode && !autoRunPaused && subtasks && subtasks.length > 0) {
-      // Only proceed if not currently loading, not awaiting approval, and not awaiting continue
+    if (
+      autoRunMode &&
+      !autoRunPaused &&
+      subtasks &&
+      subtasks.length > 0 &&
+      (historySubtaskIdx === null || historySubtaskIdx === currentSubtaskIndex)
+    ) {
       if (!isLoading && !pendingApproval && !awaitingContinue) {
-        // If ready for next subtask and not at the end
         if (readyForNextSubtask && currentSubtaskIndex < subtasks.length - 1) {
-          // Always pause auto-run after completing a subtask
           setAutoRunPaused(true);
           toast({
             title: "Subtask completed",
@@ -113,7 +118,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           moveToNextSubtask();
         } 
         else if (!readyForNextSubtask && !subtasks[currentSubtaskIndex]?.done) {
-          // Only start a new step if there's no ongoing work
           autoRunTimer = window.setTimeout(() => {
             handleAutoRunStep();
           }, 1000);
@@ -124,12 +128,12 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     return () => {
       if (autoRunTimer) window.clearTimeout(autoRunTimer);
     };
-  }, [autoRunMode, autoRunPaused, currentSubtaskIndex, isLoading, pendingApproval, readyForNextSubtask, subtasks, awaitingContinue]);
+  }, [autoRunMode, autoRunPaused, currentSubtaskIndex, isLoading, pendingApproval, readyForNextSubtask, subtasks, awaitingContinue, historySubtaskIdx]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-  
+
   const getPreviousSubtasksContext = () => {
     if (!subtasks || subtasks.length === 0 || currentSubtaskIndex === 0) {
       return "";
@@ -219,8 +223,12 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           setSubtaskData(prev => ({
             ...prev,
             [currentSubtaskId]: {
+              ...prev[currentSubtaskId],
               result: collectedData || prev[currentSubtaskId]?.result || "",
-              completed: subtaskComplete || false
+              completed: subtaskComplete || false,
+              completedAt: subtaskComplete && !prev[currentSubtaskId]?.completedAt
+                ? new Date().toISOString()
+                : prev[currentSubtaskId]?.completedAt
             }
           }));
         }
@@ -229,7 +237,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           setAwaitingContinue(true);
           setReadyForNextSubtask(true);
           
-          // Always pause auto-run when a subtask is completed
           if (autoRunMode) {
             setAutoRunPaused(true);
             toast({
@@ -405,7 +412,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     setAutoRunMode(newAutoRunState);
     
     if (newAutoRunState) {
-      // Don't auto-unpause - user must explicitly resume
       toast({
         title: "Auto-run activated",
         description: "Click play to start automatic processing"
@@ -438,13 +444,26 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const totalSubtasks = subtasks?.length || 0;
   const progress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
 
-  // Function to handle clicking on a subtask in history
   const handleSubtaskHistoryClick = (index: number) => {
-    // Only allow viewing completed subtasks
-    if (subtasks[index] && (index < currentSubtaskIndex || subtasks[index].done)) {
+    if (subtasks[index] && (index < currentSubtaskIndex || subtasks[index].done || index === currentSubtaskIndex)) {
+      setHistorySubtaskIdx(index);
+      if (autoRunMode && !autoRunPaused) {
+        setAutoRunPaused(true);
+        toast({
+          title: "Auto-run paused",
+          description: "Navigated to a different subtask. Click play to resume.",
+        });
+      }
       onSubtaskSelect(index);
     }
   };
+
+  useEffect(() => {
+    setHistorySubtaskIdx(null);
+  }, [currentSubtaskIndex]);
+
+  const activeSubtaskIdx = historySubtaskIdx !== null ? historySubtaskIdx : currentSubtaskIndex;
+  const activeSubtask = subtasks[activeSubtaskIdx];
 
   return (
     <div className="flex flex-col h-full">
@@ -496,8 +515,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               key={subtask.id}
               onClick={() => handleSubtaskHistoryClick(idx)}
               className={`px-3 py-1 text-xs whitespace-nowrap rounded-full mr-1 flex items-center gap-1 transition-colors
-                ${idx === currentSubtaskIndex ? 'bg-purple-100 text-purple-800' : ''}
-                ${subtask.done || idx < currentSubtaskIndex ? 'hover:bg-purple-50' : 'opacity-60 cursor-not-allowed'}
+                ${idx === activeSubtaskIdx ? 'bg-purple-100 text-purple-800' : ''}
+                ${subtask.done || idx < currentSubtaskIndex || idx === currentSubtaskIndex ? 'hover:bg-purple-50' : 'opacity-60 cursor-not-allowed'}
               `}
               disabled={!subtask.done && idx > currentSubtaskIndex}
             >
@@ -618,37 +637,45 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         </div>
       </ScrollArea>
 
-      {hasSubtasks && currentSubtask && (
+      {activeSubtask && (
         <div className="px-4 py-2 border-t">
-          <p className="text-xs font-medium mb-2 text-gray-500">CURRENT SUBTASK:</p>
+          <p className="text-xs font-medium mb-2 text-gray-500">SELECTED SUBTASK:</p>
           <div className="flex items-center gap-2 mb-1">
             <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-              currentSubtask?.done 
-                ? "bg-green-500 text-white" 
+              activeSubtask?.done
+                ? "bg-green-500 text-white"
                 : "border-2 border-gray-300"
             }`}>
-              {currentSubtask?.done && <Check size={12} />}
+              {activeSubtask?.done && <Check size={12} />}
             </div>
-            <p className="text-sm font-medium">{currentSubtask?.title || "No subtask selected"}</p>
+            <p className="text-sm font-medium">{activeSubtask?.title || "No subtask selected"}</p>
           </div>
-          {!!currentSubtask?.description && (
-            <p className="text-xs text-gray-600 ml-7 mb-2">{currentSubtask.description}</p>
+          {!!activeSubtask?.description && (
+            <p className="text-xs text-gray-600 ml-7 mb-2">{activeSubtask.description}</p>
           )}
-
-          {subtaskData[currentSubtask.id]?.result && (
+          {subtaskData[activeSubtask.id]?.result && (
             <div className="bg-green-50 border border-green-300 rounded-md px-3 py-2 my-2">
               <p className="text-xs font-semibold text-green-800 mb-1">COLLECTED DATA for this subtask:</p>
-              <pre className="text-xs text-green-800 whitespace-pre-wrap">{subtaskData[currentSubtask.id].result}</pre>
+              <pre className="text-xs text-green-800 whitespace-pre-wrap">{subtaskData[activeSubtask.id].result}</pre>
+              <p className="text-[10px] text-right text-green-500 mt-1">
+                Completed: {subtaskData[activeSubtask.id].completedAt
+                  ? new Date(subtaskData[activeSubtask.id].completedAt).toLocaleString()
+                  : "—"}
+              </p>
             </div>
           )}
-
-          {currentSubtaskIndex > 0 && subtaskData[subtasks[currentSubtaskIndex - 1]?.id] && (
+          {activeSubtaskIdx > 0 && subtasks[activeSubtaskIdx - 1] && subtaskData[subtasks[activeSubtaskIdx - 1].id] && (
             <div className="bg-blue-50 p-2 rounded-md mt-1 mb-1">
               <p className="text-xs font-medium text-blue-700">Previous step data:</p>
               <p className="text-xs text-blue-600 truncate">
-                {(subtaskData[subtasks[currentSubtaskIndex - 1].id].result || "").substring(0, 100)}
-                {(subtaskData[subtasks[currentSubtaskIndex - 1].id].result || "").length > 100 ? '...' : ''}
+                {(subtaskData[subtasks[activeSubtaskIdx - 1].id].result || "").substring(0, 100)}
+                {(subtaskData[subtasks[activeSubtaskIdx - 1].id].result || "").length > 100 ? '...' : ''}
               </p>
+              {subtaskData[subtasks[activeSubtaskIdx - 1].id]?.completedAt && (
+                <p className="text-[10px] text-right text-blue-500">
+                  Completed: {new Date(subtaskData[subtasks[activeSubtaskIdx - 1].id].completedAt!).toLocaleString()}
+                </p>
+              )}
             </div>
           )}
         </div>
