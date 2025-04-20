@@ -27,38 +27,123 @@ const initialTasks: { [key: string]: Task[] } = {
     {
       id: '1',
       title: 'Resolve Support Cases 2101',
-      description: 'My listing was removed due to an ingredient detected "Guava". This is not in the product and is a listing error.',
+      description: 'My listing was removed due to an ingredient detected in the product "Guava". This is not in the product and appears to be a listing error.',
       status: 'Not Started',
       priority: 'HIGH',
       category: 'LISTINGS',
       date: '16 Apr 2025',
       commentsCount: 1,
-      products: [
-        {
-          name: 'Kimchi 1kg Jar - Raw & Unpasteurised',
-          asin: 'B08P5P3QCG',
-          sku: 'KM1000',
-          price: 16.99,
-          units: 111
-        }
-      ],
-      subtasks: [
-        { title: 'Review listing details' },
-        { title: 'Contact support' },
-        { title: 'Update product information' }
-      ],
-      comments: [
-        {
-          author: 'John Doe',
-          date: '2 days ago',
-          content: 'Following up on this case.'
-        }
-      ]
+    },
+    {
+      id: '2',
+      title: 'Monitor Listing Status',
+      description: 'After updating the main images, continuously monitor the status of the affected listings to ensure they are no longer suppressed.',
+      status: 'Not Started',
+      priority: 'HIGH',
+      category: 'LISTINGS',
+      date: '16 Apr 2025',
+    },
+    {
+      id: '3',
+      title: 'Revise Main Images',
+      description: 'Modify or replace the main images of suppressed listings to ensure they meet Amazon\'s Terms of Service and image guidelines.',
+      status: 'Not Started',
+      priority: 'HIGH',
+      category: 'LISTINGS',
+      date: '16 Apr 2025',
+    },
+    {
+      id: '4',
+      title: 'Identify Suppressed Listings',
+      description: 'Review listings to identify those that are currently suppressed due to non-compliance with Amazon\'s policies.',
+      status: 'Not Started',
+      priority: 'HIGH',
+      category: 'LISTINGS',
+      date: '16 Apr 2025',
     }
   ],
-  inProgress: [],
-  done: []
+  inProgress: [
+    {
+      id: '5',
+      title: 'Review and Address Customer Feedback',
+      description: 'Analyze all 1-star reviews to understand issues raised by customers, focusing on listing inaccuracies and quality concerns.',
+      status: 'In Progress',
+      priority: 'HIGH',
+      category: 'LISTINGS',
+      date: '14 Apr 2025',
+      commentsCount: 1,
+    },
+    {
+      id: '6',
+      title: 'Analyze Reviews for Keyword Opportunities',
+      description: 'Examine 5-star reviews to identify any keywords frequently mentioned that are not currently included in product metadata.',
+      status: 'In Progress',
+      priority: 'HIGH',
+      category: 'LISTINGS',
+      date: '14 Apr 2025',
+    }
+  ],
+  done: [
+    {
+      id: '7',
+      title: 'Resolve Listing Suppression',
+      description: 'Identify and review suppressed listing errors, then take corrective actions to resolve them and reinstate your listings.',
+      status: 'Done',
+      priority: 'HIGH',
+      category: 'LISTINGS',
+      date: '14 Apr 2025',
+    },
+    {
+      id: '8',
+      title: 'Assess Inventory Impact',
+      description: 'Evaluate the potential impact on sales and inventory turnover due to the suppression of your best-seller listings.',
+      status: 'Done',
+      priority: 'HIGH',
+      category: 'LISTINGS',
+      date: '14 Apr 2025',
+    },
+    {
+      id: '9',
+      title: 'Analyze Competitor Pricing',
+      description: 'Examine competitor pricing for your best seller to identify if price adjustments are needed to win back the Buy Box.',
+      status: 'Done',
+      priority: 'HIGH',
+      category: 'LISTINGS',
+      date: '14 Apr 2025',
+    },
+    {
+      id: '10',
+      title: 'My Listing is Supressed',
+      description: 'My main product image is non compliant',
+      status: 'Done',
+      priority: 'HIGH',
+      category: 'LISTINGS',
+      date: '09 Apr 2025',
+      commentsCount: 1,
+    }
+  ]
 };
+
+const COLUMN_CONFIG = [
+  {
+    id: 'todo',
+    label: 'To Do',
+    bg: 'bg-[#F1F0FB]',
+    headerColor: 'text-[#3527A0]',
+  },
+  {
+    id: 'inProgress',
+    label: 'In Progress',
+    bg: 'bg-[#FFF8E8]',
+    headerColor: 'text-[#AB860B]',
+  },
+  {
+    id: 'done',
+    label: 'Done',
+    bg: 'bg-[#F1FBF5]',
+    headerColor: 'text-[#199255]',
+  },
+];
 
 export default function TaskManager() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -69,8 +154,8 @@ export default function TaskManager() {
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
-    const sourceColumn = tasks[result.source.droppableId];
-    const destColumn = tasks[result.destination.droppableId];
+    const sourceColumn = Array.from(tasks[result.source.droppableId]);
+    const destColumn = Array.from(tasks[result.destination.droppableId]);
     const [removed] = sourceColumn.splice(result.source.index, 1);
     destColumn.splice(result.destination.index, 0, removed);
 
@@ -112,49 +197,52 @@ export default function TaskManager() {
 
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {Object.entries(tasks).map(([columnId, columnTasks]) => (
-              <Card key={columnId} className="p-4">
-                <h2 className="font-semibold mb-4 capitalize">
-                  {columnId.replace(/([A-Z])/g, ' $1').trim()}
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    ({columnTasks.length})
-                  </span>
-                </h2>
-                <Droppable droppableId={columnId}>
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="space-y-4"
-                    >
-                      {columnTasks.map((task, index) => (
-                        <Draggable
-                          key={task.id}
-                          draggableId={task.id}
-                          index={index}
+            {COLUMN_CONFIG.map((col) => (
+              <div key={col.id} className="rounded-xl p-4" style={{ background: undefined }}>
+                <Card className={`p-0 bg-transparent shadow-none border-0`}>
+                  <div className={`px-3 pt-2 pb-4 ${col.bg} rounded-xl`}>
+                    <h2 className={`font-semibold mb-4 text-lg flex items-center gap-2 ${col.headerColor}`}>
+                      {col.label}
+                      <span className="ml-2 text-base text-gray-400 font-medium">{tasks[col.id]?.length || 0}</span>
+                    </h2>
+                    <Droppable droppableId={col.id}>
+                      {(provided) => (
+                        <div
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                          className="space-y-4"
                         >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
+                          {tasks[col.id]?.map((task, index) => (
+                            <Draggable
+                              key={task.id}
+                              draggableId={task.id}
+                              index={index}
                             >
-                              <TaskCard
-                                task={task}
-                                onClick={() => {
-                                  setSelectedTask(task);
-                                  setIsPreviewOpen(true);
-                                }}
-                              />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </Card>
+                              {(provided) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                >
+                                  <TaskCard
+                                    task={task}
+                                    onClick={() => {
+                                      setSelectedTask(task);
+                                      setIsPreviewOpen(true);
+                                    }}
+                                    cardBg={col.bg}
+                                  />
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </div>
+                </Card>
+              </div>
             ))}
           </div>
         </DragDropContext>
@@ -168,3 +256,4 @@ export default function TaskManager() {
     </MainLayout>
   );
 }
+

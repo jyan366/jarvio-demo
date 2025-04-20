@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TaskCardProps {
@@ -16,51 +16,61 @@ interface TaskCardProps {
     date: string;
   };
   onClick?: () => void;
+  cardBg?: string;
 }
 
 const statusColors = {
-  'Not Started': 'bg-blue-500/10 text-blue-500',
-  'In Progress': 'bg-yellow-500/10 text-yellow-500',
-  'Done': 'bg-green-500/10 text-green-500'
+  'Not Started': 'bg-[#EFEFFD] text-[#6271F3] font-medium',
+  'In Progress': 'bg-[#FFF1D6] text-[#EEAF57] font-medium',
+  'Done': 'bg-[#D9F2E5] text-[#27B36B] font-medium'
 };
 
 const priorityColors = {
-  'HIGH': 'bg-red-500/10 text-red-500',
-  'MEDIUM': 'bg-yellow-500/10 text-yellow-500',
-  'LOW': 'bg-blue-500/10 text-blue-500'
+  'HIGH': 'bg-[#FEF2E3] text-[#FFA833] font-medium',
+  'MEDIUM': 'bg-yellow-50 text-yellow-700',
+  'LOW': 'bg-blue-50 text-blue-700'
 };
 
-export function TaskCard({ task, onClick }: TaskCardProps) {
+export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
   return (
     <Card 
-      className="p-4 space-y-3 cursor-pointer hover:shadow-md transition-shadow"
+      className={cn(
+        "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl border-0",
+        cardBg ? "" : "bg-white"
+      )}
+      style={cardBg ? { background: 'white' } : {}}
       onClick={onClick}
     >
-      <div className="space-y-2">
-        <h3 className="font-medium">{task.title}</h3>
-        <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
+      <div className="flex items-center gap-2 mb-2">
+        {/* Simple icon representation for category */}
+        <span className="rounded-md bg-[#FDF6ED] text-[#EEAF57] px-2 py-1 flex items-center text-xs font-medium">
+          <Pencil className="w-3 h-3 mr-1 opacity-75" />
+          {task.category}
+        </span>
       </div>
+      <h3 className="font-semibold text-base mb-1 leading-snug flex gap-1">
+        {task.title}
+      </h3>
+      <p className="text-sm text-gray-500 leading-snug line-clamp-2 mb-3">{task.description}</p>
       
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mb-3">
         <Badge variant="secondary" className={cn(statusColors[task.status])}>
           {task.status}
         </Badge>
         <Badge variant="secondary" className={cn(priorityColors[task.priority])}>
           {task.priority}
         </Badge>
-        <Badge variant="outline" className="text-xs">
-          {task.category}
-        </Badge>
-        {task.commentsCount && task.commentsCount > 0 && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <MessageSquare className="w-3 h-3" />
-            <span>{task.commentsCount} comments</span>
-          </div>
+        {/* moved category badge into icon label above */}
+        {task.commentsCount !== undefined && task.commentsCount > 0 && (
+          <span className="text-xs text-gray-400 font-medium">
+            {task.commentsCount} comments
+          </span>
         )}
       </div>
       
-      <div className="text-xs text-muted-foreground">
-        {task.date}
+      <div className="flex items-center gap-1 text-xs text-gray-400">
+        <span className="inline-block">📅</span>
+        <span>{task.date}</span>
       </div>
     </Card>
   );
