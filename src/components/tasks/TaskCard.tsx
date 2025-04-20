@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pencil } from "lucide-react";
+import { Pencil, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TaskCardProps {
@@ -31,6 +31,24 @@ const priorityColors = {
   'LOW': 'bg-blue-50 text-blue-700'
 };
 
+const categoryIcons = {
+  'LISTINGS': 'Pencil',
+  'SUPPORT': 'MessageSquare',
+  'REVIEWS': 'MessageSquare',
+  'KEYWORDS': 'Pencil',
+  'INVENTORY': 'Pencil',
+  'PRICING': 'Pencil',
+};
+
+const categoryColors = {
+  'LISTINGS': 'bg-[#FDF6ED] text-[#EEAF57]',
+  'SUPPORT': 'bg-[#F0F4FF] text-[#6271F3]',  
+  'REVIEWS': 'bg-[#F0F9F5] text-[#27B36B]',
+  'KEYWORDS': 'bg-[#FDF6ED] text-[#EEAF57]',
+  'INVENTORY': 'bg-[#F0F4FF] text-[#6271F3]',
+  'PRICING': 'bg-[#FDF6ED] text-[#EEAF57]',
+};
+
 export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
   return (
     <Card 
@@ -42,9 +60,13 @@ export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
       onClick={onClick}
     >
       <div className="flex items-center gap-2 mb-2">
-        {/* Simple icon representation for category */}
-        <span className="rounded-md bg-[#FDF6ED] text-[#EEAF57] px-2 py-1 flex items-center text-xs font-medium">
-          <Pencil className="w-3 h-3 mr-1 opacity-75" />
+        <span className={cn("rounded-md px-2 py-1 flex items-center text-xs font-medium", 
+          categoryColors[task.category as keyof typeof categoryColors] || 'bg-[#FDF6ED] text-[#EEAF57]')}>
+          {task.category === 'SUPPORT' || task.category === 'REVIEWS' ? (
+            <MessageSquare className="w-3 h-3 mr-1 opacity-75" />
+          ) : (
+            <Pencil className="w-3 h-3 mr-1 opacity-75" />
+          )}
           {task.category}
         </span>
       </div>
@@ -60,10 +82,10 @@ export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
         <Badge variant="secondary" className={cn(priorityColors[task.priority])}>
           {task.priority}
         </Badge>
-        {/* moved category badge into icon label above */}
         {task.commentsCount !== undefined && task.commentsCount > 0 && (
-          <span className="text-xs text-gray-400 font-medium">
-            {task.commentsCount} comments
+          <span className="text-xs flex items-center gap-1 text-gray-400 font-medium">
+            <MessageSquare className="w-3 h-3" />
+            {task.commentsCount}
           </span>
         )}
       </div>
