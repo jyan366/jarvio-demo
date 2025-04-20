@@ -152,7 +152,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               taskTitle={taskTitle}
               taskDescription={taskDescription}
               subtasks={subtasks}
-              currentSubtaskIndex={currentSubtaskIndex === null ? 0 : currentSubtaskIndex}
+              currentSubtaskIndex={currentSubtaskIndex}
               onSubtaskComplete={onSubtaskComplete}
               onSubtaskSelect={onSubtaskSelect}
             />

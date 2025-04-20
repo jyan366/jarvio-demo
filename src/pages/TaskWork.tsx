@@ -448,6 +448,13 @@ export default function TaskWork() {
             addComment={handleAddComment}
             commentValue={commentValue}
             setCommentValue={setCommentValue}
+            taskId={taskState.id}
+            taskTitle={taskState.title}
+            taskDescription={taskState.description}
+            subtasks={taskState.subtasks}
+            currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
+            onSubtaskComplete={handleToggleSubtask}
+            onSubtaskSelect={handleFocusSubtask}
           />
         </aside>
       </div>

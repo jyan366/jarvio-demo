@@ -43,7 +43,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
   useEffect(() => {
     // Add welcome message when component mounts or when subtask changes
-    if (messages.length === 0 || subtasks.length > 0) {
+    if (messages.length === 0 && subtasks && subtasks.length > 0) {
       const currentSubtask = subtasks[currentSubtaskIndex];
       if (currentSubtask) {
         setMessages([
@@ -87,7 +87,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             title: taskTitle,
             description: taskDescription,
           },
-          subtasks,
+          subtasks: subtasks || [],
           currentSubtaskIndex,
           conversationHistory: messages,
         },
@@ -115,7 +115,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         }
 
         // Handle subtask completion
-        if (subtaskComplete && !subtasks[currentSubtaskIndex].done) {
+        if (subtaskComplete && subtasks && currentSubtaskIndex < subtasks.length && !subtasks[currentSubtaskIndex].done) {
           // Delay to let the user see the completion message
           setTimeout(async () => {
             await onSubtaskComplete(currentSubtaskIndex);
@@ -220,6 +220,10 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Check if subtasks exist and have elements before rendering content related to subtasks
+  const hasSubtasks = subtasks && subtasks.length > 0;
+  const currentSubtask = hasSubtasks ? subtasks[currentSubtaskIndex] : null;
+
   return (
     <div className="flex flex-col h-full">
       <ScrollArea className="flex-1 p-4">
@@ -293,18 +297,18 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         </div>
       </ScrollArea>
 
-      {subtasks.length > 0 && (
+      {hasSubtasks && currentSubtask && (
         <div className="px-4 py-2 border-t">
           <p className="text-xs font-medium mb-2 text-gray-500">CURRENT SUBTASK:</p>
           <div className="flex items-center gap-2 mb-3">
             <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-              subtasks[currentSubtaskIndex]?.done 
+              currentSubtask?.done 
                 ? "bg-green-500 text-white" 
                 : "border-2 border-gray-300"
             }`}>
-              {subtasks[currentSubtaskIndex]?.done && <Check size={12} />}
+              {currentSubtask?.done && <Check size={12} />}
             </div>
-            <p className="text-sm font-medium">{subtasks[currentSubtaskIndex]?.title || "No subtask selected"}</p>
+            <p className="text-sm font-medium">{currentSubtask?.title || "No subtask selected"}</p>
           </div>
         </div>
       )}
