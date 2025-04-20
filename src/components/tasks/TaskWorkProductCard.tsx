@@ -1,8 +1,8 @@
 
 import React from "react";
 
-// This matches the default product photo used in the dialog/table—a real product photo:
-const DEFAULT_KIMCHI_IMG =
+// This is the exact product image URL used in the inventory page products array (Kimchi photo)
+const KIMCHI_IMAGE_URL =
   "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg";
 
 interface Product {
@@ -22,7 +22,7 @@ export const TaskWorkProductCard: React.FC<{ product: Product }> = ({
   if (!product) return null;
 
   // Use the real product photo (from Supabase bucket) or fallback, never a UI screenshot
-  const imgSrc = product.image && product.image !== "" ? product.image : DEFAULT_KIMCHI_IMG;
+  const imgSrc = product.image && product.image !== "" ? product.image : KIMCHI_IMAGE_URL;
 
   return (
     <div className="bg-[#F7F7FC] border border-[#EEE] rounded-xl p-3 flex flex-col md:flex-row gap-4 items-center shadow-none min-h-[90px]">
