@@ -3,7 +3,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, MessageSquare, ExternalLink } from "lucide-react";
+import { Pencil, MessageSquare, ExternalLink, Star, AlertTriangle, Flag, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from 'react-router-dom';
 
@@ -17,6 +17,7 @@ interface TaskCardProps {
     category: string;
     commentsCount?: number;
     date: string;
+    fromInsight?: boolean;
   };
   onClick?: () => void;
   cardBg?: string;
@@ -59,12 +60,29 @@ export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
     e.stopPropagation(); // Prevent triggering the card's onClick
     navigate(`/task/${task.id}`);
   };
+
+  // Determine which icon to use based on the category
+  const renderCategoryIcon = () => {
+    switch (task.category) {
+      case 'REVIEWS':
+        return <Star className="w-3 h-3 mr-1 opacity-75" />;
+      case 'SUPPORT':
+        return <MessageSquare className="w-3 h-3 mr-1 opacity-75" />;
+      case 'PRICING':
+        return <TrendingDown className="w-3 h-3 mr-1 opacity-75" />;
+      case 'LISTINGS':
+        return <Flag className="w-3 h-3 mr-1 opacity-75" />;
+      default:
+        return <Pencil className="w-3 h-3 mr-1 opacity-75" />;
+    }
+  };
   
   return (
     <Card 
       className={cn(
         "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl border-0",
-        cardBg ? "" : "bg-white"
+        cardBg ? "" : "bg-white",
+        task.fromInsight && "border-l-4 border-l-blue-500"
       )}
       style={cardBg ? { background: 'white' } : {}}
       onClick={onClick}
@@ -72,14 +90,17 @@ export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
       <div className="flex items-center gap-2 mb-2">
         <span className={cn("rounded-md px-2 py-1 flex items-center text-xs font-medium", 
           categoryColors[task.category as keyof typeof categoryColors] || 'bg-[#FDF6ED] text-[#EEAF57]')}>
-          {task.category === 'SUPPORT' || task.category === 'REVIEWS' ? (
-            <MessageSquare className="w-3 h-3 mr-1 opacity-75" />
-          ) : (
-            <Pencil className="w-3 h-3 mr-1 opacity-75" />
-          )}
+          {renderCategoryIcon()}
           {task.category}
         </span>
+        
+        {task.fromInsight && (
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+            From Insight
+          </Badge>
+        )}
       </div>
+      
       <h3 className="font-semibold text-base mb-1 leading-snug flex gap-1">
         {task.title}
       </h3>

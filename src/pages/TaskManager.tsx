@@ -6,6 +6,9 @@ import { Grid, List, Plus } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
+import { InsightSection } from '@/components/tasks/InsightSection';
+import { InsightToTaskDialog } from '@/components/tasks/InsightToTaskDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface Task {
   id: string;
@@ -152,6 +155,10 @@ export default function TaskManager() {
   const [tasks, setTasks] = useState(initialTasks);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  
+  const [selectedInsight, setSelectedInsight] = useState<any>(null);
+  const [isInsightToTaskOpen, setIsInsightToTaskOpen] = useState(false);
+  const { toast } = useToast();
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -165,6 +172,23 @@ export default function TaskManager() {
       ...tasks,
       [result.source.droppableId]: sourceColumn,
       [result.destination.droppableId]: destColumn
+    });
+  };
+
+  const handleInsightToTask = (insight: any) => {
+    setSelectedInsight(insight);
+    setIsInsightToTaskOpen(true);
+  };
+
+  const createTaskFromInsight = (newTask: Task) => {
+    setTasks({
+      ...tasks,
+      todo: [...tasks.todo, newTask]
+    });
+
+    toast({
+      title: "Task Created",
+      description: `"${newTask.title}" has been added to your tasks`,
     });
   };
 
@@ -196,6 +220,8 @@ export default function TaskManager() {
             New Task
           </Button>
         </div>
+
+        <InsightSection onCreateTask={handleInsightToTask} />
 
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -253,6 +279,13 @@ export default function TaskManager() {
           open={isPreviewOpen}
           onOpenChange={setIsPreviewOpen}
           task={selectedTask}
+        />
+
+        <InsightToTaskDialog
+          open={isInsightToTaskOpen}
+          onOpenChange={setIsInsightToTaskOpen}
+          insight={selectedInsight}
+          onCreateTask={createTaskFromInsight}
         />
       </div>
     </MainLayout>
