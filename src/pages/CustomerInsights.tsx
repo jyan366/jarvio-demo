@@ -7,6 +7,8 @@ import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ReviewsDialog } from '@/components/insights/ReviewsDialog';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
+import { InsightData } from '@/components/tasks/InsightCard';
+import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 
 export default function CustomerInsights() {
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
@@ -14,6 +16,7 @@ export default function CustomerInsights() {
   const [reviewsDialogOpen, setReviewsDialogOpen] = useState(false);
   const [insightsDialogOpen, setInsightsDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<string>("");
+  const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
 
   const ratings = [
     { stars: 5, percentage: 70 },
@@ -108,8 +111,12 @@ export default function CustomerInsights() {
     setInsightsDialogOpen(true);
   };
 
-  const handleCreateTaskFromInsight = (insight: any) => {
+  const handleCreateTaskFromInsight = (insight: InsightData) => {
     console.log("Creating task from insight:", insight);
+  };
+
+  const handleInsightClick = (insight: InsightData) => {
+    setDetailInsight(insight);
   };
 
   return (
@@ -338,6 +345,19 @@ export default function CustomerInsights() {
         onOpenChange={setInsightsDialogOpen}
         onCreateTask={handleCreateTaskFromInsight}
         productNames={currentProduct ? [currentProduct] : products.filter(p => selectedProducts.includes(p.asin)).map(p => p.name)}
+        onInsightClick={handleInsightClick}
+      />
+
+      <InsightDetailDialog
+        insight={detailInsight}
+        open={!!detailInsight}
+        onClose={() => setDetailInsight(null)}
+        onCreateTask={() => {
+          if (detailInsight) {
+            handleCreateTaskFromInsight(detailInsight);
+            setDetailInsight(null);
+          }
+        }}
       />
     </MainLayout>
   );

@@ -8,7 +8,8 @@ interface InsightsDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreateTask: (insight: InsightData) => void;
   insights?: InsightData[];
-  // NEW
+  // For product-specific insights
+  productNames?: string[];
   onInsightClick?: (insight: InsightData) => void;
 }
 
@@ -17,13 +18,21 @@ export function InsightsDialog({
   onOpenChange,
   onCreateTask,
   insights,
+  productNames,
   onInsightClick,
 }: InsightsDialogProps) {
+  // Create title based on whether product names are provided
+  const dialogTitle = productNames?.length === 1 
+    ? `Insights for ${productNames[0]}`
+    : productNames?.length > 1
+    ? `Insights for ${productNames.length} Products`
+    : "Recent Insights";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl w-full">
         <DialogHeader>
-          <DialogTitle>Recent Insights</DialogTitle>
+          <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>
             Actionable insights from your account. Click on an insight card for full details, or "Create Task" to add to your workflow.
           </DialogDescription>
