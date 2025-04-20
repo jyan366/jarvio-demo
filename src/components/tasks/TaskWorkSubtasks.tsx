@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Edit, Trash } from "lucide-react";
+import { Check, Trash, ArrowRight } from "lucide-react";
 
 interface Subtask {
   id: string;
@@ -20,6 +20,7 @@ interface TaskWorkSubtasksProps {
   onRemoveSubtask: (idx: number) => void;
   focusedSubtaskIdx: number | null;
   onFocusSubtask: (idx: number) => void;
+  onOpenSubtask: (idx: number) => void;
 }
 
 export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
@@ -29,6 +30,7 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
   onRemoveSubtask,
   focusedSubtaskIdx,
   onFocusSubtask,
+  onOpenSubtask,
 }) => {
   const [newSubtask, setNewSubtask] = useState("");
 
@@ -62,38 +64,55 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
         {subtasks.map((sub, idx) => (
           <div
             key={sub.id || idx}
-            className={`flex items-center border rounded-lg px-2 py-2 bg-white group hover:bg-gray-50 cursor-pointer ${sub.done ? "opacity-50" : ""} ${focusedSubtaskIdx===idx ? 'ring-2 ring-purple-400' : ''}`}
+            className={`flex items-center border rounded-lg px-3 py-3 bg-white group cursor-pointer transition 
+              ${focusedSubtaskIdx === idx ? "ring-2 ring-purple-400 border-purple-400" : "border-gray-200"}
+              hover:bg-gray-50 ${sub.done ? "opacity-60" : ""}`}
             tabIndex={0}
             onClick={() => onFocusSubtask(idx)}
             role="button"
+            style={{ minHeight: 64 }}
           >
             <Button
               variant={sub.done ? "default" : "outline"}
               size="icon"
-              className="mr-2"
-              onClick={e => {e.stopPropagation(); onToggleSubtask(idx);}}
+              className="mr-3"
+              onClick={e => { e.stopPropagation(); onToggleSubtask(idx); }}
               aria-label={sub.done ? "Mark incomplete" : "Mark complete"}
             >
               {sub.done ? <Check className="w-4 h-4" /> : <div className="w-4 h-4 border rounded-full"></div>}
             </Button>
-            <div className="flex-1 flex flex-col min-w-0">
-              <span className={`text-sm font-medium truncate ${sub.done ? "line-through text-gray-400" : ""}`}>
+            <div className="flex-1 min-w-0">
+              <span className={`text-base font-medium ${sub.done ? "line-through text-gray-400" : ""}`}>
                 {sub.title}
               </span>
-              <div className="text-xs text-gray-500 flex flex-wrap gap-2">
-                {sub.status && <span>Status: {sub.status}</span>}
-                {sub.priority && <span>Priority: {sub.priority}</span>}
-                {sub.category && <span>Category: {sub.category}</span>}
+              <div className="text-sm text-gray-500 mt-1">
+                {sub.description ? (
+                  <span className="truncate block">{sub.description}</span>
+                ) : (
+                  <span className="italic text-gray-300">No description</span>
+                )}
               </div>
-              {sub.description && <div className="text-xs text-gray-400 mt-0.5 truncate">{sub.description}</div>}
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 ml-3">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="opacity-70 hover:text-purple-800"
+                onClick={e => { e.stopPropagation(); onOpenSubtask(idx); }}
+                aria-label="Open subtask full page"
+                title="Open details"
+              >
+                <ArrowRight className="h-5 w-5" />
+              </Button>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 className="opacity-60 hover:text-red-600 transition"
-                onClick={e => {e.stopPropagation(); onRemoveSubtask(idx);}}
+                onClick={e => { e.stopPropagation(); onRemoveSubtask(idx); }}
+                aria-label="Delete subtask"
+                title="Delete"
               >
                 <Trash className="h-4 w-4" />
               </Button>

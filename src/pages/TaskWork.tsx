@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
 import { TaskWorkSidebar } from "@/components/tasks/TaskWorkSidebar";
+import { SubtaskDialog } from "@/components/tasks/SubtaskDialog";
 import {
   fetchTasks,
   fetchSubtasks,
@@ -115,6 +116,8 @@ export default function TaskWork() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [focusedSubtaskIdx, setFocusedSubtaskIdx] = useState<number | null>(null);
+  const [subtaskDialogIdx, setSubtaskDialogIdx] = useState<number | null>(null);
+  const [subtaskComments, setSubtaskComments] = useState<{ [subtaskId: string]: { user: string, text: string, ago: string }[] }>({});
 
   const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
   const [commentValue, setCommentValue] = useState("");
@@ -378,6 +381,16 @@ export default function TaskWork() {
     });
   };
 
+  const handleOpenSubtask = (idx: number) => setSubtaskDialogIdx(idx);
+  const handleCloseSubtask = () => setSubtaskDialogIdx(null);
+
+  const handleAddSubtaskComment = (subtaskId: string, text: string) => {
+    setSubtaskComments(prev => ({
+      ...prev,
+      [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "now" }],
+    }));
+  };
+
   return (
     <MainLayout>
       <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-0 items-stretch bg-background overflow-hidden">
@@ -395,6 +408,22 @@ export default function TaskWork() {
               focusedSubtaskIdx={focusedSubtaskIdx}
               onFocusSubtask={handleFocusSubtask}
               onUpdateSubtask={handleUpdateSubtask}
+              onOpenSubtask={handleOpenSubtask}
+            />
+            <SubtaskDialog
+              open={subtaskDialogIdx !== null && !!taskState.subtasks[subtaskDialogIdx]}
+              onOpenChange={(open) => open ? undefined : handleCloseSubtask()}
+              subtask={subtaskDialogIdx !== null ? taskState.subtasks[subtaskDialogIdx] : null}
+              comments={
+                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx]
+                  ? (subtaskComments[taskState.subtasks[subtaskDialogIdx].id] || [])
+                  : []
+              }
+              addComment={text =>
+                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx]
+                  ? handleAddSubtaskComment(taskState.subtasks[subtaskDialogIdx].id, text)
+                  : undefined
+              }
             />
           </div>
         </main>
