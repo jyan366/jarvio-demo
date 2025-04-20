@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,6 +25,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import AdsPerformance from "./pages/AdsPerformance";
 import AdsManager from "./pages/AdsManager";
+import TaskWork from "./pages/TaskWork";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +57,7 @@ export default function App() {
               <Route path="/ads-performance" element={<AdsPerformance />} />
               <Route path="/ai-assistant" element={<AIAssistant />} />
               <Route path="/get-support" element={<GetSupport />} />
+              <Route path="/task/:id" element={<TaskWork />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>

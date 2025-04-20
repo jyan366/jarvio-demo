@@ -198,9 +198,9 @@ export default function TaskManager() {
         </div>
 
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             {COLUMN_CONFIG.map((col) => (
-              <div key={col.id} className="rounded-xl p-4" style={{ background: undefined }}>
+              <div key={col.id} className="rounded-xl p-3 md:p-2">
                 <Card className={`p-0 bg-transparent shadow-none border-0`}>
                   <div className={`px-3 pt-2 pb-4 ${col.bg} rounded-xl`}>
                     <h2 className={`font-semibold mb-4 text-lg flex items-center gap-2 ${col.headerColor}`}>
@@ -234,6 +234,14 @@ export default function TaskManager() {
                                     }}
                                     cardBg={col.bg}
                                   />
+                                  <div className="flex gap-2 mt-2">
+                                    <a
+                                      href={`/task/${task.id}`}
+                                      className="text-xs px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition"
+                                    >
+                                      Work on
+                                    </a>
+                                  </div>
                                 </div>
                               )}
                             </Draggable>
