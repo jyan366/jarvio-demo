@@ -85,13 +85,15 @@ export const TaskWorkSubtasks: React.FC<TaskWorkSubtasksProps> = ({
               <span className={`text-base font-medium ${sub.done ? "line-through text-gray-400" : ""}`}>
                 {sub.title}
               </span>
-              <div className="text-sm text-gray-500 mt-1">
-                {sub.description ? (
-                  <span className="truncate block">{sub.description}</span>
-                ) : (
-                  <span className="italic text-gray-300">No description</span>
-                )}
-              </div>
+              {sub.description ? (
+                <div className="text-sm text-gray-500 mt-1">
+                  {sub.description}
+                </div>
+              ) : (
+                <div className="text-sm italic text-gray-300 mt-1">
+                  No description
+                </div>
+              )}
             </div>
             <div className="flex gap-1 ml-3">
               <Button

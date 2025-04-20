@@ -16,11 +16,11 @@ export interface SupabaseSubtask {
   id: string;
   task_id: string;
   title: string;
-  completed: boolean;
-  description?: string | null;
-  status?: string | null;
-  priority?: string | null;
-  category?: string | null;
+  completed?: boolean;
+  description?: string;
+  status?: string;
+  priority?: string;
+  category?: string;
 }
 
 // Helper function to ensure we have a demo user for the app
@@ -107,41 +107,26 @@ export async function createTask(task: Partial<SupabaseTask> & { title: string }
 }
 
 // Create multiple subtasks, returns array of created subtasks
-export async function createSubtasks(subtasks: { task_id: string; title: string }[]) {
-  try {
-    if (subtasks.length === 0) return [];
-    
-    const payload = subtasks.map(st => ({ 
-      ...st, 
-      completed: false,
-      description: "",
-      status: "",
-      priority: "",
-      category: ""
-    }));
-    
-    const { data, error } = await supabase
-      .from("subtasks")
-      .insert(payload)
-      .select();
-      
-    if (error) {
-      console.error("Error creating subtasks:", error);
-      throw new Error(`Failed to create subtasks: ${error.message}`);
-    }
-    // Normalize result to match type
-    return (data || []).map(st => ({
-      ...st,
-      description: st.description ?? "",
-      status: st.status ?? "",
-      priority: st.priority ?? "",
-      category: st.category ?? "",
-    }));
-  } catch (error) {
-    console.error("Error in createSubtasks:", error);
-    throw error;
+export const createSubtasks = async (subtasks: { task_id: string; title: string; description?: string }[]): Promise<SupabaseSubtask[]> => {
+  const { data, error } = await supabase
+    .from("subtasks")
+    .insert(subtasks.map(st => ({
+      task_id: st.task_id,
+      title: st.title,
+      description: st.description || "", // Ensure description is properly passed
+    })))
+    .select();
+
+  if (error) {
+    console.error("Error creating subtasks:", error);
+    throw new Error(`Could not create subtasks: ${error.message}`);
   }
-}
+  
+  // Log what was returned from the database
+  console.log("Subtasks created in database:", data);
+  
+  return data as SupabaseSubtask[];
+};
 
 // Add a single subtask
 export async function addSubtask(task_id: string, title: string) {

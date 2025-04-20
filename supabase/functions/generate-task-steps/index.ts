@@ -43,13 +43,23 @@ Reply strictly as a valid JSON array ONLY.`
     let steps: any[] = [];
     // Expecting data.choices[0].message.content to be a JSON array of steps
     let content = data.choices?.[0]?.message?.content ?? "";
+    
+    // Add logging to debug the API response
+    console.log("OpenAI Response:", content);
+    
     try {
       const start = content.indexOf("[");
       const end = content.lastIndexOf("]");
       if (start !== -1 && end !== -1) {
         steps = JSON.parse(content.substring(start, end + 1));
+        // Log the parsed steps
+        console.log("Parsed steps:", JSON.stringify(steps));
+      } else {
+        console.log("Could not find valid JSON array in response");
       }
-    } catch {}
+    } catch (error) {
+      console.error("Error parsing steps:", error);
+    }
 
     // Fallback if OpenAI fails to respond correctly
     if (!Array.isArray(steps) || steps.length === 0) {

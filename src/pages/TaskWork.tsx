@@ -299,6 +299,9 @@ export default function TaskWork() {
     setIsGenerating(true);
     try {
       const steps = await generateTaskSteps({ title: taskState.title, description: taskState.description });
+      
+      console.log("Steps from API:", steps);
+      
       if (steps.length === 0) {
         toast({
           title: "No steps generated",
@@ -308,6 +311,7 @@ export default function TaskWork() {
         setIsGenerating(false);
         return;
       }
+      
       const createdSteps = await createSubtasks(
         steps.map((s) => ({
           task_id: taskState.id,
@@ -315,22 +319,28 @@ export default function TaskWork() {
           description: s.description ?? "",
         }))
       );
+      
+      console.log("Created steps:", createdSteps);
+      
       setTaskState((prev) => {
         if (!prev) return prev;
         const withNew = [
           ...prev.subtasks,
-          ...createdSteps.map((s, i) => ({
-            id: s.id,
-            title: s.title,
-            done: s.completed ?? false,
-            description: s.description ?? steps[i]?.description ?? "",
-            status: s.status ?? "",
-            priority: s.priority ?? "",
-            category: s.category ?? "",
-          })),
+          ...createdSteps.map((s, i) => {
+            return {
+              id: s.id,
+              title: s.title,
+              done: s.completed ?? false,
+              description: s.description ?? steps[i]?.description ?? "",
+              status: s.status ?? "",
+              priority: s.priority ?? "",
+              category: s.category ?? "",
+            };
+          }),
         ];
         return { ...prev, subtasks: withNew };
       });
+      
       toast({
         title: "Steps generated!",
         description: "The main task has been broken down into subtasks.",
