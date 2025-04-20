@@ -2,13 +2,14 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { InsightSection } from "../tasks/InsightSection";
+import { InsightData } from "../tasks/InsightCard";
 
 interface InsightsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateTask: (insight: any) => void;
+  onCreateTask: (insight: InsightData) => void;
   productNames?: string[];
-  insights?: any[];
+  insights?: InsightData[];
 }
 
 export function InsightsDialog({

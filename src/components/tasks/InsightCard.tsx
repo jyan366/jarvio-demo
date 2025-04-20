@@ -6,14 +6,20 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, Star, Flag, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface InsightProps {
+export type InsightCategory = 'REVIEW' | 'LISTING' | 'PRICING' | 'COMPETITION';
+export type InsightSeverity = 'HIGH' | 'MEDIUM' | 'LOW';
+
+export interface InsightData {
   id: string;
   title: string;
   description: string;
-  category: 'REVIEW' | 'LISTING' | 'PRICING' | 'COMPETITION';
-  severity: 'HIGH' | 'MEDIUM' | 'LOW';
+  category: InsightCategory;
+  severity: InsightSeverity;
   date: string;
-  onCreateTask: (insight: Omit<InsightProps, 'onCreateTask'>) => void;
+}
+
+interface InsightProps extends InsightData {
+  onCreateTask: (insight: InsightData) => void;
 }
 
 const categoryIcons = {

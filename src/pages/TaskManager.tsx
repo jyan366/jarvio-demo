@@ -10,6 +10,7 @@ import { InsightSection } from '@/components/tasks/InsightSection';
 import { InsightToTaskDialog } from '@/components/tasks/InsightToTaskDialog';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { useToast } from '@/hooks/use-toast';
+import { InsightData } from '@/components/tasks/InsightCard';
 
 interface Task {
   id: string;
@@ -158,11 +159,11 @@ export default function TaskManager() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
 
-  const [selectedInsight, setSelectedInsight] = useState<any>(null);
+  const [selectedInsight, setSelectedInsight] = useState<InsightData | null>(null);
   const [isInsightToTaskOpen, setIsInsightToTaskOpen] = useState(false);
   const { toast } = useToast();
 
-  const insightsData = [
+  const insightsData: InsightData[] = [
     {
       id: '1',
       title: '1 Star Review Detected',
@@ -212,12 +213,12 @@ export default function TaskManager() {
     });
   };
 
-  const handleInsightToTask = (insight: any) => {
+  const handleInsightToTask = (insight: InsightData) => {
     setSelectedInsight(insight);
     setIsInsightToTaskOpen(true);
   };
 
-  const createTaskFromInsight = (insight: any) => {
+  const createTaskFromInsight = (insight: InsightData) => {
     setTasks((prev) => ({
       ...prev,
       todo: [
@@ -352,6 +353,7 @@ export default function TaskManager() {
           open={isInsightsDialogOpen}
           onOpenChange={setIsInsightsDialogOpen}
           onCreateTask={handleInsightToTask}
+          insights={insightsData}
         />
       </div>
     </MainLayout>
