@@ -25,13 +25,13 @@ export const TaskWorkProductCard: React.FC<{ product: Product }> = ({
       : kimchiJarImg;
 
   return (
-    <div className="mb-3 mt-2 w-full bg-[#F7F7FC] rounded-2xl p-4 flex flex-col sm:flex-row gap-6 items-center shadow-[0px_1px_6px_rgba(31,27,137,0.07)]">
-      {/* Responsive product image, prominent */}
+    <div className="mb-3 mt-2 w-full bg-[#F7F7FC] rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-center shadow-[0px_1px_6px_rgba(31,27,137,0.07)]">
+      {/* Prominent product image */}
       <div className="flex-shrink-0">
         <img
           src={imgSrc}
           alt={product.name}
-          className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-xl bg-white border border-gray-200 shadow-sm"
+          className="w-28 h-28 md:w-32 md:h-32 object-cover rounded-xl bg-white border border-gray-200 shadow-sm"
           style={{ background: "#fff" }}
         />
       </div>
@@ -44,7 +44,7 @@ export const TaskWorkProductCard: React.FC<{ product: Product }> = ({
             <span>SKU: {product.sku}</span>
           </div>
         </div>
-        <div className="flex flex-row sm:flex-col md:flex-row gap-5 md:gap-10 mt-2 md:mt-0 w-full md:w-auto justify-center">
+        <div className="flex flex-row sm:flex-col md:flex-row gap-5 md:gap-6 mt-2 md:mt-0 w-full md:w-auto justify-center">
           <div>
             <span className="block uppercase text-gray-400 text-[10px] mb-1 tracking-wide">Price</span>
             <span className="font-bold text-lg">£{product.price}</span>

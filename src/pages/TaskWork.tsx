@@ -141,10 +141,10 @@ export default function TaskWork() {
 
   return (
     <MainLayout>
-      <div className="w-full h-full max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-0 items-stretch bg-background">
-        {/* Main panel */}
-        <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-8 lg:p-14 xl:p-20 bg-white border-r-[1.5px] border-[#F4F4F8] min-h-screen flex flex-col justify-start">
-          <div className="w-full max-w-3xl mx-auto flex flex-col flex-1">
+      <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-0 items-stretch bg-background overflow-hidden">
+        {/* Main panel - with fixed height and scrolling for content overflow */}
+        <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-6 lg:p-10 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto">
+          <div className="w-full max-w-3xl mx-auto flex flex-col h-full">
             <TaskWorkMain
               task={taskState}
               onUpdateTask={handleUpdateTask}
@@ -155,8 +155,8 @@ export default function TaskWork() {
             />
           </div>
         </main>
-        {/* Sidebar (Comments / AI) */}
-        <aside className="w-full max-w-full md:max-w-sm bg-white">
+        {/* Sidebar (Comments / AI) - with fixed height */}
+        <aside className="w-full max-w-full md:max-w-sm bg-white overflow-hidden">
           <TaskWorkSidebar
             open={sidebarOpen}
             onOpenChange={setSidebarOpen}

@@ -35,10 +35,10 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         onClick={() => onOpenChange(false)}
       />
       <aside
-        className={`bg-white border rounded-xl h-full flex flex-col px-2 py-3 shadow-sm relative transition-all
-        w-full md:w-auto md:min-h-[420px] md:relative fixed md:static top-0 right-0 z-50
+        className={`bg-white border rounded-xl flex flex-col px-2 py-3 shadow-sm relative transition-all
+        w-full md:w-auto md:relative fixed md:static top-0 right-0 z-50
         ${open ? "translate-x-0" : "translate-x-full"} md:translate-x-0
-        md:shadow-sm max-w-full md:max-w-[380px] xl:max-w-[420px]`}
+        md:shadow-sm max-w-full md:max-w-[380px] xl:max-w-[420px] h-full md:h-screen`}
         style={{
           minWidth: open ? 320 : 0,
           maxWidth: open ? 420 : undefined,
@@ -77,13 +77,13 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           </button>
         </div>
         {selectedTab === "comments" ? (
-          <div className="flex flex-col flex-1">
+          <div className="flex flex-col h-full">
             <div className="mb-2 text-xs font-bold text-muted-foreground tracking-[1px]">
               COMMENTS ({comments.length})
             </div>
-            <div className="space-y-2 flex-1 overflow-y-auto pr-1 mb-2">
+            <div className="flex-1 overflow-y-auto pr-1 mb-3">
               {comments.map((c, i) => (
-                <div key={i} className="flex items-center gap-2">
+                <div key={i} className="flex items-center gap-2 mb-2">
                   <span className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700">
                     {c.user[0]?.toUpperCase() ?? "U"}
                   </span>
@@ -94,9 +94,9 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                 </div>
               ))}
             </div>
-            {/* Add Comment */}
+            {/* Add Comment - always visible at bottom */}
             <form
-              className="mt-auto flex border rounded-lg overflow-hidden"
+              className="mt-auto flex border rounded-lg overflow-hidden sticky bottom-0 bg-white"
               onSubmit={(e) => {
                 e.preventDefault();
                 addComment(commentValue);

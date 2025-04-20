@@ -23,7 +23,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   onOpenSidebarMobile,
 }) => {
   return (
-    <div className="flex flex-col gap-4 sm:gap-7 w-full">
+    <div className="flex flex-col gap-4 w-full h-full">
       {/* Header with editable props */}
       <TaskWorkHeader
         title={task.title}
@@ -40,10 +40,10 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         onOpenSidebarMobile={onOpenSidebarMobile}
       />
 
-      {/* Product Selection - summary */}
+      {/* Product Selection - more compact */}
       {task.products && task.products[0] && (
-        <div>
-          <div className="flex items-center gap-2 text-[15px] font-semibold mb-2">
+        <div className="mb-2">
+          <div className="flex items-center gap-2 text-[15px] font-semibold mb-1">
             <span className="bg-[#F1F0FB] text-[#3527A0] font-bold px-2 py-1 rounded mr-1 text-base min-w-[2.2rem] text-center">
               1
             </span>
@@ -55,8 +55,8 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         </div>
       )}
 
-      {/* Actionable subtasks */}
-      <div className="mt-3 sm:mt-6">
+      {/* Actionable subtasks - more compact spacing */}
+      <div className="mt-2">
         <TaskWorkSubtasks
           subtasks={task.subtasks}
           onToggleSubtask={onToggleSubtask}
