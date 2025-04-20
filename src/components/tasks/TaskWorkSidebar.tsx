@@ -24,7 +24,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   commentValue,
   setCommentValue,
 }) => {
-  // For mobile, show as overlay/drawer
+  // Make the sidebar fixed height and the input pinned to the bottom
   return (
     <>
       {/* Overlay for mobile */}
@@ -35,7 +35,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         onClick={() => onOpenChange(false)}
       />
       <aside
-        className={`bg-white border rounded-xl flex flex-col px-2 py-3 shadow-sm relative transition-all
+        className={`bg-white border rounded-xl flex flex-col shadow-sm relative transition-all
         w-full md:w-auto md:relative fixed md:static top-0 right-0 z-50
         ${open ? "translate-x-0" : "translate-x-full"} md:translate-x-0
         md:shadow-sm max-w-full md:max-w-[380px] xl:max-w-[420px] h-full md:h-screen`}
@@ -77,11 +77,11 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           </button>
         </div>
         {selectedTab === "comments" ? (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full min-h-0 max-h-full">
             <div className="mb-2 text-xs font-bold text-muted-foreground tracking-[1px]">
               COMMENTS ({comments.length})
             </div>
-            <div className="flex-1 overflow-y-auto pr-1 mb-3">
+            <div className="flex-1 overflow-y-auto pr-1 mb-3 min-h-0">
               {comments.map((c, i) => (
                 <div key={i} className="flex items-center gap-2 mb-2">
                   <span className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700">
@@ -94,9 +94,10 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                 </div>
               ))}
             </div>
-            {/* Add Comment - always visible at bottom */}
+            {/* Add Comment - always pinned at bottom */}
             <form
-              className="mt-auto flex border rounded-lg overflow-hidden sticky bottom-0 bg-white"
+              className="mt-auto flex border rounded-lg overflow-hidden bg-white sticky bottom-0"
+              style={{ zIndex: 1 }}
               onSubmit={(e) => {
                 e.preventDefault();
                 addComment(commentValue);

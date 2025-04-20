@@ -40,22 +40,15 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         onOpenSidebarMobile={onOpenSidebarMobile}
       />
 
-      {/* Product Selection - more compact */}
+      {/* Product Preview - compact */}
       {task.products && task.products[0] && (
-        <div className="mb-2">
-          <div className="flex items-center gap-2 text-[15px] font-semibold mb-1">
-            <span className="bg-[#F1F0FB] text-[#3527A0] font-bold px-2 py-1 rounded mr-1 text-base min-w-[2.2rem] text-center">
-              1
-            </span>
-            <span className="font-semibold text-zinc-700">
-              product selected
-            </span>
-          </div>
+        <div className="mb-1">
+          <h3 className="font-semibold text-base mb-2">Products</h3>
           <TaskWorkProductCard product={task.products[0]} />
         </div>
       )}
 
-      {/* Actionable subtasks - more compact spacing */}
+      {/* Actionable subtasks */}
       <div className="mt-2">
         <TaskWorkSubtasks
           subtasks={task.subtasks}
