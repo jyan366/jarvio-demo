@@ -312,17 +312,18 @@ export default function TaskWork() {
         steps.map((s) => ({
           task_id: taskState.id,
           title: s.title,
+          description: s.description ?? "",
         }))
       );
       setTaskState((prev) => {
         if (!prev) return prev;
         const withNew = [
           ...prev.subtasks,
-          ...createdSteps.map((s) => ({
+          ...createdSteps.map((s, i) => ({
             id: s.id,
             title: s.title,
             done: s.completed ?? false,
-            description: s.description ?? "",
+            description: s.description ?? steps[i]?.description ?? "",
             status: s.status ?? "",
             priority: s.priority ?? "",
             category: s.category ?? "",
