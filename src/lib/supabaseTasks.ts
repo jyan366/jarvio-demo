@@ -67,7 +67,14 @@ export async function fetchSubtasks(taskIds: string[]): Promise<SupabaseSubtask[
       .in("task_id", taskIds);
 
     if (error) throw error;
-    return data || [];
+    // Normalize required fields for all subtasks
+    return (data || []).map(st => ({
+      ...st,
+      description: st.description ?? "",
+      status: st.status ?? "",
+      priority: st.priority ?? "",
+      category: st.category ?? "",
+    }));
   } catch (error) {
     console.error("Error fetching subtasks:", error);
     return [];
@@ -122,7 +129,14 @@ export async function createSubtasks(subtasks: { task_id: string; title: string 
       console.error("Error creating subtasks:", error);
       throw new Error(`Failed to create subtasks: ${error.message}`);
     }
-    return data || [];
+    // Normalize result to match type
+    return (data || []).map(st => ({
+      ...st,
+      description: st.description ?? "",
+      status: st.status ?? "",
+      priority: st.priority ?? "",
+      category: st.category ?? "",
+    }));
   } catch (error) {
     console.error("Error in createSubtasks:", error);
     throw error;
@@ -147,7 +161,14 @@ export async function addSubtask(task_id: string, title: string) {
       .single();
       
     if (error) throw error;
-    return data;
+    // Normalize result to match type
+    return {
+      ...data,
+      description: data?.description ?? "",
+      status: data?.status ?? "",
+      priority: data?.priority ?? "",
+      category: data?.category ?? "",
+    };
   } catch (error) {
     console.error("Error adding subtask:", error);
     throw error;

@@ -252,11 +252,11 @@ export default function TaskWork() {
               {
                 id: st.id,
                 title: st.title,
-                done: st.completed,
-                description: st.description || "",
-                status: st.status || "",
-                priority: st.priority || "",
-                category: st.category || "",
+                done: st.completed ?? false,
+                description: st.description ?? "",
+                status: st.status ?? "",
+                priority: st.priority ?? "",
+                category: st.category ?? "",
               },
             ],
           };
@@ -318,11 +318,11 @@ export default function TaskWork() {
           ...createdSteps.map((s) => ({
             id: s.id,
             title: s.title,
-            done: s.completed || false,
-            description: s.description || "",
-            status: s.status || "",
-            priority: s.priority || "",
-            category: s.category || "",
+            done: s.completed ?? false,
+            description: s.description ?? "",
+            status: s.status ?? "",
+            priority: s.priority ?? "",
+            category: s.category ?? "",
           })),
         ];
         return { ...prev, subtasks: withNew };

@@ -35,20 +35,32 @@ export type Database = {
       }
       subtasks: {
         Row: {
+          category: string | null
           completed: boolean | null
+          description: string | null
           id: string
+          priority: string | null
+          status: string | null
           task_id: string
           title: string
         }
         Insert: {
+          category?: string | null
           completed?: boolean | null
+          description?: string | null
           id?: string
+          priority?: string | null
+          status?: string | null
           task_id: string
           title: string
         }
         Update: {
+          category?: string | null
           completed?: boolean | null
+          description?: string | null
           id?: string
+          priority?: string | null
+          status?: string | null
           task_id?: string
           title?: string
         }
