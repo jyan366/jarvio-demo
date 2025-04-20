@@ -10,14 +10,20 @@ interface SuggestedTask {
 
 export async function suggestTasks(insight: InsightData): Promise<SuggestedTask[]> {
   try {
+    console.log("Suggesting tasks for insight:", insight);
+    
     // Try to call the edge function first
     const { data, error } = await supabase.functions.invoke('suggest-tasks', {
       body: { insight }
     });
 
-    if (data?.tasks && !error) {
+    if (data?.tasks && Array.isArray(data.tasks) && data.tasks.length > 0 && !error) {
       console.log("Successfully received tasks from edge function:", data.tasks);
-      return data.tasks;
+      return data.tasks.map((task: any) => ({
+        id: task.id || crypto.randomUUID(),
+        name: task.name || "Task",
+        completed: task.completed === true ? task.completed : false
+      }));
     } else if (error) {
       console.warn("Edge function error, using local fallback:", error.message);
     }

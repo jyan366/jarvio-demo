@@ -20,7 +20,7 @@ interface InsightDetailDialogProps {
 interface SuggestedTask {
   id: string;
   name: string;
-  completed: false;
+  completed: boolean;
   selected?: boolean;
 }
 
@@ -58,9 +58,9 @@ export function InsightDetailDialog({
       const tasks = await suggestTasks(insight);
       
       // Set all tasks as selected by default
-      setSuggestedTasks(tasks.map(task => ({ 
-        ...task, 
-        selected: true 
+      setSuggestedTasks(tasks.map(task => ({
+        ...task,
+        selected: true
       })));
     } catch (error) {
       console.error('Error fetching suggested tasks:', error);
@@ -126,7 +126,7 @@ export function InsightDetailDialog({
       <DialogContent className="max-w-md w-full">
         <DialogHeader>
           <DialogTitle className="text-lg flex items-center gap-2">
-            <span className={`rounded-md px-2 py-1 text-xs font-medium ${categoryColors[insight.category]}`}>
+            <span className={`rounded-md px-2 py-1 text-xs font-medium ${categoryColors[insight.category as keyof typeof categoryColors] || 'bg-gray-100 text-gray-700'}`}>
               {insight.category}
             </span>
             {insight.title}
@@ -135,7 +135,7 @@ export function InsightDetailDialog({
         <div className="text-sm text-gray-600 mb-4">{insight.date}</div>
         <div className="mb-4 text-base">{insight.description}</div>
         <div className="mb-4">
-          <Badge variant="secondary" className={severityColors[insight.severity]}>
+          <Badge variant="secondary" className={severityColors[insight.severity as keyof typeof severityColors] || 'bg-gray-100 text-gray-700'}>
             {insight.severity}
           </Badge>
         </div>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -55,6 +56,7 @@ const categoryOptions = ['LISTINGS', 'SUPPORT', 'REVIEWS', 'KEYWORDS', 'INVENTOR
 export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialogProps) {
   const navigate = useNavigate();
   
+  // Guard against null or undefined task
   if (!task) return null;
 
   // Handle "Work on" button click
@@ -64,7 +66,7 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
   };
 
   // Prep demo product if not present
-  const products: Product[] = task.products ?? [
+  const products: Product[] = task.products && task.products.length > 0 ? task.products : [
     {
       image: PRODUCT_IMAGE,
       name: "Kimchi 1 kg Jar - Raw & Unpasteurised - Traditionally Fermented - by T...",
@@ -78,10 +80,10 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
   ];
 
   // Prep demo subtasks if not present
-  const subtasks: Subtask[] = task.subtasks ?? [
+  const subtasks: Subtask[] = task.subtasks && task.subtasks.length > 0 ? task.subtasks : [
     { title: "Task" },
     { title: "Task" },
-    { title: "task" },
+    { title: "Task" },
     { title: "Task" },
     { title: "Task" }
   ];
@@ -169,73 +171,77 @@ export function TaskPreviewDialog({ open, onOpenChange, task }: TaskPreviewDialo
                 </div>
               </div>
               {/* Products */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-base mb-2">Products</h3>
-                  <div className="flex gap-2 items-center text-xs text-gray-500">
-                    <span>1 of {products.length}</span>
-                    <ChevronLeft className="w-5 h-5 rounded-full border-2 border-gray-300 bg-white text-gray-400 p-1 cursor-pointer" />
-                    <ChevronRight className="w-5 h-5 rounded-full border-2 border-gray-300 bg-white text-gray-400 p-1 cursor-pointer" />
-                  </div>
-                </div>
-                <div className="border rounded-xl p-3 flex flex-col md:flex-row gap-4 bg-[#f7f7fc]">
-                  <img
-                    src={products[0].image}
-                    alt={products[0].name}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                  <div className="flex-1 flex flex-col md:flex-row gap-4">
-                    <div className="flex-1">
-                      <p className="font-semibold truncate max-w-xs">{products[0].name}</p>
-                      <p className="text-xs text-gray-500 flex gap-2">
-                        ASIN: {products[0].asin} <span>•</span> SKU: {products[0].sku}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-4 md:gap-8">
-                      <div className="mr-4">
-                        <span className="block uppercase text-gray-400 text-[10px] mb-1">Price</span>
-                        <span className="font-bold text-[15px]">£{products[0].price}</span>
-                      </div>
-                      <div className="mr-4">
-                        <span className="block uppercase text-gray-400 text-[10px] mb-1">Available Units</span>
-                        <span className="font-bold text-[15px]">{products[0].units}</span>
-                      </div>
-                      <div>
-                        <span className="block uppercase text-gray-400 text-[10px] mb-1">Last 30D Sales</span>
-                        <span className="font-bold text-[15px]">{products[0].last30Sales}</span>
-                        <span className="block text-xs text-gray-500">Last 30D Units Sold: {products[0].last30Units}</span>
-                      </div>
+              {products && products.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-base mb-2">Products</h3>
+                    <div className="flex gap-2 items-center text-xs text-gray-500">
+                      <span>1 of {products.length}</span>
+                      <ChevronLeft className="w-5 h-5 rounded-full border-2 border-gray-300 bg-white text-gray-400 p-1 cursor-pointer" />
+                      <ChevronRight className="w-5 h-5 rounded-full border-2 border-gray-300 bg-white text-gray-400 p-1 cursor-pointer" />
                     </div>
                   </div>
+                  <div className="border rounded-xl p-3 flex flex-col md:flex-row gap-4 bg-[#f7f7fc]">
+                    <img
+                      src={products[0].image || PRODUCT_IMAGE}
+                      alt={products[0].name}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <div className="flex-1 flex flex-col md:flex-row gap-4">
+                      <div className="flex-1">
+                        <p className="font-semibold truncate max-w-xs">{products[0].name}</p>
+                        <p className="text-xs text-gray-500 flex gap-2">
+                          ASIN: {products[0].asin} <span>•</span> SKU: {products[0].sku}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-4 md:gap-8">
+                        <div className="mr-4">
+                          <span className="block uppercase text-gray-400 text-[10px] mb-1">Price</span>
+                          <span className="font-bold text-[15px]">£{products[0].price}</span>
+                        </div>
+                        <div className="mr-4">
+                          <span className="block uppercase text-gray-400 text-[10px] mb-1">Available Units</span>
+                          <span className="font-bold text-[15px]">{products[0].units}</span>
+                        </div>
+                        <div>
+                          <span className="block uppercase text-gray-400 text-[10px] mb-1">Last 30D Sales</span>
+                          <span className="font-bold text-[15px]">{products[0].last30Sales}</span>
+                          <span className="block text-xs text-gray-500">Last 30D Units Sold: {products[0].last30Units}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
               {/* Subtasks */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-semibold text-base">Subtasks</h3>
-                  <div className="flex gap-2">
-                    <Button variant="outline" className="h-8 text-xs px-3 py-1">Add Subtask</Button>
+              {subtasks && subtasks.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="font-semibold text-base">Subtasks</h3>
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="h-8 text-xs px-3 py-1">Add Subtask</Button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {subtasks.map((sub, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center border rounded-lg px-2 py-2 bg-white group hover:bg-gray-50"
+                      >
+                        {/* Drag handle icon */}
+                        <span className="text-gray-300 cursor-move pr-2">
+                          <List className="w-4 h-4" />
+                        </span>
+                        <span className="flex-1 text-sm">{sub.title}</span>
+                        {/* Edit button */}
+                        <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="space-y-2">
-                  {subtasks.map((sub, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center border rounded-lg px-2 py-2 bg-white group hover:bg-gray-50"
-                    >
-                      {/* Drag handle icon */}
-                      <span className="text-gray-300 cursor-move pr-2">
-                        <List className="w-4 h-4" />
-                      </span>
-                      <span className="flex-1 text-sm">{sub.title}</span>
-                      {/* Edit button */}
-                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              )}
             </div>
           </ScrollArea>
         </div>
