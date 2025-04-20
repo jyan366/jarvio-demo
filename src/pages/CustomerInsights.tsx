@@ -108,6 +108,10 @@ export default function CustomerInsights() {
     setInsightsDialogOpen(true);
   };
 
+  const handleCreateTaskFromInsight = (insight: any) => {
+    console.log("Creating task from insight:", insight);
+  };
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -332,6 +336,7 @@ export default function CustomerInsights() {
       <InsightsDialog
         open={insightsDialogOpen}
         onOpenChange={setInsightsDialogOpen}
+        onCreateTask={handleCreateTaskFromInsight}
         productNames={currentProduct ? [currentProduct] : products.filter(p => selectedProducts.includes(p.asin)).map(p => p.name)}
       />
     </MainLayout>
