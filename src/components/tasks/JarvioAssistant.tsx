@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -56,6 +55,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   
   // Tracks if we're ready to proceed to the next subtask
   const [readyForNextSubtask, setReadyForNextSubtask] = useState(false);
+
+  const [awaitingContinue, setAwaitingContinue] = useState(false);
+  const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
     // Add welcome message when component mounts or when subtask changes
@@ -150,10 +152,24 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     return context;
   };
 
-  const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string) => {
+  const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string, feedbackMessage?: string) => {
     e?.preventDefault();
     const messageToSend = autoMessage || inputValue;
-    
+
+    // If user provided feedback, include it in the conversation
+    let conversation = messages;
+    if (feedbackMessage) {
+      conversation = [
+        ...messages,
+        {
+          id: crypto.randomUUID(),
+          isUser: true,
+          text: `Feedback: ${feedbackMessage}`,
+          timestamp: new Date(),
+        },
+      ];
+    }
+
     if ((!messageToSend.trim() && !autoMessage) || isLoading) return;
 
     const userMessage = {
@@ -163,18 +179,16 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       timestamp: new Date(),
     };
 
-    // Only add the user message to the chat if it's not an auto-generated message during auto-run
     if (!autoMessage) {
       setMessages((prev) => [...prev, userMessage]);
       setInputValue("");
     }
-    
     setIsLoading(true);
+    setAwaitingContinue(false);
 
     try {
-      // Get context from previous subtasks
       const previousContext = getPreviousSubtasksContext();
-      
+
       const { data, error } = await supabase.functions.invoke("jarvio-assistant", {
         body: {
           message: messageToSend,
@@ -186,7 +200,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           subtasks: subtasks || [],
           currentSubtaskIndex,
           previousContext,
-          conversationHistory: messages,
+          conversationHistory: conversation,
         },
       });
 
@@ -218,7 +232,12 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           }));
         }
 
-        // Handle approval needed
+        if (subtaskComplete) {
+          setAwaitingContinue(true);
+          setReadyForNextSubtask(false); // Ensure we don't auto proceed
+        }
+
+        // Approval, feedback, or other handles (as before)
         if (approvalNeeded) {
           setPendingApproval(true);
           if (autoRunMode) {
@@ -227,44 +246,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               title: "Auto-run paused",
               description: "Your approval is required before continuing"
             });
-          }
-        }
-
-        // Handle subtask completion
-        if (subtaskComplete && subtasks && currentSubtaskIndex < subtasks.length && !subtasks[currentSubtaskIndex].done) {
-          setReadyForNextSubtask(true);
-          
-          if (!autoRunMode) {
-            // Delay to let the user see the completion message
-            setTimeout(async () => {
-              await onSubtaskComplete(currentSubtaskIndex);
-              toast({
-                title: "Subtask completed",
-                description: `"${subtasks[currentSubtaskIndex].title}" marked as complete`,
-              });
-
-              // If there are more subtasks, move to the next one
-              if (currentSubtaskIndex < subtasks.length - 1) {
-                const nextIndex = currentSubtaskIndex + 1;
-                onSubtaskSelect(nextIndex);
-                setReadyForNextSubtask(false);
-                
-                // Add a transition message
-                setTimeout(() => {
-                  const prevSubtaskData = subtaskData[subtasks[currentSubtaskIndex]?.id]?.result || "No data collected";
-                  
-                  setMessages((prev) => [
-                    ...prev,
-                    {
-                      id: crypto.randomUUID(),
-                      isUser: false,
-                      text: `Great! Let's move on to the next subtask: "${subtasks[nextIndex].title}". Using data from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? '...' : ''}`,
-                      timestamp: new Date(),
-                    },
-                  ]);
-                }, 1000);
-              }
-            }, 1500);
           }
         }
       }
@@ -293,9 +274,67 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           description: "An error occurred"
         });
       }
-    } finally {
       setIsLoading(false);
+      return;
     }
+    setIsLoading(false);
+  };
+
+  // Continue to next subtask only after user clicks Continue
+  const handleContinue = async () => {
+    setAwaitingContinue(false);
+    setFeedback("");
+    setReadyForNextSubtask(false); // Avoid auto triggers
+
+    // Mark subtask as complete, move to the next subtask if exists
+    if (subtasks && currentSubtaskIndex < subtasks.length && !subtasks[currentSubtaskIndex].done) {
+      await onSubtaskComplete(currentSubtaskIndex);
+      toast({
+        title: "Subtask completed",
+        description: `"${subtasks[currentSubtaskIndex].title}" marked as complete`,
+      });
+
+      // If more subtasks, move to next & auto-initiate next one if in auto-run
+      if (currentSubtaskIndex < subtasks.length - 1) {
+        const nextIndex = currentSubtaskIndex + 1;
+        onSubtaskSelect(nextIndex);
+
+        // Add transition message
+        setTimeout(() => {
+          const prevSubtaskData =
+            subtaskData[subtasks[currentSubtaskIndex]?.id]?.result ||
+            "No data collected";
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: `Ready to begin next subtask: "${subtasks[nextIndex].title}". Using data from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? '...' : ''}`,
+              timestamp: new Date(),
+            },
+          ]);
+        }, 1000);
+
+        // Auto-run next subtask if in auto mode
+        if (autoRunMode && !autoRunPaused) {
+          setTimeout(() => {
+            handleAutoRunStep();
+          }, 2000);
+        }
+      }
+    }
+  };
+
+  // API: allow user to submit feedback and then continue
+  const handleFeedbackAndContinue = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAwaitingContinue(false);
+    handleSendMessage(undefined,
+      `Here's my feedback for the subtask: "${feedback}"`,
+      feedback
+    );
+    setFeedback("");
   };
 
   const handleApproval = async (approved: boolean) => {
@@ -473,7 +512,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4 pr-2">
-          {messages.map((message) => (
+          {messages.map((message, idx) => (
             <div
               key={message.id}
               className={`flex items-start gap-3 ${
@@ -544,10 +583,45 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               </div>
             </div>
           )}
+          {/* Show "Continue" and Feedback after subtask completion */}
+          {awaitingContinue && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex flex-col gap-3">
+              <p className="text-sm font-medium text-green-800 mb-2">
+                Subtask complete! Review the results above. Would you like to continue to the next step or provide feedback?
+              </p>
+              <form className="flex flex-col gap-2" onSubmit={handleFeedbackAndContinue}>
+                <Textarea
+                  className="min-h-14 text-xs"
+                  placeholder="Optional: Write feedback for Jarvio about this step..."
+                  value={feedback}
+                  onChange={e => setFeedback(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={handleContinue}
+                    type="button"
+                  >
+                    Continue
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!feedback.trim()}
+                    type="submit"
+                  >
+                    Send Feedback & Continue
+                  </Button>
+                </div>
+              </form>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
+      {/* ... keep existing code (current subtask info, input area, etc) ... */}
       {hasSubtasks && currentSubtask && (
         <div className="px-4 py-2 border-t">
           <p className="text-xs font-medium mb-2 text-gray-500">CURRENT SUBTASK:</p>
@@ -587,11 +661,11 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             placeholder="Ask Jarvio for help..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            disabled={isLoading || pendingApproval || (autoRunMode && !autoRunPaused)}
+            disabled={isLoading || pendingApproval || (autoRunMode && !autoRunPaused) || awaitingContinue}
           />
           <Button 
             type="submit" 
-            disabled={isLoading || !inputValue.trim() || pendingApproval || (autoRunMode && !autoRunPaused)}
+            disabled={isLoading || !inputValue.trim() || pendingApproval || (autoRunMode && !autoRunPaused) || awaitingContinue}
             className="h-10"
           >
             {isLoading ? (
