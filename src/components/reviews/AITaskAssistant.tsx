@@ -19,7 +19,7 @@ export function AITaskAssistant() {
   return (
     <>
       <Button
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-blue-600 p-0 hover:bg-blue-700"
+        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-blue-600 p-0 hover:bg-blue-700"
         onClick={() => setIsOpen(true)}
       >
         <MessageCircle className="h-6 w-6 text-white" />
@@ -59,3 +59,4 @@ export function AITaskAssistant() {
     </>
   );
 }
+
