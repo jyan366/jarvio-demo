@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -16,29 +17,10 @@ import { JarvioChatMessages } from "./JarvioChatMessages";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { JarvioChatTab } from "./JarvioChatTab";
 import { JarvioDataLogTab } from "./JarvioDataLogTab";
-import { useJarvioAssistantLogic, Message } from "./hooks/useJarvioAssistantLogic";
+import { useJarvioAssistantLogic, Message, SubtaskDataMap, SubtaskData } from "./hooks/useJarvioAssistantLogic";
 import { useJarvioAssistantAutoRun } from "./hooks/useJarvioAssistantAutoRun";
 import { isAwaitingUserConfirmation, isUserConfirmationMessage } from "./hooks/useJarvioMessageUtils";
 import { useJarvioAssistantTabs } from "./hooks/useJarvioAssistantTabs";
-
-interface Message {
-  id: string;
-  isUser: boolean;
-  text: string;
-  timestamp: Date;
-  subtaskIdx?: number;
-  systemLog?: boolean;
-}
-
-interface SubtaskData {
-  result: string;
-  completed: boolean;
-  completedAt?: string;
-}
-
-type SubtaskDataMap = {
-  [subtaskId: string]: SubtaskData;
-};
 
 interface JarvioAssistantProps {
   taskId: string;
