@@ -59,14 +59,16 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         className={`flex flex-col bg-white h-full ${
           immersive
             ? "fixed top-0 right-0 bottom-0 z-20"
-            : "h-full"
+            : "h-screen" // Using h-screen to ensure full viewport height
         }`}
         style={{
           width: immersive ? sidebarWidth : "100%",
           maxWidth: immersive ? sidebarWidth : "100%",
           minWidth: immersive ? sidebarWidth : undefined,
           borderLeft: !immersive ? undefined : "1.5px solid #F4F4F8",
-          height: "100vh",
+          height: "100vh", // Force 100% viewport height
+          margin: 0, // Remove any margin
+          padding: 0, // Remove any padding
         }}
       >
         {/* Close button for mobile */}
@@ -79,7 +81,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           <X className="h-4 w-4" />
         </Button>
 
-        {/* Sidebar Content */}
+        {/* Sidebar Content - No top padding/margin */}
         <div className="flex flex-col h-full min-h-0 flex-1">
           {/* Tabs pinned/sticky to top with NO gap */}
           <div className="flex w-full z-10 sticky top-0 bg-white border-b">

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -438,7 +439,8 @@ export default function TaskWork() {
             />
           </div>
         </main>
-        <div className="w-[420px] min-w-[320px] max-w-[420px] bg-white border-l border-[#F4F4F8] h-full flex flex-col">
+        {/* Full-height sidebar with no top margin */}
+        <div className="w-[420px] min-w-[320px] max-w-[420px] h-screen p-0 m-0 overflow-hidden">
           <TaskWorkSidebar
             open={sidebarOpen}
             onOpenChange={setSidebarOpen}

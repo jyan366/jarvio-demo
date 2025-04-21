@@ -74,9 +74,9 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         </Sidebar>
         <main className="flex-1 overflow-auto flex flex-col">
           <div className="container py-6 flex flex-col flex-1">
-            {/* Adjusted header - only show in non-task view or with max-width to prevent overlap */}
+            {/* Header - only show in non-task view or with proper spacing to prevent overlap */}
             {(!isTaskView || true) && (
-              <div className={`flex justify-between items-center ${isTaskView ? 'mb-4 max-w-[calc(100%-420px)]' : 'mb-6'}`}>
+              <div className={`flex justify-between items-center ${isTaskView ? 'mb-4 max-w-[calc(100%-440px)]' : 'mb-6'}`}>
                 <SidebarTrigger />
                 <div className="flex items-center gap-2">
                   {!isTaskView && (
