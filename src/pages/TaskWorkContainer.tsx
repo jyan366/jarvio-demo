@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -14,8 +15,6 @@ import {
 import { generateTaskSteps } from "@/lib/apiUtils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 
 const PRODUCT_IMAGE = "/lovable-uploads/98f7d2f8-e54c-46c1-bc30-7cea0a73ca70.png";
 
@@ -57,7 +56,7 @@ export default function TaskWorkContainer() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [taskState, setTaskState] = useState<TaskWorkType | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [focusedSubtaskIdx, setFocusedSubtaskIdx] = useState<number | null>(null);
   const [subtaskDialogIdx, setSubtaskDialogIdx] = useState<number | null>(null);
@@ -66,6 +65,7 @@ export default function TaskWorkContainer() {
   const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
   const [commentValue, setCommentValue] = useState("");
 
+  // Move all function declarations above their usage
   const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
     setTaskState((prev) => {
       if (!prev) return prev;
@@ -348,45 +348,7 @@ export default function TaskWorkContainer() {
   return (
     <MainLayout>
       <div className="w-full h-full max-w-none flex flex-row gap-0 items-stretch bg-background overflow-hidden">
-        <aside
-          className={`relative transition-[width,min-width] duration-200 border-r bg-white shadow-none overflow-x-hidden
-            ${sidebarOpen ? "min-w-[380px] max-w-[380px] w-[380px]" : "min-w-0 max-w-0 w-0"}
-          `}
-          style={{ minHeight: "100vh" }}
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`absolute top-2 -right-4 z-30 border bg-white border-slate-200 shadow hover:bg-accent transition-all
-              ${sidebarOpen ? "" : "-right-7"}
-            `}
-            onClick={() => setSidebarOpen(open => !open)}
-            aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-            tabIndex={0}
-          >
-            <ArrowLeft className={`transition-transform ${sidebarOpen ? "" : "rotate-180"}`} />
-          </Button>
-          {sidebarOpen && (
-            <TaskWorkSidebar
-              open={sidebarOpen}
-              onOpenChange={setSidebarOpen}
-              selectedTab={selectedTab}
-              setSelectedTab={setSelectedTab}
-              comments={taskState.comments}
-              addComment={handleAddComment}
-              commentValue={commentValue}
-              setCommentValue={setCommentValue}
-              taskId={taskState.id}
-              taskTitle={taskState.title}
-              taskDescription={taskState.description}
-              subtasks={taskState.subtasks}
-              currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
-              onSubtaskComplete={handleToggleSubtask}
-              onSubtaskSelect={handleFocusSubtask}
-            />
-          )}
-        </aside>
-        <main className="flex-1 min-w-0 bg-white flex flex-col overflow-y-auto h-full">
+        <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto h-full">
           <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-6">
             <TaskWorkMain
               task={taskState}
@@ -419,6 +381,25 @@ export default function TaskWorkContainer() {
             />
           </div>
         </main>
+        <aside className="max-w-full md:max-w-[380px] xl:max-w-[420px] w-full flex flex-col h-full bg-white overflow-hidden shadow-none border-l">
+          <TaskWorkSidebar
+            open={sidebarOpen}
+            onOpenChange={setSidebarOpen}
+            selectedTab={selectedTab}
+            setSelectedTab={setSelectedTab}
+            comments={taskState.comments}
+            addComment={handleAddComment}
+            commentValue={commentValue}
+            setCommentValue={setCommentValue}
+            taskId={taskState.id}
+            taskTitle={taskState.title}
+            taskDescription={taskState.description}
+            subtasks={taskState.subtasks}
+            currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
+            onSubtaskComplete={handleToggleSubtask}
+            onSubtaskSelect={handleFocusSubtask}
+          />
+        </aside>
       </div>
     </MainLayout>
   );
