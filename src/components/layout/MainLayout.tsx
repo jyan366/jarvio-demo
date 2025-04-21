@@ -28,8 +28,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     navigate('/auth');
   };
 
-  // Determine if we are in task-view mode: route starts with /task/
-  const isTaskView = location.pathname.startsWith('/task/');
+  // Determine if we are in task-view mode: route matches /task/{id}
+  const isTaskView = location.pathname.match(/^\/task\/[^\/]+$/);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -77,7 +77,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             <div className="flex justify-between items-center mb-6">
               <SidebarTrigger />
               <div className="flex items-center gap-2">
-                {/* Hide Amazon switcher and theme toggle in task-view */}
                 {!isTaskView && (
                   <>
                     <MarketplaceSelector />

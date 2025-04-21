@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -107,7 +106,6 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
             <div className="px-5 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
               COMMENTS ({comments.length})
             </div>
-            {/* ScrollArea panel filling available vertical space */}
             <ScrollArea className="flex-1 px-5 pb-24">
               <div className="space-y-4 pr-2">
                 {comments.map((c, i) => (
@@ -123,7 +121,6 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                 ))}
               </div>
             </ScrollArea>
-            {/* Dock message input to the bottom */}
             <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 left-auto md:left-auto z-10">
               <form
                 className="flex flex-col"
@@ -163,28 +160,9 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               onSubtaskSelect={onSubtaskSelect}
               immersive={true}
             />
-            {/* Dock message input to the bottom */}
-            <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 left-auto md:left-auto z-10">
-              <form
-                className="flex flex-col"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <Textarea
-                  className="min-h-24 mb-2 text-sm resize-none"
-                  placeholder="Ask Jarvio for help..."
-                  value=""
-                  readOnly
-                />
-                <Button type="submit" size="sm" disabled className="ml-auto">
-                  Send
-                </Button>
-              </form>
-            </div>
           </div>
         )}
       </div>
     </>
   );
-};
+}
