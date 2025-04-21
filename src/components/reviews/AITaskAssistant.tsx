@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MessageCircle } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -19,7 +18,7 @@ export function AITaskAssistant() {
   return (
     <>
       <Button
-        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-blue-600 p-0 hover:bg-blue-700"
+        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary p-0 hover:bg-primary/90 shadow-lg transition-transform hover:scale-105"
         onClick={() => setIsOpen(true)}
       >
         <MessageCircle className="h-6 w-6 text-white" />
@@ -59,4 +58,3 @@ export function AITaskAssistant() {
     </>
   );
 }
-
