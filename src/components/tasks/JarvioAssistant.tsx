@@ -585,6 +585,42 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
   const [tab, setTab] = React.useState<"chat" | "datalog">("chat");
 
+  const handleApproval = (approved: boolean) => {
+    if (approved) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          isUser: true,
+          text: "I approve",
+          timestamp: new Date(),
+          subtaskIdx: activeSubtaskIdx
+        }
+      ]);
+      setPendingApproval(false);
+      
+      if (autoRunMode && autoRunPaused) {
+        setAutoRunPaused(false);
+      }
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          isUser: true,
+          text: "I don't approve. Let's try something else.",
+          timestamp: new Date(),
+          subtaskIdx: activeSubtaskIdx
+        }
+      ]);
+      setPendingApproval(false);
+      
+      if (autoRunMode) {
+        setAutoRunPaused(true);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col h-full relative">
       <div className="px-4 py-2 border-b flex items-center justify-between bg-purple-50">
