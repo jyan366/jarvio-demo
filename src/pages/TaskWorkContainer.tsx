@@ -1,3 +1,4 @@
+
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -61,6 +62,7 @@ export default function TaskWorkContainer() {
     handleAddComment,
     subtaskDialogIdx,
     handleCloseSubtask,
+    subtaskData, // Add this to get access to the subtask work logs
   } = useTaskWork();
 
   if (loading)
@@ -84,6 +86,13 @@ export default function TaskWorkContainer() {
   let dialogSubtask = subtaskDialogIdx !== null ? taskState?.subtasks[subtaskDialogIdx] : null;
   let dialogWorkLog: string | undefined = undefined;
   let dialogCompletedAt: string | undefined = undefined;
+  
+  // Get the work log data for the current subtask from subtaskData
+  if (dialogSubtask && subtaskData && subtaskData[dialogSubtask.id]) {
+    dialogWorkLog = subtaskData[dialogSubtask.id].result;
+    dialogCompletedAt = subtaskData[dialogSubtask.id].completedAt;
+  }
+  
   let dialogComments =
     dialogSubtask && Array.isArray(taskState.comments)
       ? taskState.comments.filter(

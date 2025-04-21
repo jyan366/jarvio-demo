@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask, createSubtasks } from "@/lib/supabaseTasks";
@@ -22,6 +21,7 @@ export function useTaskWork() {
   const [subtaskComments, setSubtaskComments] = useState<{ [subtaskId: string]: { user: string, text: string, ago: string }[] }>({});
   const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
   const [commentValue, setCommentValue] = useState("");
+  const [subtaskData, setSubtaskData] = useState<Subtask[]>([]);
 
   const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
     setTaskState((prev) => {
@@ -35,7 +35,6 @@ export function useTaskWork() {
     if (!sub || !taskState) return;
     
     try {
-      // Update via backend
       await updateTaskState({
         action: 'toggleSubtask',
         taskId: taskState.id,
@@ -43,7 +42,6 @@ export function useTaskWork() {
         data: { completed: !sub.done }
       });
       
-      // Update local state
       setTaskState((prev) => {
         if (!prev) return prev;
         const newSubs = [...prev.subtasks];
@@ -51,7 +49,6 @@ export function useTaskWork() {
         return { ...prev, subtasks: newSubs };
       });
       
-      // After completing a subtask, make sure we're focusing on the next incomplete subtask
       if (!sub.done && idx === focusedSubtaskIdx) {
         const nextIncompleteIdx = taskState.subtasks.findIndex((s, i) => i > idx && !s.done);
         if (nextIncompleteIdx !== -1) {
@@ -190,7 +187,6 @@ export function useTaskWork() {
     try {
       const subtask = taskState.subtasks[focusedSubtaskIdx];
       
-      // Update via backend
       await updateTaskState({
         action: 'updateSubtask',
         taskId: taskState.id,
@@ -198,7 +194,6 @@ export function useTaskWork() {
         data: { field, value }
       });
       
-      // Update local state
       setTaskState((prev) => {
         if (!prev) return prev;
         const updatedSubs = prev.subtasks.map((st, i) =>
@@ -224,7 +219,6 @@ export function useTaskWork() {
       
       if (subtaskId) {
         try {
-          // Save comment via backend
           const result = await updateTaskState({
             action: 'addComment',
             taskId: taskState.id,
@@ -232,7 +226,7 @@ export function useTaskWork() {
             data: {
               text,
               subtaskId,
-              userId: 'you' // In a real app with auth, this would be the actual user ID
+              userId: 'you'
             }
           });
           
@@ -243,7 +237,6 @@ export function useTaskWork() {
             subtaskId
           };
           
-          // Update local state
           setTaskState(prev => {
             if (!prev) return prev;
             return {
@@ -282,7 +275,6 @@ export function useTaskWork() {
         }
       });
       
-      // No need to update local state as this is primarily for backend persistence
       return true;
     } catch (err) {
       console.error("Failed to save subtask result:", err);
@@ -404,5 +396,6 @@ export function useTaskWork() {
     handleCloseSubtask,
     handleAddComment,
     handleSaveSubtaskResult,
+    subtaskData,
   };
 }
