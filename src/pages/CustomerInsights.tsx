@@ -271,8 +271,13 @@ export default function CustomerInsights() {
                   </Button>
                 </TableCell>
                 <TableCell>
-                  <Button variant="outline" size="sm" onClick={() => handleViewInsights(product.name)} className="w-full">
-                    <BarChart2 className="w-4 h-4 mr-2" />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleViewInsights(product.name)} 
+                    className="w-full flex items-center gap-2"
+                  >
+                    <BarChart2 className="w-4 h-4" />
                     View Insights
                   </Button>
                 </TableCell>
