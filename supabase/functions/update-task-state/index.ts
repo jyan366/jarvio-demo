@@ -95,16 +95,32 @@ serve(async (req) => {
       case 'saveSubtaskResult':
         // Save AI-generated result in subtask
         const { result: subtaskResult } = data;
+        
+        // First get the existing data
+        const { data: existingSubtaskData, error: getError } = await supabase
+          .from('subtasks')
+          .select('data')
+          .eq('id', subtaskId)
+          .single();
+          
+        // Merge existing data with new result 
+        const mergedData = {
+          ...(existingSubtaskData?.data || {}),
+          workLogResult: subtaskResult,
+          lastUpdated: new Date().toISOString()
+        };
+        
         const { error: resultError } = await supabase
           .from('subtasks')
           .update({ 
-            description: subtaskResult,
-            // You could also store more structured data here
+            data: mergedData
           })
           .eq('id', subtaskId);
           
         if (resultError) throw resultError;
-        result = { success: true };
+        result = { success: true, data: mergedData };
+        
+        console.log(`Successfully saved work log for subtask ${subtaskId}`);
         break;
         
       default:

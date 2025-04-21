@@ -269,17 +269,24 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
         if (subtasks && activeSubtaskIdx < subtasks.length && workLogContent) {
           const currentSubtaskId = subtasks[activeSubtaskIdx].id;
+          
+          const existingData = subtaskData[currentSubtaskId] || {};
+          
           setSubtaskData(prev => ({
             ...prev,
             [currentSubtaskId]: {
-              ...prev[currentSubtaskId],
+              ...existingData,
               result: workLogContent,
-              completed: subtaskComplete || false,
-              completedAt: subtaskComplete && !prev[currentSubtaskId]?.completedAt
+              completed: subtaskComplete || existingData.completed || false,
+              completedAt: subtaskComplete && !existingData.completedAt
                 ? new Date().toISOString()
-                : prev[currentSubtaskId]?.completedAt
+                : existingData.completedAt
             }
           }));
+          
+          if (currentSubtaskId) {
+            await handleSaveSubtaskResult(currentSubtaskId, workLogContent);
+          }
         }
 
         const assistantMessage = {
@@ -352,7 +359,14 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     setReadyForNextSubtask(false);
     setIsTransitioning(true);
 
+    const currentSubtaskId = subtasks?.[currentSubtaskIndex]?.id;
+    const currentLogData = subtaskData[currentSubtaskId];
+
     if (subtasks && currentSubtaskIndex < subtasks.length && !subtasks[currentSubtaskIndex].done) {
+      if (currentSubtaskId && currentLogData?.result) {
+        await handleSaveSubtaskResult(currentSubtaskId, currentLogData.result);
+      }
+
       await onSubtaskComplete(currentSubtaskIndex);
       setJustMarkedAsDone(currentSubtaskIndex);
 
@@ -430,6 +444,22 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const handleApproval = async (approved: boolean) => {
     setPendingApproval(false);
     if (approved) {
+      const currentSubtaskId = subtasks?.[activeSubtaskIdx]?.id;
+      if (currentSubtaskId) {
+        const currentLog = subtaskData[currentSubtaskId]?.result || "";
+        const updatedLog = currentLog + "\n\nUSER WORK LOG:\nUser approved this action.";
+        
+        setSubtaskData(prev => ({
+          ...prev,
+          [currentSubtaskId]: {
+            ...prev[currentSubtaskId] || {},
+            result: updatedLog
+          }
+        }));
+        
+        await handleSaveSubtaskResult(currentSubtaskId, updatedLog);
+      }
+      
       setMessages((prev) => [
         ...prev,
         {
@@ -440,6 +470,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           subtaskIdx: activeSubtaskIdx,
         },
       ]);
+      
       setTimeout(async () => {
         await onSubtaskComplete(activeSubtaskIdx);
         setJustMarkedAsDone(activeSubtaskIdx);
@@ -492,6 +523,22 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         }
       }, 600);
     } else {
+      const currentSubtaskId = subtasks?.[activeSubtaskIdx]?.id;
+      if (currentSubtaskId) {
+        const currentLog = subtaskData[currentSubtaskId]?.result || "";
+        const updatedLog = currentLog + "\n\nUSER WORK LOG:\nUser rejected this action.";
+        
+        setSubtaskData(prev => ({
+          ...prev,
+          [currentSubtaskId]: {
+            ...prev[currentSubtaskId] || {},
+            result: updatedLog
+          }
+        }));
+        
+        await handleSaveSubtaskResult(currentSubtaskId, updatedLog);
+      }
+    
       setMessages((prev) => [
         ...prev,
         {

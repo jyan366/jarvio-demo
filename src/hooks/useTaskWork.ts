@@ -273,9 +273,11 @@ export function useTaskWork() {
   };
 
   const handleSaveSubtaskResult = async (subtaskId: string, result: string) => {
-    if (!taskState) return;
+    if (!taskState) return false;
     
     try {
+      console.log("Saving subtask result for:", subtaskId);
+      
       await updateTaskState({
         action: 'saveSubtaskResult',
         taskId: taskState.id,
@@ -291,7 +293,7 @@ export function useTaskWork() {
           ...prev[subtaskId] || {},
           result,
           completed: true,
-          completedAt: new Date().toISOString()
+          completedAt: prev[subtaskId]?.completedAt || new Date().toISOString()
         }
       }));
       
