@@ -6,7 +6,7 @@ import { NavigationMenu } from './NavigationMenu';
 import { ThemeToggle } from '../ThemeToggle';
 import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
 import { LogOut, User } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom'; // <-- Added useLocation
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../ui/button';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
@@ -14,10 +14,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   useEffect(() => {
-    // Check if user is authenticated
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     if (!isAuthenticated) {
-      // For demo purposes, automatically authenticate the user
       localStorage.setItem('isAuthenticated', 'true');
       console.log("User automatically authenticated for demo purposes");
     }
@@ -28,8 +26,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     navigate('/auth');
   };
 
-  // --- HIDE controls in "/task/:id" pages ---
-  // e.g. /task/5bc626ed-aad5-4787-b567-05d070858961
+  // Hide controls in /task/:id pages
   const isTaskPage = /^\/task(\/|$)/.test(location.pathname);
 
   return (
@@ -73,19 +70,23 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             </div>
           </SidebarFooter>
         </Sidebar>
-        <main className="flex-1 overflow-auto">
-          <div className="container py-6 h-full flex flex-col"> {/* make h-full flex-col */}
-            <div className="flex justify-between items-center mb-6">
-              <SidebarTrigger />
-              {/* Hide these if in /task/:id page */}
-              {!isTaskPage && (
+        <main className="flex-1 overflow-auto bg-background">
+          {/* Remove .container and py-6 on task pages */}
+          <div className={
+            isTaskPage 
+              ? "h-full flex flex-col flex-1 min-h-0" 
+              : "container py-6 h-full flex flex-col"
+          }>
+            {/* Remove header for task page */}
+            {!isTaskPage && (
+              <div className="flex justify-between items-center mb-6">
+                <SidebarTrigger />
                 <div className="flex items-center gap-2">
                   <MarketplaceSelector />
                   <ThemeToggle />
                 </div>
-              )}
-            </div>
-            {/* Comments/AI Assistant will now use more height if controls above are hidden */}
+              </div>
+            )}
             <div className="flex-1 flex flex-col min-h-0">{children}</div>
           </div>
         </main>

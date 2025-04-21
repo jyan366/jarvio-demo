@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -166,6 +165,67 @@ export default function TaskWorkContainer() {
     </MainLayout>
   );
 
+  // Remove all extra right/top/bottom padding & fit to edges
+  return (
+    <MainLayout>
+      <div className="w-full h-full max-w-none flex flex-row gap-0 items-stretch bg-background overflow-hidden">
+        <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto h-full">
+          <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-0">
+            <TaskWorkMain
+              task={taskState}
+              onUpdateTask={handleUpdateTask}
+              onToggleSubtask={handleToggleSubtask}
+              onAddSubtask={handleAddSubtask}
+              onRemoveSubtask={handleRemoveSubtask}
+              onOpenSidebarMobile={() => setSidebarOpen(true)}
+              onGenerateSteps={handleGenerateSteps}
+              isGenerating={isGenerating}
+              focusedSubtaskIdx={focusedSubtaskIdx}
+              onFocusSubtask={handleFocusSubtask}
+              onUpdateSubtask={handleUpdateSubtask}
+              onOpenSubtask={handleOpenSubtask}
+            />
+            <SubtaskDialog
+              open={subtaskDialogIdx !== null && !!taskState.subtasks[subtaskDialogIdx]}
+              onOpenChange={(open) => open ? undefined : handleCloseSubtask()}
+              subtask={subtaskDialogIdx !== null ? taskState.subtasks[subtaskDialogIdx] : null}
+              comments={
+                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx]
+                  ? (subtaskComments[taskState.subtasks[subtaskDialogIdx].id] || [])
+                  : []
+              }
+              addComment={text =>
+                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx]
+                  ? handleAddSubtaskComment(taskState.subtasks[subtaskDialogIdx].id, text)
+                  : undefined
+              }
+            />
+          </div>
+        </main>
+        <aside className="w-full max-w-full md:max-w-sm bg-white overflow-hidden flex flex-col h-full">
+          <TaskWorkSidebar
+            open={sidebarOpen}
+            onOpenChange={setSidebarOpen}
+            selectedTab={selectedTab}
+            setSelectedTab={setSelectedTab}
+            comments={taskState.comments}
+            addComment={handleAddComment}
+            commentValue={commentValue}
+            setCommentValue={setCommentValue}
+            taskId={taskState.id}
+            taskTitle={taskState.title}
+            taskDescription={taskState.description}
+            subtasks={taskState.subtasks}
+            currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
+            onSubtaskComplete={handleToggleSubtask}
+            onSubtaskSelect={handleFocusSubtask}
+          />
+        </aside>
+      </div>
+    </MainLayout>
+  );
+
+  // --- Logic functions below not changed ---
   const handleToggleSubtask = async (idx: number) => {
     const sub = taskState.subtasks[idx];
     try {
@@ -340,63 +400,4 @@ export default function TaskWorkContainer() {
       [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "now" }],
     }));
   };
-
-  return (
-    <MainLayout>
-      <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-0 items-stretch bg-background overflow-hidden">
-        <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-6 lg:p-10 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto">
-          <div className="w-full max-w-3xl mx-auto flex flex-col h-full">
-            <TaskWorkMain
-              task={taskState}
-              onUpdateTask={handleUpdateTask}
-              onToggleSubtask={handleToggleSubtask}
-              onAddSubtask={handleAddSubtask}
-              onRemoveSubtask={handleRemoveSubtask}
-              onOpenSidebarMobile={() => setSidebarOpen(true)}
-              onGenerateSteps={handleGenerateSteps}
-              isGenerating={isGenerating}
-              focusedSubtaskIdx={focusedSubtaskIdx}
-              onFocusSubtask={handleFocusSubtask}
-              onUpdateSubtask={handleUpdateSubtask}
-              onOpenSubtask={handleOpenSubtask}
-            />
-            <SubtaskDialog
-              open={subtaskDialogIdx !== null && !!taskState.subtasks[subtaskDialogIdx]}
-              onOpenChange={(open) => open ? undefined : handleCloseSubtask()}
-              subtask={subtaskDialogIdx !== null ? taskState.subtasks[subtaskDialogIdx] : null}
-              comments={
-                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx]
-                  ? (subtaskComments[taskState.subtasks[subtaskDialogIdx].id] || [])
-                  : []
-              }
-              addComment={text =>
-                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx]
-                  ? handleAddSubtaskComment(taskState.subtasks[subtaskDialogIdx].id, text)
-                  : undefined
-              }
-            />
-          </div>
-        </main>
-        <aside className="w-full max-w-full md:max-w-sm bg-white overflow-hidden">
-          <TaskWorkSidebar
-            open={sidebarOpen}
-            onOpenChange={setSidebarOpen}
-            selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
-            comments={taskState.comments}
-            addComment={handleAddComment}
-            commentValue={commentValue}
-            setCommentValue={setCommentValue}
-            taskId={taskState.id}
-            taskTitle={taskState.title}
-            taskDescription={taskState.description}
-            subtasks={taskState.subtasks}
-            currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
-            onSubtaskComplete={handleToggleSubtask}
-            onSubtaskSelect={handleFocusSubtask}
-          />
-        </aside>
-      </div>
-    </MainLayout>
-  );
 }
