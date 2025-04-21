@@ -5,6 +5,7 @@ import { Star, Filter, Calendar, ArrowLeft, MessageCircle, Loader2 } from 'lucid
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { ReviewSummarySection } from '@/components/reviews/ReviewSummarySection';
 
 type Review = {
   rating: number;
@@ -95,6 +96,8 @@ export default function AllProductReviews() {
             </p>
           </div>
         </div>
+
+        <ReviewSummarySection />
 
         <Card className="p-6">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
