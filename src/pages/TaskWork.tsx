@@ -405,7 +405,7 @@ export default function TaskWork() {
   return (
     <MainLayout>
       <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex overflow-hidden">
-        <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-6 lg:p-10 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto">
+        <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-6 lg:p-10 bg-white flex flex-col overflow-y-auto">
           <div className="w-full max-w-3xl mx-auto flex flex-col h-full">
             <TaskWorkMain
               task={taskState}

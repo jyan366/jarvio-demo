@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -43,6 +44,9 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   onSubtaskSelect,
   immersive = false,
 }) => {
+  // Define fixed width for desktop
+  const sidebarWidth = "420px";
+  
   return (
     <>
       {/* Overlay for mobile */}
@@ -55,15 +59,16 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
       <div
         className={`h-full flex flex-col overflow-hidden bg-white ${
           immersive
-            ? "fixed top-0 right-0 bottom-0 left-auto w-full max-w-none min-w-0 border-0"
+            ? "fixed top-0 right-0 bottom-0 z-20"
             : "h-[calc(100vh-4rem)] w-full"
         }`}
         style={{
-          maxWidth: immersive ? "100%" : "420px",
-          minWidth: immersive ? "0" : "320px",
+          width: immersive ? sidebarWidth : "100%",
+          maxWidth: immersive ? sidebarWidth : "420px",
+          minWidth: immersive ? sidebarWidth : "320px",
           margin: 0,
           padding: 0,
-          borderLeft: immersive ? "none" : "1.5px solid #F4F4F8",
+          borderLeft: immersive ? "1.5px solid #F4F4F8" : "none",
           height: "100vh",
         }}
       >
@@ -121,7 +126,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                 ))}
               </div>
             </ScrollArea>
-            <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 left-auto md:left-auto z-10">
+            <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 z-10" style={{ width: immersive ? sidebarWidth : '100%' }}>
               <form
                 className="flex flex-col"
                 onSubmit={(e) => {

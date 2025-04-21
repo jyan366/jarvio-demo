@@ -29,7 +29,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   };
 
   // Determine if we are in task-view mode: route matches /task/{id}
-  const isTaskView = location.pathname.match(/^\/task\/[^\/]+$/);
+  const isTaskView = /^\/task\/[^/]+$/.test(location.pathname);
 
   return (
     <SidebarProvider defaultOpen={true}>
