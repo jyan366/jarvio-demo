@@ -18,6 +18,7 @@ interface Comment {
   user: string;
   text: string;
   ago: string;
+  subtaskId?: string;
 }
 
 interface SubtaskDialogProps {

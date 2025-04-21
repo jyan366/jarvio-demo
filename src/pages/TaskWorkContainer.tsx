@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -37,7 +36,7 @@ export interface TaskWorkType {
   date: string;
   products: Product[];
   subtasks: Subtask[];
-  comments: { user: string; text: string; ago: string }[];
+  comments: { user: string; text: string; ago: string; subtaskId?: string }[];
 }
 
 export default function TaskWorkContainer() {
@@ -131,4 +130,3 @@ export default function TaskWorkContainer() {
     </MainLayout>
   );
 }
-
