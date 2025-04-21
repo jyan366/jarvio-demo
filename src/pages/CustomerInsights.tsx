@@ -1,23 +1,19 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Star, Zap, TrendingUp, AlertCircle, DollarSign, ThumbsUp, ChevronLeft, ChevronRight, BookOpen, BarChart2 } from 'lucide-react';
-import { useState } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ReviewsDialog } from '@/components/insights/ReviewsDialog';
-import { InsightsDialog } from '@/components/insights/InsightsDialog';
-import { InsightData } from '@/components/tasks/InsightCard';
-import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
+import { Star, Zap, TrendingUp, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
 export default function CustomerInsights() {
   const navigate = useNavigate();
+
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [reviewsDialogOpen, setReviewsDialogOpen] = useState(false);
   const [insightsDialogOpen, setInsightsDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<string>("");
   const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
+
   const ratings = [{
     stars: 5,
     percentage: 70
@@ -34,6 +30,7 @@ export default function CustomerInsights() {
     stars: 1,
     percentage: 3
   }];
+
   const products = [{
     image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg",
     name: "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's",
@@ -56,6 +53,7 @@ export default function CustomerInsights() {
     reviews: 12,
     quality: "Poor"
   }];
+
   const insights = [{
     title: "Unmet Feature Expectations",
     icon: AlertCircle,
@@ -81,26 +79,34 @@ export default function CustomerInsights() {
     color: "bg-indigo-50 text-indigo-700 border-indigo-200",
     details: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages."
   }];
+
   const nextInsight = () => {
     setCurrentInsightIndex(prev => (prev + 1) % insights.length);
   };
+
   const previousInsight = () => {
     setCurrentInsightIndex(prev => (prev - 1 + insights.length) % insights.length);
   };
+
   const currentInsight = insights[currentInsightIndex];
+
   const handleViewReviews = (asin: string) => {
     navigate(`/product-reviews/${asin}`);
   };
+
   const handleViewInsights = (productName: string) => {
     setCurrentProduct(productName);
     setInsightsDialogOpen(true);
   };
+
   const handleCreateTaskFromInsight = (insight: InsightData) => {
     console.log("Creating task from insight:", insight);
   };
+
   const handleInsightClick = (insight: InsightData) => {
     setDetailInsight(insight);
   };
+
   return <MainLayout>
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
@@ -110,6 +116,10 @@ export default function CustomerInsights() {
               Analyze customer feedback and compare product performance
             </p>
           </div>
+          <Button onClick={() => navigate('/all-product-reviews')} variant="outline">
+            <BookOpen className="mr-2 h-4 w-4" />
+            View All Reviews
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
