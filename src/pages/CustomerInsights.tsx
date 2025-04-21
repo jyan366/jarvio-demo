@@ -195,9 +195,19 @@ export default function CustomerInsights() {
       </div>
 
       <Card className="p-4 md:p-6 my-[20px]">
-        <div className="flex items-center gap-2 mb-6">
-          <Zap className="w-6 h-6 text-primary" />
-          <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Zap className="w-6 h-6 text-primary" />
+            <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
+          </div>
+          <Button 
+            onClick={() => setInsightsDialogOpen(true)}
+            className="flex items-center gap-2"
+            variant="outline"
+          >
+            <BarChart2 className="w-4 h-4" />
+            View Insights
+          </Button>
         </div>
         <Card className={`p-4 md:p-6 border ${currentInsight.color} transition-all duration-300 min-h-[200px] flex flex-col`}>
           <div className="flex items-start justify-between mb-4">
