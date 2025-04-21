@@ -185,6 +185,30 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const activeSubtaskIdx = historySubtaskIdx !== null ? historySubtaskIdx : currentSubtaskIndex;
   const activeSubtask = subtasks?.[activeSubtaskIdx];
 
+  const handleSaveSubtaskResult = async (subtaskId: string, result: string) => {
+    if (!taskId) return false;
+    
+    try {
+      console.log("Saving subtask result for:", subtaskId);
+      
+      await supabase.functions.invoke("update-task-state", {
+        body: {
+          action: 'saveSubtaskResult',
+          taskId: taskId,
+          subtaskId,
+          data: {
+            result
+          }
+        }
+      });
+      
+      return true;
+    } catch (err) {
+      console.error("Failed to save subtask result:", err);
+      return false;
+    }
+  };
+
   const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string, feedbackMessage?: string) => {
     e?.preventDefault();
     const messageToSend = autoMessage || inputValue;
@@ -270,18 +294,20 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         if (subtasks && activeSubtaskIdx < subtasks.length && workLogContent) {
           const currentSubtaskId = subtasks[activeSubtaskIdx].id;
           
-          const existingData = subtaskData[currentSubtaskId] || {};
+          const existingData = subtaskData[currentSubtaskId] || { result: "", completed: false };
+          
+          const updatedData: SubtaskData = {
+            ...existingData,
+            result: workLogContent,
+            completed: subtaskComplete || existingData.completed || false,
+            completedAt: subtaskComplete && !existingData.completedAt
+              ? new Date().toISOString()
+              : existingData.completedAt
+          };
           
           setSubtaskData(prev => ({
             ...prev,
-            [currentSubtaskId]: {
-              ...existingData,
-              result: workLogContent,
-              completed: subtaskComplete || existingData.completed || false,
-              completedAt: subtaskComplete && !existingData.completedAt
-                ? new Date().toISOString()
-                : existingData.completedAt
-            }
+            [currentSubtaskId]: updatedData
           }));
           
           if (currentSubtaskId) {
@@ -360,7 +386,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     setIsTransitioning(true);
 
     const currentSubtaskId = subtasks?.[currentSubtaskIndex]?.id;
-    const currentLogData = subtaskData[currentSubtaskId];
+    const currentLogData = currentSubtaskId ? subtaskData[currentSubtaskId] : undefined;
 
     if (subtasks && currentSubtaskIndex < subtasks.length && !subtasks[currentSubtaskIndex].done) {
       if (currentSubtaskId && currentLogData?.result) {
@@ -449,12 +475,14 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         const currentLog = subtaskData[currentSubtaskId]?.result || "";
         const updatedLog = currentLog + "\n\nUSER WORK LOG:\nUser approved this action.";
         
+        const updatedData: SubtaskData = {
+          ...subtaskData[currentSubtaskId] || { result: "", completed: false },
+          result: updatedLog
+        };
+        
         setSubtaskData(prev => ({
           ...prev,
-          [currentSubtaskId]: {
-            ...prev[currentSubtaskId] || {},
-            result: updatedLog
-          }
+          [currentSubtaskId]: updatedData
         }));
         
         await handleSaveSubtaskResult(currentSubtaskId, updatedLog);
@@ -528,12 +556,14 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         const currentLog = subtaskData[currentSubtaskId]?.result || "";
         const updatedLog = currentLog + "\n\nUSER WORK LOG:\nUser rejected this action.";
         
+        const updatedData: SubtaskData = {
+          ...subtaskData[currentSubtaskId] || { result: "", completed: false },
+          result: updatedLog
+        };
+        
         setSubtaskData(prev => ({
           ...prev,
-          [currentSubtaskId]: {
-            ...prev[currentSubtaskId] || {},
-            result: updatedLog
-          }
+          [currentSubtaskId]: updatedData
         }));
         
         await handleSaveSubtaskResult(currentSubtaskId, updatedLog);
