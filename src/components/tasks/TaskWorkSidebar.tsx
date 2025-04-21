@@ -56,7 +56,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         onClick={() => onOpenChange(false)}
       />
       <div
-        className={`flex flex-col bg-white ${
+        className={`flex flex-col bg-white h-full ${
           immersive
             ? "fixed top-0 right-0 bottom-0 z-20"
             : "h-full"
@@ -66,7 +66,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           maxWidth: immersive ? sidebarWidth : "100%",
           minWidth: immersive ? sidebarWidth : undefined,
           borderLeft: !immersive ? undefined : "1.5px solid #F4F4F8",
-          height: immersive ? "100vh" : "100%",
+          height: "100vh",
         }}
       >
         {/* Close button for mobile */}
@@ -130,7 +130,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                   </ScrollArea>
                 </div>
                 {/* Add Comment form kept at bottom and contained */}
-                <div className="p-4 border-t bg-white">
+                <div className="p-4 border-t bg-white sticky bottom-0 left-0 right-0">
                   <form
                     className="flex flex-col"
                     onSubmit={(e) => {
