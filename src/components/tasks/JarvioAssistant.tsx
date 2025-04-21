@@ -16,7 +16,7 @@ import { JarvioChatMessages } from "./JarvioChatMessages";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { JarvioChatTab } from "./JarvioChatTab";
 import { JarvioDataLogTab } from "./JarvioDataLogTab";
-import { useJarvioAssistantLogic, Message, SubtaskDataMap, SubtaskData } from "./hooks/useJarvioAssistantLogic";
+import { useJarvioAssistantLogic, Message as AssistantMessage, SubtaskDataMap, SubtaskData } from "./hooks/useJarvioAssistantLogic";
 import { useJarvioAssistantAutoRun } from "./hooks/useJarvioAssistantAutoRun";
 import { isAwaitingUserConfirmation, isUserConfirmationMessage } from "./hooks/useJarvioMessageUtils";
 import { useJarvioAssistantTabs } from "./hooks/useJarvioAssistantTabs";
@@ -65,10 +65,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
   const handleSaveSubtaskResult = async (subtaskId: string, result: string) => {
     if (!taskId) return false;
-    
     try {
       console.log("Saving subtask result for:", subtaskId);
-      
       await supabase.functions.invoke("update-task-state", {
         body: {
           action: 'saveSubtaskResult',
@@ -79,7 +77,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           }
         }
       });
-      
       return true;
     } catch (err) {
       console.error("Failed to save subtask result:", err);
@@ -104,23 +101,28 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
         const aiMatch = result.match(/COLLECTED DATA:\s*([\s\S]+?)(?=(USER WORK LOG:|$))/i);
         jarvioWorkLog = aiMatch?.[1]?.trim() || "";
-        
+        if (!jarvioWorkLog && result.startsWith("COLLECTED DATA:")) {
+          jarvioWorkLog = result.replace(/^COLLECTED DATA:\s*/i, "").split(/USER WORK LOG:/i)[0]?.trim() || "";
+        }
+
         const userMatch = result.match(/USER WORK LOG:\s*([\s\S]+)/i);
         userWorkLog = userMatch?.[1]?.trim() || "";
 
+        let mergedResult = "";
+        if (jarvioWorkLog) {
+          mergedResult += `COLLECTED DATA:\n${jarvioWorkLog}`;
+        }
         const newEntry = `User confirmed: ${messageToSend}`;
         if (userWorkLog) {
           userWorkLog = userWorkLog + "\n" + newEntry;
         } else {
           userWorkLog = newEntry;
         }
-
-        let mergedResult = "";
-        if (jarvioWorkLog) {
-          mergedResult += `COLLECTED DATA:\n${jarvioWorkLog}`;
-        }
         if (userWorkLog) {
           mergedResult += `\n\nUSER WORK LOG:\n${userWorkLog}`;
+        }
+        if (!mergedResult && result) {
+          mergedResult = result;
         }
 
         const completedData: SubtaskData = {
