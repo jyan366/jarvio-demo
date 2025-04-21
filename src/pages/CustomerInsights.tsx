@@ -209,14 +209,6 @@ export default function CustomerInsights() {
               </Button>
             </div>
           </Card>
-          <div className="flex gap-4">
-            <Button variant="default" className="flex-1">
-              Generate Report
-            </Button>
-            <Button variant="outline" className="flex-1">
-              Export Data
-            </Button>
-          </div>
         </Card>
       </div>
 
