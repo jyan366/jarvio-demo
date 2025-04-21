@@ -29,16 +29,17 @@ export const JarvioDataLogTab: React.FC<JarvioDataLogTabProps> = ({
   if (!subtask) return <div className="text-gray-500 p-4 text-sm">No subtask selected.</div>;
 
   const data = subtaskData[subtask.id];
-
-  // Split the AI's result into Jarvio/AI part and any user action log
+  
+  // Split the AI's result into Jarvio work log and user work log sections
   let jarvioWorkLog = "";
   let userWorkLog = "";
 
   if (data?.result) {
-    // Extract "COLLECTED DATA:" and "USER WORK LOG:" if present
+    // Extract "COLLECTED DATA:" section if present
     const aiMatch = data.result.match(/COLLECTED DATA:\s*([\s\S]+?)(?=(USER WORK LOG:|$))/i);
     jarvioWorkLog = aiMatch?.[1]?.trim() || "";
 
+    // Extract any "USER WORK LOG:" section
     const userMatch = data.result.match(/USER WORK LOG:\s*([\s\S]+)/i);
     userWorkLog = userMatch?.[1]?.trim() || "";
   }
@@ -53,6 +54,7 @@ export const JarvioDataLogTab: React.FC<JarvioDataLogTabProps> = ({
   return (
     <div className="h-full w-full flex flex-col items-center justify-start p-4 overflow-y-auto">
       <h3 className="text-sm font-semibold mb-2">{subtask.title}</h3>
+      
       {/* Jarvio Work Log (AI Output) */}
       <div className="w-full mb-4">
         <p className="text-xs font-medium text-green-700 mb-1">Jarvio Work Log (AI Output)</p>
@@ -62,6 +64,7 @@ export const JarvioDataLogTab: React.FC<JarvioDataLogTabProps> = ({
           <div className="italic text-zinc-400 p-2 text-xs w-full">No Jarvio work log for this step yet.</div>
         )}
       </div>
+      
       {/* User Work Log (User confirmations / actions) */}
       <div className="w-full mb-2">
         <p className="text-xs font-medium text-blue-700 mb-1">User Work Log (Actions/Inputs)</p>
@@ -84,6 +87,7 @@ export const JarvioDataLogTab: React.FC<JarvioDataLogTabProps> = ({
           </div>
         )}
       </div>
+      
       {/* Completed at info */}
       {data?.completedAt && (
         <p className="text-[10px] text-green-500 mt-2 w-full text-right">
