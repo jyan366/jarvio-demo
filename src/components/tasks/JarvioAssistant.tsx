@@ -241,19 +241,29 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       if (error) throw new Error(error.message);
 
       if (data) {
-        const { reply, subtaskComplete, approvalNeeded, collectedData } = data;
+        const { reply, subtaskComplete, approvalNeeded, collectedData, userWorkLog } = data;
 
-        let workLogContent: string | null = null;
-
-        const workLogMatch = reply.match(/WORK LOG:\s*([\s\S]+?)(?=\n\S|$)/i);
-        if (workLogMatch && workLogMatch[1]) {
-          workLogContent = workLogMatch[1].trim();
-        } else if (collectedData) {
-          workLogContent = collectedData;
-        } else if (/COLLECTED DATA:/i.test(reply)) {
-          const fallbackCD = reply.match(/COLLECTED DATA:\s*([\s\S]+?)(?=\n\S|$)/i);
-          workLogContent = fallbackCD && fallbackCD[1] ? fallbackCD[1].trim() : null;
-        } else if (reply.match(/I have\s+(updated|sent|saved|completed|finished|notified|added|removed|changed)/i)) {
+        let workLogContent = "";
+        
+        if (collectedData) {
+          workLogContent = `COLLECTED DATA:\n${collectedData}\n`;
+        } else if (reply.match(/COLLECTED DATA:/i)) {
+          const collectedDataMatch = reply.match(/COLLECTED DATA:\s*([\s\S]+?)(?=(\n\S|$))/i);
+          if (collectedDataMatch && collectedDataMatch[1]) {
+            workLogContent = `COLLECTED DATA:\n${collectedDataMatch[1].trim()}\n`;
+          }
+        }
+        
+        if (userWorkLog) {
+          workLogContent += `\nUSER WORK LOG:\n${userWorkLog}`;
+        } else if (reply.match(/USER WORK LOG:/i)) {
+          const userWorkLogMatch = reply.match(/USER WORK LOG:\s*([\s\S]+?)(?=(\n\S|$))/i);
+          if (userWorkLogMatch && userWorkLogMatch[1]) {
+            workLogContent += `\nUSER WORK LOG:\n${userWorkLogMatch[1].trim()}`;
+          }
+        }
+        
+        if (!workLogContent && reply) {
           workLogContent = reply;
         }
 

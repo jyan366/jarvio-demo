@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -134,13 +135,22 @@ Guidelines:
       collectedData = collectedDataMatch[1].trim();
       console.log("Collected data:", collectedData);
     }
+    
+    // Extract user work log
+    let userWorkLog = null;
+    const userWorkLogMatch = reply.match(/USER WORK LOG:\s*([\s\S]+?)(?=\n\S|$)/i);
+    if (userWorkLogMatch && userWorkLogMatch[1]) {
+      userWorkLog = userWorkLogMatch[1].trim();
+      console.log("User work log:", userWorkLog);
+    }
 
     return new Response(
       JSON.stringify({
         reply,
         subtaskComplete,
         approvalNeeded,
-        collectedData
+        collectedData,
+        userWorkLog
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
