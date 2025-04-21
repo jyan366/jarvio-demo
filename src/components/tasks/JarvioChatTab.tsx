@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from "react";
 import { Loader2, Zap, User, MessageSquare, ThumbsUp, Pause, Play, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,43 +58,37 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const isAutoScrollEnabled = useRef(true);
   const lastMessageCount = useRef(messages.length);
-  
-  const scrollToBottom = () => {
-    if (messagesEndRef.current && isAutoScrollEnabled.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
-  const handleScroll = () => {
-    if (!chatContainerRef.current) return;
-    
-    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-    
-    if (!isNearBottom) {
-      isAutoScrollEnabled.current = false;
-    } else {
-      isAutoScrollEnabled.current = true;
+  useEffect(() => {
+    const node = chatContainerRef.current;
+    if (!node) return;
+    const handleUserScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = node;
+      const atBottom = scrollHeight - scrollTop - clientHeight < 100;
+      isAutoScrollEnabled.current = atBottom;
+    };
+    node.addEventListener('scroll', handleUserScroll);
+    return () => {
+      node.removeEventListener('scroll', handleUserScroll);
     }
-  };
-  
+  }, []);
+
   useEffect(() => {
     const hasNewMessages = messages.length > lastMessageCount.current;
     lastMessageCount.current = messages.length;
-    
-    if (hasNewMessages || isLoading || pendingApproval || awaitingContinue || isTransitioning) {
-      scrollToBottom();
+    if (hasNewMessages && isAutoScrollEnabled.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isLoading, pendingApproval, awaitingContinue, isTransitioning]);
 
   return (
     <div className="flex flex-col h-full">
       <div 
-        className="flex-1 p-4 pb-0 overflow-auto"
+        className="flex-1 p-4 pb-0 overflow-y-auto"
         ref={chatContainerRef}
-        onScroll={handleScroll}
         style={{ 
-          overflowY: 'auto', 
+          overflowY: 'auto',
+          overflowX: 'hidden',
           height: '100%',
           maxHeight: 'calc(100% - 150px)',
           WebkitOverflowScrolling: 'touch',

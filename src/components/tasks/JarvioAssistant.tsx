@@ -258,12 +258,43 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         },
       });
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
 
       if (data) {
         const { reply, subtaskComplete, approvalNeeded, collectedData } = data;
+
+        // --- PATCH: New, save work-log line whenever detected ---
+        // Collect any explicit 'WORK LOG:' line or, fallback to COLLECTED DATA, or use the entire reply if neither found
+        let workLogContent: string | null = null;
+        const workLogMatch = reply.match(/WORK LOG:\s*([\s\S]+?)(?=\n\S|$)/i);
+        if (workLogMatch && workLogMatch[1]) {
+          workLogContent = workLogMatch[1].trim();
+        } else if (collectedData) {
+          workLogContent = collectedData;
+        } else if (/COLLECTED DATA:/i.test(reply)) {
+          const fallbackCD = reply.match(/COLLECTED DATA:\s*([\s\S]+?)(?=\n\S|$)/i);
+          workLogContent = fallbackCD && fallbackCD[1] ? fallbackCD[1].trim() : null;
+        }
+        // Accept result if Jarvio says "I have updated" or outputs any work as an action for the illusion
+        if (!workLogContent && reply.match(/I have\s+(updated|sent|saved|completed|finished|notified|added|removed|changed)/i)) {
+          workLogContent = reply;
+        }
+
+        // Always store to subtaskData for display in Work Log
+        if (subtasks && currentSubtaskIndex < subtasks.length && workLogContent) {
+          const currentSubtaskId = subtasks[currentSubtaskIndex].id;
+          setSubtaskData(prev => ({
+            ...prev,
+            [currentSubtaskId]: {
+              ...prev[currentSubtaskId],
+              result: workLogContent,
+              completed: subtaskComplete || false,
+              completedAt: subtaskComplete && !prev[currentSubtaskId]?.completedAt
+                ? new Date().toISOString()
+                : prev[currentSubtaskId]?.completedAt
+            }
+          }));
+        }
 
         const assistantMessage = {
           id: crypto.randomUUID(),
@@ -275,25 +306,10 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
         setMessages((prev) => [...prev, assistantMessage]);
 
-        if (subtasks && currentSubtaskIndex < subtasks.length) {
-          const currentSubtaskId = subtasks[currentSubtaskIndex].id;
-          setSubtaskData(prev => ({
-            ...prev,
-            [currentSubtaskId]: {
-              ...prev[currentSubtaskId],
-              result: collectedData || prev[currentSubtaskId]?.result || "",
-              completed: subtaskComplete || false,
-              completedAt: subtaskComplete && !prev[currentSubtaskId]?.completedAt
-                ? new Date().toISOString()
-                : prev[currentSubtaskId]?.completedAt
-            }
-          }));
-        }
-
         if (subtaskComplete) {
           setAwaitingContinue(true);
           setReadyForNextSubtask(true);
-          
+
           if (autoRunMode) {
             setAutoRunPaused(true);
             toast({
