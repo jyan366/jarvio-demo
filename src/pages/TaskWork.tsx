@@ -404,8 +404,20 @@ export default function TaskWork() {
 
   return (
     <MainLayout>
-      <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-0 items-stretch bg-background overflow-hidden">
-        <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-6 lg:p-10 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto">
+      <div className="relative w-full min-h-[calc(100vh-4rem)] flex bg-background overflow-hidden">
+        <main
+          className={`
+            flex-1 min-w-0
+            p-1 sm:p-2 md:p-6 lg:p-10
+            bg-white border-r-[1.5px] border-[#F4F4F8]
+            flex flex-col overflow-y-auto
+            transition-all duration-300
+            ${sidebarOpen ? "md:pr-[420px]" : ""}
+          `}
+          style={{
+            marginRight: sidebarOpen ? 0 : undefined,
+          }}
+        >
           <div className="w-full max-w-3xl mx-auto flex flex-col h-full">
             <TaskWorkMain
               task={taskState}
@@ -438,7 +450,22 @@ export default function TaskWork() {
             />
           </div>
         </main>
-        <aside className="w-full max-w-full md:max-w-sm bg-white overflow-hidden">
+
+        <div
+          className={`
+            fixed top-[88px] right-0 z-40
+            h-[calc(100vh-88px)] 
+            w-full max-w-full
+            md:max-w-[420px] 
+            transition-transform duration-300
+            bg-white border-l shadow-lg
+            flex flex-col
+            ${sidebarOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}
+          `}
+          style={{
+            // '88px' matches the nav/header height in MainLayout.
+          }}
+        >
           <TaskWorkSidebar
             open={sidebarOpen}
             onOpenChange={setSidebarOpen}
@@ -456,7 +483,7 @@ export default function TaskWork() {
             onSubtaskComplete={handleToggleSubtask}
             onSubtaskSelect={handleFocusSubtask}
           />
-        </aside>
+        </div>
       </div>
     </MainLayout>
   );
