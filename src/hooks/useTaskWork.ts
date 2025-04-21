@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask, createSubtasks } from "@/lib/supabaseTasks";
@@ -40,6 +41,14 @@ export function useTaskWork() {
         newSubs[idx] = { ...newSubs[idx], done: !newSubs[idx].done };
         return { ...prev, subtasks: newSubs };
       });
+      
+      // After completing a subtask, make sure we're focusing on the next incomplete subtask
+      if (!sub.done && idx === focusedSubtaskIdx) {
+        const nextIncompleteIdx = taskState.subtasks.findIndex((s, i) => i > idx && !s.done);
+        if (nextIncompleteIdx !== -1) {
+          setFocusedSubtaskIdx(nextIncompleteIdx);
+        }
+      }
     } catch (err) {
       toast({
         title: "Error",

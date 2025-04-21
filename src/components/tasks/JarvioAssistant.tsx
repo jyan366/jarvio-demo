@@ -349,6 +349,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       if (currentSubtaskIndex < subtasks.length - 1) {
         const nextIndex = currentSubtaskIndex + 1;
         onSubtaskSelect(nextIndex);
+        
         setTimeout(() => {
           const prevSubtaskData =
             subtaskData[subtasks[currentSubtaskIndex]?.id]?.result ||
@@ -364,6 +365,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             },
           ]);
           setIsTransitioning(false);
+          
+          setHistorySubtaskIdx(null);
         }, 1000);
       } else {
         setIsTransitioning(false);
@@ -401,6 +404,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         setJustMarkedAsDone(activeSubtaskIdx);
         if (activeSubtaskIdx < subtasks.length - 1) {
           onSubtaskSelect(activeSubtaskIdx + 1);
+          setHistorySubtaskIdx(null);
           setMessages((prev) => [
             ...prev,
             {
