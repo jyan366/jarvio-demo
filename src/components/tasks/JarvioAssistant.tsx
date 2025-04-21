@@ -13,6 +13,9 @@ import { Progress } from "@/components/ui/progress";
 import { JarvioDataLog } from "./JarvioDataLog";
 import { JarvioSubtaskHistory } from "./JarvioSubtaskHistory";
 import { JarvioChatMessages } from "./JarvioChatMessages";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { JarvioChatTab } from "./JarvioChatTab";
+import { JarvioDataLogTab } from "./JarvioDataLogTab";
 
 interface Message {
   id: string;
@@ -496,74 +499,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   }, [currentSubtaskIndex]);
 
   const activeSubtaskIdx = historySubtaskIdx !== null ? historySubtaskIdx : currentSubtaskIndex;
-  const activeSubtask = subtasks[activeSubtaskIdx];
+  const subtaskMessages = messages.filter((msg) => msg.subtaskIdx === activeSubtaskIdx);
 
-  const subtaskMessages = messages.filter(
-    (msg) => msg.subtaskIdx === activeSubtaskIdx
-  );
-
-  const getStepNumber = (idx: number) => (subtasks ? idx + 1 : 1);
-
-  const getSubtaskIntroMessage = (subtask: Subtask, idx: number) => {
-    return (
-      <div className="text-sm mb-2 flex flex-col">
-        <span className="font-bold text-primary">{`Step ${getStepNumber(idx)}: ${subtask.title}`}</span>
-        {subtask.description && (
-          <span className="text-xs text-muted-foreground">{subtask.description}</span>
-        )}
-      </div>
-    );
-  };
-
-  const chatMessages = subtaskMessages.flatMap((message, i, arr) => {
-    const isFirstInSubtask = i === 0;
-    const stepIntro = isFirstInSubtask && activeSubtask
-      ? [getSubtaskIntroMessage(activeSubtask, activeSubtaskIdx)]
-      : [];
-    return [...stepIntro, (
-      <div
-        key={message.id}
-        className={`flex items-start gap-3 ${message.isUser ? "flex-row-reverse" : ""}`}
-      >
-        <div
-          className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-            message.isUser
-              ? "bg-blue-100 text-blue-700"
-              : message.systemLog
-                ? "bg-green-100 text-green-800"
-                : "bg-purple-100 text-purple-700"
-          }`}
-        >
-          {message.isUser ? <User size={18} /> : <Zap size={18} />}
-        </div>
-        <div
-          className={`rounded-lg px-4 py-2 max-w-[85%] ${
-            message.isUser
-              ? "bg-blue-50 text-blue-900"
-              : message.systemLog
-                ? "bg-green-50 text-green-800 border border-green-100"
-                : "bg-purple-50 text-purple-900"
-          }`}
-        >
-          <div className="whitespace-pre-wrap text-sm">{message.text}</div>
-          <div className="text-xs mt-1 opacity-60">
-            {formatTime(message.timestamp)}
-          </div>
-        </div>
-      </div>
-    )];
-  });
-
-  const renderDataLog = () => {
-    if (!activeSubtask) return null;
-    const subData = subtaskData[activeSubtask.id];
-    return (
-      <JarvioDataLog
-        result={subData?.result}
-        completedAt={subData?.completedAt}
-      />
-    );
-  };
+  const [tab, setTab] = React.useState<"chat" | "datalog">("chat");
 
   return (
     <div className="flex flex-col h-full relative">
@@ -603,16 +541,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           </div>
           <Progress value={progress} className="h-2" />
         </div>
-        <div className="mt-2 sm:mt-0 flex items-center gap-2">
-          <Button
-            variant={showDataLog ? "default" : "outline"}
-            size="sm"
-            className="text-xs h-8 px-3"
-            onClick={() => setShowDataLog(val => !val)}
-          >
-            {showDataLog ? "Hide Data Log" : "Show Data Log"}
-          </Button>
-        </div>
       </div>
 
       <JarvioSubtaskHistory
@@ -622,174 +550,44 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         onSubtaskHistoryClick={handleSubtaskHistoryClick}
       />
 
-      {showDataLog && (
-        <div className="bg-white border-b px-4 py-3 fade-in-100">
-          {renderDataLog()}
-        </div>
-      )}
-
-      <ScrollArea className="flex-1 p-4 pb-0" style={{ height: "1px", minHeight: 0 }}>
-        <div className="space-y-4 pr-2">
-          {isTransitioning && (
-            <div className="flex items-center justify-center p-4">
-              <div className="text-center">
-                <Loader2 size={24} className="animate-spin mx-auto mb-2 text-purple-600" />
-                <p className="text-sm text-purple-800">Transitioning to next subtask...</p>
-              </div>
-            </div>
-          )}
-
-          {!isTransitioning && (
-            <JarvioChatMessages
-              messages={subtaskMessages}
-              subtasks={subtasks}
-              activeSubtaskIdx={activeSubtaskIdx}
-            />
-          )}
-
-          {isLoading && (
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
-                <Zap size={18} />
-              </div>
-              <div className="rounded-lg px-4 py-3 bg-purple-50">
-                <div className="flex items-center gap-3">
-                  <Loader2 size={16} className="animate-spin" />
-                  <div className="space-y-2">
-                    <p className="text-sm text-purple-900">Working on it...</p>
-                    <div className="space-y-1">
-                      <Skeleton className="h-2 w-[190px]" />
-                      <Skeleton className="h-2 w-[160px]" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          {pendingApproval && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
-              <p className="text-sm font-medium mb-2">Approval required</p>
-              <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={() => handleApproval(true)}
-                >
-                  <ThumbsUp size={16} className="mr-1" /> Approve
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className="border-red-300 text-red-600 hover:bg-red-50"
-                  onClick={() => handleApproval(false)}
-                >
-                  Reject
-                </Button>
-              </div>
-            </div>
-          )}
-          {awaitingContinue && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex flex-col gap-3">
-              <div className="flex items-center gap-2 text-green-800">
-                <Check size={18} className="text-green-600" />
-                <p className="font-medium">Subtask complete!</p>
-              </div>
-              <p className="text-sm text-green-700">
-                Review the results above and the collected data (see "Data Log" area).
-              </p>
-              
-              {currentSubtaskIndex < subtasks.length - 1 && (
-                <div className="bg-white border border-green-100 rounded p-2 mb-1">
-                  <p className="text-xs font-medium text-green-700">Next subtask:</p>
-                  <p className="text-sm flex items-center gap-1">
-                    <ChevronRight size={14} className="text-green-500" />
-                    {subtasks[currentSubtaskIndex + 1]?.title || "No more subtasks"}
-                  </p>
-                </div>
-              )}
-              
-              <form className="flex flex-col gap-2" onSubmit={handleFeedbackAndContinue}>
-                <Textarea
-                  className="min-h-14 text-xs"
-                  placeholder="Optional: Write feedback for Jarvio about this step..."
-                  value={feedback}
-                  onChange={e => setFeedback(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="default"
-                    onClick={handleContinue}
-                    type="button"
-                    className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
-                    disabled={isTransitioning}
-                  >
-                    {currentSubtaskIndex < subtasks.length - 1 ? (
-                      <>Continue to next step <ArrowRight size={14} /></>
-                    ) : (
-                      "Complete task"
-                    )}
-                  </Button>
-                  {feedback.trim() && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      type="submit"
-                      disabled={isTransitioning}
-                    >
-                      Send Feedback & Continue
-                    </Button>
-                  )}
-                </div>
-              </form>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
-
-      <form
-        onSubmit={handleSendMessage}
-        className="sticky bottom-0 left-0 right-0 p-4 pt-2 border-t bg-white z-20"
-        style={{
-          boxShadow: "0 -6px 20px 0 rgba(0,0,0,0.10)",
-        }}
-      >
-        <div className="flex items-end gap-2">
-          <Textarea
-            className="min-h-24 text-sm resize-none"
-            placeholder="Ask Jarvio for help..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            disabled={
-              isLoading ||
-              pendingApproval ||
-              (autoRunMode && !autoRunPaused) ||
-              awaitingContinue ||
-              isTransitioning
-            }
+      <Tabs value={tab} onValueChange={v => setTab(v as "chat" | "datalog")} className="w-full flex-1 flex flex-col">
+        <TabsList className="bg-transparent border-b mb-0 px-4">
+          <TabsTrigger value="chat" className="text-base px-4 py-2 rounded-none border-b-2 data-[state=active]:border-[#3527A0]">
+            Chat
+          </TabsTrigger>
+          <TabsTrigger value="datalog" className="text-base px-4 py-2 rounded-none border-b-2 data-[state=active]:border-[#3527A0]">
+            Data Log
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="chat" className="flex-1 overflow-y-auto p-0">
+          <JarvioChatTab
+            messages={subtaskMessages}
+            subtasks={subtasks}
+            activeSubtaskIdx={activeSubtaskIdx}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            isLoading={isLoading}
+            pendingApproval={pendingApproval}
+            autoRunMode={autoRunMode}
+            autoRunPaused={autoRunPaused}
+            awaitingContinue={awaitingContinue}
+            isTransitioning={isTransitioning}
+            onSendMessage={handleSendMessage}
+            onApproval={handleApproval}
+            onContinue={handleContinue}
+            feedback={feedback}
+            setFeedback={setFeedback}
+            onFeedbackAndContinue={handleFeedbackAndContinue}
           />
-          <Button 
-            type="submit" 
-            disabled={
-              isLoading ||
-              !inputValue.trim() ||
-              pendingApproval ||
-              (autoRunMode && !autoRunPaused) ||
-              awaitingContinue ||
-              isTransitioning
-            }
-            className="h-10"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <MessageSquare className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      </form>
+        </TabsContent>
+        <TabsContent value="datalog" className="flex-1 overflow-y-auto p-0">
+          <JarvioDataLogTab
+            subtasks={subtasks}
+            subtaskData={subtaskData}
+            activeSubtaskIdx={activeSubtaskIdx}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
