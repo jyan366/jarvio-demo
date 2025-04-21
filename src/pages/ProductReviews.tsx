@@ -1,8 +1,7 @@
-
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, MessageCircle, Star, Loader2 } from 'lucide-react';
+import { ChevronLeft, Star } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -19,8 +18,6 @@ export default function ProductReviews() {
   const navigate = useNavigate();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
   const productName = "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's";
 
@@ -78,14 +75,6 @@ export default function ProductReviews() {
 • Price Point: While some find it expensive, most agree the quality justifies the cost
 • Customer Loyalty: Notable number of repeat customers, indicating strong product satisfaction`;
 
-  const generateAnalysis = () => {
-    setIsAnalyzing(true);
-    setTimeout(() => {
-      setAnalysisResult(reviewSummary);
-      setIsAnalyzing(false);
-    }, 1500);
-  };
-
   const handleAskQuestion = () => {
     const positiveKeywords = ["great", "love", "perfect", "amazing", "best"];
     const negativeKeywords = ["but", "wish", "however", "though", "not"];
@@ -126,36 +115,8 @@ export default function ProductReviews() {
           <h1 className="text-2xl font-bold">{productName}</h1>
         </div>
 
-        <section>
-          <Button 
-            onClick={generateAnalysis} 
-            disabled={isAnalyzing}
-            className="w-full mb-4"
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Analyzing Reviews...
-              </>
-            ) : (
-              <>
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Generate Review Analysis
-              </>
-            )}
-          </Button>
-          
-          {analysisResult && (
-            <Card className="p-6 bg-blue-50">
-              <p className="text-base leading-relaxed text-blue-900 whitespace-pre-line">
-                {analysisResult}
-              </p>
-            </Card>
-          )}
-        </section>
-
         <section className="space-y-4">
-          <h3 className="font-semibold text-lg">Ask AI About Reviews</h3>
+          <h3 className="font-semibold text-lg">Ask Jarvio About Reviews</h3>
           <div className="space-y-4">
             <div className="flex gap-3">
               <Textarea 
@@ -169,7 +130,7 @@ export default function ProductReviews() {
                 disabled={!question.trim()}
                 className="shrink-0"
               >
-                Ask AI
+                Ask Jarvio
               </Button>
             </div>
             
