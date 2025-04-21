@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ReviewSummarySection } from '@/components/reviews/ReviewSummarySection';
+import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
 
 type Review = {
   rating: number;
@@ -197,6 +198,7 @@ export default function AllProductReviews() {
           </div>
         </Card>
       </div>
+      <FloatingChatButton />
     </MainLayout>
   );
 }

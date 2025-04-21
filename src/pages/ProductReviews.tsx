@@ -1,3 +1,4 @@
+
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ReviewSummarySection } from '@/components/reviews/ReviewSummarySection';
+import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
 
 interface Review {
   rating: number;
@@ -165,6 +167,7 @@ export default function ProductReviews() {
           </div>
         </section>
       </div>
+      <FloatingChatButton />
     </MainLayout>
   );
 }

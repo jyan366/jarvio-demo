@@ -274,5 +274,7 @@ export default function CustomerInsights() {
       setDetailInsight(null);
     }
   }} />
+    
+    <FloatingChatButton />
   </MainLayout>;
 }
