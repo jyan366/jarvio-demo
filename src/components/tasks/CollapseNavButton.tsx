@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface CollapseNavButtonProps {
   sidebarOpen: boolean;
@@ -12,15 +12,8 @@ export const CollapseNavButton: React.FC<CollapseNavButtonProps> = ({
   sidebarOpen,
   setSidebarOpen,
 }) => (
-  <Button
-    variant="ghost"
-    size="icon"
-    onClick={() => setSidebarOpen((open) => !open)}
-    aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+  <SidebarTrigger 
     className="mb-2"
-  >
-    <ChevronLeft
-      className={`transition-transform ${sidebarOpen ? "" : "rotate-180"}`}
-    />
-  </Button>
+    aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+  />
 );
