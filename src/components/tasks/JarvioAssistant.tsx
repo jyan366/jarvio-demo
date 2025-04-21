@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -64,7 +63,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const [feedback, setFeedback] = useState("");
   const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
   
-  // New state for tracking transition between subtasks
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
@@ -540,7 +538,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       </div>
 
       <div className="border-b overflow-x-auto">
-        <ScrollArea orientation="horizontal" className="w-full">
+        <ScrollArea className="w-full">
           <div className="flex py-2 px-3 gap-1 min-w-full">
             {subtasks && subtasks.map((subtask, idx) => (
               <button
