@@ -201,7 +201,8 @@ export default function AIAssistant() {
 
         <Card className="flex flex-col h-[600px] border-primary/20">
           <div 
-            className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-purple-400 scrollbar-track-purple-50 scrollbar-thumb-rounded scrollbar-track-rounded"
+            className="flex-1 p-4 space-y-4 overflow-y-auto scrollbar scrollbar-thumb-purple-400 scrollbar-track-purple-50 scrollbar-thumb-rounded scrollbar-track-rounded"
+            style={{ minHeight: 0 }}
           >
             {messages.length === 0 && (
               <div className="space-y-3">
