@@ -453,17 +453,19 @@ export default function TaskWork() {
 
         <div
           className={`
-            fixed top-[88px] right-0 z-40
-            h-[calc(100vh-88px)] 
+            fixed top-[88px] right-0 z-50
+            h-[calc(100vh-88px)]
             w-full max-w-full
-            md:max-w-[420px] 
-            transition-transform duration-300
+            md:max-w-[420px]
             bg-white border-l shadow-lg
             flex flex-col
+            transition-transform duration-300
             ${sidebarOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}
           `}
           style={{
-            // '88px' matches the nav/header height in MainLayout.
+            paddingRight: 0,
+            marginRight: 0,
+            // '88px' matches the nav/header height in MainLayout
           }}
         >
           <TaskWorkSidebar
