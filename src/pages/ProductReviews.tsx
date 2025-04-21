@@ -5,6 +5,7 @@ import { ChevronLeft, Star } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ReviewSummarySection } from '@/components/reviews/ReviewSummarySection';
 
 interface Review {
   rating: number;
@@ -114,6 +115,8 @@ export default function ProductReviews() {
           </Button>
           <h1 className="text-2xl font-bold">{productName}</h1>
         </div>
+
+        <ReviewSummarySection />
 
         <section className="space-y-4">
           <h3 className="font-semibold text-lg">Ask Jarvio About Reviews</h3>
