@@ -74,10 +74,10 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           {/* Remove .container and py-6 on task pages */}
           <div className={
             isTaskPage 
-              ? "h-full flex flex-col flex-1 min-h-0" 
+              ? "h-full flex flex-col flex-1 min-h-0 overflow-hidden" 
               : "container py-6 h-full flex flex-col"
           }>
-            {/* Remove header for task page */}
+            {/* Hide header and controls for task page */}
             {!isTaskPage && (
               <div className="flex justify-between items-center mb-6">
                 <SidebarTrigger />

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -63,6 +64,186 @@ export default function TaskWorkContainer() {
 
   const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
   const [commentValue, setCommentValue] = useState("");
+
+  // Define all handler functions first, before they're used in the JSX
+  const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
+    setTaskState((prev) => {
+      if (!prev) return prev;
+      return { ...prev, [field]: value };
+    });
+  };
+
+  const handleToggleSubtask = async (idx: number) => {
+    const sub = taskState?.subtasks[idx];
+    if (!sub || !taskState) return;
+    
+    try {
+      await toggleSubtask(sub.id, !sub.done);
+      setTaskState((prev) => {
+        if (!prev) return prev;
+        const newSubs = [...prev.subtasks];
+        newSubs[idx] = { ...newSubs[idx], done: !newSubs[idx].done };
+        return { ...prev, subtasks: newSubs };
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to update subtask",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAddSubtask = async (val: string) => {
+    if (val.trim() && taskState) {
+      try {
+        const st = await addSubtask(taskState.id, val);
+        setTaskState((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            subtasks: [
+              ...prev.subtasks,
+              {
+                id: st.id,
+                title: st.title,
+                done: st.completed ?? false,
+                description: st.description ?? "",
+                status: st.status ?? "",
+                priority: st.priority ?? "",
+                category: st.category ?? "",
+              },
+            ],
+          };
+        });
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "Failed to add subtask",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const handleRemoveSubtask = async (idx: number) => {
+    const st = taskState?.subtasks[idx];
+    if (!st) return;
+    
+    try {
+      await deleteSubtask(st.id);
+      setTaskState((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          subtasks: prev.subtasks.filter((_, i) => i !== idx),
+        };
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to delete subtask",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleGenerateSteps = async () => {
+    if (!taskState) return;
+    setIsGenerating(true);
+    try {
+      const steps = await generateTaskSteps({ title: taskState.title, description: taskState.description });
+      
+      if (steps.length === 0) {
+        toast({
+          title: "No steps generated",
+          description: "Could not generate subtasks. Try rewording your task.",
+          variant: "destructive"
+        });
+        setIsGenerating(false);
+        return;
+      }
+      
+      const createdSteps = await createSubtasks(
+        steps.map((s) => ({
+          task_id: taskState.id,
+          title: s.title,
+          description: s.description ?? "",
+        }))
+      );
+      
+      setTaskState((prev) => {
+        if (!prev) return prev;
+        const withNew = [
+          ...prev.subtasks,
+          ...createdSteps.map((s, i) => {
+            return {
+              id: s.id,
+              title: s.title,
+              done: s.completed ?? false,
+              description: s.description ?? steps[i]?.description ?? "",
+              status: s.status ?? "",
+              priority: s.priority ?? "",
+              category: s.category ?? "",
+            };
+          }),
+        ];
+        return { ...prev, subtasks: withNew };
+      });
+      
+      toast({
+        title: "Steps generated!",
+        description: "The main task has been broken down into subtasks.",
+        variant: "default"
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error generating steps",
+        description: typeof err === "object" && err?.message ? err.message : "Could not generate subtasks.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleFocusSubtask = (idx: number) => {
+    setFocusedSubtaskIdx(idx);
+  };
+
+  const handleUpdateSubtask = (field: keyof Subtask, value: any) => {
+    if (focusedSubtaskIdx === null) return;
+    setTaskState((prev) => {
+      if (!prev) return prev;
+      const updatedSubs = prev.subtasks.map((st, i) =>
+        i === focusedSubtaskIdx ? { ...st, [field]: value } : st
+      );
+      return { ...prev, subtasks: updatedSubs };
+    });
+  };
+
+  const handleOpenSubtask = (idx: number) => setSubtaskDialogIdx(idx);
+  const handleCloseSubtask = () => setSubtaskDialogIdx(null);
+
+  const handleAddComment = (text: string) => {
+    if (text.trim()) {
+      setTaskState((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          comments: [...prev.comments, { user: "you", text, ago: "now" }],
+        };
+      });
+      setCommentValue("");
+    }
+  };
+
+  const handleAddSubtaskComment = (subtaskId: string, text: string) => {
+    setSubtaskComments(prev => ({
+      ...prev,
+      [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "now" }],
+    }));
+  };
 
   useEffect(() => {
     async function loadTask() {
@@ -149,6 +330,7 @@ export default function TaskWorkContainer() {
     loadTask();
   }, [id, navigate, toast]);
 
+  // This part moved below all the handler function declarations
   if (loading) return (
     <MainLayout>
       <div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
@@ -186,17 +368,17 @@ export default function TaskWorkContainer() {
               onOpenSubtask={handleOpenSubtask}
             />
             <SubtaskDialog
-              open={subtaskDialogIdx !== null && !!taskState.subtasks[subtaskDialogIdx]}
+              open={subtaskDialogIdx !== null && !!taskState.subtasks[subtaskDialogIdx ?? -1]}
               onOpenChange={(open) => open ? undefined : handleCloseSubtask()}
               subtask={subtaskDialogIdx !== null ? taskState.subtasks[subtaskDialogIdx] : null}
               comments={
-                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx]
-                  ? (subtaskComments[taskState.subtasks[subtaskDialogIdx].id] || [])
+                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx ?? -1]
+                  ? (subtaskComments[taskState.subtasks[subtaskDialogIdx ?? -1].id] || [])
                   : []
               }
               addComment={text =>
-                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx]
-                  ? handleAddSubtaskComment(taskState.subtasks[subtaskDialogIdx].id, text)
+                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx ?? -1]
+                  ? handleAddSubtaskComment(taskState.subtasks[subtaskDialogIdx ?? -1].id, text)
                   : undefined
               }
             />
@@ -224,180 +406,4 @@ export default function TaskWorkContainer() {
       </div>
     </MainLayout>
   );
-
-  // --- Logic functions below not changed ---
-  const handleToggleSubtask = async (idx: number) => {
-    const sub = taskState.subtasks[idx];
-    try {
-      await toggleSubtask(sub.id, !sub.done);
-      setTaskState((prev) => {
-        if (!prev) return prev;
-        const newSubs = [...prev.subtasks];
-        newSubs[idx] = { ...newSubs[idx], done: !newSubs[idx].done };
-        return { ...prev, subtasks: newSubs };
-      });
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to update subtask",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleAddSubtask = async (val: string) => {
-    if (val.trim()) {
-      try {
-        const st = await addSubtask(taskState.id, val);
-        setTaskState((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            subtasks: [
-              ...prev.subtasks,
-              {
-                id: st.id,
-                title: st.title,
-                done: st.completed ?? false,
-                description: st.description ?? "",
-                status: st.status ?? "",
-                priority: st.priority ?? "",
-                category: st.category ?? "",
-              },
-            ],
-          };
-        });
-      } catch (err) {
-        toast({
-          title: "Error",
-          description: "Failed to add subtask",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-
-  const handleRemoveSubtask = async (idx: number) => {
-    const st = taskState.subtasks[idx];
-    try {
-      await deleteSubtask(st.id);
-      setTaskState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          subtasks: prev.subtasks.filter((_, i) => i !== idx),
-        };
-      });
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to delete subtask",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleGenerateSteps = async () => {
-    if (!taskState) return;
-    setIsGenerating(true);
-    try {
-      const steps = await generateTaskSteps({ title: taskState.title, description: taskState.description });
-      
-      if (steps.length === 0) {
-        toast({
-          title: "No steps generated",
-          description: "Could not generate subtasks. Try rewording your task.",
-          variant: "destructive"
-        });
-        setIsGenerating(false);
-        return;
-      }
-      
-      const createdSteps = await createSubtasks(
-        steps.map((s) => ({
-          task_id: taskState.id,
-          title: s.title,
-          description: s.description ?? "",
-        }))
-      );
-      
-      setTaskState((prev) => {
-        if (!prev) return prev;
-        const withNew = [
-          ...prev.subtasks,
-          ...createdSteps.map((s, i) => {
-            return {
-              id: s.id,
-              title: s.title,
-              done: s.completed ?? false,
-              description: s.description ?? steps[i]?.description ?? "",
-              status: s.status ?? "",
-              priority: s.priority ?? "",
-              category: s.category ?? "",
-            };
-          }),
-        ];
-        return { ...prev, subtasks: withNew };
-      });
-      
-      toast({
-        title: "Steps generated!",
-        description: "The main task has been broken down into subtasks.",
-        variant: "default"
-      });
-    } catch (err: any) {
-      toast({
-        title: "Error generating steps",
-        description: typeof err === "object" && err?.message ? err.message : "Could not generate subtasks.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleAddComment = (text: string) => {
-    if (text.trim()) {
-      setTaskState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          comments: [...prev.comments, { user: "you", text, ago: "now" }],
-        };
-      });
-      setCommentValue("");
-    }
-  };
-
-  const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
-    setTaskState((prev) => {
-      if (!prev) return prev;
-      return { ...prev, [field]: value };
-    });
-  };
-
-  const handleFocusSubtask = (idx: number) => {
-    setFocusedSubtaskIdx(idx);
-  };
-
-  const handleUpdateSubtask = (field: keyof Subtask, value: any) => {
-    if (focusedSubtaskIdx === null) return;
-    setTaskState((prev) => {
-      if (!prev) return prev;
-      const updatedSubs = prev.subtasks.map((st, i) =>
-        i === focusedSubtaskIdx ? { ...st, [field]: value } : st
-      );
-      return { ...prev, subtasks: updatedSubs };
-    });
-  };
-
-  const handleOpenSubtask = (idx: number) => setSubtaskDialogIdx(idx);
-  const handleCloseSubtask = () => setSubtaskDialogIdx(null);
-
-  const handleAddSubtaskComment = (subtaskId: string, text: string) => {
-    setSubtaskComments(prev => ({
-      ...prev,
-      [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "now" }],
-    }));
-  };
 }
