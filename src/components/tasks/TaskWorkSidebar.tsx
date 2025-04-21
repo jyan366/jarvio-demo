@@ -52,7 +52,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         onClick={() => onOpenChange(false)}
       />
       <aside
-        className={`flex flex-col h-full overflow-hidden w-full md:w-auto
+        className={`flex flex-col h-full w-full md:w-auto
         ${open ? "translate-x-0" : "translate-x-full"} md:translate-x-0
         fixed md:static top-0 right-0 z-50 transition-all`}
         style={{
@@ -93,9 +93,9 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           </button>
         </div>
 
-        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div className="flex flex-col flex-1 min-h-0">
           {selectedTab === "comments" ? (
-            <>
+            <div className="flex flex-col h-full">
               <div className="px-4 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
                 COMMENTS ({comments.length})
               </div>
@@ -144,17 +144,19 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                   </Button>
                 </form>
               </div>
-            </>
+            </div>
           ) : (
-            <JarvioAssistant
-              taskId={taskId}
-              taskTitle={taskTitle}
-              taskDescription={taskDescription}
-              subtasks={subtasks}
-              currentSubtaskIndex={currentSubtaskIndex}
-              onSubtaskComplete={onSubtaskComplete}
-              onSubtaskSelect={onSubtaskSelect}
-            />
+            <div className="h-full overflow-hidden">
+              <JarvioAssistant
+                taskId={taskId}
+                taskTitle={taskTitle}
+                taskDescription={taskDescription}
+                subtasks={subtasks}
+                currentSubtaskIndex={currentSubtaskIndex}
+                onSubtaskComplete={onSubtaskComplete}
+                onSubtaskSelect={onSubtaskSelect}
+              />
+            </div>
           )}
         </div>
       </aside>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -350,9 +349,9 @@ export default function TaskWorkContainer() {
 
   return (
     <MainLayout>
-      <div className="w-full h-full max-w-none flex flex-row gap-0 items-stretch bg-background overflow-hidden">
-        <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto h-full">
-          <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-6">
+      <div className="w-full h-full max-w-none flex flex-row gap-0 bg-background">
+        <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col h-screen overflow-hidden">
+          <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-6 overflow-y-auto">
             <div className="mb-2 w-full">
               <CollapseNavButton
                 sidebarOpen={sidebarOpen}
@@ -398,4 +397,3 @@ export default function TaskWorkContainer() {
     </MainLayout>
   );
 }
-

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { TaskWorkHeader } from "./TaskWorkHeader";
 import { TaskWorkProductCard } from "./TaskWorkProductCard";
@@ -37,7 +36,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   onOpenSubtask,
 }) => {
   return (
-    <div className="flex flex-col gap-4 w-full h-full">
+    <div className="flex flex-col gap-4 w-full">
       <TaskWorkHeader
         title={task.title}
         onTitleChange={(newTitle) => onUpdateTask("title", newTitle)}
