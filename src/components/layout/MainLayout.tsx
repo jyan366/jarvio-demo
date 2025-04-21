@@ -6,11 +6,12 @@ import { NavigationMenu } from './NavigationMenu';
 import { ThemeToggle } from '../ThemeToggle';
 import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
 import { LogOut, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../ui/button';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Check if user is authenticated
@@ -26,6 +27,9 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('isAuthenticated');
     navigate('/auth');
   };
+
+  // Determine if we are on a task view path
+  const isTaskView = location.pathname.startsWith('/task');
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -70,13 +74,15 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         </Sidebar>
         <main className="flex-1 overflow-auto">
           <div className="container py-6">
-            <div className="flex justify-between items-center mb-6">
-              <SidebarTrigger />
-              <div className="flex items-center gap-2">
-                <MarketplaceSelector />
-                <ThemeToggle />
+            {!isTaskView && (
+              <div className="flex justify-between items-center mb-6">
+                <SidebarTrigger />
+                <div className="flex items-center gap-2">
+                  <MarketplaceSelector />
+                  <ThemeToggle />
+                </div>
               </div>
-            </div>
+            )}
             {children}
           </div>
         </main>
@@ -84,3 +90,4 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
