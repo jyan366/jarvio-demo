@@ -24,6 +24,9 @@ export const JarvioDataLog: React.FC<JarvioDataLogProps> = ({ result, completedA
           Completed: {new Date(completedAt).toLocaleString()}
         </p>
       )}
+      <p className="text-[10px] text-green-700 mt-2">
+        This log shows all results and actions Jarvio has performed or gathered for this step.
+      </p>
     </div>
   );
 };

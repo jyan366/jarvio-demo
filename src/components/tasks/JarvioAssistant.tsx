@@ -72,6 +72,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const autoRunTimerRef = useRef<number | undefined>();
   const autoRunStepInProgressRef = useRef(false);
+  const [justMarkedAsDone, setJustMarkedAsDone] = useState<number | null>(null);
 
   useEffect(() => {
     if (messages.length === 0 && subtasks && subtasks.length > 0) {
@@ -343,30 +344,25 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
     if (subtasks && currentSubtaskIndex < subtasks.length && !subtasks[currentSubtaskIndex].done) {
       await onSubtaskComplete(currentSubtaskIndex);
-      toast({
-        title: "Subtask completed",
-        description: `"${subtasks[currentSubtaskIndex].title}" marked as complete`,
-      });
+      setJustMarkedAsDone(currentSubtaskIndex);
 
       if (currentSubtaskIndex < subtasks.length - 1) {
         const nextIndex = currentSubtaskIndex + 1;
         onSubtaskSelect(nextIndex);
-
         setTimeout(() => {
           const prevSubtaskData =
             subtaskData[subtasks[currentSubtaskIndex]?.id]?.result ||
             "No data collected";
-
           setMessages((prev) => [
             ...prev,
             {
               id: crypto.randomUUID(),
               isUser: false,
-              text: `Ready to begin next subtask: "${subtasks[nextIndex].title}". Using data from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? '...' : ''}`,
+              text: `Ready to begin next subtask: "${subtasks[nextIndex].title}". Using results from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? "..." : ""}`,
               timestamp: new Date(),
+              subtaskIdx: nextIndex,
             },
           ]);
-          
           setIsTransitioning(false);
         }, 1000);
       } else {
@@ -397,20 +393,37 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           isUser: true,
           text: "I approve this action.",
           timestamp: new Date(),
+          subtaskIdx: activeSubtaskIdx,
         },
       ]);
-
       setTimeout(async () => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            isUser: false,
-            text: "Thank you for your approval. I'll proceed with the next steps.",
-            timestamp: new Date(),
-          },
-        ]);
-      }, 500);
+        await onSubtaskComplete(activeSubtaskIdx);
+        setJustMarkedAsDone(activeSubtaskIdx);
+        if (activeSubtaskIdx < subtasks.length - 1) {
+          onSubtaskSelect(activeSubtaskIdx + 1);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: `Great! Moving on to the next subtask: "${subtasks[activeSubtaskIdx + 1].title}".`,
+              timestamp: new Date(),
+              subtaskIdx: activeSubtaskIdx + 1,
+            },
+          ]);
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: "All subtasks complete! 🎉",
+              timestamp: new Date(),
+              subtaskIdx: activeSubtaskIdx,
+            },
+          ]);
+        }
+      }, 600);
     } else {
       setMessages((prev) => [
         ...prev,
@@ -419,10 +432,10 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           isUser: true,
           text: "I don't approve this action.",
           timestamp: new Date(),
+          subtaskIdx: activeSubtaskIdx,
         },
       ]);
-
-      setTimeout(async () => {
+      setTimeout(() => {
         setMessages((prev) => [
           ...prev,
           {
@@ -430,9 +443,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             isUser: false,
             text: "I understand. Let's take a different approach. What would you like to do instead?",
             timestamp: new Date(),
+            subtaskIdx: activeSubtaskIdx,
           },
         ]);
-        
         if (autoRunMode) {
           setAutoRunPaused(true);
         }
