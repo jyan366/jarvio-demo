@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -65,7 +64,6 @@ export default function TaskWorkContainer() {
   const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
   const [commentValue, setCommentValue] = useState("");
 
-  // Define all handler functions first, before they're used in the JSX
   const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
     setTaskState((prev) => {
       if (!prev) return prev;
@@ -76,7 +74,6 @@ export default function TaskWorkContainer() {
   const handleToggleSubtask = async (idx: number) => {
     const sub = taskState?.subtasks[idx];
     if (!sub || !taskState) return;
-    
     try {
       await toggleSubtask(sub.id, !sub.done);
       setTaskState((prev) => {
@@ -129,7 +126,7 @@ export default function TaskWorkContainer() {
   const handleRemoveSubtask = async (idx: number) => {
     const st = taskState?.subtasks[idx];
     if (!st) return;
-    
+
     try {
       await deleteSubtask(st.id);
       setTaskState((prev) => {
@@ -153,7 +150,7 @@ export default function TaskWorkContainer() {
     setIsGenerating(true);
     try {
       const steps = await generateTaskSteps({ title: taskState.title, description: taskState.description });
-      
+
       if (steps.length === 0) {
         toast({
           title: "No steps generated",
@@ -163,7 +160,7 @@ export default function TaskWorkContainer() {
         setIsGenerating(false);
         return;
       }
-      
+
       const createdSteps = await createSubtasks(
         steps.map((s) => ({
           task_id: taskState.id,
@@ -171,7 +168,7 @@ export default function TaskWorkContainer() {
           description: s.description ?? "",
         }))
       );
-      
+
       setTaskState((prev) => {
         if (!prev) return prev;
         const withNew = [
@@ -190,7 +187,7 @@ export default function TaskWorkContainer() {
         ];
         return { ...prev, subtasks: withNew };
       });
-      
+
       toast({
         title: "Steps generated!",
         description: "The main task has been broken down into subtasks.",
@@ -256,7 +253,7 @@ export default function TaskWorkContainer() {
         navigate("/task-manager");
         return;
       }
-      
+
       setLoading(true);
       try {
         const { data: taskData, error } = await supabase
@@ -264,7 +261,7 @@ export default function TaskWorkContainer() {
           .select("*")
           .eq("id", id)
           .single();
-          
+
         if (error || !taskData) {
           toast({
             title: "Task Not Found",
@@ -274,7 +271,7 @@ export default function TaskWorkContainer() {
           navigate("/task-manager");
           return;
         }
-        
+
         const subtasks = await fetchSubtasks([taskData.id]);
         const normalizedSubs = subtasks.map(st => ({
           id: st.id,
@@ -293,10 +290,10 @@ export default function TaskWorkContainer() {
           status: taskData.status as string,
           priority: taskData.priority || "MEDIUM",
           category: taskData.category || "",
-          date: new Date(taskData.created_at).toLocaleDateString('en-US', { 
-            day: 'numeric', 
-            month: 'short', 
-            year: 'numeric' 
+          date: new Date(taskData.created_at).toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
           }),
           products: [
             {
@@ -313,7 +310,7 @@ export default function TaskWorkContainer() {
           subtasks: normalizedSubs,
           comments: [{ user: "you", text: "new comment", ago: "2 days ago" }],
         };
-        
+
         setTaskState(task);
       } catch (e) {
         console.error("Error loading task:", e);
@@ -326,11 +323,10 @@ export default function TaskWorkContainer() {
         setLoading(false);
       }
     }
-    
+
     loadTask();
   }, [id, navigate, toast]);
 
-  // This part moved below all the handler function declarations
   if (loading) return (
     <MainLayout>
       <div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
@@ -338,7 +334,7 @@ export default function TaskWorkContainer() {
       </div>
     </MainLayout>
   );
-  
+
   if (!taskState) return (
     <MainLayout>
       <div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
@@ -347,12 +343,11 @@ export default function TaskWorkContainer() {
     </MainLayout>
   );
 
-  // Remove all extra right/top/bottom padding & fit to edges
   return (
     <MainLayout>
       <div className="w-full h-full max-w-none flex flex-row gap-0 items-stretch bg-background overflow-hidden">
         <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto h-full">
-          <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-0">
+          <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-6">
             <TaskWorkMain
               task={taskState}
               onUpdateTask={handleUpdateTask}
@@ -384,7 +379,7 @@ export default function TaskWorkContainer() {
             />
           </div>
         </main>
-        <aside className="w-full max-w-full md:max-w-sm bg-white overflow-hidden flex flex-col h-full">
+        <aside className="max-w-full md:max-w-[380px] xl:max-w-[420px] w-full flex flex-col h-full bg-white overflow-hidden shadow-none border-l">
           <TaskWorkSidebar
             open={sidebarOpen}
             onOpenChange={setSidebarOpen}
