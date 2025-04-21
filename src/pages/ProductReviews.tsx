@@ -10,7 +10,7 @@ import { ReviewSummarySection } from '@/components/reviews/ReviewSummarySection'
 import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
-import { InsightData } from '@/components/tasks/InsightCard';
+import { InsightData, InsightCategory, InsightSeverity } from '@/components/tasks/InsightCard';
 import { useToast } from '@/hooks/use-toast';
 
 interface Review {
@@ -76,26 +76,26 @@ export default function ProductReviews() {
     }
   ];
 
-  const insights = [{
+  const insights: InsightData[] = [{
     id: '1',
     title: 'Quality Feedback Pattern',
     description: 'Multiple reviews mention consistent product quality and fermentation levels.',
-    category: 'REVIEW',
-    severity: 'LOW',
+    category: 'REVIEW' as InsightCategory,
+    severity: 'LOW' as InsightSeverity,
     date: '2024-03-21'
   }, {
     id: '2',
     title: 'Packaging Feedback',
     description: 'Glass jar packaging receives positive feedback but environmental concerns noted.',
-    category: 'LISTING',
-    severity: 'MEDIUM',
+    category: 'LISTING' as InsightCategory,
+    severity: 'MEDIUM' as InsightSeverity,
     date: '2024-03-21'
   }, {
     id: '3',
     title: 'Product Size Consideration',
     description: 'Several customers requesting larger size options.',
-    category: 'PRICING',
-    severity: 'HIGH',
+    category: 'PRICING' as InsightCategory,
+    severity: 'HIGH' as InsightSeverity,
     date: '2024-03-21'
   }];
 
