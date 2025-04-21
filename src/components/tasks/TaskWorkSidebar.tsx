@@ -54,15 +54,18 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         onClick={() => onOpenChange(false)}
       />
       <div
-        className="h-[calc(100vh-4rem)] w-full flex flex-col overflow-hidden"
+        className={`h-full flex flex-col overflow-hidden bg-white ${
+          immersive
+            ? "fixed top-0 right-0 bottom-0 left-auto w-full max-w-none min-w-0 border-0"
+            : "h-[calc(100vh-4rem)] w-full"
+        }`}
         style={{
-          width: "100%",
-          height: "100vh",
-          maxWidth: "420px",
-          minWidth: "320px",
+          maxWidth: immersive ? "100%" : "420px",
+          minWidth: immersive ? "0" : "320px",
           margin: 0,
           padding: 0,
-          borderLeft: "1.5px solid #F4F4F8",
+          borderLeft: immersive ? "none" : "1.5px solid #F4F4F8",
+          height: "100vh",
         }}
       >
         {/* Close button for mobile */}
@@ -100,13 +103,13 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         </div>
 
         {selectedTab === "comments" ? (
-          <div className="flex flex-col flex-1 h-full overflow-hidden">
+          <div className="flex flex-col flex-1 overflow-hidden">
             <div className="px-5 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
               COMMENTS ({comments.length})
             </div>
             {/* ScrollArea panel filling available vertical space */}
-            <ScrollArea className="flex-1 px-5">
-              <div className="space-y-4 pr-2 pb-24">
+            <ScrollArea className="flex-1 px-5 pb-24">
+              <div className="space-y-4 pr-2">
                 {comments.map((c, i) => (
                   <div key={i} className="flex items-start gap-2">
                     <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
@@ -121,7 +124,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               </div>
             </ScrollArea>
             {/* Dock message input to the bottom */}
-            <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 left-auto md:left-auto md:w-[420px] z-10">
+            <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 left-auto md:left-auto z-10">
               <form
                 className="flex flex-col"
                 onSubmit={(e) => {
@@ -149,7 +152,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
             </div>
           </div>
         ) : (
-          <div className="flex-1 h-full">
+          <div className="flex flex-col flex-1 h-full overflow-hidden">
             <JarvioAssistant
               taskId={taskId}
               taskTitle={taskTitle}
@@ -160,6 +163,25 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               onSubtaskSelect={onSubtaskSelect}
               immersive={true}
             />
+            {/* Dock message input to the bottom */}
+            <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 left-auto md:left-auto z-10">
+              <form
+                className="flex flex-col"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <Textarea
+                  className="min-h-24 mb-2 text-sm resize-none"
+                  placeholder="Ask Jarvio for help..."
+                  value=""
+                  readOnly
+                />
+                <Button type="submit" size="sm" disabled className="ml-auto">
+                  Send
+                </Button>
+              </form>
+            </div>
           </div>
         )}
       </div>
