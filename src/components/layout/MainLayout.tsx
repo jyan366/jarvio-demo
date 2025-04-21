@@ -6,11 +6,12 @@ import { NavigationMenu } from './NavigationMenu';
 import { ThemeToggle } from '../ThemeToggle';
 import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
 import { LogOut, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // <-- Added useLocation
 import { Button } from '../ui/button';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Check if user is authenticated
@@ -26,6 +27,10 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('isAuthenticated');
     navigate('/auth');
   };
+
+  // --- HIDE controls in "/task/:id" pages ---
+  // e.g. /task/5bc626ed-aad5-4787-b567-05d070858961
+  const isTaskPage = /^\/task(\/|$)/.test(location.pathname);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -69,15 +74,19 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </SidebarFooter>
         </Sidebar>
         <main className="flex-1 overflow-auto">
-          <div className="container py-6">
+          <div className="container py-6 h-full flex flex-col"> {/* make h-full flex-col */}
             <div className="flex justify-between items-center mb-6">
               <SidebarTrigger />
-              <div className="flex items-center gap-2">
-                <MarketplaceSelector />
-                <ThemeToggle />
-              </div>
+              {/* Hide these if in /task/:id page */}
+              {!isTaskPage && (
+                <div className="flex items-center gap-2">
+                  <MarketplaceSelector />
+                  <ThemeToggle />
+                </div>
+              )}
             </div>
-            {children}
+            {/* Comments/AI Assistant will now use more height if controls above are hidden */}
+            <div className="flex-1 flex flex-col min-h-0">{children}</div>
           </div>
         </main>
       </div>
