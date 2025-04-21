@@ -1,13 +1,16 @@
-
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Star } from 'lucide-react';
+import { ChevronLeft, Star, BarChart2 } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ReviewSummarySection } from '@/components/reviews/ReviewSummarySection';
 import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
+import { InsightsDialog } from '@/components/insights/InsightsDialog';
+import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
+import { InsightData } from '@/components/tasks/InsightCard';
+import { useToast } from '@/hooks/use-toast';
 
 interface Review {
   rating: number;
@@ -21,6 +24,9 @@ export default function ProductReviews() {
   const navigate = useNavigate();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
+  const [insightsDialogOpen, setInsightsDialogOpen] = useState(false);
+  const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
+  const { toast } = useToast();
 
   const productName = "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's";
 
@@ -69,14 +75,39 @@ export default function ProductReviews() {
     }
   ];
 
-  const reviewSummary = `Based on a comprehensive analysis of ${reviews.length} customer reviews, this product maintains a strong positive reception. Key findings include:
+  const insights = [{
+    id: '1',
+    title: 'Quality Feedback Pattern',
+    description: 'Multiple reviews mention consistent product quality and fermentation levels.',
+    category: 'REVIEW',
+    severity: 'LOW',
+    date: '2024-03-21'
+  }, {
+    id: '2',
+    title: 'Packaging Feedback',
+    description: 'Glass jar packaging receives positive feedback but environmental concerns noted.',
+    category: 'LISTING',
+    severity: 'MEDIUM',
+    date: '2024-03-21'
+  }, {
+    id: '3',
+    title: 'Product Size Consideration',
+    description: 'Several customers requesting larger size options.',
+    category: 'PRICING',
+    severity: 'HIGH',
+    date: '2024-03-21'
+  }];
 
-• Quality & Taste: 80% of reviewers praise the authentic taste and consistent fermentation quality
-• Probiotic Benefits: 65% mention improved digestion and health benefits
-• Packaging: Multiple customers appreciate the glass jar packaging, though some suggest eco-friendly improvements
-• Areas for Improvement: Common suggestions include offering different spice levels, larger size options, and more consistent shipping times
-• Price Point: While some find it expensive, most agree the quality justifies the cost
-• Customer Loyalty: Notable number of repeat customers, indicating strong product satisfaction`;
+  const handleCreateTaskFromInsight = (insight: InsightData) => {
+    toast({
+      title: "Task Created",
+      description: `"${insight.title}" has been added to your tasks.",
+    });
+  };
+
+  const handleInsightClick = (insight: InsightData) => {
+    setDetailInsight(insight);
+  };
 
   const handleAskQuestion = () => {
     const positiveKeywords = ["great", "love", "perfect", "amazing", "best"];
@@ -103,19 +134,37 @@ export default function ProductReviews() {
     setQuestion("");
   };
 
+  const reviewSummary = `Based on a comprehensive analysis of ${reviews.length} customer reviews, this product maintains a strong positive reception. Key findings include:
+
+• Quality & Taste: 80% of reviewers praise the authentic taste and consistent fermentation quality
+• Probiotic Benefits: 65% mention improved digestion and health benefits
+• Packaging: Multiple customers appreciate the glass jar packaging, though some suggest eco-friendly improvements
+• Areas for Improvement: Common suggestions include offering different spice levels, larger size options, and more consistent shipping times
+• Price Point: While some find it expensive, most agree the quality justifies the cost
+• Customer Loyalty: Notable number of repeat customers, indicating strong product satisfaction`;
+
   return (
     <MainLayout>
       <div className="max-w-4xl mx-auto space-y-8 py-8">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/customer-insights')}
+              className="hover:bg-slate-100"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              Back to Insights
+            </Button>
+            <h1 className="text-2xl font-bold">{productName}</h1>
+          </div>
           <Button 
-            variant="ghost" 
-            onClick={() => navigate('/customer-insights')}
-            className="hover:bg-slate-100"
+            onClick={() => setInsightsDialogOpen(true)}
+            className="flex items-center gap-2"
           >
-            <ChevronLeft className="w-5 h-5" />
-            Back to Insights
+            <BarChart2 className="w-4 h-4" />
+            View Insights
           </Button>
-          <h1 className="text-2xl font-bold">{productName}</h1>
         </div>
 
         <ReviewSummarySection />
@@ -166,6 +215,26 @@ export default function ProductReviews() {
             ))}
           </div>
         </section>
+
+        <InsightsDialog
+          open={insightsDialogOpen}
+          onOpenChange={setInsightsDialogOpen}
+          onCreateTask={handleCreateTaskFromInsight}
+          insights={insights}
+          onInsightClick={handleInsightClick}
+        />
+
+        <InsightDetailDialog
+          insight={detailInsight}
+          open={!!detailInsight}
+          onClose={() => setDetailInsight(null)}
+          onCreateTask={() => {
+            if (detailInsight) {
+              handleCreateTaskFromInsight(detailInsight);
+              setDetailInsight(null);
+            }
+          }}
+        />
       </div>
       <FloatingChatButton />
     </MainLayout>
