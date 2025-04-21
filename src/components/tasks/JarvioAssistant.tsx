@@ -10,7 +10,15 @@ import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface Message {
+// New subcomponents
+import { SubtaskProgressBar } from "./jarvio/SubtaskProgressBar";
+import { SubtaskStepper } from "./jarvio/SubtaskStepper";
+import { MessageList } from "./jarvio/MessageList";
+import { MessageInputForm } from "./jarvio/MessageInputForm";
+import { ApprovalBanner } from "./jarvio/ApprovalBanner";
+import { FeedbackPanel } from "./jarvio/FeedbackPanel";
+
+export interface Message {
   id: string;
   isUser: boolean;
   text: string;
@@ -448,6 +456,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
   const completedSubtasks = subtasks?.filter(s => s.done)?.length || 0;
   const totalSubtasks = subtasks?.length || 0;
+
   const progress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
 
   const handleSubtaskHistoryClick = (index: number) => {
@@ -505,150 +514,36 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         )}
       </div>
 
-      <div className="px-4 py-2 border-b">
-        <div className="flex justify-between items-center text-xs mb-1">
-          <span className="font-medium">Progress</span>
-          <span>{completedSubtasks} of {totalSubtasks} steps</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-purple-600 h-2 rounded-full"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="border-b overflow-x-auto">
-        <div className="flex py-1 px-2">
-          {subtasks && subtasks.map((subtask, idx) => (
-            <button
-              key={subtask.id}
-              onClick={() => handleSubtaskHistoryClick(idx)}
-              className={`px-3 py-1 text-xs whitespace-nowrap rounded-full mr-1 flex items-center gap-1 transition-colors
-                ${idx === activeSubtaskIdx ? 'bg-purple-100 text-purple-800' : ''}
-                ${subtask.done || idx < currentSubtaskIndex || idx === currentSubtaskIndex ? 'hover:bg-purple-50' : 'opacity-60 cursor-not-allowed'}
-              `}
-              disabled={!subtask.done && idx > currentSubtaskIndex}
-            >
-              {subtask.done && <Check size={12} />}
-              {idx + 1}. {subtask.title.substring(0, 20)}{subtask.title.length > 20 ? '...' : ''}
-            </button>
-          ))}
-        </div>
-      </div>
+      <SubtaskProgressBar completed={completedSubtasks} total={totalSubtasks} />
+      <SubtaskStepper
+        subtasks={subtasks}
+        currentSubtaskIdx={currentSubtaskIndex}
+        activeSubtaskIdx={activeSubtaskIdx}
+        onSubtaskClick={handleSubtaskHistoryClick}
+      />
 
       <ScrollArea className="flex-1 p-4 pb-0" style={{ height: "1px", minHeight: 0 }}>
-        <div className="space-y-4 pr-2">
-          {subtaskMessages.map((message, idx) => (
-            <div
-              key={message.id}
-              className={`flex items-start gap-3 ${
-                message.isUser ? "flex-row-reverse" : ""
-              }`}
-            >
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  message.isUser
-                    ? "bg-blue-100 text-blue-700"
-                    : message.systemLog
-                      ? "bg-green-100 text-green-800"
-                      : "bg-purple-100 text-purple-700"
-                }`}
-              >
-                {message.isUser ? <User size={18} /> : <Zap size={18} />}
-              </div>
-              <div
-                className={`rounded-lg px-4 py-2 max-w-[85%] ${
-                  message.isUser
-                    ? "bg-blue-50 text-blue-900"
-                    : message.systemLog
-                      ? "bg-green-50 text-green-800 border border-green-100"
-                      : "bg-purple-50 text-purple-900"
-                }`}
-              >
-                <div className="whitespace-pre-wrap text-sm">{message.text}</div>
-                <div className="text-xs mt-1 opacity-60">
-                  {formatTime(message.timestamp)}
-                </div>
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
-                <Zap size={18} />
-              </div>
-              <div className="rounded-lg px-4 py-3 bg-purple-50">
-                <div className="flex items-center gap-3">
-                  <Loader2 size={16} className="animate-spin" />
-                  <div className="space-y-2">
-                    <p className="text-sm text-purple-900">Working on it...</p>
-                    <div className="space-y-1">
-                      <Skeleton className="h-2 w-[190px]" />
-                      <Skeleton className="h-2 w-[160px]" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          {pendingApproval && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
-              <p className="text-sm font-medium mb-2">Approval required</p>
-              <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={() => handleApproval(true)}
-                >
-                  <ThumbsUp size={16} className="mr-1" /> Approve
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className="border-red-300 text-red-600 hover:bg-red-50"
-                  onClick={() => handleApproval(false)}
-                >
-                  Reject
-                </Button>
-              </div>
-            </div>
-          )}
-          {awaitingContinue && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex flex-col gap-3">
-              <p className="text-sm font-medium text-green-800 mb-2">
-                Subtask complete! Review the results above and the collected data below. Would you like to continue to the next step or provide feedback?
-              </p>
-              <form className="flex flex-col gap-2" onSubmit={handleFeedbackAndContinue}>
-                <Textarea
-                  className="min-h-14 text-xs"
-                  placeholder="Optional: Write feedback for Jarvio about this step..."
-                  value={feedback}
-                  onChange={e => setFeedback(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="default"
-                    onClick={handleContinue}
-                    type="button"
-                  >
-                    Continue
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={!feedback.trim()}
-                    type="submit"
-                  >
-                    Send Feedback & Continue
-                  </Button>
-                </div>
-              </form>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
+        <MessageList
+          messages={subtaskMessages}
+          isLoading={isLoading}
+          pendingApproval={pendingApproval}
+          awaitingContinue={awaitingContinue}
+          refBottom={messagesEndRef}
+        />
+        {pendingApproval && (
+          <ApprovalBanner
+            onApprove={() => handleApproval(true)}
+            onReject={() => handleApproval(false)}
+          />
+        )}
+        {awaitingContinue && (
+          <FeedbackPanel
+            feedback={feedback}
+            setFeedback={setFeedback}
+            onContinue={handleContinue}
+            onSubmitFeedback={handleFeedbackAndContinue}
+          />
+        )}
       </ScrollArea>
 
       {activeSubtask && (
@@ -695,45 +590,16 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         </div>
       )}
 
-      <form
+      <MessageInputForm
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        isLoading={isLoading}
+        pendingApproval={pendingApproval}
+        autoRunMode={autoRunMode}
+        autoRunPaused={autoRunPaused}
+        awaitingContinue={awaitingContinue}
         onSubmit={handleSendMessage}
-        className="sticky bottom-0 left-0 right-0 p-4 pt-2 border-t bg-white z-20"
-        style={{
-          boxShadow: "0 -6px 20px 0 rgba(0,0,0,0.10)",
-        }}
-      >
-        <div className="flex items-end gap-2">
-          <Textarea
-            className="min-h-24 text-sm resize-none"
-            placeholder="Ask Jarvio for help..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            disabled={
-              isLoading ||
-              pendingApproval ||
-              (autoRunMode && !autoRunPaused) ||
-              awaitingContinue
-            }
-          />
-          <Button 
-            type="submit" 
-            disabled={
-              isLoading ||
-              !inputValue.trim() ||
-              pendingApproval ||
-              (autoRunMode && !autoRunPaused) ||
-              awaitingContinue
-            }
-            className="h-10"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <MessageSquare className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      </form>
+      />
     </div>
   );
 };
