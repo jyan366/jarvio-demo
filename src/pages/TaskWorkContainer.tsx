@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -84,15 +83,25 @@ export default function TaskWorkContainer() {
     );
 
   let dialogSubtask = subtaskDialogIdx !== null ? taskState?.subtasks[subtaskDialogIdx] : null;
-  let dialogWorkLog: string | undefined = undefined;
-  let dialogCompletedAt: string | undefined = undefined;
   
-  // Get the work log data for the current subtask from subtaskData
+  // Get Jarvio (AI) work log
+  let jarvioWorkLog: string | undefined = undefined;
+  let jarvioCompletedAt: string | undefined = undefined;
   if (dialogSubtask && subtaskData && subtaskData[dialogSubtask.id]) {
-    dialogWorkLog = subtaskData[dialogSubtask.id].result;
-    dialogCompletedAt = subtaskData[dialogSubtask.id].completedAt;
+    jarvioWorkLog = subtaskData[dialogSubtask.id].result;
+    jarvioCompletedAt = subtaskData[dialogSubtask.id].completedAt;
   }
-  
+
+  // Find user comments (user log) attached to the current subtask
+  let userWorkLog = dialogSubtask && Array.isArray(taskState.comments)
+    ? taskState.comments.filter(
+        (c) =>
+          (c.subtaskId === dialogSubtask.id || (!c.subtaskId && subtaskDialogIdx === 0)) &&
+          c.user !== "jarvio"
+      )
+    : [];
+
+  // Comments section will be unchanged
   let dialogComments =
     dialogSubtask && Array.isArray(taskState.comments)
       ? taskState.comments.filter(
@@ -162,8 +171,9 @@ export default function TaskWorkContainer() {
               handleToggleSubtask(subtaskDialogIdx);
             }
           }}
-          workLog={dialogWorkLog}
-          completedAt={dialogCompletedAt}
+          jarvioWorkLog={jarvioWorkLog}
+          jarvioCompletedAt={jarvioCompletedAt}
+          userWorkLog={userWorkLog}
           comments={dialogComments}
         />
       )}

@@ -18,8 +18,9 @@ interface SubtaskDialogProps {
   subtask: Subtask | null;
   onUpdate: (field: keyof Subtask, value: any) => void;
   onToggleComplete: () => void;
-  workLog?: string;
-  completedAt?: string;
+  jarvioWorkLog?: string;
+  jarvioCompletedAt?: string;
+  userWorkLog?: { user: string; text: string; ago: string }[];
   comments?: { user: string; text: string; ago: string }[];
   onAddComment?: (text: string) => void;
   commentValue?: string;
@@ -32,8 +33,9 @@ export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
   subtask,
   onUpdate,
   onToggleComplete,
-  workLog,
-  completedAt,
+  jarvioWorkLog,
+  jarvioCompletedAt,
+  userWorkLog = [],
   comments = [],
   onAddComment,
   commentValue = "",
@@ -64,10 +66,41 @@ export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
         </DialogHeader>
 
         <div className="py-2 flex flex-col gap-3" id={descId}>
-          {/* WORK LOG section (fully matching work log card style) */}
+          {/* WORK LOG: 2 sections */}
           <div>
             <p className="text-sm font-medium mb-1">Work Log</p>
-            <JarvioDataLog result={workLog} completedAt={completedAt} />
+            <div className="flex flex-col gap-2">
+              <div>
+                <p className="text-xs font-semibold text-green-700 mb-1">
+                  Jarvio Work Log (AI Output)
+                </p>
+                <JarvioDataLog result={jarvioWorkLog} completedAt={jarvioCompletedAt} />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-blue-700 mb-1">
+                  User Work Log (Actions/Inputs)
+                </p>
+                <div className="bg-blue-50 border border-blue-300 rounded-md px-3 py-2 my-2 w-full min-h-[36px]">
+                  {userWorkLog && userWorkLog.length > 0 ? (
+                    userWorkLog.map((c, i) => (
+                      <div key={i} className="mb-2">
+                        <span className="font-semibold text-blue-800 text-xs mr-2">
+                          {c.user[0]?.toUpperCase() ?? "U"}
+                        </span>
+                        <span className="text-xs text-blue-900">{c.text}</span>
+                        <div className="text-[10px] text-right text-blue-500">
+                          {c.ago}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="italic text-blue-400 text-xs">
+                      No user inputs or actions for this step yet.
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div>

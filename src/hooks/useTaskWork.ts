@@ -372,27 +372,10 @@ export function useTaskWork() {
         };
 
         setTaskState(task);
-        
-        try {
-          const { data: subtaskResults } = await supabase
-            .from("subtask_results")
-            .select("subtask_id, result, completed_at")
-            .eq("task_id", id);
-            
-          if (subtaskResults && subtaskResults.length > 0) {
-            const resultMap: SubtaskDataMap = {};
-            subtaskResults.forEach(sr => {
-              resultMap[sr.subtask_id] = {
-                result: sr.result || "",
-                completed: true,
-                completedAt: sr.completed_at
-              };
-            });
-            setSubtaskData(resultMap);
-          }
-        } catch (err) {
-          console.log("Could not load subtask work logs:", err);
-        }
+
+        // No subtask_results table: skip attempting to load
+        // Instead, rely on subtaskData that Jarvio writes to on usage
+
       } catch (e) {
         console.error("Error loading task:", e);
         toast({
