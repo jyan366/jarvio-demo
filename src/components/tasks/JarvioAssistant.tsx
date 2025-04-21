@@ -65,8 +65,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [readyForNextSubtask, setReadyForNextSubtask] = useState(false);
-  const [awaitingContinue, setAwaitingContinue] = useState(false);
-  const [feedback, setFeedback] = useState("");
   const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
   const [showDataLog, setShowDataLog] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -109,7 +107,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     const handleAutoRun = () => {
       if (!autoRunMode || autoRunPaused) return;
       if (historySubtaskIdx !== null && historySubtaskIdx !== currentSubtaskIndex) return;
-      if (isLoading || pendingApproval || awaitingContinue || isTransitioning) return;
+      if (isLoading || pendingApproval || isTransitioning) return;
       if (readyForNextSubtask && currentSubtaskIndex < subtasks.length - 1) {
         setAutoRunPaused(true);
         toast({
@@ -156,7 +154,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     pendingApproval, 
     readyForNextSubtask, 
     subtasks, 
-    awaitingContinue, 
     historySubtaskIdx,
     isTransitioning
   ]);
@@ -209,25 +206,148 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     }
   };
 
-  const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string, feedbackMessage?: string) => {
+  function isAwaitingUserConfirmation() {
+    const last = messages[messages.length - 1];
+    if (!last || last.isUser) return false;
+    const txt = last.text.toLowerCase();
+    return (
+      txt.includes("please confirm") ||
+      txt.includes("confirm") ||
+      txt.includes("let me know") ||
+      txt.includes("user work log") ||
+      txt.includes("your confirmation") ||
+      txt.includes("once you confirm") ||
+      txt.includes("did you") ||
+      txt.includes("tell me") ||
+      txt.includes("waiting") ||
+      txt.includes("waiting for your confirmation")
+    );
+  }
+
+  function isUserConfirmationMessage(text: string) {
+    const lower = text.toLowerCase().trim();
+    return (
+      ["confirmed", "done", "completed", "yes", "ok", "approved", "i did", "finished", "accepted"].some(keyword =>
+        lower.startsWith(keyword)
+      ) ||
+      lower === "y"
+    );
+  }
+
+  const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string) => {
     e?.preventDefault();
     const messageToSend = autoMessage || inputValue;
     let conversation = messages;
 
-    if (feedbackMessage) {
-      conversation = [
-        ...messages,
-        {
-          id: crypto.randomUUID(),
-          isUser: true,
-          text: `Feedback: ${feedbackMessage}`,
-          timestamp: new Date(),
-          subtaskIdx: activeSubtaskIdx
-        },
-      ];
-    }
-
     if ((!messageToSend.trim() && !autoMessage) || isLoading) return;
+
+    if (isAwaitingUserConfirmation() && isUserConfirmationMessage(messageToSend)) {
+      const subtaskId = subtasks[activeSubtaskIdx]?.id;
+      if (subtaskId && subtaskData[subtaskId] && subtaskData[subtaskId].result) {
+        let jarvioWorkLog = "";
+        let userWorkLog = "";
+
+        const result = subtaskData[subtaskId].result;
+        const aiMatch = result.match(/COLLECTED DATA:\s*([\s\S]+?)(?=(USER WORK LOG:|$))/i);
+        jarvioWorkLog = aiMatch?.[1]?.trim() || "";
+        const userMatch = result.match(/USER WORK LOG:\s*([\s\S]+)/i);
+        userWorkLog = userMatch?.[1]?.trim() || "";
+
+        const newEntry = `User confirmed: ${messageToSend}`;
+        if (userWorkLog) {
+          userWorkLog = userWorkLog + "\n" + newEntry;
+        } else {
+          userWorkLog = newEntry;
+        }
+
+        let mergedResult = "";
+        if (jarvioWorkLog) {
+          mergedResult += `COLLECTED DATA:\n${jarvioWorkLog}`;
+        }
+        if (userWorkLog) {
+          mergedResult += `\n\nUSER WORK LOG:\n${userWorkLog}`;
+        }
+
+        const completedData: SubtaskData = {
+          ...subtaskData[subtaskId],
+          result: mergedResult,
+          completed: true,
+          completedAt: subtaskData[subtaskId]?.completedAt || new Date().toISOString(),
+        };
+        setSubtaskData(prev => ({ ...prev, [subtaskId]: completedData }));
+
+        if (subtaskId) {
+          await handleSaveSubtaskResult(subtaskId, mergedResult);
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            isUser: true,
+            text: messageToSend,
+            timestamp: new Date(),
+            subtaskIdx: activeSubtaskIdx
+          }
+        ]);
+        setInputValue("");
+
+        setTimeout(async () => {
+          await onSubtaskComplete(activeSubtaskIdx);
+          setJustMarkedAsDone(activeSubtaskIdx);
+
+          if (activeSubtaskIdx < subtasks.length - 1) {
+            const nextIdx = activeSubtaskIdx + 1;
+            onSubtaskSelect(nextIdx);
+            setHistorySubtaskIdx(null);
+
+            setMessages((prev) => {
+              const transitionMessage = {
+                id: crypto.randomUUID(),
+                isUser: false,
+                text: `Step complete: "${subtasks[activeSubtaskIdx].title}"`,
+                timestamp: new Date(),
+                subtaskIdx: activeSubtaskIdx,
+                systemLog: true,
+              };
+              const nextStepIntro = {
+                id: crypto.randomUUID(),
+                isUser: false,
+                text: `Moving to next step: "${subtasks[nextIdx].title}"`,
+                timestamp: new Date(),
+                subtaskIdx: nextIdx,
+                systemLog: true,
+              };
+              return [
+                ...prev,
+                transitionMessage,
+                nextStepIntro,
+                {
+                  id: crypto.randomUUID(),
+                  isUser: false,
+                  text: `Ready to begin next subtask: "${subtasks[nextIdx].title}".`,
+                  timestamp: new Date(),
+                  subtaskIdx: nextIdx,
+                },
+              ];
+            });
+          } else {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: crypto.randomUUID(),
+                isUser: false,
+                text: "All subtasks complete! 🎉",
+                timestamp: new Date(),
+                subtaskIdx: activeSubtaskIdx,
+              },
+            ]);
+          }
+        }, 600);
+
+        return;
+      }
+    }
 
     const userMessage = {
       id: crypto.randomUUID(),
@@ -237,12 +357,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       subtaskIdx: activeSubtaskIdx
     };
 
-    if (!autoMessage) {
-      setMessages((prev) => [...prev, userMessage]);
-      setInputValue("");
-    }
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
     setIsLoading(true);
-    setAwaitingContinue(false);
 
     try {
       const previousContext = getPreviousSubtasksContext();
@@ -293,9 +410,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
         if (subtasks && activeSubtaskIdx < subtasks.length && workLogContent) {
           const currentSubtaskId = subtasks[activeSubtaskIdx].id;
-          
           const existingData = subtaskData[currentSubtaskId] || { result: "", completed: false };
-          
           const updatedData: SubtaskData = {
             ...existingData,
             result: workLogContent,
@@ -304,12 +419,10 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               ? new Date().toISOString()
               : existingData.completedAt
           };
-          
           setSubtaskData(prev => ({
             ...prev,
             [currentSubtaskId]: updatedData
           }));
-          
           if (currentSubtaskId) {
             await handleSaveSubtaskResult(currentSubtaskId, workLogContent);
           }
@@ -326,7 +439,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         setMessages((prev) => [...prev, assistantMessage]);
 
         if (subtaskComplete) {
-          setAwaitingContinue(true);
           setReadyForNextSubtask(true);
           if (autoRunMode) {
             setAutoRunPaused(true);
@@ -379,226 +491,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     setIsLoading(false);
   };
 
-  const handleContinue = async () => {
-    setAwaitingContinue(false);
-    setFeedback("");
-    setReadyForNextSubtask(false);
-    setIsTransitioning(true);
-
-    const currentSubtaskId = subtasks?.[currentSubtaskIndex]?.id;
-    const currentLogData = currentSubtaskId ? subtaskData[currentSubtaskId] : undefined;
-
-    if (subtasks && currentSubtaskIndex < subtasks.length && !subtasks[currentSubtaskIndex].done) {
-      if (currentSubtaskId && currentLogData?.result) {
-        await handleSaveSubtaskResult(currentSubtaskId, currentLogData.result);
-      }
-
-      await onSubtaskComplete(currentSubtaskIndex);
-      setJustMarkedAsDone(currentSubtaskIndex);
-
-      if (currentSubtaskIndex < subtasks.length - 1) {
-        const nextIndex = currentSubtaskIndex + 1;
-        onSubtaskSelect(nextIndex);
-
-        setTimeout(() => {
-          const prevSubtaskData =
-            subtaskData[subtasks[currentSubtaskIndex]?.id]?.result ||
-            "No data collected";
-
-          setMessages((prev) => {
-            const transitionMessage = {
-              id: crypto.randomUUID(),
-              isUser: false,
-              text: `Step complete: "${subtasks[currentSubtaskIndex].title}"`,
-              timestamp: new Date(),
-              subtaskIdx: currentSubtaskIndex,
-              systemLog: true,
-            };
-            const nextStepIntro = {
-              id: crypto.randomUUID(),
-              isUser: false,
-              text: `Moving to next step: "${subtasks[nextIndex].title}"`,
-              timestamp: new Date(),
-              subtaskIdx: nextIndex,
-              systemLog: true,
-            };
-            return [
-              ...prev,
-              transitionMessage,
-              nextStepIntro,
-              {
-                id: crypto.randomUUID(),
-                isUser: false,
-                text: `Ready to begin next subtask: "${subtasks[nextIndex].title}". Using results from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? "..." : ""}`,
-                timestamp: new Date(),
-                subtaskIdx: nextIndex,
-              },
-            ];
-          });
-
-          setIsTransitioning(false);
-          setHistorySubtaskIdx(null);
-        }, 1000);
-      } else {
-        setIsTransitioning(false);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            isUser: false,
-            text: "All subtasks complete! 🎉",
-            timestamp: new Date(),
-            subtaskIdx: currentSubtaskIndex,
-          },
-        ]);
-      }
-    } else {
-      setIsTransitioning(false);
-    }
-  };
-
-  const handleFeedbackAndContinue = (e: React.FormEvent) => {
-    e.preventDefault();
-    setAwaitingContinue(false);
-    handleSendMessage(undefined,
-      `Here's my feedback for the subtask: "${feedback}"`,
-      feedback
-    );
-    setFeedback("");
-  };
-
-  const handleApproval = async (approved: boolean) => {
-    setPendingApproval(false);
-    if (approved) {
-      const currentSubtaskId = subtasks?.[activeSubtaskIdx]?.id;
-      if (currentSubtaskId) {
-        const currentLog = subtaskData[currentSubtaskId]?.result || "";
-        const updatedLog = currentLog + "\n\nUSER WORK LOG:\nUser approved this action.";
-        
-        const updatedData: SubtaskData = {
-          ...subtaskData[currentSubtaskId] || { result: "", completed: false },
-          result: updatedLog
-        };
-        
-        setSubtaskData(prev => ({
-          ...prev,
-          [currentSubtaskId]: updatedData
-        }));
-        
-        await handleSaveSubtaskResult(currentSubtaskId, updatedLog);
-      }
-      
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          isUser: true,
-          text: "I approve this action.",
-          timestamp: new Date(),
-          subtaskIdx: activeSubtaskIdx,
-        },
-      ]);
-      
-      setTimeout(async () => {
-        await onSubtaskComplete(activeSubtaskIdx);
-        setJustMarkedAsDone(activeSubtaskIdx);
-        if (activeSubtaskIdx < subtasks.length - 1) {
-          const nextIdx = activeSubtaskIdx + 1;
-          onSubtaskSelect(nextIdx);
-          setHistorySubtaskIdx(null);
-
-          setMessages((prev) => {
-            const transitionMessage = {
-              id: crypto.randomUUID(),
-              isUser: false,
-              text: `Step complete: "${subtasks[activeSubtaskIdx].title}"`,
-              timestamp: new Date(),
-              subtaskIdx: activeSubtaskIdx,
-              systemLog: true,
-            };
-            const nextStepIntro = {
-              id: crypto.randomUUID(),
-              isUser: false,
-              text: `Moving to next step: "${subtasks[nextIdx].title}"`,
-              timestamp: new Date(),
-              subtaskIdx: nextIdx,
-              systemLog: true,
-            };
-            return [
-              ...prev,
-              transitionMessage,
-              nextStepIntro,
-              {
-                id: crypto.randomUUID(),
-                isUser: false,
-                text: `Great! Moving on to the next subtask: "${subtasks[nextIdx].title}".`,
-                timestamp: new Date(),
-                subtaskIdx: nextIdx,
-              },
-            ];
-          });
-        } else {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: crypto.randomUUID(),
-              isUser: false,
-              text: "All subtasks complete! 🎉",
-              timestamp: new Date(),
-              subtaskIdx: activeSubtaskIdx,
-            },
-          ]);
-        }
-      }, 600);
-    } else {
-      const currentSubtaskId = subtasks?.[activeSubtaskIdx]?.id;
-      if (currentSubtaskId) {
-        const currentLog = subtaskData[currentSubtaskId]?.result || "";
-        const updatedLog = currentLog + "\n\nUSER WORK LOG:\nUser rejected this action.";
-        
-        const updatedData: SubtaskData = {
-          ...subtaskData[currentSubtaskId] || { result: "", completed: false },
-          result: updatedLog
-        };
-        
-        setSubtaskData(prev => ({
-          ...prev,
-          [currentSubtaskId]: updatedData
-        }));
-        
-        await handleSaveSubtaskResult(currentSubtaskId, updatedLog);
-      }
-    
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          isUser: true,
-          text: "I don't approve this action.",
-          timestamp: new Date(),
-          subtaskIdx: activeSubtaskIdx,
-        },
-      ]);
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            isUser: false,
-            text: "I understand. Let's take a different approach. What would you like to do instead?",
-            timestamp: new Date(),
-            subtaskIdx: activeSubtaskIdx,
-          },
-        ]);
-        if (autoRunMode) {
-          setAutoRunPaused(true);
-        }
-      }, 500);
-    }
-  };
-
   const handleAutoRunStep = () => {
-    if (isLoading || pendingApproval || awaitingContinue || isTransitioning) return;
+    if (isLoading || pendingApproval || isTransitioning) return;
     
     const currentSubtask = subtasks?.[currentSubtaskIndex];
     if (!currentSubtask) return;
@@ -758,14 +652,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             pendingApproval={pendingApproval}
             autoRunMode={autoRunMode}
             autoRunPaused={autoRunPaused}
-            awaitingContinue={awaitingContinue}
             isTransitioning={isTransitioning}
             onSendMessage={handleSendMessage}
             onApproval={handleApproval}
-            onContinue={handleContinue}
-            feedback={feedback}
-            setFeedback={setFeedback}
-            onFeedbackAndContinue={handleFeedbackAndContinue}
           />
         </TabsContent>
         <TabsContent value="datalog" className="flex-1 overflow-auto p-0">

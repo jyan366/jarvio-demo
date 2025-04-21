@@ -16,18 +16,13 @@ interface JarvioChatTabProps {
   pendingApproval: boolean;
   autoRunMode: boolean;
   autoRunPaused: boolean;
-  awaitingContinue: boolean;
   isTransitioning: boolean;
   onSendMessage: (e?: React.FormEvent) => void;
   onApproval: (approved: boolean) => void;
-  onContinue: () => void;
-  feedback: string;
-  setFeedback: (value: string) => void;
-  onFeedbackAndContinue: (e: React.FormEvent) => void;
 }
 
 export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
-  messages, // now always all messages across all subtasks
+  messages,
   subtasks,
   activeSubtaskIdx,
   inputValue,
@@ -36,28 +31,23 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   pendingApproval,
   autoRunMode,
   autoRunPaused,
-  awaitingContinue,
   isTransitioning,
   onSendMessage,
   onApproval,
-  onContinue,
-  feedback,
-  setFeedback,
-  onFeedbackAndContinue,
 }) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLTextAreaElement>(null);
   const currentSubtask = subtasks[activeSubtaskIdx];
 
-  useEffect(() => {
+  React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
-    if (!isLoading && !pendingApproval && !awaitingContinue && inputRef.current) {
+  React.useEffect(() => {
+    if (!isLoading && !pendingApproval && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isLoading, pendingApproval, awaitingContinue]);
+  }, [isLoading, pendingApproval]);
 
   return (
     <div className="flex flex-col h-full relative">
@@ -94,42 +84,6 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
                 <ThumbsDown className="w-4 h-4 mr-1" /> Reject
               </Button>
             </div>
-          </div>
-        ) : awaitingContinue ? (
-          <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
-            <h4 className="font-medium text-sm mb-2 flex items-center">
-              <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs mr-2">
-                Completed
-              </span> 
-              {currentSubtask?.title}
-            </h4>
-            
-            <form onSubmit={onFeedbackAndContinue} className="space-y-3">
-              <div>
-                <label htmlFor="feedback" className="block text-xs font-medium text-gray-700 mb-1">
-                  Add feedback (optional)
-                </label>
-                <Textarea
-                  id="feedback"
-                  placeholder="Add any feedback before continuing..."
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  className="min-h-[60px] text-sm"
-                />
-              </div>
-              <Button 
-                type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={isTransitioning}
-              >
-                {isTransitioning ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 mr-1" />
-                )}
-                {feedback.trim() ? 'Submit & Continue' : 'Mark Complete & Continue'}
-              </Button>
-            </form>
           </div>
         ) : (
           <form onSubmit={onSendMessage} className="flex gap-2">
