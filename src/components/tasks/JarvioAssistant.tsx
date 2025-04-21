@@ -40,7 +40,15 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   onSubtaskComplete,
   onSubtaskSelect,
 }) => {
-  const logic = useJarvioAssistantLogic(taskId, taskTitle, taskDescription, subtasks, currentSubtaskIndex, onSubtaskComplete, onSubtaskSelect);
+  const logic = useJarvioAssistantLogic(
+    taskId, 
+    taskTitle, 
+    taskDescription, 
+    subtasks, 
+    currentSubtaskIndex, 
+    onSubtaskComplete, 
+    onSubtaskSelect
+  );
   const { tab, setTab } = useJarvioAssistantTabs();
 
   useJarvioAssistantAutoRun({
@@ -463,6 +471,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             autoRunPaused={logic.autoRunPaused}
             isTransitioning={logic.isTransitioning}
             onSendMessage={handleSendMessage}
+            onGenerateSteps={handleGenerateSteps}
           />
         </TabsContent>
         <TabsContent value="datalog" className="flex-1 overflow-auto p-0">

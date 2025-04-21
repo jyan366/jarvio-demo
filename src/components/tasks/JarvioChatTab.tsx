@@ -17,6 +17,7 @@ interface JarvioChatTabProps {
   autoRunPaused: boolean;
   isTransitioning: boolean;
   onSendMessage: (e?: React.FormEvent) => void;
+  onGenerateSteps?: () => void;
 }
 
 export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
@@ -30,6 +31,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   autoRunPaused,
   isTransitioning,
   onSendMessage,
+  onGenerateSteps,
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
@@ -51,6 +53,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           messages={messages} 
           subtasks={subtasks}
           activeSubtaskIdx={activeSubtaskIdx} 
+          onGenerateSteps={onGenerateSteps}
         />
         <div ref={messagesEndRef} />
       </ScrollArea>

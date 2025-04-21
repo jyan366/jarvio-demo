@@ -1,131 +1,72 @@
 
 import React from "react";
-import { User, Zap, CheckCircle, ArrowRight } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { Markdown } from "markdown-to-jsx";
 import { Subtask } from "@/pages/TaskWorkContainer";
-
-interface Message {
-  id: string;
-  isUser: boolean;
-  text: string;
-  timestamp: Date;
-  subtaskIdx?: number;
-  systemLog?: boolean;
-}
+import { Button } from "@/components/ui/button";
 
 interface JarvioChatMessagesProps {
-  messages: Message[];
+  messages: any[];
   subtasks: Subtask[];
   activeSubtaskIdx: number;
+  onGenerateSteps?: () => void;
 }
 
 export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
-  messages, subtasks, activeSubtaskIdx
+  messages,
+  subtasks,
+  activeSubtaskIdx,
+  onGenerateSteps
 }) => {
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  /** Helper: extract subtask title from a "Step complete" or "Moving to next step" msg */
-  const extractStepInfo = (msg: string) => {
-    if (msg.startsWith("Step complete: \"")) {
-      const extracted = msg.match(/^Step complete: "(.+?)"$/);
-      return { type: "completed", title: extracted?.[1] };
-    }
-    if (msg.startsWith("Moving to next step: \"")) {
-      const extracted = msg.match(/^Moving to next step: "(.+?)"$/);
-      return { type: "next", title: extracted?.[1] };
-    }
-    return null;
-  };
+  if (messages.length === 0 && (!subtasks || subtasks.length === 0)) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
+        <MessageCircle className="h-12 w-12 text-primary/20" />
+        <div className="max-w-[320px] space-y-2">
+          <p className="text-lg font-medium">Let's break down this task</p>
+          <p className="text-sm text-muted-foreground">
+            I notice there are no subtasks yet. Would you like me to help generate some subtasks to break down this work?
+          </p>
+          {onGenerateSteps && (
+            <Button onClick={onGenerateSteps} className="mt-4">
+              Generate Subtasks
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      {messages.length === 0 && (
-        <div className="text-center p-4 text-muted-foreground">
-          <p>No messages yet</p>
-        </div>
-      )}
-      {messages.map((message, idx) => {
-        // Get subtask title for this message, if subtaskIdx is set
-        const subtaskTitle = typeof message.subtaskIdx === "number" && subtasks[message.subtaskIdx]
-          ? subtasks[message.subtaskIdx].title
-          : undefined;
-
-        // Enhanced: Render workflow "step transition" for system logs (completed/next step)
-        if (message.systemLog) {
-          const stepInfo = extractStepInfo(message.text);
-          if (stepInfo) {
-            return (
-              <div key={message.id} className="flex flex-col items-center my-3">
-                <div className="flex items-center w-full max-w-2xl">
-                  <div className="flex-1 border-t border-dashed border-purple-200" />
-                  <div className="flex flex-col items-center px-3">
-                    {stepInfo.type === "completed" ? (
-                      <>
-                        <CheckCircle className="h-6 w-6 text-green-500 mb-1" />
-                        <div className="bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-2 shadow-sm text-xs font-semibold">
-                          Completed: {stepInfo.title}
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <ArrowRight className="h-6 w-6 text-purple-600 mb-1" />
-                        <div className="bg-purple-50 border border-purple-200 text-purple-800 rounded-lg px-4 py-2 shadow-sm text-xs font-semibold">
-                          Next Step: {stepInfo.title}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  <div className="flex-1 border-t border-dashed border-purple-200" />
-                </div>
-              </div>
-            );
-          }
-          // Fallback: Other system messages
-          return (
-            <div key={message.id} className="w-full flex justify-center">
-              <div className="rounded-full bg-purple-100 text-purple-700 px-4 py-1 text-xs font-semibold my-2 shadow border border-purple-200 border-dashed">
-                {message.text}
-              </div>
-            </div>
-          );
-        }
-
-        // Regular (user or assistant) message
-        return (
+    <div className="space-y-4 pb-4">
+      {messages.map((message, index) => (
+        <div
+          key={message.id || index}
+          className={`flex ${
+            message.isUser ? "justify-end" : "justify-start"
+          }`}
+        >
           <div
-            key={message.id}
-            className="flex items-start gap-3"
+            className={`max-w-[85%] rounded-lg p-3 ${
+              message.isUser
+                ? "bg-primary text-primary-foreground ml-4"
+                : message.systemLog
+                ? "bg-muted border border-border"
+                : "bg-muted/50 border border-primary/10 mr-4"
+            }`}
           >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                message.isUser
-                  ? "bg-gray-100 text-gray-700"
-                  : "bg-purple-100 text-purple-700"
-              }`}
-            >
-              {message.isUser ? <User size={18} /> : <Zap size={18} />}
-            </div>
-            <div
-              className={`rounded-lg px-4 py-3 ${
-                message.isUser
-                  ? "bg-gray-50 border border-gray-200"
-                  : "bg-purple-50"
-              } max-w-3xl`}
-            >
-              {subtaskTitle && (
-                <div className="text-[11px] font-semibold text-purple-700 mb-1">
-                  {subtaskTitle}
-                </div>
-              )}
-              <div className="text-sm whitespace-pre-wrap">{message.text}</div>
-              <div className="text-[10px] text-gray-400 mt-1 text-right">
-                {formatTime(message.timestamp || new Date())}
-              </div>
+            <div className="prose prose-sm dark:prose-invert break-words">
+              <Markdown options={{
+                forceBlock: true,
+                wrapper: "div",
+                forceWrapper: true,
+              }}>
+                {message.text}
+              </Markdown>
             </div>
           </div>
-        );
-      })}
+        </div>
+      ))}
     </div>
   );
 };
