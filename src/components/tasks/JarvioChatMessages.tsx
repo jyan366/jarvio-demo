@@ -30,6 +30,11 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({ messages
 
   return (
     <div className="space-y-4">
+      {filteredMessages.length === 0 && (
+        <div className="text-center p-4 text-muted-foreground">
+          <p>No messages for this subtask yet</p>
+        </div>
+      )}
       {filteredMessages.map((message) => (
         <div
           key={message.id}

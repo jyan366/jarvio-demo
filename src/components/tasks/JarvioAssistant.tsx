@@ -354,22 +354,37 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           const prevSubtaskData =
             subtaskData[subtasks[currentSubtaskIndex]?.id]?.result ||
             "No data collected";
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: crypto.randomUUID(),
-              isUser: false,
-              text: `Ready to begin next subtask: "${subtasks[nextIndex].title}". Using results from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? "..." : ""}`,
-              timestamp: new Date(),
-              subtaskIdx: nextIndex,
-            },
-          ]);
-          setIsTransitioning(false);
           
+          setMessages((prev) => {
+            const filteredMessages = prev.filter(msg => msg.subtaskIdx !== nextIndex);
+            
+            return [
+              ...filteredMessages,
+              {
+                id: crypto.randomUUID(),
+                isUser: false,
+                text: `Ready to begin next subtask: "${subtasks[nextIndex].title}". Using results from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? "..." : ""}`,
+                timestamp: new Date(),
+                subtaskIdx: nextIndex,
+              },
+            ];
+          });
+          
+          setIsTransitioning(false);
           setHistorySubtaskIdx(null);
         }, 1000);
       } else {
         setIsTransitioning(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            isUser: false,
+            text: "All subtasks complete! 🎉",
+            timestamp: new Date(),
+            subtaskIdx: currentSubtaskIndex,
+          },
+        ]);
       }
     } else {
       setIsTransitioning(false);
@@ -403,18 +418,24 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         await onSubtaskComplete(activeSubtaskIdx);
         setJustMarkedAsDone(activeSubtaskIdx);
         if (activeSubtaskIdx < subtasks.length - 1) {
-          onSubtaskSelect(activeSubtaskIdx + 1);
+          const nextIdx = activeSubtaskIdx + 1;
+          onSubtaskSelect(nextIdx);
           setHistorySubtaskIdx(null);
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: crypto.randomUUID(),
-              isUser: false,
-              text: `Great! Moving on to the next subtask: "${subtasks[activeSubtaskIdx + 1].title}".`,
-              timestamp: new Date(),
-              subtaskIdx: activeSubtaskIdx + 1,
-            },
-          ]);
+          
+          setMessages((prev) => {
+            const filteredMessages = prev.filter(msg => msg.subtaskIdx !== nextIdx);
+            
+            return [
+              ...filteredMessages,
+              {
+                id: crypto.randomUUID(),
+                isUser: false,
+                text: `Great! Moving on to the next subtask: "${subtasks[nextIdx].title}".`,
+                timestamp: new Date(),
+                subtaskIdx: nextIdx,
+              },
+            ];
+          });
         } else {
           setMessages((prev) => [
             ...prev,

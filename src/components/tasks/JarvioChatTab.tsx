@@ -184,8 +184,9 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
                     className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
                     disabled={isTransitioning}
                   >
+                    <Check size={16} className="mr-1" />
                     {activeSubtaskIdx < subtasks.length - 1 ? (
-                      <>Continue to next step <ChevronRight size={14} /></>
+                      <>Complete & Continue</>
                     ) : (
                       "Complete task"
                     )}

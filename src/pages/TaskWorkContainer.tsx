@@ -61,6 +61,8 @@ export default function TaskWorkContainer() {
     handleUpdateSubtask,
     handleOpenSubtask,
     handleAddComment,
+    subtaskDialogIdx,
+    handleCloseSubtask,
   } = useTaskWork();
 
   if (loading)
@@ -128,6 +130,24 @@ export default function TaskWorkContainer() {
           />
         </aside>
       </div>
+      
+      {subtaskDialogIdx !== null && (
+        <SubtaskDialog
+          isOpen={subtaskDialogIdx !== null}
+          onClose={handleCloseSubtask}
+          subtask={taskState?.subtasks[subtaskDialogIdx] || null}
+          onUpdate={(field, value) => {
+            if (subtaskDialogIdx !== null) {
+              handleUpdateSubtask(field, value);
+            }
+          }}
+          onToggleComplete={() => {
+            if (subtaskDialogIdx !== null) {
+              handleToggleSubtask(subtaskDialogIdx);
+            }
+          }}
+        />
+      )}
     </MainLayout>
   );
 }
