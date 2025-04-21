@@ -1,8 +1,22 @@
+
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, Zap, TrendingUp, BookOpen } from 'lucide-react';
+import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { InsightsDialog } from '@/components/insights/InsightsDialog';
+import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
+import { AlertCircle, DollarSign, ThumbsUp } from 'lucide-react';
+import { InsightData } from '@/components/tasks/InsightCard';
 
 export default function CustomerInsights() {
   const navigate = useNavigate();
