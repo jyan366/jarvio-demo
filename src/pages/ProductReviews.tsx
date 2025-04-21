@@ -1,3 +1,4 @@
+
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,48 @@ export default function ProductReviews() {
   const productName = "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's";
 
   const reviews: Review[] = [
-    // ... keep existing mock reviews
+    {
+      rating: 5,
+      text: "This kimchi is absolutely fantastic! The fermentation level is perfect, giving it that authentic tangy flavor. I've tried many brands, but this one stands out for its balanced taste and crisp texture.",
+      date: "2024-03-15",
+      author: "Sarah K."
+    },
+    {
+      rating: 4,
+      text: "Really great product overall. The glass jar packaging is excellent for keeping the kimchi fresh. I do wish they offered different spice levels though, as this one is quite hot for my taste.",
+      date: "2024-02-28",
+      author: "Michael T."
+    },
+    {
+      rating: 5,
+      text: "As someone who grew up eating homemade kimchi, I was skeptical about store-bought options. But this exceeded my expectations! The flavor is complex and the quality is consistent between batches.",
+      date: "2024-01-22",
+      author: "Jin L."
+    },
+    {
+      rating: 3,
+      text: "Good product but inconsistent between batches. Sometimes it's perfect, other times it's too salty. I appreciate the probiotic benefits though, and will continue to purchase despite this issue.",
+      date: "2024-02-10",
+      author: "Maria C."
+    },
+    {
+      rating: 5,
+      text: "I've been buying this kimchi for over a year now, and it's become a staple in my meals. The health benefits are noticeable - my digestion has improved significantly. Worth every penny!",
+      date: "2024-03-02",
+      author: "David R."
+    },
+    {
+      rating: 4,
+      text: "Love the taste but wish it came in a larger size option. The 300g jars don't last long enough in my household! The price point is a bit high for the quantity, but the quality makes up for it.",
+      date: "2024-01-05",
+      author: "Emma S."
+    },
+    {
+      rating: 5,
+      text: "Wonderful, authentic flavor. The beetroot adds a unique sweetness that balances the spice perfectly. I've recommended this to all my friends who are interested in fermented foods.",
+      date: "2024-03-10",
+      author: "Thomas B."
+    }
   ];
 
   const reviewSummary = `Based on a comprehensive analysis of ${reviews.length} customer reviews, this product maintains a strong positive reception. Key findings include:
@@ -59,6 +101,8 @@ export default function ProductReviews() {
       response = "The glass jar packaging receives positive feedback for its functionality and reusability. However, some customers suggest more eco-friendly packaging options. The transparency of the jar is appreciated for quality inspection.";
     } else if (lowercaseQuestion.includes("probiotic") || lowercaseQuestion.includes("health")) {
       response = "Many customers report positive probiotic benefits and improved digestion. Approximately 65% of reviews mention health benefits, with several long-term customers noting consistent positive effects.";
+    } else if (lowercaseQuestion.includes("summarize") || lowercaseQuestion.includes("summary") || lowercaseQuestion.includes("summarise")) {
+      response = reviewSummary;
     } else {
       response = "Based on the overall review analysis, this product maintains a strong positive reception with an average rating of 4.2 out of 5 stars. Key themes include consistent quality, authentic taste, and health benefits, with some suggestions for improvement in packaging and size options.";
     }
@@ -115,7 +159,7 @@ export default function ProductReviews() {
           <div className="space-y-4">
             <div className="flex gap-3">
               <Textarea 
-                placeholder="e.g., What do customers say about the taste?"
+                placeholder="e.g., Summarise my reviews"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 className="min-h-[60px]"
@@ -140,7 +184,7 @@ export default function ProductReviews() {
         <section>
           <h3 className="font-semibold mb-4 text-lg">Recent Reviews</h3>
           <div className="grid gap-4">
-            {reviews.slice(0, 5).map((review, index) => (
+            {reviews.map((review, index) => (
               <Card key={index} className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex gap-2">
