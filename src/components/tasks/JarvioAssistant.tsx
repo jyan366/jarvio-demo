@@ -62,7 +62,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const [awaitingContinue, setAwaitingContinue] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
-  
+  const [showDataLog, setShowDataLog] = useState(true);
+
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
@@ -498,6 +499,81 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     (msg) => msg.subtaskIdx === activeSubtaskIdx
   );
 
+  const getStepNumber = (idx: number) => (subtasks ? idx + 1 : 1);
+
+  const getSubtaskIntroMessage = (subtask: Subtask, idx: number) => {
+    return (
+      <div className="text-sm mb-2 flex flex-col">
+        <span className="font-bold text-primary">{`Step ${getStepNumber(idx)}: ${subtask.title}`}</span>
+        {subtask.description && (
+          <span className="text-xs text-muted-foreground">{subtask.description}</span>
+        )}
+      </div>
+    );
+  };
+
+  const chatMessages = subtaskMessages.flatMap((message, i, arr) => {
+    const isFirstInSubtask = i === 0;
+    const stepIntro = isFirstInSubtask && activeSubtask
+      ? [getSubtaskIntroMessage(activeSubtask, activeSubtaskIdx)]
+      : [];
+    return [...stepIntro, (
+      <div
+        key={message.id}
+        className={`flex items-start gap-3 ${message.isUser ? "flex-row-reverse" : ""}`}
+      >
+        <div
+          className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+            message.isUser
+              ? "bg-blue-100 text-blue-700"
+              : message.systemLog
+                ? "bg-green-100 text-green-800"
+                : "bg-purple-100 text-purple-700"
+          }`}
+        >
+          {message.isUser ? <User size={18} /> : <Zap size={18} />}
+        </div>
+        <div
+          className={`rounded-lg px-4 py-2 max-w-[85%] ${
+            message.isUser
+              ? "bg-blue-50 text-blue-900"
+              : message.systemLog
+                ? "bg-green-50 text-green-800 border border-green-100"
+                : "bg-purple-50 text-purple-900"
+          }`}
+        >
+          <div className="whitespace-pre-wrap text-sm">{message.text}</div>
+          <div className="text-xs mt-1 opacity-60">
+            {formatTime(message.timestamp)}
+          </div>
+        </div>
+      </div>
+    )];
+  });
+
+  const renderDataLog = () => {
+    if (!activeSubtask) return null;
+    const subData = subtaskData[activeSubtask.id];
+    if (!subData?.result) {
+      return (
+        <div className="italic text-zinc-400 p-2 text-xs">
+          No collected data for this step yet.
+        </div>
+      );
+    }
+    return (
+      <div className="bg-green-50 border border-green-300 rounded-md px-3 py-2 my-2">
+        <p className="text-xs font-semibold text-green-800 mb-1">COLLECTED DATA:</p>
+        <pre className="text-xs text-green-800 whitespace-pre-wrap overflow-auto max-h-36 bg-white p-2 rounded border border-green-100">{subData.result}</pre>
+        {subData.completedAt && (
+          <p className="text-[10px] text-right text-green-500 mt-1">
+            Completed: {new Date(subData.completedAt).toLocaleString()}
+          </p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-full relative">
       <div className="px-4 py-2 border-b flex items-center justify-between bg-purple-50">
@@ -511,7 +587,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             Auto-run
           </label>
         </div>
-        
         {autoRunMode && (
           <Button
             size="sm"
@@ -529,12 +604,24 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         )}
       </div>
 
-      <div className="px-4 py-3 border-b">
-        <div className="flex justify-between items-center text-xs mb-2">
-          <span className="font-medium">Task Progress</span>
-          <span>{completedSubtasks} of {totalSubtasks} steps</span>
+      <div className="px-4 py-3 border-b flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex justify-between items-center text-xs mb-2">
+            <span className="font-medium">Task Progress</span>
+            <span>{completedSubtasks} of {totalSubtasks} steps</span>
+          </div>
+          <Progress value={progress} className="h-2" />
         </div>
-        <Progress value={progress} className="h-2" />
+        <div className="mt-2 sm:mt-0 flex items-center gap-2">
+          <Button
+            variant={showDataLog ? "default" : "outline"}
+            size="sm"
+            className="text-xs h-8 px-3"
+            onClick={() => setShowDataLog(val => !val)}
+          >
+            {showDataLog ? "Hide Data Log" : "Show Data Log"}
+          </Button>
+        </div>
       </div>
 
       <div className="border-b overflow-x-auto">
@@ -553,7 +640,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
                 title={subtask.title}
               >
                 {subtask.done && <Check size={12} className="text-green-600" />}
-                {idx + 1}. {subtask.title.substring(0, 15)}{subtask.title.length > 15 ? '...' : ''}
+                {getStepNumber(idx)}. {subtask.title.substring(0, 15)}{subtask.title.length > 15 ? '...' : ''}
                 {idx === currentSubtaskIndex && !subtask.done && (
                   <span className="w-2 h-2 rounded-full bg-blue-500 ml-1 animate-pulse"></span>
                 )}
@@ -562,6 +649,12 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           </div>
         </ScrollArea>
       </div>
+
+      {showDataLog && (
+        <div className="bg-white border-b px-4 py-3 fade-in-100">
+          {renderDataLog()}
+        </div>
+      )}
 
       <ScrollArea className="flex-1 p-4 pb-0" style={{ height: "1px", minHeight: 0 }}>
         <div className="space-y-4 pr-2">
@@ -573,41 +666,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               </div>
             </div>
           )}
+          
+          {!isTransitioning && chatMessages}
 
-          {!isTransitioning && subtaskMessages.map((message, idx) => (
-            <div
-              key={message.id}
-              className={`flex items-start gap-3 ${
-                message.isUser ? "flex-row-reverse" : ""
-              }`}
-            >
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  message.isUser
-                    ? "bg-blue-100 text-blue-700"
-                    : message.systemLog
-                      ? "bg-green-100 text-green-800"
-                      : "bg-purple-100 text-purple-700"
-                }`}
-              >
-                {message.isUser ? <User size={18} /> : <Zap size={18} />}
-              </div>
-              <div
-                className={`rounded-lg px-4 py-2 max-w-[85%] ${
-                  message.isUser
-                    ? "bg-blue-50 text-blue-900"
-                    : message.systemLog
-                      ? "bg-green-50 text-green-800 border border-green-100"
-                      : "bg-purple-50 text-purple-900"
-                }`}
-              >
-                <div className="whitespace-pre-wrap text-sm">{message.text}</div>
-                <div className="text-xs mt-1 opacity-60">
-                  {formatTime(message.timestamp)}
-                </div>
-              </div>
-            </div>
-          ))}
           {isLoading && (
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
@@ -656,7 +717,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
                 <p className="font-medium">Subtask complete!</p>
               </div>
               <p className="text-sm text-green-700">
-                Review the results above and the collected data below.
+                Review the results above and the collected data (see "Data Log" area).
               </p>
               
               {currentSubtaskIndex < subtasks.length - 1 && (
@@ -705,55 +766,10 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               </form>
             </div>
           )}
+
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
-
-      {activeSubtask && (
-        <div className="px-4 py-3 border-t bg-white z-10">
-          <p className="text-xs font-medium mb-2 text-gray-500">CURRENT SUBTASK:</p>
-          <div className="flex items-center gap-2 mb-1">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-              activeSubtask?.done
-                ? "bg-green-500 text-white"
-                : activeSubtask.id === subtasks[currentSubtaskIndex]?.id && !activeSubtask.done
-                  ? "border-2 border-blue-400 bg-blue-50" 
-                  : "border-2 border-gray-300"
-            }`}>
-              {activeSubtask?.done && <Check size={12} />}
-            </div>
-            <p className="text-sm font-medium">{activeSubtask?.title || "No subtask selected"}</p>
-          </div>
-          {!!activeSubtask?.description && (
-            <p className="text-xs text-gray-600 ml-7 mb-2">{activeSubtask.description}</p>
-          )}
-          {subtaskData[activeSubtask.id]?.result && (
-            <div className="bg-green-50 border border-green-300 rounded-md px-3 py-2 my-2">
-              <p className="text-xs font-semibold text-green-800 mb-1">COLLECTED DATA:</p>
-              <pre className="text-xs text-green-800 whitespace-pre-wrap overflow-auto max-h-28 bg-white p-2 rounded border border-green-100">{subtaskData[activeSubtask.id].result}</pre>
-              {subtaskData[activeSubtask.id].completedAt && (
-                <p className="text-[10px] text-right text-green-500 mt-1">
-                  Completed: {new Date(subtaskData[activeSubtask.id].completedAt!).toLocaleString()}
-                </p>
-              )}
-            </div>
-          )}
-          {activeSubtaskIdx > 0 && subtasks[activeSubtaskIdx - 1] && subtaskData[subtasks[activeSubtaskIdx - 1].id] && (
-            <div className="bg-blue-50 p-2 rounded-md mt-1 mb-1">
-              <p className="text-xs font-medium text-blue-700">Previous step data:</p>
-              <p className="text-xs text-blue-600 truncate">
-                {(subtaskData[subtasks[activeSubtaskIdx - 1].id].result || "").substring(0, 100)}
-                {(subtaskData[subtasks[activeSubtaskIdx - 1].id].result || "").length > 100 ? '...' : ''}
-              </p>
-              {subtaskData[subtasks[activeSubtaskIdx - 1].id]?.completedAt && (
-                <p className="text-[10px] text-right text-blue-500">
-                  Completed: {new Date(subtaskData[subtasks[activeSubtaskIdx - 1].id].completedAt!).toLocaleString()}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
       <form
         onSubmit={handleSendMessage}
