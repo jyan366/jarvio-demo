@@ -57,14 +57,22 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   onFeedbackAndContinue,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
+    // Scroll to the bottom when messages change or when loading state changes
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isLoading, awaitingContinue, pendingApproval]);
 
   return (
     <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 p-4 pb-0" style={{ height: "1px", minHeight: 0 }}>
+      <ScrollArea 
+        className="flex-1 p-4 pb-0" 
+        style={{ height: "1px", minHeight: 0 }}
+        ref={scrollAreaRef}
+      >
         <div className="space-y-4 pr-2">
           {isTransitioning && (
             <div className="flex items-center justify-center p-4">

@@ -25,9 +25,11 @@ export const JarvioDataLogTab: React.FC<JarvioDataLogTabProps> = ({
 }) => {
   const subtask = subtasks[activeSubtaskIdx];
   if (!subtask) return <div className="text-gray-500 p-4 text-sm">No subtask selected.</div>;
+  
   const data = subtaskData[subtask.id];
+  
   return (
-    <div className="h-full w-full flex flex-col items-center justify-start p-4">
+    <div className="h-full w-full flex flex-col items-center justify-start p-4 overflow-y-auto">
       <h3 className="text-sm font-semibold mb-2">{subtask.title}</h3>
       <JarvioDataLog result={data?.result} completedAt={data?.completedAt} />
     </div>
