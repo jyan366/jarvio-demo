@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +7,7 @@ import { JarvioChatMessages } from "./JarvioChatMessages";
 import { Subtask } from "@/pages/TaskWorkContainer";
 
 interface JarvioChatTabProps {
-  messages: any[];
+  messages: any[]; // now always all messages across all subtasks
   subtasks: Subtask[];
   activeSubtaskIdx: number;
   inputValue: string;
@@ -28,7 +27,7 @@ interface JarvioChatTabProps {
 }
 
 export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
-  messages,
+  messages, // now always all messages across all subtasks
   subtasks,
   activeSubtaskIdx,
   inputValue,
@@ -63,6 +62,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   return (
     <div className="flex flex-col h-full relative">
       <ScrollArea className="flex-1 p-4 overflow-y-auto">
+        {/* Show ALL chat history as a flowing workflow */}
         <JarvioChatMessages 
           messages={messages} 
           subtasks={subtasks}

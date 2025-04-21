@@ -570,8 +570,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     setHistorySubtaskIdx(null);
   }, [currentSubtaskIndex]);
 
-  const subtaskMessages = messages.filter((msg) => msg.subtaskIdx === activeSubtaskIdx);
-
   const [tab, setTab] = React.useState<"chat" | "datalog">("chat");
 
   return (
@@ -632,7 +630,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         </TabsList>
         <TabsContent value="chat" className="flex-1 overflow-hidden m-0 p-0 h-full border-0">
           <JarvioChatTab
-            messages={subtaskMessages}
+            messages={messages}
             subtasks={subtasks}
             activeSubtaskIdx={activeSubtaskIdx}
             inputValue={inputValue}
