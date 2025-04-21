@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -92,7 +91,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   }, [currentSubtaskIndex, subtasks, messages.length, taskTitle]);
 
   useEffect(() => {
-    // Clear any existing timer when component unmounts or dependencies change
     return () => {
       if (autoRunTimerRef.current) {
         window.clearTimeout(autoRunTimerRef.current);
@@ -107,36 +105,24 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   ]);
 
   useEffect(() => {
-    // This effect handles the auto-run logic
     const handleAutoRun = () => {
-      // Don't do anything if auto-run is disabled or paused
       if (!autoRunMode || autoRunPaused) return;
-      
-      // Don't do anything if we're viewing a historical subtask
       if (historySubtaskIdx !== null && historySubtaskIdx !== currentSubtaskIndex) return;
-      
-      // Don't do anything if any of these conditions are true
       if (isLoading || pendingApproval || awaitingContinue || isTransitioning) return;
-      
-      // If we're ready for the next subtask and there are more subtasks
       if (readyForNextSubtask && currentSubtaskIndex < subtasks.length - 1) {
-        // Pause auto-run while transitioning to next subtask
         setAutoRunPaused(true);
         toast({
           title: "Subtask completed",
           description: "Review the results and continue manually"
         });
-        
         const moveToNextSubtask = async () => {
           setIsTransitioning(true);
           await onSubtaskComplete(currentSubtaskIndex);
           onSubtaskSelect(currentSubtaskIndex + 1);
           setReadyForNextSubtask(false);
-          
           setTimeout(() => {
             const nextSubtask = subtasks[currentSubtaskIndex + 1];
             const prevSubtaskData = subtaskData[subtasks[currentSubtaskIndex]?.id]?.result || "No data collected";
-            
             setMessages(prev => [
               ...prev,
               {
@@ -149,27 +135,17 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             setIsTransitioning(false);
           }, 1000);
         };
-        
         moveToNextSubtask();
-      } 
-      // If current subtask isn't done and we're not already processing an auto-run step
-      else if (!readyForNextSubtask && 
+      } else if (!readyForNextSubtask && 
                !subtasks[currentSubtaskIndex]?.done && 
                !autoRunStepInProgressRef.current) {
-        
-        // Set flag to prevent multiple auto-run steps running at once
         autoRunStepInProgressRef.current = true;
-        
-        // Schedule the auto-run step with a delay
         autoRunTimerRef.current = window.setTimeout(() => {
           handleAutoRunStep();
-          // Reset the flag after the auto-run step is initiated
           autoRunStepInProgressRef.current = false;
         }, 1500);
       }
     };
-
-    // Run the auto-run handler
     handleAutoRun();
   }, [
     autoRunMode, 
@@ -205,11 +181,14 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     return context;
   };
 
+  const activeSubtaskIdx = historySubtaskIdx !== null ? historySubtaskIdx : currentSubtaskIndex;
+  const activeSubtask = subtasks?.[activeSubtaskIdx];
+
   const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string, feedbackMessage?: string) => {
     e?.preventDefault();
     const messageToSend = autoMessage || inputValue;
-
     let conversation = messages;
+
     if (feedbackMessage) {
       conversation = [
         ...messages,
@@ -218,7 +197,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           isUser: true,
           text: `Feedback: ${feedbackMessage}`,
           timestamp: new Date(),
-          subtaskIdx: currentSubtaskIndex
+          subtaskIdx: activeSubtaskIdx
         },
       ];
     }
@@ -230,7 +209,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       isUser: true,
       text: messageToSend,
       timestamp: new Date(),
-      subtaskIdx: currentSubtaskIndex
+      subtaskIdx: activeSubtaskIdx
     };
 
     if (!autoMessage) {
@@ -252,7 +231,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             description: taskDescription,
           },
           subtasks: subtasks || [],
-          currentSubtaskIndex,
+          currentSubtaskIndex: activeSubtaskIdx,
           previousContext,
           conversationHistory: conversation,
         },
@@ -263,9 +242,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       if (data) {
         const { reply, subtaskComplete, approvalNeeded, collectedData } = data;
 
-        // --- PATCH: New, save work-log line whenever detected ---
-        // Collect any explicit 'WORK LOG:' line or, fallback to COLLECTED DATA, or use the entire reply if neither found
         let workLogContent: string | null = null;
+
         const workLogMatch = reply.match(/WORK LOG:\s*([\s\S]+?)(?=\n\S|$)/i);
         if (workLogMatch && workLogMatch[1]) {
           workLogContent = workLogMatch[1].trim();
@@ -274,15 +252,12 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         } else if (/COLLECTED DATA:/i.test(reply)) {
           const fallbackCD = reply.match(/COLLECTED DATA:\s*([\s\S]+?)(?=\n\S|$)/i);
           workLogContent = fallbackCD && fallbackCD[1] ? fallbackCD[1].trim() : null;
-        }
-        // Accept result if Jarvio says "I have updated" or outputs any work as an action for the illusion
-        if (!workLogContent && reply.match(/I have\s+(updated|sent|saved|completed|finished|notified|added|removed|changed)/i)) {
+        } else if (reply.match(/I have\s+(updated|sent|saved|completed|finished|notified|added|removed|changed)/i)) {
           workLogContent = reply;
         }
 
-        // Always store to subtaskData for display in Work Log
-        if (subtasks && currentSubtaskIndex < subtasks.length && workLogContent) {
-          const currentSubtaskId = subtasks[currentSubtaskIndex].id;
+        if (subtasks && activeSubtaskIdx < subtasks.length && workLogContent) {
+          const currentSubtaskId = subtasks[activeSubtaskIdx].id;
           setSubtaskData(prev => ({
             ...prev,
             [currentSubtaskId]: {
@@ -301,7 +276,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           isUser: false,
           text: reply,
           timestamp: new Date(),
-          subtaskIdx: currentSubtaskIndex
+          subtaskIdx: activeSubtaskIdx
         };
 
         setMessages((prev) => [...prev, assistantMessage]);
@@ -309,7 +284,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         if (subtaskComplete) {
           setAwaitingContinue(true);
           setReadyForNextSubtask(true);
-
           if (autoRunMode) {
             setAutoRunPaused(true);
             toast({
@@ -496,10 +470,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         title: "Auto-run activated",
         description: "Click play to start automatic processing"
       });
-      setAutoRunPaused(true); // Start in paused state
+      setAutoRunPaused(true);
     } else {
       setAutoRunPaused(false);
-      // Clear any existing timer
       if (autoRunTimerRef.current) {
         window.clearTimeout(autoRunTimerRef.current);
         autoRunTimerRef.current = undefined;
@@ -515,7 +488,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     const newPausedState = !autoRunPaused;
     setAutoRunPaused(newPausedState);
     
-    // Clear any existing timer when pausing
     if (newPausedState && autoRunTimerRef.current) {
       window.clearTimeout(autoRunTimerRef.current);
       autoRunTimerRef.current = undefined;
@@ -541,7 +513,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const handleSubtaskHistoryClick = (index: number) => {
     if (autoRunMode && !autoRunPaused) {
       setAutoRunPaused(true);
-      // Clear any existing timer
       if (autoRunTimerRef.current) {
         window.clearTimeout(autoRunTimerRef.current);
         autoRunTimerRef.current = undefined;
@@ -561,7 +532,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     setHistorySubtaskIdx(null);
   }, [currentSubtaskIndex]);
 
-  const activeSubtaskIdx = historySubtaskIdx !== null ? historySubtaskIdx : currentSubtaskIndex;
   const subtaskMessages = messages.filter((msg) => msg.subtaskIdx === activeSubtaskIdx);
 
   const [tab, setTab] = React.useState<"chat" | "datalog">("chat");
@@ -619,7 +589,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             Chat
           </TabsTrigger>
           <TabsTrigger value="datalog" className="text-base px-4 py-2 rounded-none border-b-2 data-[state=active]:border-[#3527A0]">
-            Data Log
+            Work Log
           </TabsTrigger>
         </TabsList>
         <TabsContent value="chat" className="flex-1 overflow-hidden m-0 p-0 h-full border-0">
