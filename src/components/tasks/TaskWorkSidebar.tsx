@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -44,7 +43,6 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   onSubtaskSelect,
   immersive = false,
 }) => {
-  // Define fixed width for desktop
   const sidebarWidth = "420px";
   
   return (
@@ -57,19 +55,19 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         onClick={() => onOpenChange(false)}
       />
       <div
-        className={`h-full flex flex-col overflow-hidden bg-white ${
+        className={`flex flex-col overflow-hidden bg-white ${
           immersive
             ? "fixed top-0 right-0 bottom-0 z-20"
-            : "h-[calc(100vh-4rem)] w-full"
+            : "h-full"
         }`}
         style={{
           width: immersive ? sidebarWidth : "100%",
-          maxWidth: immersive ? sidebarWidth : "420px",
-          minWidth: immersive ? sidebarWidth : "320px",
+          maxWidth: immersive ? sidebarWidth : "100%",
+          minWidth: immersive ? sidebarWidth : undefined,
           margin: 0,
           padding: 0,
-          borderLeft: immersive ? "1.5px solid #F4F4F8" : "none",
-          height: "100vh",
+          borderLeft: (!immersive) ? undefined : "1.5px solid #F4F4F8",
+          height: immersive ? "100vh" : "100%",
         }}
       >
         {/* Close button for mobile */}

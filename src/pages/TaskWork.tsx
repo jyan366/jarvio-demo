@@ -404,8 +404,8 @@ export default function TaskWork() {
 
   return (
     <MainLayout>
-      <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex overflow-hidden">
-        <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-6 lg:p-10 bg-white flex flex-col overflow-y-auto">
+      <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex flex-row overflow-hidden">
+        <main className="flex-1 min-w-0 p-0 sm:p-2 md:p-4 lg:p-8 bg-white flex flex-col overflow-y-auto border-r border-[#F4F4F8]">
           <div className="w-full max-w-3xl mx-auto flex flex-col h-full">
             <TaskWorkMain
               task={taskState}
@@ -438,24 +438,26 @@ export default function TaskWork() {
             />
           </div>
         </main>
-        <TaskWorkSidebar
-          open={sidebarOpen}
-          onOpenChange={setSidebarOpen}
-          selectedTab={selectedTab}
-          setSelectedTab={setSelectedTab}
-          comments={taskState.comments}
-          addComment={handleAddComment}
-          commentValue={commentValue}
-          setCommentValue={setCommentValue}
-          taskId={taskState.id}
-          taskTitle={taskState.title}
-          taskDescription={taskState.description}
-          subtasks={taskState.subtasks}
-          currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
-          onSubtaskComplete={handleToggleSubtask}
-          onSubtaskSelect={handleFocusSubtask}
-          immersive={true}
-        />
+        <div className="w-[420px] min-w-[320px] max-w-[420px] bg-white border-l border-[#F4F4F8] h-full flex flex-col">
+          <TaskWorkSidebar
+            open={sidebarOpen}
+            onOpenChange={setSidebarOpen}
+            selectedTab={selectedTab}
+            setSelectedTab={setSelectedTab}
+            comments={taskState.comments}
+            addComment={handleAddComment}
+            commentValue={commentValue}
+            setCommentValue={setCommentValue}
+            taskId={taskState.id}
+            taskTitle={taskState.title}
+            taskDescription={taskState.description}
+            subtasks={taskState.subtasks}
+            currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
+            onSubtaskComplete={handleToggleSubtask}
+            onSubtaskSelect={handleFocusSubtask}
+            immersive={false}
+          />
+        </div>
       </div>
     </MainLayout>
   );
