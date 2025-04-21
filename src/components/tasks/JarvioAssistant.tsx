@@ -10,6 +10,9 @@ import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import { JarvioDataLog } from "./JarvioDataLog";
+import { JarvioSubtaskHistory } from "./JarvioSubtaskHistory";
+import { JarvioChatMessages } from "./JarvioChatMessages";
 
 interface Message {
   id: string;
@@ -554,23 +557,11 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const renderDataLog = () => {
     if (!activeSubtask) return null;
     const subData = subtaskData[activeSubtask.id];
-    if (!subData?.result) {
-      return (
-        <div className="italic text-zinc-400 p-2 text-xs">
-          No collected data for this step yet.
-        </div>
-      );
-    }
     return (
-      <div className="bg-green-50 border border-green-300 rounded-md px-3 py-2 my-2">
-        <p className="text-xs font-semibold text-green-800 mb-1">COLLECTED DATA:</p>
-        <pre className="text-xs text-green-800 whitespace-pre-wrap overflow-auto max-h-36 bg-white p-2 rounded border border-green-100">{subData.result}</pre>
-        {subData.completedAt && (
-          <p className="text-[10px] text-right text-green-500 mt-1">
-            Completed: {new Date(subData.completedAt).toLocaleString()}
-          </p>
-        )}
-      </div>
+      <JarvioDataLog
+        result={subData?.result}
+        completedAt={subData?.completedAt}
+      />
     );
   };
 
@@ -624,31 +615,12 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         </div>
       </div>
 
-      <div className="border-b overflow-x-auto">
-        <ScrollArea className="w-full">
-          <div className="flex py-2 px-3 gap-1 min-w-full">
-            {subtasks && subtasks.map((subtask, idx) => (
-              <button
-                key={subtask.id}
-                onClick={() => handleSubtaskHistoryClick(idx)}
-                className={`px-3 py-1 text-xs whitespace-nowrap rounded-full flex items-center gap-1 transition-colors
-                  ${idx === activeSubtaskIdx ? 'bg-purple-100 text-purple-800 border border-purple-300' : 'hover:bg-gray-100'}
-                  ${subtask.done ? 'text-green-700 font-medium' : ''}
-                  ${idx < currentSubtaskIndex || idx === currentSubtaskIndex || subtask.done ? '' : 'opacity-50 cursor-not-allowed'}
-                `}
-                disabled={!subtask.done && idx > currentSubtaskIndex}
-                title={subtask.title}
-              >
-                {subtask.done && <Check size={12} className="text-green-600" />}
-                {getStepNumber(idx)}. {subtask.title.substring(0, 15)}{subtask.title.length > 15 ? '...' : ''}
-                {idx === currentSubtaskIndex && !subtask.done && (
-                  <span className="w-2 h-2 rounded-full bg-blue-500 ml-1 animate-pulse"></span>
-                )}
-              </button>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
+      <JarvioSubtaskHistory
+        subtasks={subtasks}
+        activeSubtaskIdx={activeSubtaskIdx}
+        currentSubtaskIndex={currentSubtaskIndex}
+        onSubtaskHistoryClick={handleSubtaskHistoryClick}
+      />
 
       {showDataLog && (
         <div className="bg-white border-b px-4 py-3 fade-in-100">
@@ -666,8 +638,14 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               </div>
             </div>
           )}
-          
-          {!isTransitioning && chatMessages}
+
+          {!isTransitioning && (
+            <JarvioChatMessages
+              messages={subtaskMessages}
+              subtasks={subtasks}
+              activeSubtaskIdx={activeSubtaskIdx}
+            />
+          )}
 
           {isLoading && (
             <div className="flex items-start gap-3">
