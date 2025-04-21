@@ -57,9 +57,35 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   onFeedbackAndContinue,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const lastScrollPosition = useRef(0);
+  const userHasScrolled = useRef(false);
+  
+  // Track scroll position to detect user scrolling
+  const handleScroll = () => {
+    if (!scrollAreaRef.current) return;
+    
+    // Calculate distance from bottom
+    const scrollElement = scrollAreaRef.current;
+    const { scrollTop, scrollHeight, clientHeight } = scrollElement;
+    const scrolledToBottom = scrollHeight - scrollTop - clientHeight < 50;
+    
+    // Track last position
+    lastScrollPosition.current = scrollTop;
+    
+    // If user has scrolled up manually, don't auto-scroll until they scroll to bottom again
+    if (!scrolledToBottom) {
+      userHasScrolled.current = true;
+    } else {
+      userHasScrolled.current = false;
+    }
+  };
   
   // Only scroll to bottom on new content or state changes that would add content
   useEffect(() => {
+    // Don't scroll if user has scrolled up and is reading previous messages
+    if (userHasScrolled.current) return;
+    
     // Using setTimeout to ensure DOM has updated before scrolling
     const timeoutId = setTimeout(() => {
       if (messagesEndRef.current) {
@@ -80,8 +106,10 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <ScrollArea 
+      <div 
         className="flex-1 p-4 pb-0 overflow-y-auto" 
+        ref={scrollAreaRef}
+        onScroll={handleScroll}
       >
         <div className="space-y-4 pr-2 pb-4">
           {isTransitioning && (
@@ -192,7 +220,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           )}
           <div ref={messagesEndRef} />
         </div>
-      </ScrollArea>
+      </div>
       
       {/* Form stays at the bottom */}
       <form

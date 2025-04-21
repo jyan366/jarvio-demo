@@ -12,7 +12,7 @@ interface TaskWorkSidebarProps {
   onOpenChange: (open: boolean) => void;
   selectedTab: "comments" | "ai";
   setSelectedTab: (v: "comments" | "ai") => void;
-  comments: { user: string; text: string; ago: string }[];
+  comments: { user: string; text: string; ago: string; subtaskId?: string }[];
   addComment: (t: string) => void;
   commentValue: string;
   setCommentValue: (v: string) => void;
@@ -42,11 +42,14 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   onSubtaskComplete,
   onSubtaskSelect,
 }) => {
-  // Filter comments to only show those relevant to the current subtask
-  // In a real implementation, comments would have a subtaskId field
-  // For now, we'll just show all comments since there's no way to link them to subtasks in the current data model
-  const subtaskComments = comments;
   const currentSubtask = subtasks[currentSubtaskIndex];
+  
+  // Filter comments to only show those relevant to the current subtask
+  const subtaskComments = comments.filter(comment => {
+    // If the comment doesn't have a subtaskId, it's a general comment
+    // or if subtaskId matches current subtask's id
+    return (!comment.subtaskId || comment.subtaskId === currentSubtask?.id);
+  });
   
   return (
     <>

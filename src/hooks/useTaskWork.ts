@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask, createSubtasks } from "@/lib/supabaseTasks";
@@ -183,24 +182,28 @@ export function useTaskWork() {
 
   const handleAddComment = (text: string) => {
     if (text.trim() && focusedSubtaskIdx !== null && taskState) {
-      // Get the current subtask
       const subtaskId = taskState.subtasks[focusedSubtaskIdx]?.id;
       
       if (subtaskId) {
-        // Add a comment to the specific subtask
-        setSubtaskComments(prev => ({
-          ...prev,
-          [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "just now" }]
-        }));
+        const newComment = { 
+          user: "you", 
+          text, 
+          ago: "just now",
+          subtaskId
+        };
         
-        // Also add to general comments for backward compatibility
         setTaskState(prev => {
           if (!prev) return prev;
           return {
             ...prev,
-            comments: [...prev.comments, { user: "you", text, ago: "just now" }],
+            comments: [...prev.comments, newComment],
           };
         });
+        
+        setSubtaskComments(prev => ({
+          ...prev,
+          [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "just now" }]
+        }));
         
         setCommentValue("");
       }
@@ -280,7 +283,7 @@ export function useTaskWork() {
             }
           ],
           subtasks: normalizedSubs,
-          comments: [{ user: "you", text: "new comment", ago: "2 days ago" }],
+          comments: [{ user: "you", text: "new comment", ago: "2 days ago", subtaskId: normalizedSubs[0]?.id }],
         };
 
         setTaskState(task);
