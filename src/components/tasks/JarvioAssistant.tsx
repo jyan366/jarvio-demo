@@ -1,14 +1,16 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Zap, ThumbsUp, User, Check, MessageSquare, Play, Pause } from "lucide-react";
+import { Loader2, Zap, ThumbsUp, User, Check, MessageSquare, Play, Pause, ArrowRight, ChevronRight } from "lucide-react";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 
 interface Message {
   id: string;
@@ -61,6 +63,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const [awaitingContinue, setAwaitingContinue] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
+  
+  // New state for tracking transition between subtasks
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     if (messages.length === 0 && subtasks && subtasks.length > 0) {
@@ -89,7 +94,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       subtasks.length > 0 &&
       (historySubtaskIdx === null || historySubtaskIdx === currentSubtaskIndex)
     ) {
-      if (!isLoading && !pendingApproval && !awaitingContinue) {
+      if (!isLoading && !pendingApproval && !awaitingContinue && !isTransitioning) {
         if (readyForNextSubtask && currentSubtaskIndex < subtasks.length - 1) {
           setAutoRunPaused(true);
           toast({
@@ -98,6 +103,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           });
           
           const moveToNextSubtask = async () => {
+            setIsTransitioning(true);
             await onSubtaskComplete(currentSubtaskIndex);
             onSubtaskSelect(currentSubtaskIndex + 1);
             setReadyForNextSubtask(false);
@@ -115,6 +121,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
                   timestamp: new Date()
                 }
               ]);
+              setIsTransitioning(false);
             }, 1000);
           };
           
@@ -131,7 +138,18 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     return () => {
       if (autoRunTimer) window.clearTimeout(autoRunTimer);
     };
-  }, [autoRunMode, autoRunPaused, currentSubtaskIndex, isLoading, pendingApproval, readyForNextSubtask, subtasks, awaitingContinue, historySubtaskIdx]);
+  }, [
+    autoRunMode, 
+    autoRunPaused, 
+    currentSubtaskIndex, 
+    isLoading, 
+    pendingApproval, 
+    readyForNextSubtask, 
+    subtasks, 
+    awaitingContinue, 
+    historySubtaskIdx,
+    isTransitioning
+  ]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -298,6 +316,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     setAwaitingContinue(false);
     setFeedback("");
     setReadyForNextSubtask(false);
+    setIsTransitioning(true);
 
     if (subtasks && currentSubtaskIndex < subtasks.length && !subtasks[currentSubtaskIndex].done) {
       await onSubtaskComplete(currentSubtaskIndex);
@@ -324,8 +343,14 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               timestamp: new Date(),
             },
           ]);
+          
+          setIsTransitioning(false);
         }, 1000);
+      } else {
+        setIsTransitioning(false);
       }
+    } else {
+      setIsTransitioning(false);
     }
   };
 
@@ -393,7 +418,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   };
 
   const handleAutoRunStep = () => {
-    if (isLoading || pendingApproval || awaitingContinue) return;
+    if (isLoading || pendingApproval || awaitingContinue || isTransitioning) return;
     
     const currentSubtask = subtasks?.[currentSubtaskIndex];
     if (!currentSubtask) return;
@@ -495,6 +520,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             variant="outline"
             className="h-8 px-2"
             onClick={togglePause}
+            disabled={isTransitioning}
           >
             {autoRunPaused ? (
               <Play className="h-4 w-4" />
@@ -505,41 +531,52 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         )}
       </div>
 
-      <div className="px-4 py-2 border-b">
-        <div className="flex justify-between items-center text-xs mb-1">
-          <span className="font-medium">Progress</span>
+      <div className="px-4 py-3 border-b">
+        <div className="flex justify-between items-center text-xs mb-2">
+          <span className="font-medium">Task Progress</span>
           <span>{completedSubtasks} of {totalSubtasks} steps</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-purple-600 h-2 rounded-full"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+        <Progress value={progress} className="h-2" />
       </div>
 
       <div className="border-b overflow-x-auto">
-        <div className="flex py-1 px-2">
-          {subtasks && subtasks.map((subtask, idx) => (
-            <button
-              key={subtask.id}
-              onClick={() => handleSubtaskHistoryClick(idx)}
-              className={`px-3 py-1 text-xs whitespace-nowrap rounded-full mr-1 flex items-center gap-1 transition-colors
-                ${idx === activeSubtaskIdx ? 'bg-purple-100 text-purple-800' : ''}
-                ${subtask.done || idx < currentSubtaskIndex || idx === currentSubtaskIndex ? 'hover:bg-purple-50' : 'opacity-60 cursor-not-allowed'}
-              `}
-              disabled={!subtask.done && idx > currentSubtaskIndex}
-            >
-              {subtask.done && <Check size={12} />}
-              {idx + 1}. {subtask.title.substring(0, 20)}{subtask.title.length > 20 ? '...' : ''}
-            </button>
-          ))}
-        </div>
+        <ScrollArea orientation="horizontal" className="w-full">
+          <div className="flex py-2 px-3 gap-1 min-w-full">
+            {subtasks && subtasks.map((subtask, idx) => (
+              <button
+                key={subtask.id}
+                onClick={() => handleSubtaskHistoryClick(idx)}
+                className={`px-3 py-1 text-xs whitespace-nowrap rounded-full flex items-center gap-1 transition-colors
+                  ${idx === activeSubtaskIdx ? 'bg-purple-100 text-purple-800 border border-purple-300' : 'hover:bg-gray-100'}
+                  ${subtask.done ? 'text-green-700 font-medium' : ''}
+                  ${idx < currentSubtaskIndex || idx === currentSubtaskIndex || subtask.done ? '' : 'opacity-50 cursor-not-allowed'}
+                `}
+                disabled={!subtask.done && idx > currentSubtaskIndex}
+                title={subtask.title}
+              >
+                {subtask.done && <Check size={12} className="text-green-600" />}
+                {idx + 1}. {subtask.title.substring(0, 15)}{subtask.title.length > 15 ? '...' : ''}
+                {idx === currentSubtaskIndex && !subtask.done && (
+                  <span className="w-2 h-2 rounded-full bg-blue-500 ml-1 animate-pulse"></span>
+                )}
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
 
       <ScrollArea className="flex-1 p-4 pb-0" style={{ height: "1px", minHeight: 0 }}>
         <div className="space-y-4 pr-2">
-          {subtaskMessages.map((message, idx) => (
+          {isTransitioning && (
+            <div className="flex items-center justify-center p-4">
+              <div className="text-center">
+                <Loader2 size={24} className="animate-spin mx-auto mb-2 text-purple-600" />
+                <p className="text-sm text-purple-800">Transitioning to next subtask...</p>
+              </div>
+            </div>
+          )}
+
+          {!isTransitioning && subtaskMessages.map((message, idx) => (
             <div
               key={message.id}
               className={`flex items-start gap-3 ${
@@ -616,9 +653,24 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           )}
           {awaitingContinue && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex flex-col gap-3">
-              <p className="text-sm font-medium text-green-800 mb-2">
-                Subtask complete! Review the results above and the collected data below. Would you like to continue to the next step or provide feedback?
+              <div className="flex items-center gap-2 text-green-800">
+                <Check size={18} className="text-green-600" />
+                <p className="font-medium">Subtask complete!</p>
+              </div>
+              <p className="text-sm text-green-700">
+                Review the results above and the collected data below.
               </p>
+              
+              {currentSubtaskIndex < subtasks.length - 1 && (
+                <div className="bg-white border border-green-100 rounded p-2 mb-1">
+                  <p className="text-xs font-medium text-green-700">Next subtask:</p>
+                  <p className="text-sm flex items-center gap-1">
+                    <ChevronRight size={14} className="text-green-500" />
+                    {subtasks[currentSubtaskIndex + 1]?.title || "No more subtasks"}
+                  </p>
+                </div>
+              )}
+              
               <form className="flex flex-col gap-2" onSubmit={handleFeedbackAndContinue}>
                 <Textarea
                   className="min-h-14 text-xs"
@@ -632,17 +684,25 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
                     variant="default"
                     onClick={handleContinue}
                     type="button"
+                    className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
+                    disabled={isTransitioning}
                   >
-                    Continue
+                    {currentSubtaskIndex < subtasks.length - 1 ? (
+                      <>Continue to next step <ArrowRight size={14} /></>
+                    ) : (
+                      "Complete task"
+                    )}
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={!feedback.trim()}
-                    type="submit"
-                  >
-                    Send Feedback & Continue
-                  </Button>
+                  {feedback.trim() && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      type="submit"
+                      disabled={isTransitioning}
+                    >
+                      Send Feedback & Continue
+                    </Button>
+                  )}
                 </div>
               </form>
             </div>
@@ -652,13 +712,15 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       </ScrollArea>
 
       {activeSubtask && (
-        <div className="px-4 py-2 border-t bg-white z-10">
-          <p className="text-xs font-medium mb-2 text-gray-500">SELECTED SUBTASK:</p>
+        <div className="px-4 py-3 border-t bg-white z-10">
+          <p className="text-xs font-medium mb-2 text-gray-500">CURRENT SUBTASK:</p>
           <div className="flex items-center gap-2 mb-1">
             <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
               activeSubtask?.done
                 ? "bg-green-500 text-white"
-                : "border-2 border-gray-300"
+                : activeSubtask.id === subtasks[currentSubtaskIndex]?.id && !activeSubtask.done
+                  ? "border-2 border-blue-400 bg-blue-50" 
+                  : "border-2 border-gray-300"
             }`}>
               {activeSubtask?.done && <Check size={12} />}
             </div>
@@ -669,13 +731,13 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           )}
           {subtaskData[activeSubtask.id]?.result && (
             <div className="bg-green-50 border border-green-300 rounded-md px-3 py-2 my-2">
-              <p className="text-xs font-semibold text-green-800 mb-1">COLLECTED DATA for this subtask:</p>
-              <pre className="text-xs text-green-800 whitespace-pre-wrap">{subtaskData[activeSubtask.id].result}</pre>
-              <p className="text-[10px] text-right text-green-500 mt-1">
-                Completed: {subtaskData[activeSubtask.id].completedAt
-                  ? new Date(subtaskData[activeSubtask.id].completedAt).toLocaleString()
-                  : "—"}
-              </p>
+              <p className="text-xs font-semibold text-green-800 mb-1">COLLECTED DATA:</p>
+              <pre className="text-xs text-green-800 whitespace-pre-wrap overflow-auto max-h-28 bg-white p-2 rounded border border-green-100">{subtaskData[activeSubtask.id].result}</pre>
+              {subtaskData[activeSubtask.id].completedAt && (
+                <p className="text-[10px] text-right text-green-500 mt-1">
+                  Completed: {new Date(subtaskData[activeSubtask.id].completedAt!).toLocaleString()}
+                </p>
+              )}
             </div>
           )}
           {activeSubtaskIdx > 0 && subtasks[activeSubtaskIdx - 1] && subtaskData[subtasks[activeSubtaskIdx - 1].id] && (
@@ -712,7 +774,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               isLoading ||
               pendingApproval ||
               (autoRunMode && !autoRunPaused) ||
-              awaitingContinue
+              awaitingContinue ||
+              isTransitioning
             }
           />
           <Button 
@@ -722,7 +785,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               !inputValue.trim() ||
               pendingApproval ||
               (autoRunMode && !autoRunPaused) ||
-              awaitingContinue
+              awaitingContinue ||
+              isTransitioning
             }
             className="h-10"
           >
