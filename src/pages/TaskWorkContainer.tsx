@@ -62,7 +62,7 @@ export default function TaskWorkContainer() {
     handleAddComment,
     subtaskDialogIdx,
     handleCloseSubtask,
-    subtaskData, // Add this to get access to the subtask work logs
+    subtaskData,
   } = useTaskWork();
 
   if (loading)
