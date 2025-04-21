@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from "react";
 import { Loader2, Zap, User, MessageSquare, ThumbsUp, Pause, Play, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -60,19 +59,16 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   const isAutoScrollEnabled = useRef(true);
   const lastMessageCount = useRef(messages.length);
   
-  // Function to scroll to bottom
   const scrollToBottom = () => {
     if (messagesEndRef.current && isAutoScrollEnabled.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
-  // Handle scroll events to detect when user manually scrolls up
   const handleScroll = () => {
     if (!chatContainerRef.current) return;
     
     const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-    // If user scrolls up more than 100px from bottom, disable auto-scroll
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
     
     if (!isNearBottom) {
@@ -82,13 +78,10 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     }
   };
   
-  // Scroll to bottom on new messages or state changes
   useEffect(() => {
-    // If message count increased, it's a new message
     const hasNewMessages = messages.length > lastMessageCount.current;
     lastMessageCount.current = messages.length;
     
-    // Auto-scroll on new messages or state changes that would add content
     if (hasNewMessages || isLoading || pendingApproval || awaitingContinue || isTransitioning) {
       scrollToBottom();
     }
@@ -97,10 +90,16 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   return (
     <div className="flex flex-col h-full">
       <div 
-        className="flex-1 p-4 pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-400 scrollbar-track-purple-50 scrollbar-thumb-rounded scrollbar-track-rounded"
+        className="flex-1 p-4 pb-0 overflow-auto"
         ref={chatContainerRef}
         onScroll={handleScroll}
-        style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
+        style={{ 
+          overflowY: 'scroll', 
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#a78bfa #f3f4f6',
+          msOverflowStyle: 'auto'
+        }}
       >
         <div className="space-y-4 pr-2 pb-4">
           {isTransitioning && (
@@ -213,7 +212,6 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         </div>
       </div>
       
-      {/* Form stays at the bottom */}
       <form
         onSubmit={onSendMessage}
         className="sticky bottom-0 left-0 right-0 p-4 pt-2 border-t bg-white z-20"
@@ -258,4 +256,3 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     </div>
   );
 };
-
