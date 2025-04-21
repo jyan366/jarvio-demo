@@ -24,13 +24,8 @@ export function ReviewSummarySection() {
     <Card className="p-6 mb-8">
       <div className="space-y-4">
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
+          <h2 className="text-2xl font-bold">
             Customers say
-            <img 
-              src="/lovable-uploads/7752c768-88d6-4329-9fc2-c6db1fa22ff1.png" 
-              alt="AI" 
-              className="h-8 w-8 object-contain"
-            />
           </h2>
           <p className="text-gray-700 leading-relaxed">
             Customers find the sauerkraut and kimchi tasty, with one noting it complements beef and stirfrys well. The product is made of good quality ingredients and is great for gut health, helping with digestion. While some customers consider it well worth the price, others find it fairly expensive. The fermented content receives mixed reviews, with some praising it as an organic unpasteurized product while others find the kimchi boring. Customers disagree on whether the jars leak.
