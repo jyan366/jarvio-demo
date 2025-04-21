@@ -38,10 +38,22 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
           ? subtasks[message.subtaskIdx].title
           : undefined;
 
+        // --- CUSTOM: Render a distinct block for "systemLog" transition messages ---
+        if (message.systemLog) {
+          return (
+            <div key={message.id} className="w-full flex justify-center">
+              <div className="rounded-full bg-purple-100 text-purple-700 px-4 py-1 text-xs font-semibold my-2 shadow border border-purple-200 border-dashed">
+                {message.text}
+              </div>
+            </div>
+          );
+        }
+        // --- END CUSTOM SYSTEM BLOCK ---
+
         return (
           <div
             key={message.id}
-            className={`flex items-start gap-3 ${message.systemLog ? "opacity-70" : ""}`}
+            className={`flex items-start gap-3`}
           >
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${

@@ -349,17 +349,33 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       if (currentSubtaskIndex < subtasks.length - 1) {
         const nextIndex = currentSubtaskIndex + 1;
         onSubtaskSelect(nextIndex);
-        
+
         setTimeout(() => {
           const prevSubtaskData =
             subtaskData[subtasks[currentSubtaskIndex]?.id]?.result ||
             "No data collected";
-          
+
           setMessages((prev) => {
-            const filteredMessages = prev.filter(msg => msg.subtaskIdx !== nextIndex);
-            
+            const transitionMessage = {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: `Step complete: "${subtasks[currentSubtaskIndex].title}"`,
+              timestamp: new Date(),
+              subtaskIdx: currentSubtaskIndex,
+              systemLog: true,
+            };
+            const nextStepIntro = {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: `Moving to next step: "${subtasks[nextIndex].title}"`,
+              timestamp: new Date(),
+              subtaskIdx: nextIndex,
+              systemLog: true,
+            };
             return [
-              ...filteredMessages,
+              ...prev,
+              transitionMessage,
+              nextStepIntro,
               {
                 id: crypto.randomUUID(),
                 isUser: false,
@@ -369,7 +385,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
               },
             ];
           });
-          
+
           setIsTransitioning(false);
           setHistorySubtaskIdx(null);
         }, 1000);
@@ -421,12 +437,28 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           const nextIdx = activeSubtaskIdx + 1;
           onSubtaskSelect(nextIdx);
           setHistorySubtaskIdx(null);
-          
+
           setMessages((prev) => {
-            const filteredMessages = prev.filter(msg => msg.subtaskIdx !== nextIdx);
-            
+            const transitionMessage = {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: `Step complete: "${subtasks[activeSubtaskIdx].title}"`,
+              timestamp: new Date(),
+              subtaskIdx: activeSubtaskIdx,
+              systemLog: true,
+            };
+            const nextStepIntro = {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: `Moving to next step: "${subtasks[nextIdx].title}"`,
+              timestamp: new Date(),
+              subtaskIdx: nextIdx,
+              systemLog: true,
+            };
             return [
-              ...filteredMessages,
+              ...prev,
+              transitionMessage,
+              nextStepIntro,
               {
                 id: crypto.randomUUID(),
                 isUser: false,
