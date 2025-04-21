@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from "react";
 import { Loader2, Zap, User, MessageSquare, ThumbsUp, Pause, Play, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -94,7 +95,9 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         ref={chatContainerRef}
         onScroll={handleScroll}
         style={{ 
-          overflowY: 'scroll', 
+          overflowY: 'auto', 
+          height: '100%',
+          maxHeight: 'calc(100% - 150px)',
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'thin',
           scrollbarColor: '#a78bfa #f3f4f6',

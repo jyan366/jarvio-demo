@@ -550,7 +550,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         onSubtaskHistoryClick={handleSubtaskHistoryClick}
       />
 
-      <Tabs value={tab} onValueChange={v => setTab(v as "chat" | "datalog")} className="w-full flex-1 flex flex-col">
+      <Tabs value={tab} onValueChange={v => setTab(v as "chat" | "datalog")} className="w-full flex-1 flex flex-col overflow-hidden">
         <TabsList className="bg-transparent border-b mb-0 px-4">
           <TabsTrigger value="chat" className="text-base px-4 py-2 rounded-none border-b-2 data-[state=active]:border-[#3527A0]">
             Chat
@@ -559,7 +559,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             Data Log
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="chat" className="flex-1 overflow-y-auto p-0">
+        <TabsContent value="chat" className="flex-1 overflow-hidden m-0 p-0 h-full border-0">
           <JarvioChatTab
             messages={subtaskMessages}
             subtasks={subtasks}
@@ -580,7 +580,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             onFeedbackAndContinue={handleFeedbackAndContinue}
           />
         </TabsContent>
-        <TabsContent value="datalog" className="flex-1 overflow-y-auto p-0">
+        <TabsContent value="datalog" className="flex-1 overflow-auto p-0">
           <JarvioDataLogTab
             subtasks={subtasks}
             subtaskData={subtaskData}

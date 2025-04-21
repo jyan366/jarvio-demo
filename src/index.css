@@ -75,25 +75,63 @@
     @apply bg-background text-foreground;
   }
   
-  /* Custom scrollbar styles */
+  /* Custom scrollbar styles - more explicit and stronger rules */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 8px !important;
+    height: 8px !important;
+    display: block !important;
   }
   
   ::-webkit-scrollbar-track {
-    background: #f3f4f6;
-    border-radius: 4px;
+    background: #f3f4f6 !important;
+    border-radius: 4px !important;
   }
   
   ::-webkit-scrollbar-thumb {
-    background: #a78bfa;
-    border-radius: 4px;
+    background: #a78bfa !important;
+    border-radius: 4px !important;
+    min-height: 40px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: #8b5cf6;
+    background: #8b5cf6 !important;
   }
+
+  /* Firefox scrollbar styling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #a78bfa #f3f4f6;
+  }
+
+  /* Ensure scrollable elements show their scrollbars */
+  .overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll, .overflow-y-scroll, .overflow-x-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #a78bfa #f3f4f6;
+  }
+}
+
+/* Utility class for scrollbar styling */
+.show-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #a78bfa #f3f4f6;
+  overflow: auto;
+}
+
+.show-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  display: block;
+}
+
+.show-scrollbar::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+.show-scrollbar::-webkit-scrollbar-thumb {
+  background: #a78bfa;
+  border-radius: 4px;
 }
 
 /* Workflow Builder Styles */
