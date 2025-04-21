@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -41,11 +40,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   onSubtaskComplete,
   onSubtaskSelect,
 }) => {
-  // Main logic state
   const logic = useJarvioAssistantLogic(taskId, taskTitle, taskDescription, subtasks, currentSubtaskIndex, onSubtaskComplete, onSubtaskSelect);
   const { tab, setTab } = useJarvioAssistantTabs();
 
-  // Plug auto-run for step pipeline behavior
   useJarvioAssistantAutoRun({
     autoRunMode: logic.autoRunMode,
     autoRunPaused: logic.autoRunPaused,
@@ -107,6 +104,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
         const aiMatch = result.match(/COLLECTED DATA:\s*([\s\S]+?)(?=(USER WORK LOG:|$))/i);
         jarvioWorkLog = aiMatch?.[1]?.trim() || "";
+        
         const userMatch = result.match(/USER WORK LOG:\s*([\s\S]+)/i);
         userWorkLog = userMatch?.[1]?.trim() || "";
 

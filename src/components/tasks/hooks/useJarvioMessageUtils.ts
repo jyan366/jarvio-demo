@@ -20,8 +20,8 @@ export function isAwaitingUserConfirmation(messages: { isUser: boolean; text: st
 export function isUserConfirmationMessage(text: string) {
   const lower = text.toLowerCase().trim();
   return (
-    ["confirmed", "done", "completed", "yes", "ok", "approved", "i did", "finished", "accepted"].some(keyword =>
-      lower.startsWith(keyword)
+    ["confirmed", "done", "completed", "yes", "ok", "approved", "i did", "finished", "accepted", "great", "good", "perfect"].some(keyword =>
+      lower.includes(keyword)
     ) ||
     lower === "y"
   );
