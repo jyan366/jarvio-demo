@@ -10,7 +10,6 @@ import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightData } from '@/components/tasks/InsightCard';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { useNavigate } from 'react-router-dom';
-
 export default function CustomerInsights() {
   const navigate = useNavigate();
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
@@ -19,15 +18,22 @@ export default function CustomerInsights() {
   const [insightsDialogOpen, setInsightsDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<string>("");
   const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
-
-  const ratings = [
-    { stars: 5, percentage: 70 },
-    { stars: 4, percentage: 20 },
-    { stars: 3, percentage: 5 },
-    { stars: 2, percentage: 2 },
-    { stars: 1, percentage: 3 }
-  ];
-
+  const ratings = [{
+    stars: 5,
+    percentage: 70
+  }, {
+    stars: 4,
+    percentage: 20
+  }, {
+    stars: 3,
+    percentage: 5
+  }, {
+    stars: 2,
+    percentage: 2
+  }, {
+    stars: 1,
+    percentage: 3
+  }];
   const products = [{
     image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg",
     name: "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's",
@@ -50,7 +56,6 @@ export default function CustomerInsights() {
     reviews: 12,
     quality: "Poor"
   }];
-
   const insights = [{
     title: "Unmet Feature Expectations",
     icon: AlertCircle,
@@ -76,36 +81,27 @@ export default function CustomerInsights() {
     color: "bg-indigo-50 text-indigo-700 border-indigo-200",
     details: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages."
   }];
-
   const nextInsight = () => {
     setCurrentInsightIndex(prev => (prev + 1) % insights.length);
   };
-
   const previousInsight = () => {
     setCurrentInsightIndex(prev => (prev - 1 + insights.length) % insights.length);
   };
-
   const currentInsight = insights[currentInsightIndex];
-
   const handleViewReviews = (asin: string) => {
     navigate(`/product-reviews/${asin}`);
   };
-
   const handleViewInsights = (productName: string) => {
     setCurrentProduct(productName);
     setInsightsDialogOpen(true);
   };
-
   const handleCreateTaskFromInsight = (insight: InsightData) => {
     console.log("Creating task from insight:", insight);
   };
-
   const handleInsightClick = (insight: InsightData) => {
     setDetailInsight(insight);
   };
-
-  return (
-    <MainLayout>
+  return <MainLayout>
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div className="space-y-2">
@@ -168,7 +164,7 @@ export default function CustomerInsights() {
           </Card>
         </div>
 
-        <Card className="p-4 md:p-6">
+        <Card className="p-4 md:p-6 my-[20px]">
           <div className="flex items-center gap-2 mb-6">
             <Zap className="w-6 h-6 text-primary" />
             <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
@@ -213,15 +209,10 @@ export default function CustomerInsights() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map(product => (
-                <TableRow key={product.asin}>
+              {products.map(product => <TableRow key={product.asin}>
                   <TableCell>
                     <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        className="w-full h-full object-contain" 
-                      />
+                      <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
                     </div>
                   </TableCell>
                   <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
@@ -229,61 +220,35 @@ export default function CustomerInsights() {
                   <TableCell>{product.rating}</TableCell>
                   <TableCell>{product.reviews}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-sm ${
-                      product.quality === 'Good' ? 'bg-green-100 text-green-800' : 
-                      product.quality === 'Fair' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-2 py-1 rounded text-sm ${product.quality === 'Good' ? 'bg-green-100 text-green-800' : product.quality === 'Fair' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
                       {product.quality}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleViewReviews(product.asin)}
-                      className="w-full"
-                    >
+                    <Button variant="outline" size="sm" onClick={() => handleViewReviews(product.asin)} className="w-full">
                       <BookOpen className="w-4 h-4 mr-2" />
                       View Reviews
                     </Button>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewInsights(product.name)}
-                      className="w-full"
-                    >
+                    <Button variant="outline" size="sm" onClick={() => handleViewInsights(product.name)} className="w-full">
                       <BarChart2 className="w-4 h-4 mr-2" />
                       View Insights
                     </Button>
                   </TableCell>
-                </TableRow>
-              ))}
+                </TableRow>)}
             </TableBody>
           </Table>
         </div>
       </Card>
 
-      <InsightsDialog
-        open={insightsDialogOpen}
-        onOpenChange={setInsightsDialogOpen}
-        onCreateTask={handleCreateTaskFromInsight}
-        productNames={currentProduct ? [currentProduct] : []}
-        onInsightClick={handleInsightClick}
-      />
+      <InsightsDialog open={insightsDialogOpen} onOpenChange={setInsightsDialogOpen} onCreateTask={handleCreateTaskFromInsight} productNames={currentProduct ? [currentProduct] : []} onInsightClick={handleInsightClick} />
 
-      <InsightDetailDialog
-        insight={detailInsight}
-        open={!!detailInsight}
-        onClose={() => setDetailInsight(null)}
-        onCreateTask={() => {
-          if (detailInsight) {
-            handleCreateTaskFromInsight(detailInsight);
-            setDetailInsight(null);
-          }
-        }}
-      />
-    </MainLayout>
-  );
+      <InsightDetailDialog insight={detailInsight} open={!!detailInsight} onClose={() => setDetailInsight(null)} onCreateTask={() => {
+      if (detailInsight) {
+        handleCreateTaskFromInsight(detailInsight);
+        setDetailInsight(null);
+      }
+    }} />
+    </MainLayout>;
 }
