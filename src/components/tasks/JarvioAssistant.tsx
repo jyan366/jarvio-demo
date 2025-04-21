@@ -478,8 +478,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
   );
 
   return (
-    <div className={`flex flex-col h-full w-full relative`}>
-      <div className={`px-4 py-2 border-b flex items-center justify-between bg-purple-50 ${immersive ? "sticky top-0 z-10" : ""}`}>
+    <div className="flex flex-col h-full w-full overflow-hidden">
+      <div className="px-4 py-2 border-b flex items-center justify-between bg-purple-50 sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Auto-run</span>
         </div>
@@ -498,7 +498,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
           </Button>
         )}
       </div>
-      <div className={`px-4 py-2 border-b ${immersive ? "sticky top-[46px] z-10" : ""}`}>
+      <div className="px-4 py-2 border-b sticky top-[46px] z-10">
         <div className="flex justify-between items-center text-xs mb-1">
           <span className="font-medium">Progress</span>
           <span>{completedSubtasks} of {totalSubtasks} steps</span>
@@ -510,7 +510,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
           />
         </div>
       </div>
-      <div className={`border-b overflow-x-auto ${immersive ? "sticky top-[92px] z-9 bg-white" : ""}`}>
+      <div className="border-b overflow-x-auto sticky top-[92px] z-9 bg-white">
         <div className="flex py-1 px-2">
           {subtasks && subtasks.map((subtask, idx) => (
             <button
@@ -528,7 +528,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
           ))}
         </div>
       </div>
-      <ScrollArea className={`flex-1 px-4 pb-24 ${immersive ? "!pb-32" : ""}`}>
+      <ScrollArea className="flex-1 px-4 pb-32">
         <div className="space-y-4 pr-2">
           {subtaskMessages.map((message, idx) => (
             <div
@@ -686,8 +686,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
       )}
       <form
         onSubmit={handleSendMessage}
-        className={`p-4 pt-2 border-t w-full bg-white z-20 ${immersive ? "fixed right-0 left-auto bottom-0 md:w-[min(420px,36vw)]" : "mt-auto"}`}
-        style={immersive ? { boxShadow: '0 -2px 6px rgba(0,0,0,0.03)' } : {}}
+        className="p-4 pt-2 border-t w-full bg-white fixed bottom-0 right-0 left-auto md:w-[420px] z-20"
+        style={{ boxShadow: '0 -2px 6px rgba(0,0,0,0.03)' }}
       >
         <div className="flex items-end gap-2">
           <Textarea

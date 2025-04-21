@@ -1,5 +1,4 @@
 
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -24,7 +23,7 @@ interface TaskWorkSidebarProps {
   currentSubtaskIndex: number;
   onSubtaskComplete: (idx: number) => Promise<void>;
   onSubtaskSelect: (idx: number) => void;
-  immersive?: boolean; // new prop
+  immersive?: boolean;
 }
 
 export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
@@ -45,8 +44,6 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   onSubtaskSelect,
   immersive = false,
 }) => {
-  // immersive mode for maximized agentic assistant panel
-
   return (
     <>
       {/* Overlay for mobile */}
@@ -56,19 +53,16 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         }`}
         onClick={() => onOpenChange(false)}
       />
-      <aside
-        className={`
-          bg-white flex flex-col relative w-full h-screen max-h-screen
-          transition-all
-          ${immersive ? "rounded-none border-none shadow-none p-0 m-0" : "border rounded-xl shadow-sm"}
-          fixed md:static top-0 right-0 z-50 md:z-auto
-        `}
+      <div
+        className="h-[calc(100vh-4rem)] w-full flex flex-col overflow-hidden"
         style={{
-          minWidth: immersive ? "320px" : undefined,
-          maxWidth: immersive ? "100vw" : undefined,
+          width: "100%",
           height: "100vh",
-          paddingRight: 0,
+          maxWidth: "420px",
+          minWidth: "320px",
           margin: 0,
+          padding: 0,
+          borderLeft: "1.5px solid #F4F4F8",
         }}
       >
         {/* Close button for mobile */}
@@ -82,14 +76,13 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         </Button>
 
         {/* Tabs pinned/sticky to top */}
-        <div className={`flex w-full z-10 sticky top-0 bg-white p-0 m-0 border-b`}>
+        <div className="flex w-full z-10 sticky top-0 bg-white border-b">
           <button
             className={`${
               selectedTab === "comments"
                 ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0] bg-white"
                 : "text-gray-400 border-b-2 border-transparent"
-            } px-5 py-3 text-base transition rounded-none`}
-            style={{ marginRight: 0 }}
+            } px-5 py-3 text-base transition rounded-none flex-1`}
             onClick={() => setSelectedTab("comments")}
           >
             Comments
@@ -99,64 +92,64 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               selectedTab === "ai"
                 ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0] bg-white"
                 : "text-gray-400 border-b-2 border-transparent"
-            } px-5 py-3 text-base transition rounded-none`}
+            } px-5 py-3 text-base transition rounded-none flex-1`}
             onClick={() => setSelectedTab("ai")}
           >
             AI Assistant
           </button>
         </div>
 
-        <div className="flex flex-col flex-1 min-h-0 h-full overflow-hidden">
-          {selectedTab === "comments" ? (
-            <>
-              <div className="px-5 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
-                COMMENTS ({comments.length})
-              </div>
-              {/* ScrollArea panel filling available vertical space */}
-              <ScrollArea className="flex-1 px-5">
-                <div className="space-y-4 pr-2 pb-24">
-                  {comments.map((c, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
-                        {c.user[0]?.toUpperCase() ?? "U"}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-zinc-800 break-words">{c.text}</div>
-                        <div className="text-gray-400 text-xs">{c.ago}</div>
-                      </div>
+        {selectedTab === "comments" ? (
+          <div className="flex flex-col flex-1 h-full overflow-hidden">
+            <div className="px-5 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
+              COMMENTS ({comments.length})
+            </div>
+            {/* ScrollArea panel filling available vertical space */}
+            <ScrollArea className="flex-1 px-5">
+              <div className="space-y-4 pr-2 pb-24">
+                {comments.map((c, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
+                      {c.user[0]?.toUpperCase() ?? "U"}
                     </div>
-                  ))}
-                </div>
-              </ScrollArea>
-              {/* Dock message input to the bottom */}
-              <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 left-auto md:left-auto md:w-[min(420px,36vw)] z-10">
-                <form
-                  className="flex flex-col"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (commentValue.trim()) {
-                      addComment(commentValue);
-                    }
-                  }}
-                >
-                  <Textarea
-                    className="min-h-24 mb-2 text-sm resize-none"
-                    placeholder="Add a comment..."
-                    value={commentValue}
-                    onChange={(e) => setCommentValue(e.target.value)}
-                  />
-                  <Button
-                    type="submit"
-                    size="sm"
-                    disabled={!commentValue.trim()}
-                    className="ml-auto"
-                  >
-                    Add Comment
-                  </Button>
-                </form>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-zinc-800 break-words">{c.text}</div>
+                      <div className="text-gray-400 text-xs">{c.ago}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </>
-          ) : (
+            </ScrollArea>
+            {/* Dock message input to the bottom */}
+            <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 left-auto md:left-auto md:w-[420px] z-10">
+              <form
+                className="flex flex-col"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (commentValue.trim()) {
+                    addComment(commentValue);
+                  }
+                }}
+              >
+                <Textarea
+                  className="min-h-24 mb-2 text-sm resize-none"
+                  placeholder="Add a comment..."
+                  value={commentValue}
+                  onChange={(e) => setCommentValue(e.target.value)}
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={!commentValue.trim()}
+                  className="ml-auto"
+                >
+                  Add Comment
+                </Button>
+              </form>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 h-full">
             <JarvioAssistant
               taskId={taskId}
               taskTitle={taskTitle}
@@ -165,11 +158,11 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               currentSubtaskIndex={currentSubtaskIndex}
               onSubtaskComplete={onSubtaskComplete}
               onSubtaskSelect={onSubtaskSelect}
-              immersive
+              immersive={true}
             />
-          )}
-        </div>
-      </aside>
+          </div>
+        )}
+      </div>
     </>
   );
 };

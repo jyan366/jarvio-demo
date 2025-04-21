@@ -404,7 +404,7 @@ export default function TaskWork() {
 
   return (
     <MainLayout>
-      <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-0 items-stretch bg-background overflow-hidden">
+      <div className="w-full h-[calc(100vh-4rem)] max-w-screen-2xl mx-auto flex overflow-hidden">
         <main className="flex-1 min-w-0 p-1 sm:p-2 md:p-6 lg:p-10 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto">
           <div className="w-full max-w-3xl mx-auto flex flex-col h-full">
             <TaskWorkMain
@@ -438,39 +438,24 @@ export default function TaskWork() {
             />
           </div>
         </main>
-        <aside
-          className="h-screen w-full max-w-full md:w-[min(420px,36vw)] bg-white overflow-hidden flex flex-col 
-          fixed md:static top-0 right-0 z-40 md:z-auto p-0 m-0 border-none shadow-none"
-          style={{
-            minWidth: 320,
-            maxWidth: 420,
-            height: '100vh',
-            boxShadow: 'none',
-            borderRight: 'none',
-            borderLeft: '1.5px solid #F4F4F8',
-            marginRight: 0,
-            paddingRight: 0,
-          }}
-        >
-          <TaskWorkSidebar
-            open={sidebarOpen}
-            onOpenChange={setSidebarOpen}
-            selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
-            comments={taskState.comments}
-            addComment={handleAddComment}
-            commentValue={commentValue}
-            setCommentValue={setCommentValue}
-            taskId={taskState.id}
-            taskTitle={taskState.title}
-            taskDescription={taskState.description}
-            subtasks={taskState.subtasks}
-            currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
-            onSubtaskComplete={handleToggleSubtask}
-            onSubtaskSelect={handleFocusSubtask}
-            immersive
-          />
-        </aside>
+        <TaskWorkSidebar
+          open={sidebarOpen}
+          onOpenChange={setSidebarOpen}
+          selectedTab={selectedTab}
+          setSelectedTab={setSelectedTab}
+          comments={taskState.comments}
+          addComment={handleAddComment}
+          commentValue={commentValue}
+          setCommentValue={setCommentValue}
+          taskId={taskState.id}
+          taskTitle={taskState.title}
+          taskDescription={taskState.description}
+          subtasks={taskState.subtasks}
+          currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
+          onSubtaskComplete={handleToggleSubtask}
+          onSubtaskSelect={handleFocusSubtask}
+          immersive={true}
+        />
       </div>
     </MainLayout>
   );
