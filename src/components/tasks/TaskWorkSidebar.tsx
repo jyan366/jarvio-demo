@@ -23,7 +23,6 @@ interface TaskWorkSidebarProps {
   currentSubtaskIndex: number;
   onSubtaskComplete: (idx: number) => Promise<void>;
   onSubtaskSelect: (idx: number) => void;
-  immersive?: boolean;
 }
 
 export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
@@ -42,10 +41,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   currentSubtaskIndex,
   onSubtaskComplete,
   onSubtaskSelect,
-  immersive = false,
 }) => {
-  const sidebarWidth = "420px";
-  
   return (
     <>
       {/* Overlay for mobile */}
@@ -55,127 +51,114 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         }`}
         onClick={() => onOpenChange(false)}
       />
-      <div
-        className={`flex flex-col bg-white h-full ${
-          immersive
-            ? "fixed top-0 right-0 bottom-0 z-20"
-            : "h-screen" // Using h-screen to ensure full viewport height
-        }`}
+      <aside
+        className={`bg-white border rounded-xl flex flex-col shadow-sm relative transition-all
+        w-full md:w-auto md:relative fixed md:static top-0 right-0 z-50
+        ${open ? "translate-x-0" : "translate-x-full"} md:translate-x-0
+        md:shadow-sm max-w-full md:max-w-[380px] xl:max-w-[420px] h-full`}
         style={{
-          width: immersive ? sidebarWidth : "100%",
-          maxWidth: immersive ? sidebarWidth : "100%",
-          minWidth: immersive ? sidebarWidth : undefined,
-          borderLeft: !immersive ? undefined : "1.5px solid #F4F4F8",
-          height: "100vh", // Force 100% viewport height
-          margin: 0, // Remove any margin
-          padding: 0, // Remove any padding
+          minWidth: open ? 320 : 0,
+          maxWidth: open ? 420 : undefined,
         }}
       >
         {/* Close button for mobile */}
         <Button
           size="icon"
           variant="ghost"
-          className={`absolute top-2 right-2 md:hidden ${immersive ? "!hidden" : ""}`}
+          className="absolute top-2 right-2 md:hidden"
           onClick={() => onOpenChange(false)}
         >
           <X className="h-4 w-4" />
         </Button>
 
-        {/* Sidebar Content - No top padding/margin */}
-        <div className="flex flex-col h-full min-h-0 flex-1">
-          {/* Tabs pinned/sticky to top with NO gap */}
-          <div className="flex w-full z-10 sticky top-0 bg-white border-b">
-            <button
-              className={`${
-                selectedTab === "comments"
-                  ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0] bg-white"
-                  : "text-gray-400 border-b-2 border-transparent"
-              } px-5 py-3 text-base transition rounded-none flex-1`}
-              onClick={() => setSelectedTab("comments")}
-            >
-              Comments
-            </button>
-            <button
-              className={`${
-                selectedTab === "ai"
-                  ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0] bg-white"
-                  : "text-gray-400 border-b-2 border-transparent"
-              } px-5 py-3 text-base transition rounded-none flex-1`}
-              onClick={() => setSelectedTab("ai")}
-            >
-              AI Assistant
-            </button>
-          </div>
-
-          {/* Main Sidebar Body, flexes to fill! */}
-          <div className="flex flex-col flex-1 relative min-h-0">
-            {selectedTab === "comments" ? (
-              <div className="flex flex-col h-full max-h-full min-h-0">
-                <div className="px-5 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
-                  COMMENTS ({comments.length})
-                </div>
-                <div className="flex-1 min-h-0">
-                  <ScrollArea className="h-full px-5 pb-24">
-                    <div className="space-y-4 pr-2">
-                      {comments.map((c, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
-                            {c.user[0]?.toUpperCase() ?? "U"}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm text-zinc-800 break-words">{c.text}</div>
-                            <div className="text-gray-400 text-xs">{c.ago}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-                {/* Add Comment form kept at bottom and contained */}
-                <div className="p-4 border-t bg-white sticky bottom-0 left-0 right-0">
-                  <form
-                    className="flex flex-col"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      if (commentValue.trim()) {
-                        addComment(commentValue);
-                      }
-                    }}
-                  >
-                    <Textarea
-                      className="min-h-24 mb-2 text-sm resize-none"
-                      placeholder="Add a comment..."
-                      value={commentValue}
-                      onChange={(e) => setCommentValue(e.target.value)}
-                    />
-                    <Button
-                      type="submit"
-                      size="sm"
-                      disabled={!commentValue.trim()}
-                      className="ml-auto"
-                    >
-                      Add Comment
-                    </Button>
-                  </form>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col flex-1 min-h-0 h-full">
-                <JarvioAssistant
-                  taskId={taskId}
-                  taskTitle={taskTitle}
-                  taskDescription={taskDescription}
-                  subtasks={subtasks}
-                  currentSubtaskIndex={currentSubtaskIndex}
-                  onSubtaskComplete={onSubtaskComplete}
-                  onSubtaskSelect={onSubtaskSelect}
-                  immersive={true}
-                />
-              </div>
-            )}
-          </div>
+        <div className="flex p-4 border-b">
+          <button
+            className={`${
+              selectedTab === "comments"
+                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
+                : "text-gray-400 border-b-2 border-transparent"
+            } px-2 py-1 mr-3 text-base transition`}
+            onClick={() => setSelectedTab("comments")}
+          >
+            Comments
+          </button>
+          <button
+            className={`${
+              selectedTab === "ai"
+                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
+                : "text-gray-400 border-b-2 border-transparent"
+            } px-2 py-1 text-base transition`}
+            onClick={() => setSelectedTab("ai")}
+          >
+            AI Assistant
+          </button>
         </div>
-      </div>
+
+        <div className="flex flex-col h-full overflow-hidden">
+          {selectedTab === "comments" ? (
+            <>
+              <div className="px-4 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
+                COMMENTS ({comments.length})
+              </div>
+              
+              {/* Comments area with ScrollArea to handle overflow */}
+              <ScrollArea className="flex-1 px-4">
+                <div className="space-y-4 pr-2">
+                  {comments.map((c, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
+                        {c.user[0]?.toUpperCase() ?? "U"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-zinc-800 break-words">{c.text}</div>
+                        <div className="text-gray-400 text-xs">{c.ago}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+              
+              {/* Add Comment - always at the bottom of the sidebar */}
+              <div className="p-4 pt-2 border-t mt-auto bg-white">
+                <form
+                  className="flex flex-col"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (commentValue.trim()) {
+                      addComment(commentValue);
+                    }
+                  }}
+                >
+                  <Textarea
+                    className="min-h-24 mb-2 text-sm resize-none"
+                    placeholder="Add a comment..."
+                    value={commentValue}
+                    onChange={(e) => setCommentValue(e.target.value)}
+                  />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={!commentValue.trim()}
+                    className="ml-auto"
+                  >
+                    Add Comment
+                  </Button>
+                </form>
+              </div>
+            </>
+          ) : (
+            <JarvioAssistant
+              taskId={taskId}
+              taskTitle={taskTitle}
+              taskDescription={taskDescription}
+              subtasks={subtasks}
+              currentSubtaskIndex={currentSubtaskIndex}
+              onSubtaskComplete={onSubtaskComplete}
+              onSubtaskSelect={onSubtaskSelect}
+            />
+          )}
+        </div>
+      </aside>
     </>
   );
-}
+};

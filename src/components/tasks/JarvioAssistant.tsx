@@ -37,10 +37,9 @@ interface JarvioAssistantProps {
   currentSubtaskIndex: number;
   onSubtaskComplete: (idx: number) => Promise<void>;
   onSubtaskSelect: (idx: number) => void;
-  immersive?: boolean;
 }
 
-export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: boolean }> = ({
+export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   taskId,
   taskTitle,
   taskDescription,
@@ -48,7 +47,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
   currentSubtaskIndex,
   onSubtaskComplete,
   onSubtaskSelect,
-  immersive = false,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -478,11 +476,19 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
   );
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden">
-      <div className="px-4 py-2 border-b flex items-center justify-between bg-purple-50 sticky top-0 z-10">
+    <div className="flex flex-col h-full">
+      <div className="px-4 py-2 border-b flex items-center justify-between bg-purple-50">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Auto-run</span>
+          <Switch
+            checked={autoRunMode}
+            onCheckedChange={toggleAutoRun}
+            id="auto-run"
+          />
+          <label htmlFor="auto-run" className="text-sm font-medium">
+            Auto-run
+          </label>
         </div>
+        
         {autoRunMode && (
           <Button
             size="sm"
@@ -498,7 +504,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
           </Button>
         )}
       </div>
-      <div className="px-4 py-2 border-b sticky top-[46px] z-10">
+
+      <div className="px-4 py-2 border-b">
         <div className="flex justify-between items-center text-xs mb-1">
           <span className="font-medium">Progress</span>
           <span>{completedSubtasks} of {totalSubtasks} steps</span>
@@ -510,7 +517,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
           />
         </div>
       </div>
-      <div className="border-b overflow-x-auto sticky top-[92px] z-9 bg-white">
+
+      <div className="border-b overflow-x-auto">
         <div className="flex py-1 px-2">
           {subtasks && subtasks.map((subtask, idx) => (
             <button
@@ -518,7 +526,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
               onClick={() => handleSubtaskHistoryClick(idx)}
               className={`px-3 py-1 text-xs whitespace-nowrap rounded-full mr-1 flex items-center gap-1 transition-colors
                 ${idx === activeSubtaskIdx ? 'bg-purple-100 text-purple-800' : ''}
-                ${(subtask.done || idx < currentSubtaskIndex || idx === currentSubtaskIndex) ? 'hover:bg-purple-50' : 'opacity-60 cursor-not-allowed'}
+                ${subtask.done || idx < currentSubtaskIndex || idx === currentSubtaskIndex ? 'hover:bg-purple-50' : 'opacity-60 cursor-not-allowed'}
               `}
               disabled={!subtask.done && idx > currentSubtaskIndex}
             >
@@ -528,7 +536,8 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
           ))}
         </div>
       </div>
-      <ScrollArea className="flex-1 px-4 pb-32">
+
+      <ScrollArea className="flex-1 p-4">
         <div className="space-y-4 pr-2">
           {subtaskMessages.map((message, idx) => (
             <div
@@ -641,8 +650,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
+
       {activeSubtask && (
-        <div className="px-4 py-2 border-t bg-white">
+        <div className="px-4 py-2 border-t">
           <p className="text-xs font-medium mb-2 text-gray-500">SELECTED SUBTASK:</p>
           <div className="flex items-center gap-2 mb-1">
             <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
@@ -684,10 +694,10 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps & { immersive?: bool
           )}
         </div>
       )}
+
       <form
         onSubmit={handleSendMessage}
-        className="p-4 pt-2 border-t w-full bg-white fixed bottom-0 right-0 left-auto md:w-[420px] z-20"
-        style={{ boxShadow: '0 -2px 6px rgba(0,0,0,0.03)' }}
+        className="p-4 pt-2 border-t mt-auto bg-white"
       >
         <div className="flex items-end gap-2">
           <Textarea

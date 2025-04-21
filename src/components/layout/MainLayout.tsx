@@ -6,12 +6,11 @@ import { NavigationMenu } from './NavigationMenu';
 import { ThemeToggle } from '../ThemeToggle';
 import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
 import { LogOut, User } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     // Check if user is authenticated
@@ -27,9 +26,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('isAuthenticated');
     navigate('/auth');
   };
-
-  // Determine if we are in task-view mode: route matches /task/{id}
-  const isTaskView = /^\/task\/[^/]+$/.test(location.pathname);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -72,25 +68,16 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             </div>
           </SidebarFooter>
         </Sidebar>
-        <main className="flex-1 overflow-auto flex flex-col">
-          <div className="container py-6 flex flex-col flex-1">
-            {/* Header - only show in non-task view or with proper spacing to prevent overlap */}
-            {(!isTaskView || true) && (
-              <div className={`flex justify-between items-center ${isTaskView ? 'mb-4 max-w-[calc(100%-440px)]' : 'mb-6'}`}>
-                <SidebarTrigger />
-                <div className="flex items-center gap-2">
-                  {!isTaskView && (
-                    <>
-                      <MarketplaceSelector />
-                      <ThemeToggle />
-                    </>
-                  )}
-                </div>
+        <main className="flex-1 overflow-auto">
+          <div className="container py-6">
+            <div className="flex justify-between items-center mb-6">
+              <SidebarTrigger />
+              <div className="flex items-center gap-2">
+                <MarketplaceSelector />
+                <ThemeToggle />
               </div>
-            )}
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {children}
             </div>
+            {children}
           </div>
         </main>
       </div>
