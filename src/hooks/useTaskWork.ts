@@ -182,15 +182,28 @@ export function useTaskWork() {
   const handleCloseSubtask = () => setSubtaskDialogIdx(null);
 
   const handleAddComment = (text: string) => {
-    if (text.trim()) {
-      setTaskState((prev) => {
-        if (!prev) return prev;
-        return {
+    if (text.trim() && focusedSubtaskIdx !== null && taskState) {
+      // Get the current subtask
+      const subtaskId = taskState.subtasks[focusedSubtaskIdx]?.id;
+      
+      if (subtaskId) {
+        // Add a comment to the specific subtask
+        setSubtaskComments(prev => ({
           ...prev,
-          comments: [...prev.comments, { user: "you", text, ago: "now" }],
-        };
-      });
-      setCommentValue("");
+          [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "just now" }]
+        }));
+        
+        // Also add to general comments for backward compatibility
+        setTaskState(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            comments: [...prev.comments, { user: "you", text, ago: "just now" }],
+          };
+        });
+        
+        setCommentValue("");
+      }
     }
   };
 

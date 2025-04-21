@@ -57,9 +57,8 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   onFeedbackAndContinue,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  // Only scroll to bottom when specific content-changing events occur
+  
+  // Only scroll to bottom on new content or state changes that would add content
   useEffect(() => {
     // Using setTimeout to ensure DOM has updated before scrolling
     const timeoutId = setTimeout(() => {
@@ -82,11 +81,9 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   return (
     <div className="flex flex-col h-full">
       <ScrollArea 
-        className="flex-1 p-4 pb-0" 
-        style={{ height: "1px", minHeight: 0 }}
-        ref={scrollAreaRef}
+        className="flex-1 p-4 pb-0 overflow-y-auto" 
       >
-        <div className="space-y-4 pr-2">
+        <div className="space-y-4 pr-2 pb-4">
           {isTransitioning && (
             <div className="flex items-center justify-center p-4">
               <div className="text-center">

@@ -42,6 +42,12 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   onSubtaskComplete,
   onSubtaskSelect,
 }) => {
+  // Filter comments to only show those relevant to the current subtask
+  // In a real implementation, comments would have a subtaskId field
+  // For now, we'll just show all comments since there's no way to link them to subtasks in the current data model
+  const subtaskComments = comments;
+  const currentSubtask = subtasks[currentSubtaskIndex];
+  
   return (
     <>
       {/* Overlay for mobile */}
@@ -96,24 +102,35 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         <div className="flex flex-col flex-1 min-h-0">
           {selectedTab === "comments" ? (
             <div className="flex flex-col h-full">
-              <div className="px-4 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
-                COMMENTS ({comments.length})
+              <div className="px-4 py-2 text-xs font-bold text-muted-foreground tracking-[1px] flex justify-between items-center">
+                <span>COMMENTS ({subtaskComments.length})</span>
+                {currentSubtask && (
+                  <span className="text-purple-600 font-semibold">
+                    {currentSubtask.title}
+                  </span>
+                )}
               </div>
               
               {/* Comments area with ScrollArea to handle overflow */}
               <ScrollArea className="flex-1 px-4">
                 <div className="space-y-4 pr-2">
-                  {comments.map((c, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
-                        {c.user[0]?.toUpperCase() ?? "U"}
+                  {subtaskComments.length > 0 ? (
+                    subtaskComments.map((c, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
+                          {c.user[0]?.toUpperCase() ?? "U"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-zinc-800 break-words">{c.text}</div>
+                          <div className="text-gray-400 text-xs">{c.ago}</div>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-zinc-800 break-words">{c.text}</div>
-                        <div className="text-gray-400 text-xs">{c.ago}</div>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-gray-400 py-6">
+                      No comments for this subtask
                     </div>
-                  ))}
+                  )}
                 </div>
               </ScrollArea>
               
@@ -130,7 +147,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                 >
                   <Textarea
                     className="min-h-24 mb-2 text-sm resize-none"
-                    placeholder="Add a comment..."
+                    placeholder={`Add a comment about "${currentSubtask?.title || 'this task'}"...`}
                     value={commentValue}
                     onChange={(e) => setCommentValue(e.target.value)}
                   />
