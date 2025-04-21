@@ -16,7 +16,7 @@ export const SubtaskStepper: React.FC<SubtaskStepperProps> = ({
   activeSubtaskIdx,
   onSubtaskClick,
 }) => (
-  <div className="border-b overflow-x-auto">
+  <div className="border-b overflow-x-auto sticky top-[53px] bg-white z-10">
     <div className="flex py-1 px-2">
       {subtasks.map((subtask, idx) => (
         <button

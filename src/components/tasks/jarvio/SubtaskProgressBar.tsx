@@ -9,7 +9,7 @@ interface SubtaskProgressBarProps {
 export const SubtaskProgressBar: React.FC<SubtaskProgressBarProps> = ({ completed, total }) => {
   const progress = total > 0 ? (completed / total) * 100 : 0;
   return (
-    <div className="px-4 py-2 border-b">
+    <div className="px-4 py-2 border-b sticky top-0 bg-white z-20">
       <div className="flex justify-between items-center text-xs mb-1">
         <span className="font-medium">Progress</span>
         <span>{completed} of {total} steps</span>

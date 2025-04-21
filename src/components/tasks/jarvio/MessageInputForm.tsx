@@ -27,7 +27,7 @@ export const MessageInputForm: React.FC<MessageInputFormProps> = ({
 }) => (
   <form
     onSubmit={onSubmit}
-    className="sticky bottom-0 left-0 right-0 p-4 pt-2 border-t bg-white z-20"
+    className="sticky bottom-0 left-0 right-0 p-4 pt-2 border-t bg-white z-30"
     style={{
       boxShadow: "0 -6px 20px 0 rgba(0,0,0,0.10)",
     }}

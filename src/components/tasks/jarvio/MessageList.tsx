@@ -19,7 +19,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   awaitingContinue,
   refBottom,
 }) => (
-  <div className="space-y-4 pr-2">
+  <div className="flex-1 overflow-y-auto py-4 px-4 space-y-4">
     {messages.map((message) => (
       <div
         key={message.id}

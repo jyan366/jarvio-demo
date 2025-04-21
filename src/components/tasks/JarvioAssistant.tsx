@@ -1,14 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Zap, ThumbsUp, User, Check, MessageSquare, Play, Pause } from "lucide-react";
+import { Zap, ThumbsUp, User, Check, MessageSquare, Play, Pause } from "lucide-react";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Skeleton } from "@/components/ui/skeleton";
 
 // New subcomponents
 import { SubtaskProgressBar } from "./jarvio/SubtaskProgressBar";
@@ -457,8 +453,6 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const completedSubtasks = subtasks?.filter(s => s.done)?.length || 0;
   const totalSubtasks = subtasks?.length || 0;
 
-  const progress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
-
   const handleSubtaskHistoryClick = (index: number) => {
     if (autoRunMode && !autoRunPaused) {
       setAutoRunPaused(true);
@@ -486,7 +480,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="px-4 py-2 border-b flex items-center justify-between bg-purple-50">
+      <div className="px-4 py-2 border-b flex items-center justify-between bg-purple-50 sticky top-0 z-30">
         <div className="flex items-center gap-2">
           <Switch
             checked={autoRunMode}
@@ -522,7 +516,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         onSubtaskClick={handleSubtaskHistoryClick}
       />
 
-      <ScrollArea className="flex-1 p-4 pb-0" style={{ height: "1px", minHeight: 0 }}>
+      <div className="flex flex-col flex-1 overflow-hidden relative">
         <MessageList
           messages={subtaskMessages}
           isLoading={isLoading}
@@ -530,24 +524,30 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
           awaitingContinue={awaitingContinue}
           refBottom={messagesEndRef}
         />
+        
         {pendingApproval && (
-          <ApprovalBanner
-            onApprove={() => handleApproval(true)}
-            onReject={() => handleApproval(false)}
-          />
+          <div className="sticky bottom-[72px] left-0 right-0 px-4">
+            <ApprovalBanner
+              onApprove={() => handleApproval(true)}
+              onReject={() => handleApproval(false)}
+            />
+          </div>
         )}
+        
         {awaitingContinue && (
-          <FeedbackPanel
-            feedback={feedback}
-            setFeedback={setFeedback}
-            onContinue={handleContinue}
-            onSubmitFeedback={handleFeedbackAndContinue}
-          />
+          <div className="sticky bottom-[72px] left-0 right-0 px-4">
+            <FeedbackPanel
+              feedback={feedback}
+              setFeedback={setFeedback}
+              onContinue={handleContinue}
+              onSubmitFeedback={handleFeedbackAndContinue}
+            />
+          </div>
         )}
-      </ScrollArea>
+      </div>
 
       {activeSubtask && (
-        <div className="px-4 py-2 border-t bg-white z-10">
+        <div className="px-4 py-2 border-t bg-white z-10 sticky bottom-[72px]">
           <p className="text-xs font-medium mb-2 text-gray-500">SELECTED SUBTASK:</p>
           <div className="flex items-center gap-2 mb-1">
             <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
