@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ReviewSummarySection } from '@/components/reviews/ReviewSummarySection';
-import { AITaskAssistant } from '@/components/reviews/AITaskAssistant';
 
 interface Review {
   rating: number;
@@ -166,7 +165,6 @@ export default function ProductReviews() {
           </div>
         </section>
       </div>
-      <AITaskAssistant />
     </MainLayout>
   );
 }
