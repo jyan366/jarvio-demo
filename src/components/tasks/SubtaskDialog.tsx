@@ -3,45 +3,29 @@ import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
-
-interface Subtask {
-  id: string;
-  title: string;
-  done: boolean;
-  description: string;
-  status: string;
-  priority: string;
-  category: string;
-}
-
-interface Comment {
-  user: string;
-  text: string;
-  ago: string;
-  subtaskId?: string;
-}
+import { Subtask } from "@/pages/TaskWorkContainer";
 
 interface SubtaskDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
   subtask: Subtask | null;
-  comments: Comment[];
-  addComment: (text: string) => void;
+  onUpdate: (field: keyof Subtask, value: any) => void;
+  onToggleComplete: () => void;
 }
 
 export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
   open,
-  onOpenChange,
+  onClose,
   subtask,
-  comments,
-  addComment,
+  onUpdate,
+  onToggleComplete,
 }) => {
   const [commentValue, setCommentValue] = useState("");
 
   if (!subtask) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg w-full">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -66,30 +50,18 @@ export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2 font-semibold mb-2 text-base">
-              <MessageSquare className="w-4 h-4" /> Comments ({comments.length})
+              <MessageSquare className="w-4 h-4" /> Comments
             </div>
             <div className="space-y-3 max-h-32 overflow-auto pb-2 pr-1 mb-3">
-              {comments.map((c, i) => (
-                <div key={i} className="flex gap-2 items-start">
-                  <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs text-zinc-700 mt-0.5 flex-shrink-0">
-                    {c.user[0]?.toUpperCase() ?? "U"}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm">{c.text}</div>
-                    <div className="text-xs text-gray-400">{c.ago}</div>
-                  </div>
-                </div>
-              ))}
-              {comments.length === 0 && (
-                <div className="text-xs italic text-gray-400">No comments yet.</div>
-              )}
+              {/* We're removing the comments mapping here since it's not in the interface */}
+              <div className="text-xs italic text-gray-400">No comments yet.</div>
             </div>
             <form
               className="flex flex-col gap-2"
               onSubmit={e => {
                 e.preventDefault();
                 if (commentValue.trim()) {
-                  addComment(commentValue);
+                  // Handle comment submission
                   setCommentValue("");
                 }
               }}

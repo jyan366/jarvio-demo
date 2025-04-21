@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -133,7 +132,7 @@ export default function TaskWorkContainer() {
       
       {subtaskDialogIdx !== null && (
         <SubtaskDialog
-          isOpen={subtaskDialogIdx !== null}
+          open={subtaskDialogIdx !== null}
           onClose={handleCloseSubtask}
           subtask={taskState?.subtasks[subtaskDialogIdx] || null}
           onUpdate={(field, value) => {
