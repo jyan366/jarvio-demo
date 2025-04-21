@@ -1,9 +1,9 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
 import { Subtask } from "@/pages/TaskWorkContainer";
+import { JarvioDataLog } from "./JarvioDataLog";
 
 interface SubtaskDialogProps {
   open: boolean;
@@ -11,6 +11,12 @@ interface SubtaskDialogProps {
   subtask: Subtask | null;
   onUpdate: (field: keyof Subtask, value: any) => void;
   onToggleComplete: () => void;
+  workLog?: string;
+  completedAt?: string;
+  comments?: { user: string; text: string; ago: string }[];
+  onAddComment?: (text: string) => void;
+  commentValue?: string;
+  setCommentValue?: (v: string) => void;
 }
 
 export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
@@ -19,8 +25,16 @@ export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
   subtask,
   onUpdate,
   onToggleComplete,
+  workLog,
+  completedAt,
+  comments = [],
+  onAddComment,
+  commentValue = "",
+  setCommentValue,
 }) => {
-  const [commentValue, setCommentValue] = useState("");
+  const [localCommentValue, setLocalCommentValue] = React.useState("");
+  const handleCommentChange = setCommentValue || setLocalCommentValue;
+  const handleCommentValue = setCommentValue ? commentValue : localCommentValue;
 
   if (!subtask) return null;
 
@@ -33,8 +47,14 @@ export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
             <span className="ml-2 text-xs bg-gray-100 rounded px-2 py-0.5 font-normal">{subtask.status || "No status"}</span>
           </DialogTitle>
         </DialogHeader>
-        <div className="py-2">
-          <div className="mb-3">
+
+        <div className="py-2 flex flex-col gap-3">
+          <div>
+            <p className="text-sm font-medium mb-1">Work Log</p>
+            <JarvioDataLog result={workLog} completedAt={completedAt} />
+          </div>
+
+          <div>
             <p className="text-sm font-medium mb-1">Description</p>
             <div className="min-h-[32px] text-sm text-gray-700 bg-gray-50 px-2 py-2 rounded">
               {subtask.description ? (
@@ -44,43 +64,59 @@ export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
               )}
             </div>
           </div>
-          <div className="flex gap-2 mb-4">
+
+          <div className="flex gap-2 mb-1">
             <div className="bg-gray-100 rounded px-2 py-0.5 text-xs">{subtask.priority || "No priority"}</div>
             <div className="bg-gray-100 rounded px-2 py-0.5 text-xs">{subtask.category || "No category"}</div>
           </div>
-          <div>
+
+          <div className="mt-2">
             <div className="flex items-center gap-2 font-semibold mb-2 text-base">
               <MessageSquare className="w-4 h-4" /> Comments
             </div>
             <div className="space-y-3 max-h-32 overflow-auto pb-2 pr-1 mb-3">
-              {/* We're removing the comments mapping here since it's not in the interface */}
-              <div className="text-xs italic text-gray-400">No comments yet.</div>
+              {comments.length > 0 ? (
+                comments.map((c, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
+                      {c.user[0]?.toUpperCase() ?? "U"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-zinc-800 break-words">{c.text}</div>
+                      <div className="text-gray-400 text-xs">{c.ago}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-xs italic text-gray-400">No comments yet.</div>
+              )}
             </div>
-            <form
-              className="flex flex-col gap-2"
-              onSubmit={e => {
-                e.preventDefault();
-                if (commentValue.trim()) {
-                  // Handle comment submission
-                  setCommentValue("");
-                }
-              }}
-            >
-              <textarea
-                className="border rounded px-2 py-1 text-sm resize-none min-h-[36px]"
-                placeholder="Add a comment..."
-                value={commentValue}
-                onChange={e => setCommentValue(e.target.value)}
-              />
-              <Button
-                type="submit"
-                size="sm"
-                disabled={!commentValue.trim()}
-                className="ml-auto"
+            {onAddComment && handleCommentChange && (
+              <form
+                className="flex flex-col gap-2"
+                onSubmit={e => {
+                  e.preventDefault();
+                  if (handleCommentValue?.trim()) {
+                    onAddComment(handleCommentValue);
+                  }
+                }}
               >
-                Add Comment
-              </Button>
-            </form>
+                <textarea
+                  className="border rounded px-2 py-1 text-sm resize-none min-h-[36px]"
+                  placeholder="Add a comment..."
+                  value={handleCommentValue}
+                  onChange={e => handleCommentChange(e.target.value)}
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={!handleCommentValue?.trim()}
+                  className="ml-auto"
+                >
+                  Add Comment
+                </Button>
+              </form>
+            )}
           </div>
         </div>
         <DialogClose asChild>
