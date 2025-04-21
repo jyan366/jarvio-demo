@@ -100,3 +100,21 @@ export async function generateTaskSteps(task: { title: string; description: stri
     return [];
   }
 }
+
+export async function updateTaskState({ action, taskId, subtaskId, data }) {
+  try {
+    const { data: result, error } = await supabase.functions.invoke("update-task-state", {
+      body: { action, taskId, subtaskId, data }
+    });
+    
+    if (error) {
+      console.error("Error updating task state:", error);
+      throw error;
+    }
+    
+    return result;
+  } catch (err) {
+    console.error("Failed to update task state:", err);
+    throw err;
+  }
+}

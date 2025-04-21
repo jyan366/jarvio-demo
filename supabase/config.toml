@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.jarvio-assistant]
 verify_jwt = false
+
+[functions.update-task-state]
+verify_jwt = false

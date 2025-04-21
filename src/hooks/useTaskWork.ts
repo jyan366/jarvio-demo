@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask, createSubtasks } from "@/lib/supabaseTasks";
-import { generateTaskSteps } from "@/lib/apiUtils";
+import { generateTaskSteps, updateTaskState } from "@/lib/apiUtils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskWorkType, Subtask, Product } from "@/pages/TaskWorkContainer";
@@ -33,8 +33,17 @@ export function useTaskWork() {
   const handleToggleSubtask = async (idx: number) => {
     const sub = taskState?.subtasks[idx];
     if (!sub || !taskState) return;
+    
     try {
-      await toggleSubtask(sub.id, !sub.done);
+      // Update via backend
+      await updateTaskState({
+        action: 'toggleSubtask',
+        taskId: taskState.id,
+        subtaskId: sub.id,
+        data: { completed: !sub.done }
+      });
+      
+      // Update local state
       setTaskState((prev) => {
         if (!prev) return prev;
         const newSubs = [...prev.subtasks];
@@ -175,55 +184,110 @@ export function useTaskWork() {
     setFocusedSubtaskIdx(idx);
   };
 
-  const handleUpdateSubtask = (field: keyof Subtask, value: any) => {
-    if (focusedSubtaskIdx === null) return;
-    setTaskState((prev) => {
-      if (!prev) return prev;
-      const updatedSubs = prev.subtasks.map((st, i) =>
-        i === focusedSubtaskIdx ? { ...st, [field]: value } : st
-      );
-      return { ...prev, subtasks: updatedSubs };
-    });
+  const handleUpdateSubtask = async (field: keyof Subtask, value: any) => {
+    if (focusedSubtaskIdx === null || !taskState) return;
+    
+    try {
+      const subtask = taskState.subtasks[focusedSubtaskIdx];
+      
+      // Update via backend
+      await updateTaskState({
+        action: 'updateSubtask',
+        taskId: taskState.id,
+        subtaskId: subtask.id,
+        data: { field, value }
+      });
+      
+      // Update local state
+      setTaskState((prev) => {
+        if (!prev) return prev;
+        const updatedSubs = prev.subtasks.map((st, i) =>
+          i === focusedSubtaskIdx ? { ...st, [field]: value } : st
+        );
+        return { ...prev, subtasks: updatedSubs };
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to update subtask",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleOpenSubtask = (idx: number) => setSubtaskDialogIdx(idx);
   const handleCloseSubtask = () => setSubtaskDialogIdx(null);
 
-  const handleAddComment = (text: string) => {
+  const handleAddComment = async (text: string) => {
     if (text.trim() && focusedSubtaskIdx !== null && taskState) {
       const subtaskId = taskState.subtasks[focusedSubtaskIdx]?.id;
       
       if (subtaskId) {
-        const newComment = { 
-          user: "you", 
-          text, 
-          ago: "just now",
-          subtaskId
-        };
-        
-        setTaskState(prev => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            comments: [...prev.comments, newComment],
+        try {
+          // Save comment via backend
+          const result = await updateTaskState({
+            action: 'addComment',
+            taskId: taskState.id,
+            subtaskId,
+            data: {
+              text,
+              subtaskId,
+              userId: 'you' // In a real app with auth, this would be the actual user ID
+            }
+          });
+          
+          const newComment = { 
+            user: "you", 
+            text, 
+            ago: "just now",
+            subtaskId
           };
-        });
-        
-        setSubtaskComments(prev => ({
-          ...prev,
-          [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "just now" }]
-        }));
-        
-        setCommentValue("");
+          
+          // Update local state
+          setTaskState(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              comments: [...prev.comments, newComment],
+            };
+          });
+          
+          setSubtaskComments(prev => ({
+            ...prev,
+            [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "just now" }]
+          }));
+          
+          setCommentValue("");
+        } catch (err) {
+          toast({
+            title: "Error",
+            description: "Failed to save comment",
+            variant: "destructive"
+          });
+        }
       }
     }
   };
 
-  const handleAddSubtaskComment = (subtaskId: string, text: string) => {
-    setSubtaskComments(prev => ({
-      ...prev,
-      [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "now" }],
-    }));
+  const handleSaveSubtaskResult = async (subtaskId: string, result: string) => {
+    if (!taskState) return;
+    
+    try {
+      await updateTaskState({
+        action: 'saveSubtaskResult',
+        taskId: taskState.id,
+        subtaskId,
+        data: {
+          result
+        }
+      });
+      
+      // No need to update local state as this is primarily for backend persistence
+      return true;
+    } catch (err) {
+      console.error("Failed to save subtask result:", err);
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -339,6 +403,6 @@ export function useTaskWork() {
     handleOpenSubtask,
     handleCloseSubtask,
     handleAddComment,
-    handleAddSubtaskComment,
+    handleSaveSubtaskResult,
   };
 }
