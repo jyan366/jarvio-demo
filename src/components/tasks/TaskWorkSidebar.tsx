@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -51,13 +52,12 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         onClick={() => onOpenChange(false)}
       />
       <aside
-        className={`bg-white border rounded-xl flex flex-col shadow-sm relative transition-all
-        w-full md:w-auto md:relative fixed md:static top-0 right-0 z-50
+        className={`flex flex-col h-full overflow-hidden w-full md:w-auto
         ${open ? "translate-x-0" : "translate-x-full"} md:translate-x-0
-        md:shadow-sm max-w-full md:max-w-[380px] xl:max-w-[420px] h-full`}
+        fixed md:static top-0 right-0 z-50 transition-all`}
         style={{
+          height: '100%',
           minWidth: open ? 320 : 0,
-          maxWidth: open ? 420 : undefined,
         }}
       >
         {/* Close button for mobile */}
@@ -93,7 +93,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           </button>
         </div>
 
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {selectedTab === "comments" ? (
             <>
               <div className="px-4 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -374,7 +375,7 @@ export default function TaskWorkContainer() {
             />
           </div>
         </main>
-        <aside className="h-screen max-h-screen flex flex-col max-w-full md:max-w-[380px] xl:max-w-[420px] w-full bg-white overflow-hidden shadow-none border-l">
+        <aside className="h-screen flex flex-col max-w-full md:max-w-[380px] xl:max-w-[420px] w-full bg-white overflow-hidden shadow-none border-l">
           <TaskWorkSidebar
             open={sidebarOpen}
             onOpenChange={setSidebarOpen}
@@ -397,3 +398,4 @@ export default function TaskWorkContainer() {
     </MainLayout>
   );
 }
+
