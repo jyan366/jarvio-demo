@@ -131,7 +131,7 @@ export default function CustomerInsights() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-semibold mb-6">Customer Feedback</h2>
             <div className="space-y-6">
@@ -181,158 +181,156 @@ export default function CustomerInsights() {
               </div>
             </div>
           </Card>
+        </div>
 
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <Zap className="w-6 h-6 text-primary" />
-              <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
-            </div>
-            <div className="space-y-6">
-              <Card className={`p-4 md:p-6 border ${currentInsight.color} transition-all duration-300 min-h-[200px] flex flex-col`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex gap-3 items-center">
-                    <currentInsight.icon className="w-5 h-5" />
-                    <h3 className="font-medium">{currentInsight.title}</h3>
-                  </div>
-                  <span className="text-xs bg-white/50 px-2 py-1 rounded-full">
-                    {currentInsightIndex + 1} of {insights.length}
-                  </span>
-                </div>
-                <p className="text-sm font-medium mb-2">{currentInsight.preview}</p>
-                <p className="text-sm flex-1">{currentInsight.details}</p>
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-current/10">
-                  <Button variant="outline" size="icon" onClick={previousInsight} className="h-8 w-8">
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" onClick={nextInsight} className="h-8 w-8">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Card>
-              <div className="flex gap-4">
-                <Button variant="default" className="flex-1">
-                  Generate Report
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  Export Data
-                </Button>
+        <Card className="p-4 md:p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Zap className="w-6 h-6 text-primary" />
+            <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
+          </div>
+          <Card className={`p-4 md:p-6 border ${currentInsight.color} transition-all duration-300 min-h-[200px] flex flex-col`}>
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex gap-3 items-center">
+                <currentInsight.icon className="w-5 h-5" />
+                <h3 className="font-medium">{currentInsight.title}</h3>
               </div>
+              <span className="text-xs bg-white/50 px-2 py-1 rounded-full">
+                {currentInsightIndex + 1} of {insights.length}
+              </span>
+            </div>
+            <p className="text-sm font-medium mb-2">{currentInsight.preview}</p>
+            <p className="text-sm flex-1">{currentInsight.details}</p>
+            <div className="flex justify-between items-center mt-4 pt-4 border-t border-current/10">
+              <Button variant="outline" size="icon" onClick={previousInsight} className="h-8 w-8">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" onClick={nextInsight} className="h-8 w-8">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           </Card>
-        </div>
-
-        <div className="flex items-center justify-between gap-4 bg-blue-50 p-4 rounded-lg">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-blue-500" />
-            <span className="text-blue-700 font-medium">
-              {selectedProducts.length === 0 
-                ? "Select products to compare" 
-                : `${selectedProducts.length} product${selectedProducts.length > 1 ? 's' : ''} selected`
-              }
-            </span>
-          </div>
-          <Button 
-            size="lg"
-            onClick={handleGroupInsights}
-            disabled={selectedProducts.length < 2}
-          >
-            <BarChart2 className="w-5 h-5 mr-2" />
-            {selectedProducts.length < 2 
-              ? "Select at least 2 products to compare" 
-              : `Compare ${selectedProducts.length} Products`
-            }
-          </Button>
-        </div>
-
-        <Card>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[30px]">
-                    <Checkbox 
-                      checked={selectedProducts.length === products.length}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedProducts(products.map(p => p.asin));
-                        } else {
-                          setSelectedProducts([]);
-                        }
-                      }}
-                    />
-                  </TableHead>
-                  <TableHead>IMAGE</TableHead>
-                  <TableHead>NAME</TableHead>
-                  <TableHead>ASIN</TableHead>
-                  <TableHead>Review Rating</TableHead>
-                  <TableHead>Number of Reviews</TableHead>
-                  <TableHead>Feedback Quality</TableHead>
-                  <TableHead>Reviews</TableHead>
-                  <TableHead>Insights</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map(product => (
-                  <TableRow 
-                    key={product.asin}
-                    className={selectedProducts.includes(product.asin) ? "bg-blue-50" : ""}
-                  >
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedProducts.includes(product.asin)}
-                        onCheckedChange={() => handleProductSelect(product.asin)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
-                        <img 
-                          src={product.image} 
-                          alt={product.name}
-                          className="w-full h-full object-contain" 
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
-                    <TableCell>{product.asin}</TableCell>
-                    <TableCell>{product.rating}</TableCell>
-                    <TableCell>{product.reviews}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded text-sm ${
-                        product.quality === 'Good' ? 'bg-green-100 text-green-800' : 
-                        product.quality === 'Fair' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {product.quality}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleViewReviews(product.name)}
-                        className="w-full"
-                      >
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        View Reviews
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewInsights(product.name)}
-                        className="w-full"
-                      >
-                        <BarChart2 className="w-4 h-4 mr-2" />
-                        View Insights
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="flex gap-4">
+            <Button variant="default" className="flex-1">
+              Generate Report
+            </Button>
+            <Button variant="outline" className="flex-1">
+              Export Data
+            </Button>
           </div>
         </Card>
       </div>
+
+      <div className="flex items-center justify-between gap-4 bg-blue-50 p-4 rounded-lg">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-blue-500" />
+          <span className="text-blue-700 font-medium">
+            {selectedProducts.length === 0 
+              ? "Select products to compare" 
+              : `${selectedProducts.length} product${selectedProducts.length > 1 ? 's' : ''} selected`
+            }
+          </span>
+        </div>
+        <Button 
+          size="lg"
+          onClick={handleGroupInsights}
+          disabled={selectedProducts.length < 2}
+        >
+          <BarChart2 className="w-5 h-5 mr-2" />
+          {selectedProducts.length < 2 
+            ? "Select at least 2 products to compare" 
+            : `Compare ${selectedProducts.length} Products`
+          }
+        </Button>
+      </div>
+
+      <Card>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[30px]">
+                  <Checkbox 
+                    checked={selectedProducts.length === products.length}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedProducts(products.map(p => p.asin));
+                      } else {
+                        setSelectedProducts([]);
+                      }
+                    }}
+                  />
+                </TableHead>
+                <TableHead>IMAGE</TableHead>
+                <TableHead>NAME</TableHead>
+                <TableHead>ASIN</TableHead>
+                <TableHead>Review Rating</TableHead>
+                <TableHead>Number of Reviews</TableHead>
+                <TableHead>Feedback Quality</TableHead>
+                <TableHead>Reviews</TableHead>
+                <TableHead>Insights</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map(product => (
+                <TableRow 
+                  key={product.asin}
+                  className={selectedProducts.includes(product.asin) ? "bg-blue-50" : ""}
+                >
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedProducts.includes(product.asin)}
+                      onCheckedChange={() => handleProductSelect(product.asin)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
+                      <img 
+                        src={product.image} 
+                        alt={product.name}
+                        className="w-full h-full object-contain" 
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
+                  <TableCell>{product.asin}</TableCell>
+                  <TableCell>{product.rating}</TableCell>
+                  <TableCell>{product.reviews}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded text-sm ${
+                      product.quality === 'Good' ? 'bg-green-100 text-green-800' : 
+                      product.quality === 'Fair' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {product.quality}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewReviews(product.name)}
+                      className="w-full"
+                    >
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      View Reviews
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewInsights(product.name)}
+                      className="w-full"
+                    >
+                      <BarChart2 className="w-4 h-4 mr-2" />
+                      View Insights
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
 
       <ReviewsDialog 
         open={reviewsDialogOpen}
