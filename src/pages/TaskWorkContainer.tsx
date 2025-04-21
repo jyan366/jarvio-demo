@@ -349,9 +349,9 @@ export default function TaskWorkContainer() {
 
   return (
     <MainLayout>
-      <div className="w-full h-full max-w-none flex flex-row gap-0 items-stretch bg-background overflow-hidden">
-        <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto h-full">
-          <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-6">
+      <div className="w-screen h-[100vh] max-w-none flex flex-row gap-0 items-stretch bg-background overflow-hidden">
+        <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-hidden h-full max-h-screen">
+          <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-6 overflow-y-auto">
             <div className="mb-2 w-full">
               <CollapseNavButton
                 sidebarOpen={sidebarOpen}
@@ -374,7 +374,7 @@ export default function TaskWorkContainer() {
             />
           </div>
         </main>
-        <aside className="max-w-full md:max-w-[380px] xl:max-w-[420px] w-full flex flex-col h-full bg-white overflow-hidden shadow-none border-l">
+        <aside className="max-w-full md:max-w-[380px] xl:max-w-[420px] w-full h-[100vh] flex flex-col bg-white overflow-hidden shadow-none border-l">
           <TaskWorkSidebar
             open={sidebarOpen}
             onOpenChange={setSidebarOpen}
