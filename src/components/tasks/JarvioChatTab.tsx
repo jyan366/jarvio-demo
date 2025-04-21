@@ -97,7 +97,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   return (
     <div className="flex flex-col h-full">
       <div 
-        className="flex-1 p-4 pb-0 overflow-y-auto" 
+        className="flex-1 p-4 pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-400 scrollbar-track-purple-50 scrollbar-thumb-rounded scrollbar-track-rounded"
         ref={chatContainerRef}
         onScroll={handleScroll}
         style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
@@ -258,3 +258,4 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     </div>
   );
 };
+
