@@ -1,3 +1,4 @@
+
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -101,7 +102,7 @@ export default function ProductReviews() {
   const handleCreateTaskFromInsight = (insight: InsightData) => {
     toast({
       title: "Task Created",
-      description: `"${insight.title}" has been added to your tasks.",
+      description: `"${insight.title}" has been added to your tasks.`,
     });
   };
 
@@ -134,14 +135,15 @@ export default function ProductReviews() {
     setQuestion("");
   };
 
-  const reviewSummary = `Based on a comprehensive analysis of ${reviews.length} customer reviews, this product maintains a strong positive reception. Key findings include:
-
-• Quality & Taste: 80% of reviewers praise the authentic taste and consistent fermentation quality
-• Probiotic Benefits: 65% mention improved digestion and health benefits
-• Packaging: Multiple customers appreciate the glass jar packaging, though some suggest eco-friendly improvements
-• Areas for Improvement: Common suggestions include offering different spice levels, larger size options, and more consistent shipping times
-• Price Point: While some find it expensive, most agree the quality justifies the cost
-• Customer Loyalty: Notable number of repeat customers, indicating strong product satisfaction`;
+  // Fix: Store the multi-line string correctly without errors
+  const reviewSummary = 
+    "Based on a comprehensive analysis of " + reviews.length + " customer reviews, this product maintains a strong positive reception. Key findings include:\n\n" +
+    "• Quality & Taste: 80% of reviewers praise the authentic taste and consistent fermentation quality\n" +
+    "• Probiotic Benefits: 65% mention improved digestion and health benefits\n" +
+    "• Packaging: Multiple customers appreciate the glass jar packaging, though some suggest eco-friendly improvements\n" +
+    "• Areas for Improvement: Common suggestions include offering different spice levels, larger size options, and more consistent shipping times\n" +
+    "• Price Point: While some find it expensive, most agree the quality justifies the cost\n" +
+    "• Customer Loyalty: Notable number of repeat customers, indicating strong product satisfaction";
 
   return (
     <MainLayout>
@@ -190,7 +192,7 @@ export default function ProductReviews() {
             
             {answer && (
               <Card className="p-4 bg-green-50 border-green-100">
-                <p className="text-green-900">{answer}</p>
+                <p className="text-green-900 whitespace-pre-line">{answer}</p>
               </Card>
             )}
           </div>
