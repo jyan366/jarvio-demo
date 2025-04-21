@@ -55,10 +55,10 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         className={`bg-white border rounded-xl flex flex-col shadow-sm relative transition-all
         w-full md:w-auto md:relative fixed md:static top-0 right-0 z-50
         ${open ? "translate-x-0" : "translate-x-full"} md:translate-x-0
-        md:shadow-sm max-w-full md:max-w-[380px] xl:max-w-[420px] h-[100vh]`}
+        md:shadow-sm md:max-w-[380px] xl:max-w-[420px] h-[100vh]`}
         style={{
-          minWidth: open ? 320 : 0,
-          maxWidth: open ? 420 : undefined,
+          width: open ? "100%" : 0,
+          maxWidth: "420px",
           height: "100vh",
         }}
       >
@@ -148,15 +148,17 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               </div>
             </>
           ) : (
-            <JarvioAssistant
-              taskId={taskId}
-              taskTitle={taskTitle}
-              taskDescription={taskDescription}
-              subtasks={subtasks}
-              currentSubtaskIndex={currentSubtaskIndex}
-              onSubtaskComplete={onSubtaskComplete}
-              onSubtaskSelect={onSubtaskSelect}
-            />
+            <div className="flex-1 overflow-hidden">
+              <JarvioAssistant
+                taskId={taskId}
+                taskTitle={taskTitle}
+                taskDescription={taskDescription}
+                subtasks={subtasks}
+                currentSubtaskIndex={currentSubtaskIndex}
+                onSubtaskComplete={onSubtaskComplete}
+                onSubtaskSelect={onSubtaskSelect}
+              />
+            </div>
           )}
         </div>
       </aside>
