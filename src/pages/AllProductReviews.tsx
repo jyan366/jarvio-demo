@@ -2,9 +2,10 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Star, Filter, Calendar } from 'lucide-react';
+import { Star, Filter, Calendar, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 type Review = {
   rating: number;
@@ -16,6 +17,7 @@ type Review = {
 };
 
 export default function AllProductReviews() {
+  const navigate = useNavigate();
   const [selectedRating, setSelectedRating] = useState<string>('all');
   const [selectedProduct, setSelectedProduct] = useState<string>('all');
   const [dateSort, setDateSort] = useState<'newest' | 'oldest'>('newest');
@@ -62,7 +64,17 @@ export default function AllProductReviews() {
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div className="space-y-2">
-            <h1 className="text-2xl md:text-4xl font-bold tracking-tight">All Product Reviews</h1>
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => navigate('/customer-insights')} 
+                className="mr-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <h1 className="text-2xl md:text-4xl font-bold tracking-tight">All Product Reviews</h1>
+            </div>
             <p className="text-muted-foreground">
               Monitor and analyze customer feedback across all products
             </p>
