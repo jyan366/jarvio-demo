@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -69,8 +70,9 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const [feedback, setFeedback] = useState("");
   const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
   const [showDataLog, setShowDataLog] = useState(true);
-
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const autoRunTimerRef = useRef<number | undefined>();
+  const autoRunStepInProgressRef = useRef(false);
 
   useEffect(() => {
     if (messages.length === 0 && subtasks && subtasks.length > 0) {
@@ -90,59 +92,85 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   }, [currentSubtaskIndex, subtasks, messages.length, taskTitle]);
 
   useEffect(() => {
-    let autoRunTimer: number | undefined;
-    
-    if (
-      autoRunMode &&
-      !autoRunPaused &&
-      subtasks &&
-      subtasks.length > 0 &&
-      (historySubtaskIdx === null || historySubtaskIdx === currentSubtaskIndex)
-    ) {
-      if (!isLoading && !pendingApproval && !awaitingContinue && !isTransitioning) {
-        if (readyForNextSubtask && currentSubtaskIndex < subtasks.length - 1) {
-          setAutoRunPaused(true);
-          toast({
-            title: "Subtask completed",
-            description: "Review the results and continue manually",
-          });
-          
-          const moveToNextSubtask = async () => {
-            setIsTransitioning(true);
-            await onSubtaskComplete(currentSubtaskIndex);
-            onSubtaskSelect(currentSubtaskIndex + 1);
-            setReadyForNextSubtask(false);
-            
-            setTimeout(() => {
-              const nextSubtask = subtasks[currentSubtaskIndex + 1];
-              const prevSubtaskData = subtaskData[subtasks[currentSubtaskIndex]?.id]?.result || "No data collected";
-              
-              setMessages(prev => [
-                ...prev,
-                {
-                  id: crypto.randomUUID(),
-                  isUser: false,
-                  text: `Ready to begin next subtask: "${nextSubtask?.title}". Using data from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? '...' : ''}`,
-                  timestamp: new Date()
-                }
-              ]);
-              setIsTransitioning(false);
-            }, 1000);
-          };
-          
-          moveToNextSubtask();
-        } 
-        else if (!readyForNextSubtask && !subtasks[currentSubtaskIndex]?.done) {
-          autoRunTimer = window.setTimeout(() => {
-            handleAutoRunStep();
-          }, 1000);
-        }
-      }
-    }
-    
+    // Clear any existing timer when component unmounts or dependencies change
     return () => {
-      if (autoRunTimer) window.clearTimeout(autoRunTimer);
+      if (autoRunTimerRef.current) {
+        window.clearTimeout(autoRunTimerRef.current);
+        autoRunTimerRef.current = undefined;
+      }
     };
+  }, [
+    autoRunMode, 
+    autoRunPaused, 
+    currentSubtaskIndex,
+    subtasks
+  ]);
+
+  useEffect(() => {
+    // This effect handles the auto-run logic
+    const handleAutoRun = () => {
+      // Don't do anything if auto-run is disabled or paused
+      if (!autoRunMode || autoRunPaused) return;
+      
+      // Don't do anything if we're viewing a historical subtask
+      if (historySubtaskIdx !== null && historySubtaskIdx !== currentSubtaskIndex) return;
+      
+      // Don't do anything if any of these conditions are true
+      if (isLoading || pendingApproval || awaitingContinue || isTransitioning) return;
+      
+      // If we're ready for the next subtask and there are more subtasks
+      if (readyForNextSubtask && currentSubtaskIndex < subtasks.length - 1) {
+        // Pause auto-run while transitioning to next subtask
+        setAutoRunPaused(true);
+        toast({
+          title: "Subtask completed",
+          description: "Review the results and continue manually"
+        });
+        
+        const moveToNextSubtask = async () => {
+          setIsTransitioning(true);
+          await onSubtaskComplete(currentSubtaskIndex);
+          onSubtaskSelect(currentSubtaskIndex + 1);
+          setReadyForNextSubtask(false);
+          
+          setTimeout(() => {
+            const nextSubtask = subtasks[currentSubtaskIndex + 1];
+            const prevSubtaskData = subtaskData[subtasks[currentSubtaskIndex]?.id]?.result || "No data collected";
+            
+            setMessages(prev => [
+              ...prev,
+              {
+                id: crypto.randomUUID(),
+                isUser: false,
+                text: `Ready to begin next subtask: "${nextSubtask?.title}". Using data from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? '...' : ''}`,
+                timestamp: new Date()
+              }
+            ]);
+            setIsTransitioning(false);
+          }, 1000);
+        };
+        
+        moveToNextSubtask();
+      } 
+      // If current subtask isn't done and we're not already processing an auto-run step
+      else if (!readyForNextSubtask && 
+               !subtasks[currentSubtaskIndex]?.done && 
+               !autoRunStepInProgressRef.current) {
+        
+        // Set flag to prevent multiple auto-run steps running at once
+        autoRunStepInProgressRef.current = true;
+        
+        // Schedule the auto-run step with a delay
+        autoRunTimerRef.current = window.setTimeout(() => {
+          handleAutoRunStep();
+          // Reset the flag after the auto-run step is initiated
+          autoRunStepInProgressRef.current = false;
+        }, 1500);
+      }
+    };
+
+    // Run the auto-run handler
+    handleAutoRun();
   }, [
     autoRunMode, 
     autoRunPaused, 
@@ -452,8 +480,14 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         title: "Auto-run activated",
         description: "Click play to start automatic processing"
       });
+      setAutoRunPaused(true); // Start in paused state
     } else {
       setAutoRunPaused(false);
+      // Clear any existing timer
+      if (autoRunTimerRef.current) {
+        window.clearTimeout(autoRunTimerRef.current);
+        autoRunTimerRef.current = undefined;
+      }
       toast({
         title: "Auto-run deactivated",
         description: "Switched to manual mode"
@@ -462,10 +496,18 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   };
 
   const togglePause = () => {
-    setAutoRunPaused(!autoRunPaused);
+    const newPausedState = !autoRunPaused;
+    setAutoRunPaused(newPausedState);
+    
+    // Clear any existing timer when pausing
+    if (newPausedState && autoRunTimerRef.current) {
+      window.clearTimeout(autoRunTimerRef.current);
+      autoRunTimerRef.current = undefined;
+    }
+    
     toast({
-      title: autoRunPaused ? "Auto-run resumed" : "Auto-run paused",
-      description: autoRunPaused ? "Continuing with the process" : "Paused until you resume"
+      title: newPausedState ? "Auto-run paused" : "Auto-run resumed",
+      description: newPausedState ? "Paused until you resume" : "Continuing with the process"
     });
   };
 
@@ -483,6 +525,11 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   const handleSubtaskHistoryClick = (index: number) => {
     if (autoRunMode && !autoRunPaused) {
       setAutoRunPaused(true);
+      // Clear any existing timer
+      if (autoRunTimerRef.current) {
+        window.clearTimeout(autoRunTimerRef.current);
+        autoRunTimerRef.current = undefined;
+      }
       toast({
         title: "Auto-run paused",
         description: "Navigated to a different subtask. Click play to resume."
