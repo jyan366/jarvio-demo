@@ -1,11 +1,10 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { JarvioAssistant } from "./JarvioAssistant";
-import { Subtask } from "@/pages/TaskWork";
+import { Subtask } from "@/pages/TaskWorkContainer";
 
 interface TaskWorkSidebarProps {
   open: boolean;

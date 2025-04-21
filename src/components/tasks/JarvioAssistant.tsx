@@ -1,10 +1,11 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Zap, ThumbsUp, User, Check, MessageSquare, Play, Pause } from "lucide-react";
-import { Subtask } from "@/pages/TaskWork";
+import { Subtask } from "@/pages/TaskWorkContainer";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { TaskWorkHeader } from "./TaskWorkHeader";
 import { TaskWorkProductCard } from "./TaskWorkProductCard";
 import { TaskWorkSubtasks } from "./TaskWorkSubtasks";
-import { TaskWorkType, Subtask, Product } from "@/pages/TaskWork";
+import { TaskWorkType, Subtask, Product } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
