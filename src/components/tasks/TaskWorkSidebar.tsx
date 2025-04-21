@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -105,7 +106,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         </div>
 
         {selectedTab === "comments" ? (
-          <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex flex-col flex-1 overflow-hidden relative">
             <div className="px-5 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
               COMMENTS ({comments.length})
             </div>
@@ -124,7 +125,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                 ))}
               </div>
             </ScrollArea>
-            <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 z-10" style={{ width: immersive ? sidebarWidth : '100%' }}>
+            <div className="p-4 w-full border-t bg-white sticky bottom-0 right-0 z-10">
               <form
                 className="flex flex-col"
                 onSubmit={(e) => {
