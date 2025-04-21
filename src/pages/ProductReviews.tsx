@@ -1,17 +1,15 @@
-
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Star, BarChart2 } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ReviewSummarySection } from '@/components/reviews/ReviewSummarySection';
 import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
-import { InsightsDialog } from '@/components/insights/InsightsDialog';
-import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { InsightData, InsightCategory, InsightSeverity } from '@/components/tasks/InsightCard';
 import { useToast } from '@/hooks/use-toast';
+import { ReviewList } from '@/components/reviews/ReviewList';
+import { ReviewQuestionSection } from '@/components/reviews/ReviewQuestionSection';
+import { ReviewInsights } from '@/components/reviews/ReviewInsights';
 
 interface Review {
   rating: number;
@@ -21,12 +19,8 @@ interface Review {
 }
 
 export default function ProductReviews() {
-  const { asin } = useParams();
   const navigate = useNavigate();
-  const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
-  const [insightsDialogOpen, setInsightsDialogOpen] = useState(false);
-  const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
   const { toast } = useToast();
 
   const productName = "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's";
@@ -106,11 +100,7 @@ export default function ProductReviews() {
     });
   };
 
-  const handleInsightClick = (insight: InsightData) => {
-    setDetailInsight(insight);
-  };
-
-  const handleAskQuestion = () => {
+  const handleAskQuestion = (question: string) => {
     const positiveKeywords = ["great", "love", "perfect", "amazing", "best"];
     const negativeKeywords = ["but", "wish", "however", "though", "not"];
     
@@ -132,7 +122,6 @@ export default function ProductReviews() {
     }
 
     setAnswer(response);
-    setQuestion("");
   };
 
   // Fix: Store the multi-line string correctly without errors
@@ -160,83 +149,20 @@ export default function ProductReviews() {
             </Button>
             <h1 className="text-2xl font-bold">{productName}</h1>
           </div>
-          <Button 
-            onClick={() => setInsightsDialogOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <BarChart2 className="w-4 h-4" />
-            View Insights
-          </Button>
+          <ReviewInsights 
+            insights={insights}
+            onCreateTask={handleCreateTaskFromInsight}
+          />
         </div>
 
         <ReviewSummarySection />
-
-        <section className="space-y-4">
-          <h3 className="font-semibold text-lg">Ask Jarvio About Reviews</h3>
-          <div className="space-y-4">
-            <div className="flex gap-3">
-              <Textarea 
-                placeholder="e.g., Summarise my reviews"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                className="min-h-[60px]"
-              />
-              <Button 
-                onClick={handleAskQuestion}
-                disabled={!question.trim()}
-                className="shrink-0"
-              >
-                Ask Jarvio
-              </Button>
-            </div>
-            
-            {answer && (
-              <Card className="p-4 bg-green-50 border-green-100">
-                <p className="text-green-900 whitespace-pre-line">{answer}</p>
-              </Card>
-            )}
-          </div>
-        </section>
-
-        <section>
-          <h3 className="font-semibold mb-4 text-lg">Recent Reviews</h3>
-          <div className="grid gap-4">
-            {reviews.map((review, index) => (
-              <Card key={index} className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex gap-2">
-                    {Array.from({ length: review.rating }).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <span className="text-sm text-muted-foreground">{review.date}</span>
-                </div>
-                <p className="text-base mb-2">{review.text}</p>
-                <p className="text-sm text-muted-foreground">- {review.author}</p>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <InsightsDialog
-          open={insightsDialogOpen}
-          onOpenChange={setInsightsDialogOpen}
-          onCreateTask={handleCreateTaskFromInsight}
-          insights={insights}
-          onInsightClick={handleInsightClick}
+        
+        <ReviewQuestionSection 
+          onAskQuestion={handleAskQuestion}
+          answer={answer}
         />
 
-        <InsightDetailDialog
-          insight={detailInsight}
-          open={!!detailInsight}
-          onClose={() => setDetailInsight(null)}
-          onCreateTask={() => {
-            if (detailInsight) {
-              handleCreateTaskFromInsight(detailInsight);
-              setDetailInsight(null);
-            }
-          }}
-        />
+        <ReviewList reviews={reviews} />
       </div>
       <FloatingChatButton />
     </MainLayout>
