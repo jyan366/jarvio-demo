@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -453,18 +454,17 @@ export default function TaskWork() {
 
         <div
           className={`
-            fixed top-[88px] right-0 z-50
+            fixed top-[88px] right-0 z-40
             h-[calc(100vh-88px)]
-            w-full max-w-full
-            md:max-w-[420px]
+            max-w-[420px]
             bg-white border-l shadow-lg
             flex flex-col
             transition-transform duration-300
             ${sidebarOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}
           `}
           style={{
-            paddingRight: 0,
-            marginRight: 0,
+            paddingRight: 24,
+            marginRight: 24,
             // '88px' matches the nav/header height in MainLayout
           }}
         >
@@ -490,3 +490,4 @@ export default function TaskWork() {
     </MainLayout>
   );
 }
+
