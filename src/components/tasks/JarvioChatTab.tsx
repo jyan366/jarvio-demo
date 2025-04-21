@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,16 +13,11 @@ interface JarvioChatTabProps {
   inputValue: string;
   setInputValue: (value: string) => void;
   isLoading: boolean;
-  pendingApproval: boolean;
   autoRunMode: boolean;
   autoRunPaused: boolean;
   isTransitioning: boolean;
   onSendMessage: (e?: React.FormEvent) => void;
-  onApproval: (approved: boolean) => void;
 }
-
-// Remove ALL approval/pendingApproval logic and UI.
-// Always show only the chat input.
 
 export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   messages,
@@ -32,12 +26,10 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   inputValue,
   setInputValue,
   isLoading,
-  // pendingApproval,
   autoRunMode,
   autoRunPaused,
   isTransitioning,
   onSendMessage,
-  // onApproval,
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);

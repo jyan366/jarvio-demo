@@ -297,7 +297,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             {
               id: crypto.randomUUID(),
               isUser: false,
-              text: `✅ Subtask complete! Please mark this subtask as done and select the next one to continue.`,
+              text: "✅ Subtask complete! Please mark this subtask as done and select the next one to continue.",
               timestamp: new Date(),
               subtaskIdx: activeSubtaskIdx,
               systemLog: true,
@@ -404,7 +404,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             {
               id: crypto.randomUUID(),
               isUser: false,
-              text: `✅ Subtask complete! Please mark this subtask as done and select the next one to continue.`,
+              text: "✅ Subtask complete! Please mark this subtask as done and select the next one to continue.",
               timestamp: new Date(),
               subtaskIdx: activeSubtaskIdx,
               systemLog: true,
@@ -601,12 +601,10 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             inputValue={inputValue}
             setInputValue={setInputValue}
             isLoading={isLoading}
-            pendingApproval={false}
             autoRunMode={autoRunMode}
             autoRunPaused={autoRunPaused}
             isTransitioning={isTransitioning}
             onSendMessage={handleSendMessage}
-            onApproval={() => {}}
           />
         </TabsContent>
         <TabsContent value="datalog" className="flex-1 overflow-auto p-0">
