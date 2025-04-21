@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -477,7 +476,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
   );
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       <div className="px-4 py-2 border-b flex items-center justify-between bg-purple-50">
         <div className="flex items-center gap-2">
           <Switch
@@ -538,7 +537,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4 pb-0" style={{ height: "1px", minHeight: 0 }}>
         <div className="space-y-4 pr-2">
           {subtaskMessages.map((message, idx) => (
             <div
@@ -653,7 +652,7 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       </ScrollArea>
 
       {activeSubtask && (
-        <div className="px-4 py-2 border-t">
+        <div className="px-4 py-2 border-t bg-white z-10">
           <p className="text-xs font-medium mb-2 text-gray-500">SELECTED SUBTASK:</p>
           <div className="flex items-center gap-2 mb-1">
             <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
@@ -698,7 +697,10 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
 
       <form
         onSubmit={handleSendMessage}
-        className="p-4 pt-2 border-t mt-auto bg-white"
+        className="sticky bottom-0 left-0 right-0 p-4 pt-2 border-t bg-white z-20"
+        style={{
+          boxShadow: "0 -6px 20px 0 rgba(0,0,0,0.10)",
+        }}
       >
         <div className="flex items-end gap-2">
           <Textarea
@@ -706,11 +708,22 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
             placeholder="Ask Jarvio for help..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            disabled={isLoading || pendingApproval || (autoRunMode && !autoRunPaused) || awaitingContinue}
+            disabled={
+              isLoading ||
+              pendingApproval ||
+              (autoRunMode && !autoRunPaused) ||
+              awaitingContinue
+            }
           />
           <Button 
             type="submit" 
-            disabled={isLoading || !inputValue.trim() || pendingApproval || (autoRunMode && !autoRunPaused) || awaitingContinue}
+            disabled={
+              isLoading ||
+              !inputValue.trim() ||
+              pendingApproval ||
+              (autoRunMode && !autoRunPaused) ||
+              awaitingContinue
+            }
             className="h-10"
           >
             {isLoading ? (
