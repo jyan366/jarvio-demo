@@ -15,6 +15,8 @@ import {
 import { generateTaskSteps } from "@/lib/apiUtils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 const PRODUCT_IMAGE = "/lovable-uploads/98f7d2f8-e54c-46c1-bc30-7cea0a73ca70.png";
 
@@ -350,6 +352,19 @@ export default function TaskWorkContainer() {
       <div className="w-full h-full max-w-none flex flex-row gap-0 items-stretch bg-background overflow-hidden">
         <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col overflow-y-auto h-full">
           <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-6">
+            <div className="mb-2 w-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(open => !open)}
+                aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                className="mb-2"
+              >
+                <ChevronLeft
+                  className={`transition-transform ${sidebarOpen ? "" : "rotate-180"}`}
+                />
+              </Button>
+            </div>
             <TaskWorkMain
               task={taskState}
               onUpdateTask={handleUpdateTask}
@@ -363,21 +378,6 @@ export default function TaskWorkContainer() {
               onFocusSubtask={handleFocusSubtask}
               onUpdateSubtask={handleUpdateSubtask}
               onOpenSubtask={handleOpenSubtask}
-            />
-            <SubtaskDialog
-              open={subtaskDialogIdx !== null && !!taskState.subtasks[subtaskDialogIdx ?? -1]}
-              onOpenChange={(open) => open ? undefined : handleCloseSubtask()}
-              subtask={subtaskDialogIdx !== null ? taskState.subtasks[subtaskDialogIdx] : null}
-              comments={
-                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx ?? -1]
-                  ? (subtaskComments[taskState.subtasks[subtaskDialogIdx ?? -1].id] || [])
-                  : []
-              }
-              addComment={text =>
-                subtaskDialogIdx !== null && taskState.subtasks[subtaskDialogIdx ?? -1]
-                  ? handleAddSubtaskComment(taskState.subtasks[subtaskDialogIdx ?? -1].id, text)
-                  : undefined
-              }
             />
           </div>
         </main>
