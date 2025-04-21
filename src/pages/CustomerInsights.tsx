@@ -9,8 +9,10 @@ import { ReviewsDialog } from '@/components/insights/ReviewsDialog';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightData } from '@/components/tasks/InsightCard';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
+import { useNavigate } from 'react-router-dom';
 
 export default function CustomerInsights() {
+  const navigate = useNavigate();
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [reviewsDialogOpen, setReviewsDialogOpen] = useState(false);
@@ -93,9 +95,8 @@ export default function CustomerInsights() {
     );
   };
 
-  const handleViewReviews = (productName: string) => {
-    setCurrentProduct(productName);
-    setReviewsDialogOpen(true);
+  const handleViewReviews = (asin: string) => {
+    navigate(`/product-reviews/${asin}`);
   };
 
   const handleViewInsights = (productName: string) => {
@@ -299,7 +300,7 @@ export default function CustomerInsights() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => handleViewReviews(product.name)}
+                      onClick={() => handleViewReviews(product.asin)}
                       className="w-full"
                     >
                       <BookOpen className="w-4 h-4 mr-2" />

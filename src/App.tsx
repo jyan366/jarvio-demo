@@ -26,6 +26,7 @@ import Auth from "./pages/Auth";
 import AdsPerformance from "./pages/AdsPerformance";
 import AdsManager from "./pages/AdsManager";
 import TaskWork from "./pages/TaskWork";
+import ProductReviews from "./pages/ProductReviews";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ export default function App() {
               <Route path="/ai-assistant" element={<AIAssistant />} />
               <Route path="/get-support" element={<GetSupport />} />
               <Route path="/task/:id" element={<TaskWork />} />
+              <Route path="/product-reviews/:asin" element={<ProductReviews />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
