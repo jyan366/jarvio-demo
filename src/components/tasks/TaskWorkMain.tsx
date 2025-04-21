@@ -79,45 +79,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
           onFocusSubtask={onFocusSubtask}
           onOpenSubtask={onOpenSubtask}
         />
-        {focusedSubtaskIdx !== null && task.subtasks[focusedSubtaskIdx] && (
-          <div className="mt-4 border bg-[#F7F6FD] rounded-lg p-4">
-            <h4 className="font-medium mb-2 text-purple-900">Subtask Details</h4>
-            <div className="flex flex-col gap-2">
-              <input
-                className="px-2 py-1 border rounded text-sm"
-                value={task.subtasks[focusedSubtaskIdx].title}
-                onChange={e => onUpdateSubtask("title", e.target.value)}
-                placeholder="Subtask Title"
-              />
-              <textarea
-                className="px-2 py-1 border rounded text-sm"
-                value={task.subtasks[focusedSubtaskIdx].description || ""}
-                onChange={e => onUpdateSubtask("description", e.target.value)}
-                placeholder="Subtask Description"
-              />
-              <div className="flex gap-2">
-                <input
-                  className="px-2 py-1 border rounded text-sm"
-                  value={task.subtasks[focusedSubtaskIdx].status || ""}
-                  onChange={e => onUpdateSubtask("status", e.target.value)}
-                  placeholder="Status"
-                />
-                <input
-                  className="px-2 py-1 border rounded text-sm"
-                  value={task.subtasks[focusedSubtaskIdx].priority || ""}
-                  onChange={e => onUpdateSubtask("priority", e.target.value)}
-                  placeholder="Priority"
-                />
-                <input
-                  className="px-2 py-1 border rounded text-sm"
-                  value={task.subtasks[focusedSubtaskIdx].category || ""}
-                  onChange={e => onUpdateSubtask("category", e.target.value)}
-                  placeholder="Category"
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Hide Subtask Details. To view/edit, use dialog via the popout button */}
       </div>
     </div>
   );
