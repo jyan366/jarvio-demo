@@ -438,7 +438,20 @@ export default function TaskWork() {
             />
           </div>
         </main>
-        <aside className="w-full max-w-full md:max-w-sm bg-white overflow-hidden">
+        <aside
+          className="h-screen w-full max-w-full md:w-[min(420px,36vw)] bg-white overflow-hidden flex flex-col 
+          fixed md:static top-0 right-0 z-40 md:z-auto p-0 m-0 border-none shadow-none"
+          style={{
+            minWidth: 320,
+            maxWidth: 420,
+            height: '100vh',
+            boxShadow: 'none',
+            borderRight: 'none',
+            borderLeft: '1.5px solid #F4F4F8',
+            marginRight: 0,
+            paddingRight: 0,
+          }}
+        >
           <TaskWorkSidebar
             open={sidebarOpen}
             onOpenChange={setSidebarOpen}
@@ -455,6 +468,7 @@ export default function TaskWork() {
             currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
             onSubtaskComplete={handleToggleSubtask}
             onSubtaskSelect={handleFocusSubtask}
+            immersive
           />
         </aside>
       </div>

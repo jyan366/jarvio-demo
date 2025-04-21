@@ -1,4 +1,5 @@
 
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -23,6 +24,7 @@ interface TaskWorkSidebarProps {
   currentSubtaskIndex: number;
   onSubtaskComplete: (idx: number) => Promise<void>;
   onSubtaskSelect: (idx: number) => void;
+  immersive?: boolean; // new prop
 }
 
 export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
@@ -41,7 +43,10 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   currentSubtaskIndex,
   onSubtaskComplete,
   onSubtaskSelect,
+  immersive = false,
 }) => {
+  // immersive mode for maximized agentic assistant panel
+
   return (
     <>
       {/* Overlay for mobile */}
@@ -52,32 +57,39 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         onClick={() => onOpenChange(false)}
       />
       <aside
-        className={`bg-white border rounded-xl flex flex-col shadow-sm relative transition-all
-        w-full md:w-auto md:relative fixed md:static top-0 right-0 z-50
-        ${open ? "translate-x-0" : "translate-x-full"} md:translate-x-0
-        md:shadow-sm max-w-full md:max-w-[380px] xl:max-w-[420px] h-full`}
+        className={`
+          bg-white flex flex-col relative w-full h-screen max-h-screen
+          transition-all
+          ${immersive ? "rounded-none border-none shadow-none p-0 m-0" : "border rounded-xl shadow-sm"}
+          fixed md:static top-0 right-0 z-50 md:z-auto
+        `}
         style={{
-          minWidth: open ? 320 : 0,
-          maxWidth: open ? 420 : undefined,
+          minWidth: immersive ? "320px" : undefined,
+          maxWidth: immersive ? "100vw" : undefined,
+          height: "100vh",
+          paddingRight: 0,
+          margin: 0,
         }}
       >
         {/* Close button for mobile */}
         <Button
           size="icon"
           variant="ghost"
-          className="absolute top-2 right-2 md:hidden"
+          className={`absolute top-2 right-2 md:hidden ${immersive ? "!hidden" : ""}`}
           onClick={() => onOpenChange(false)}
         >
           <X className="h-4 w-4" />
         </Button>
 
-        <div className="flex p-4 border-b">
+        {/* Tabs pinned/sticky to top */}
+        <div className={`flex w-full z-10 sticky top-0 bg-white p-0 m-0 border-b`}>
           <button
             className={`${
               selectedTab === "comments"
-                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
+                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0] bg-white"
                 : "text-gray-400 border-b-2 border-transparent"
-            } px-2 py-1 mr-3 text-base transition`}
+            } px-5 py-3 text-base transition rounded-none`}
+            style={{ marginRight: 0 }}
             onClick={() => setSelectedTab("comments")}
           >
             Comments
@@ -85,25 +97,24 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           <button
             className={`${
               selectedTab === "ai"
-                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
+                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0] bg-white"
                 : "text-gray-400 border-b-2 border-transparent"
-            } px-2 py-1 text-base transition`}
+            } px-5 py-3 text-base transition rounded-none`}
             onClick={() => setSelectedTab("ai")}
           >
             AI Assistant
           </button>
         </div>
 
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col flex-1 min-h-0 h-full overflow-hidden">
           {selectedTab === "comments" ? (
             <>
-              <div className="px-4 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
+              <div className="px-5 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
                 COMMENTS ({comments.length})
               </div>
-              
-              {/* Comments area with ScrollArea to handle overflow */}
-              <ScrollArea className="flex-1 px-4">
-                <div className="space-y-4 pr-2">
+              {/* ScrollArea panel filling available vertical space */}
+              <ScrollArea className="flex-1 px-5">
+                <div className="space-y-4 pr-2 pb-24">
                   {comments.map((c, i) => (
                     <div key={i} className="flex items-start gap-2">
                       <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
@@ -117,9 +128,8 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                   ))}
                 </div>
               </ScrollArea>
-              
-              {/* Add Comment - always at the bottom of the sidebar */}
-              <div className="p-4 pt-2 border-t mt-auto bg-white">
+              {/* Dock message input to the bottom */}
+              <div className="p-4 w-full border-t bg-white fixed bottom-0 right-0 left-auto md:left-auto md:w-[min(420px,36vw)] z-10">
                 <form
                   className="flex flex-col"
                   onSubmit={(e) => {
@@ -155,6 +165,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               currentSubtaskIndex={currentSubtaskIndex}
               onSubtaskComplete={onSubtaskComplete}
               onSubtaskSelect={onSubtaskSelect}
+              immersive
             />
           )}
         </div>
