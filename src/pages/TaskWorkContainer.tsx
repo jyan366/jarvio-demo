@@ -6,7 +6,6 @@ import { SubtaskDialog } from "@/components/tasks/SubtaskDialog";
 import { CollapseNavButton } from "@/components/tasks/CollapseNavButton";
 import { useTaskWork } from "@/hooks/useTaskWork";
 
-/** Types are still exported for downstream usage */
 export interface Subtask {
   id: string;
   title: string;
@@ -82,6 +81,16 @@ export default function TaskWorkContainer() {
       </MainLayout>
     );
 
+  let dialogSubtask = subtaskDialogIdx !== null ? taskState?.subtasks[subtaskDialogIdx] : null;
+  let dialogWorkLog: string | undefined = undefined;
+  let dialogCompletedAt: string | undefined = undefined;
+  let dialogComments =
+    dialogSubtask && Array.isArray(taskState.comments)
+      ? taskState.comments.filter(
+          (c) => c.subtaskId === dialogSubtask.id || (!c.subtaskId && subtaskDialogIdx === 0)
+        )
+      : [];
+
   return (
     <MainLayout>
       <div className="w-full h-full max-w-none flex flex-row gap-0 bg-background">
@@ -129,12 +138,11 @@ export default function TaskWorkContainer() {
           />
         </aside>
       </div>
-      
       {subtaskDialogIdx !== null && (
         <SubtaskDialog
           open={subtaskDialogIdx !== null}
           onClose={handleCloseSubtask}
-          subtask={taskState?.subtasks[subtaskDialogIdx] || null}
+          subtask={dialogSubtask}
           onUpdate={(field, value) => {
             if (subtaskDialogIdx !== null) {
               handleUpdateSubtask(field, value);
@@ -145,6 +153,9 @@ export default function TaskWorkContainer() {
               handleToggleSubtask(subtaskDialogIdx);
             }
           }}
+          workLog={dialogWorkLog}
+          completedAt={dialogCompletedAt}
+          comments={dialogComments}
         />
       )}
     </MainLayout>
