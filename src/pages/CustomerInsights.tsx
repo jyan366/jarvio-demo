@@ -1,3 +1,4 @@
+
 import { MainLayout } from '@/components/layout/MainLayout';
 import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
 import { Card } from '@/components/ui/card';
@@ -71,24 +72,28 @@ export default function CustomerInsights() {
   }];
 
   const insights = [{
+    id: "1",
     title: "Unmet Feature Expectations",
     icon: AlertCircle,
     preview: "27% of customers expected additional features",
     color: "bg-blue-50 text-blue-700 border-blue-200",
     details: "Customers frequently mention certain functionalities they expected but didn't find, highlighting missed opportunities for product enhancements."
   }, {
+    id: "2",
     title: "Consistent Quality Concerns",
     icon: Zap,
     preview: "Quality mentioned in 42% of recent reviews",
     color: "bg-amber-50 text-amber-700 border-amber-200",
     details: "Reviews show patterns questioning product durability and performance, indicating potential quality control improvements needed."
   }, {
+    id: "3",
     title: "Value vs. Price Perception",
     icon: DollarSign,
     preview: "68% consider the product fairly priced",
     color: "bg-green-50 text-green-700 border-green-200",
     details: "Customer reviews consistently comment on price-value relationship, providing insights for pricing strategy optimization."
   }, {
+    id: "4",
     title: "Positive Differentiators",
     icon: ThumbsUp,
     preview: "Packaging praised in 89% of reviews",
@@ -125,6 +130,11 @@ export default function CustomerInsights() {
 
   const handleInsightClick = (insight: InsightData) => {
     setDetailInsight(insight);
+  };
+
+  const openMainInsightsDialog = () => {
+    setCurrentProduct("");
+    setInsightsDialogOpen(true);
   };
 
   return <MainLayout>
@@ -201,7 +211,7 @@ export default function CustomerInsights() {
             <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
           </div>
           <Button 
-            onClick={() => setInsightsDialogOpen(true)}
+            onClick={openMainInsightsDialog}
             className="flex items-center gap-2"
             variant="outline"
           >
