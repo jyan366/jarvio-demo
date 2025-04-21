@@ -17,6 +17,7 @@ import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { AlertCircle, DollarSign, ThumbsUp } from 'lucide-react';
 import { InsightData } from '@/components/tasks/InsightCard';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CustomerInsights() {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ export default function CustomerInsights() {
   const [insightsDialogOpen, setInsightsDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<string>("");
   const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
+  const { toast } = useToast();
 
   const ratings = [{
     stars: 5,
@@ -115,6 +117,10 @@ export default function CustomerInsights() {
 
   const handleCreateTaskFromInsight = (insight: InsightData) => {
     console.log("Creating task from insight:", insight);
+    toast({
+      title: "Task Created",
+      description: `"${insight.title}" has been added to your tasks.`,
+    });
   };
 
   const handleInsightClick = (insight: InsightData) => {
@@ -266,14 +272,25 @@ export default function CustomerInsights() {
       </div>
     </Card>
 
-    <InsightsDialog open={insightsDialogOpen} onOpenChange={setInsightsDialogOpen} onCreateTask={handleCreateTaskFromInsight} productNames={currentProduct ? [currentProduct] : []} onInsightClick={handleInsightClick} />
+    <InsightsDialog 
+      open={insightsDialogOpen} 
+      onOpenChange={setInsightsDialogOpen} 
+      onCreateTask={handleCreateTaskFromInsight} 
+      productNames={currentProduct ? [currentProduct] : []} 
+      onInsightClick={handleInsightClick}
+    />
 
-    <InsightDetailDialog insight={detailInsight} open={!!detailInsight} onClose={() => setDetailInsight(null)} onCreateTask={() => {
-    if (detailInsight) {
-      handleCreateTaskFromInsight(detailInsight);
-      setDetailInsight(null);
-    }
-  }} />
+    <InsightDetailDialog 
+      insight={detailInsight}
+      open={!!detailInsight}
+      onClose={() => setDetailInsight(null)}
+      onCreateTask={() => {
+        if (detailInsight) {
+          handleCreateTaskFromInsight(detailInsight);
+          setDetailInsight(null);
+        }
+      }}
+    />
     
     <FloatingChatButton />
   </MainLayout>;
