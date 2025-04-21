@@ -59,12 +59,25 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  // Only scroll to bottom when specific content-changing events occur
   useEffect(() => {
-    // Scroll to the bottom when messages change or when loading state changes
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, isLoading, awaitingContinue, pendingApproval]);
+    // Using setTimeout to ensure DOM has updated before scrolling
+    const timeoutId = setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+    
+    // Cleanup timeout on unmount or before next effect run
+    return () => clearTimeout(timeoutId);
+  }, [
+    // Only depend on things that should trigger a scroll
+    messages.length, // When messages change
+    isLoading, // When loading state changes
+    pendingApproval, // When approval state changes
+    awaitingContinue, // When continue state changes
+    isTransitioning, // When transitioning state changes
+  ]);
 
   return (
     <div className="flex flex-col h-full">
@@ -183,6 +196,8 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
+      
+      {/* Form stays at the bottom */}
       <form
         onSubmit={onSendMessage}
         className="sticky bottom-0 left-0 right-0 p-4 pt-2 border-t bg-white z-20"
