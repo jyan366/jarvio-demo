@@ -87,28 +87,12 @@ export default function CustomerInsights() {
 
   const currentInsight = insights[currentInsightIndex];
 
-  const handleProductSelect = (asin: string) => {
-    setSelectedProducts(prev => 
-      prev.includes(asin)
-        ? prev.filter(p => p !== asin)
-        : [...prev, asin]
-    );
-  };
-
   const handleViewReviews = (asin: string) => {
     navigate(`/product-reviews/${asin}`);
   };
 
   const handleViewInsights = (productName: string) => {
     setCurrentProduct(productName);
-    setInsightsDialogOpen(true);
-  };
-
-  const handleGroupInsights = () => {
-    const selectedProductNames = products
-      .filter(p => selectedProducts.includes(p.asin))
-      .map(p => p.name);
-    setCurrentProduct("");
     setInsightsDialogOpen(true);
   };
 
@@ -213,46 +197,11 @@ export default function CustomerInsights() {
         </Card>
       </div>
 
-      <div className="flex items-center justify-between gap-4 bg-blue-50 p-4 rounded-lg">
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-blue-500" />
-          <span className="text-blue-700 font-medium">
-            {selectedProducts.length === 0 
-              ? "Select products to compare" 
-              : `${selectedProducts.length} product${selectedProducts.length > 1 ? 's' : ''} selected`
-            }
-          </span>
-        </div>
-        <Button 
-          size="lg"
-          onClick={handleGroupInsights}
-          disabled={selectedProducts.length < 2}
-        >
-          <BarChart2 className="w-5 h-5 mr-2" />
-          {selectedProducts.length < 2 
-            ? "Select at least 2 products to compare" 
-            : `Compare ${selectedProducts.length} Products`
-          }
-        </Button>
-      </div>
-
       <Card>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[30px]">
-                  <Checkbox 
-                    checked={selectedProducts.length === products.length}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedProducts(products.map(p => p.asin));
-                      } else {
-                        setSelectedProducts([]);
-                      }
-                    }}
-                  />
-                </TableHead>
                 <TableHead>IMAGE</TableHead>
                 <TableHead>NAME</TableHead>
                 <TableHead>ASIN</TableHead>
@@ -265,16 +214,7 @@ export default function CustomerInsights() {
             </TableHeader>
             <TableBody>
               {products.map(product => (
-                <TableRow 
-                  key={product.asin}
-                  className={selectedProducts.includes(product.asin) ? "bg-blue-50" : ""}
-                >
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedProducts.includes(product.asin)}
-                      onCheckedChange={() => handleProductSelect(product.asin)}
-                    />
-                  </TableCell>
+                <TableRow key={product.asin}>
                   <TableCell>
                     <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
                       <img 
@@ -325,17 +265,11 @@ export default function CustomerInsights() {
         </div>
       </Card>
 
-      <ReviewsDialog 
-        open={reviewsDialogOpen}
-        onOpenChange={setReviewsDialogOpen}
-        productName={currentProduct}
-      />
-
       <InsightsDialog
         open={insightsDialogOpen}
         onOpenChange={setInsightsDialogOpen}
         onCreateTask={handleCreateTaskFromInsight}
-        productNames={currentProduct ? [currentProduct] : products.filter(p => selectedProducts.includes(p.asin)).map(p => p.name)}
+        productNames={currentProduct ? [currentProduct] : []}
         onInsightClick={handleInsightClick}
       />
 
