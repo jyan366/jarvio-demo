@@ -3,7 +3,6 @@ import React, { useRef, useEffect } from "react";
 import { Loader2, Zap, User, MessageSquare, ThumbsUp, Pause, Play, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { JarvioChatMessages } from "./JarvioChatMessages";
 import { Subtask } from "@/pages/TaskWorkContainer";
@@ -57,59 +56,51 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   onFeedbackAndContinue,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const lastScrollPosition = useRef(0);
-  const userHasScrolled = useRef(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const isAutoScrollEnabled = useRef(true);
+  const lastMessageCount = useRef(messages.length);
   
-  // Track scroll position to detect user scrolling
+  // Function to scroll to bottom
+  const scrollToBottom = () => {
+    if (messagesEndRef.current && isAutoScrollEnabled.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Handle scroll events to detect when user manually scrolls up
   const handleScroll = () => {
-    if (!scrollAreaRef.current) return;
+    if (!chatContainerRef.current) return;
     
-    // Calculate distance from bottom
-    const scrollElement = scrollAreaRef.current;
-    const { scrollTop, scrollHeight, clientHeight } = scrollElement;
-    const scrolledToBottom = scrollHeight - scrollTop - clientHeight < 50;
+    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+    // If user scrolls up more than 100px from bottom, disable auto-scroll
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
     
-    // Track last position
-    lastScrollPosition.current = scrollTop;
-    
-    // If user has scrolled up manually, don't auto-scroll until they scroll to bottom again
-    if (!scrolledToBottom) {
-      userHasScrolled.current = true;
+    if (!isNearBottom) {
+      isAutoScrollEnabled.current = false;
     } else {
-      userHasScrolled.current = false;
+      isAutoScrollEnabled.current = true;
     }
   };
   
-  // Only scroll to bottom on new content or state changes that would add content
+  // Scroll to bottom on new messages or state changes
   useEffect(() => {
-    // Don't scroll if user has scrolled up and is reading previous messages
-    if (userHasScrolled.current) return;
+    // If message count increased, it's a new message
+    const hasNewMessages = messages.length > lastMessageCount.current;
+    lastMessageCount.current = messages.length;
     
-    // Using setTimeout to ensure DOM has updated before scrolling
-    const timeoutId = setTimeout(() => {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      }
-    }, 100);
-    
-    // Cleanup timeout on unmount or before next effect run
-    return () => clearTimeout(timeoutId);
-  }, [
-    // Only depend on things that should trigger a scroll
-    messages.length, // When messages change
-    isLoading, // When loading state changes
-    pendingApproval, // When approval state changes
-    awaitingContinue, // When continue state changes
-    isTransitioning, // When transitioning state changes
-  ]);
+    // Auto-scroll on new messages or state changes that would add content
+    if (hasNewMessages || isLoading || pendingApproval || awaitingContinue || isTransitioning) {
+      scrollToBottom();
+    }
+  }, [messages, isLoading, pendingApproval, awaitingContinue, isTransitioning]);
 
   return (
     <div className="flex flex-col h-full">
       <div 
         className="flex-1 p-4 pb-0 overflow-y-auto" 
-        ref={scrollAreaRef}
+        ref={chatContainerRef}
         onScroll={handleScroll}
+        style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
       >
         <div className="space-y-4 pr-2 pb-4">
           {isTransitioning && (
