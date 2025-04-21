@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -55,11 +54,10 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         className={`bg-white border rounded-xl flex flex-col shadow-sm relative transition-all
         w-full md:w-auto md:relative fixed md:static top-0 right-0 z-50
         ${open ? "translate-x-0" : "translate-x-full"} md:translate-x-0
-        md:shadow-sm md:max-w-[380px] xl:max-w-[420px] h-[100vh]`}
+        md:shadow-sm max-w-full md:max-w-[380px] xl:max-w-[420px] h-full`}
         style={{
-          width: open ? "100%" : 0,
-          maxWidth: "420px",
-          height: "100vh",
+          minWidth: open ? 320 : 0,
+          maxWidth: open ? 420 : undefined,
         }}
       >
         {/* Close button for mobile */}
@@ -72,8 +70,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           <X className="h-4 w-4" />
         </Button>
 
-        {/* Tabs header at the top (always visible) */}
-        <div className="flex p-4 border-b bg-white sticky top-0 z-20">
+        <div className="flex p-4 border-b">
           <button
             className={`${
               selectedTab === "comments"
@@ -96,16 +93,16 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           </button>
         </div>
 
-        {/* Content area with flexible height */}
-        <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex flex-col h-full overflow-hidden">
           {selectedTab === "comments" ? (
             <>
               <div className="px-4 py-2 text-xs font-bold text-muted-foreground tracking-[1px]">
                 COMMENTS ({comments.length})
               </div>
+              
               {/* Comments area with ScrollArea to handle overflow */}
-              <ScrollArea className="flex-1">
-                <div className="space-y-4 px-4 pr-6">
+              <ScrollArea className="flex-1 px-4">
+                <div className="space-y-4 pr-2">
                   {comments.map((c, i) => (
                     <div key={i} className="flex items-start gap-2">
                       <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
@@ -119,8 +116,9 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                   ))}
                 </div>
               </ScrollArea>
-              {/* Add Comment - fixed at the bottom */}
-              <div className="p-4 pt-2 border-t mt-auto bg-white sticky bottom-0 z-20">
+              
+              {/* Add Comment - always at the bottom of the sidebar */}
+              <div className="p-4 pt-2 border-t mt-auto bg-white">
                 <form
                   className="flex flex-col"
                   onSubmit={(e) => {
@@ -148,17 +146,15 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               </div>
             </>
           ) : (
-            <div className="flex-1 overflow-hidden">
-              <JarvioAssistant
-                taskId={taskId}
-                taskTitle={taskTitle}
-                taskDescription={taskDescription}
-                subtasks={subtasks}
-                currentSubtaskIndex={currentSubtaskIndex}
-                onSubtaskComplete={onSubtaskComplete}
-                onSubtaskSelect={onSubtaskSelect}
-              />
-            </div>
+            <JarvioAssistant
+              taskId={taskId}
+              taskTitle={taskTitle}
+              taskDescription={taskDescription}
+              subtasks={subtasks}
+              currentSubtaskIndex={currentSubtaskIndex}
+              onSubtaskComplete={onSubtaskComplete}
+              onSubtaskSelect={onSubtaskSelect}
+            />
           )}
         </div>
       </aside>
