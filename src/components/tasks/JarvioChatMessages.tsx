@@ -1,7 +1,7 @@
 
 import React from "react";
 import { MessageCircle } from "lucide-react";
-import { Markdown } from "markdown-to-jsx";
+import Markdown from "markdown-to-jsx"; // Changed from named to default import
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
 
