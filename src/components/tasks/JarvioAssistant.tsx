@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ import { useJarvioAssistantLogic, Message as AssistantMessage, SubtaskDataMap, S
 import { useJarvioAssistantAutoRun } from "./hooks/useJarvioAssistantAutoRun";
 import { isAwaitingUserConfirmation, isUserConfirmationMessage } from "./hooks/useJarvioMessageUtils";
 import { useJarvioAssistantTabs } from "./hooks/useJarvioAssistantTabs";
+import { generateTaskSteps } from "@/lib/apiUtils";
 
 interface JarvioAssistantProps {
   taskId: string;
@@ -72,54 +72,50 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
     setMessages: logic.setMessages,
   });
 
-  // Add handleGenerateSteps function to generate subtasks via API
   const handleGenerateSteps = async () => {
     if (!taskId) return;
     
     logic.setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-task-steps", {
-        body: {
-          title: taskTitle,
-          description: taskDescription || "No description provided"
-        }
+      const steps = await generateTaskSteps({ 
+        title: taskTitle, 
+        description: taskDescription || "No description provided" 
       });
       
-      if (error) throw new Error(error.message);
-      
-      if (data?.steps && Array.isArray(data.steps) && data.steps.length > 0) {
-        // Call update-task-state to save the generated steps
-        await supabase.functions.invoke("update-task-state", {
-          body: {
-            action: 'updateSubtasks',
-            taskId: taskId,
-            subtasks: data.steps
-          }
-        });
-        
-        // Show success message
-        logic.toast({
-          title: "Subtasks generated",
-          description: `Generated ${data.steps.length} subtasks for this task.`
-        });
-        
-        // Add a system message about the generated subtasks
-        logic.setMessages(prev => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            isUser: false,
-            text: `I've generated ${data.steps.length} subtasks to help break down this work. Let's get started with the first one!`,
-            timestamp: new Date(),
-            systemLog: true
-          }
-        ]);
-        
-        // Refresh the page to show the new subtasks (this will be handled by the parent component)
-        // For now we'll just add a message
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+      if (steps && steps.length > 0) {
+        try {
+          const createdSteps = await createSubtasks(
+            steps.map((s) => ({
+              task_id: taskId,
+              title: s.title,
+              description: s.description ?? "",
+            }))
+          );
+          
+          logic.toast({
+            title: "Subtasks generated",
+            description: `Generated ${steps.length} subtasks for this task.`
+          });
+          
+          logic.setMessages(prev => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: `I've generated ${steps.length} subtasks to help break down this work. Let's get started with the first one!`,
+              timestamp: new Date(),
+              systemLog: true
+            }
+          ]);
+          
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } catch (createErr) {
+          throw new Error(`Error creating subtasks: ${createErr.message}`);
+        }
+      } else {
+        throw new Error("No steps were generated");
       }
     } catch (err) {
       console.error("Error generating steps:", err);
@@ -141,6 +137,21 @@ export const JarvioAssistant: React.FC<JarvioAssistantProps> = ({
       ]);
     }
     logic.setIsLoading(false);
+  };
+
+  const createSubtasks = async (subtasks) => {
+    try {
+      const { data, error } = await supabase
+        .from("subtasks")
+        .insert(subtasks)
+        .select();
+      
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error("Failed to create subtasks:", err);
+      throw err;
+    }
   };
 
   const handleSaveSubtaskResult = async (subtaskId: string, result: string) => {
