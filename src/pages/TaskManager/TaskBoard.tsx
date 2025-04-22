@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -33,12 +32,15 @@ export default function TaskBoard() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
   const [detailInsight, setDetailInsight] = useState<any>(null);
-  const [showSuggestedTasks, setShowSuggestedTasks] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const columns = showSuggestedTasks
+  // Determine if we should show suggested tasks based on the number of done tasks
+  const shouldShowSuggestedTasks = !isDragging && tasksByStatus['done'].length === 0;
+
+  const columns = shouldShowSuggestedTasks
     ? [
         {
           id: 'suggested',
@@ -266,13 +268,50 @@ export default function TaskBoard() {
     }
   };
 
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
   const handleDragEnd = (result: any) => {
+    setIsDragging(false);
     if (!result.destination) return;
 
     const sourceColumn = Array.from(tasksByStatus[result.source.droppableId]);
     const destColumn = Array.from(tasksByStatus[result.destination.droppableId]);
+
+    // Handle dragging from suggested tasks to other columns
+    if (result.source.droppableId === 'suggested') {
+      const [suggestedTask] = suggestedTasksFormatted.splice(result.source.index, 1);
+      const newTask = {
+        ...suggestedTask,
+        status: result.destination.droppableId === 'inProgress' ? 'In Progress' : 'Not Started'
+      };
+      destColumn.splice(result.destination.index, 0, newTask);
+      
+      setTasksByStatus({
+        ...tasksByStatus,
+        [result.destination.droppableId]: destColumn
+      });
+
+      // Show success toast
+      toast({
+        title: "Task Added",
+        description: "Suggested task has been added to your board.",
+      });
+      return;
+    }
+
+    // Handle regular task movement
     const [removed] = sourceColumn.splice(result.source.index, 1);
-    destColumn.splice(result.destination.index, 0, removed);
+    const updatedTask = {
+      ...removed,
+      status: result.destination.droppableId === 'inProgress' 
+        ? 'In Progress' 
+        : result.destination.droppableId === 'done'
+          ? 'Done'
+          : 'Not Started'
+    };
+    destColumn.splice(result.destination.index, 0, updatedTask);
 
     setTasksByStatus({
       ...tasksByStatus,
@@ -309,7 +348,7 @@ export default function TaskBoard() {
             onClick={() => setShowSuggestedTasks(!showSuggestedTasks)}
             className="flex items-center gap-2"
           >
-            <span>{showSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
+            <span>{shouldShowSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
           </Button>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
@@ -320,7 +359,7 @@ export default function TaskBoard() {
       {loading ? (
         <div className="py-12 text-center text-muted-foreground text-lg">Loading your tasks…</div>
       ) : (
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             {columns.map((col) => (
               <div key={col.id} className="rounded-xl p-3 md:p-2">
