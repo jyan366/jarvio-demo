@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -33,12 +34,13 @@ export default function TaskBoard() {
   const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
   const [detailInsight, setDetailInsight] = useState<any>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showSuggestedTasks, setShowSuggestedTasks] = useState(true);
 
   const { toast } = useToast();
   const navigate = useNavigate();
 
   // Determine if we should show suggested tasks based on the number of done tasks
-  const shouldShowSuggestedTasks = !isDragging && tasksByStatus['done'].length === 0;
+  const shouldShowSuggestedTasks = showSuggestedTasks && !isDragging && tasksByStatus['done'].length === 0;
 
   const columns = shouldShowSuggestedTasks
     ? [
@@ -284,7 +286,9 @@ export default function TaskBoard() {
       const [suggestedTask] = suggestedTasksFormatted.splice(result.source.index, 1);
       const newTask: Task = {
         ...suggestedTask,
-        status: result.destination.droppableId === 'inProgress' ? 'In Progress' as 'In Progress' : 'Not Started' as 'Not Started'
+        status: result.destination.droppableId === 'inProgress' 
+          ? 'In Progress' as 'In Progress' 
+          : 'Not Started' as 'Not Started'
       };
       destColumn.splice(result.destination.index, 0, newTask);
       
@@ -345,7 +349,7 @@ export default function TaskBoard() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => setIsDragging(!isDragging)}
+            onClick={() => setShowSuggestedTasks(!showSuggestedTasks)}
             className="flex items-center gap-2"
           >
             <span>{shouldShowSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
