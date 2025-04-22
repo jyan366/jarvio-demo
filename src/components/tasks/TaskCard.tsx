@@ -22,6 +22,7 @@ interface TaskCardProps {
   cardBg?: string;
   onAccept?: () => void;
   onReject?: () => void;
+  onDelete?: () => void;
   isSuggested?: boolean;
 }
 
@@ -56,7 +57,7 @@ const categoryColors = {
   'PRICING': 'bg-[#FDF6ED] text-[#EEAF57]',
 };
 
-export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggested = false }: TaskCardProps) {
+export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, isSuggested = false }: TaskCardProps) {
   const navigate = useNavigate();
   
   const handleWorkOnClick = (e: React.MouseEvent) => {
@@ -153,15 +154,30 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
             </Button>
           </div>
         ) : (
-          <Button 
-            onClick={handleWorkOnClick}
-            size="sm"
-            variant="outline"
-            className="ml-auto text-xs px-2 py-1 h-7 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition border-0"
-          >
-            <ExternalLink className="h-3.5 w-3.5 mr-1" />
-            Work on
-          </Button>
+          <div className="flex items-center gap-2">
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <Button 
+              onClick={handleWorkOnClick}
+              size="sm"
+              variant="outline"
+              className="text-xs px-2 py-1 h-7 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition border-0"
+            >
+              <ExternalLink className="h-3.5 w-3.5 mr-1" />
+              Work on
+            </Button>
+          </div>
         )}
       </div>
     </Card>

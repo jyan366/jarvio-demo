@@ -4,25 +4,15 @@ import { Card } from '@/components/ui/card';
 import { Grid, List, Plus } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { TaskCard } from '@/components/tasks/TaskCard';
-import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
-import { InsightsDialog } from '@/components/insights/InsightsDialog';
-import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { suggestedTasks } from '@/components/action-studio/SuggestedTasksSection';
-import {
-  fetchTasks,
-  fetchSubtasks,
-  createTask,
-  createSubtasks,
-  initializeSampleTasks,
-  addSampleSubtasksToTask,
-  SupabaseTask,
-  SupabaseSubtask
-} from '@/lib/supabaseTasks';
+import { TaskPreviewDialog, InsightsDialog, InsightDetailDialog } from '@/components/tasks';
+import { fetchTasks, fetchSubtasks, createTask, createSubtasks, initializeSampleTasks, addSampleSubtasksToTask } from '@/lib/supabaseTasks';
 import { initialTasks, insightsData } from './constants';
 import { mapInsightToTask } from './helpers';
 import type { Task } from './types';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function TaskBoard() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -97,6 +87,37 @@ export default function TaskBoard() {
     products: [],
   }));
 
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      setTasksByStatus(prev => {
+        const newState = { ...prev };
+        Object.keys(newState).forEach(status => {
+          newState[status] = newState[status].filter(task => task.id !== taskId);
+        });
+        return newState;
+      });
+
+      toast({
+        title: "Task Deleted",
+        description: "The task has been successfully removed.",
+      });
+    } catch (e) {
+      console.error("Error deleting task:", e);
+      toast({
+        title: "Error",
+        description: "Failed to delete task. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -107,6 +128,10 @@ export default function TaskBoard() {
         }
         
         let supabaseTasks = await fetchTasks();
+
+        supabaseTasks = supabaseTasks.filter((task, index, self) =>
+          index === self.findIndex(t => t.id === task.id)
+        );
 
         if (supabaseTasks.length === 0) {
           console.log("No tasks found, initializing sample data...");
@@ -126,7 +151,13 @@ export default function TaskBoard() {
         const subtasks = await fetchSubtasks(taskIds);
 
         const byStatus: { [key: string]: Task[] } = { todo: [], inProgress: [], done: [] };
+        
+        const processedIds = new Set();
+        
         for (const t of supabaseTasks) {
+          if (processedIds.has(t.id)) continue;
+          processedIds.add(t.id);
+          
           const group =
             t.status === 'Done'
               ? 'done'
@@ -135,7 +166,7 @@ export default function TaskBoard() {
                 : 'todo';
 
           const statusMapped = t.status as 'Not Started' | 'In Progress' | 'Done';
-          const priorityMapped = (t.priority || 'MEDIUM') as 'HIGH' | 'MEDIUM' | 'LOW';
+          const priorityMapped = (t.priority || 'MEDIUM') as 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
           byStatus[group].push({
             ...t,
@@ -409,6 +440,7 @@ export default function TaskBoard() {
                                           setIsPreviewOpen(true);
                                         }}
                                         cardBg={col.bg}
+                                        onDelete={() => handleDeleteTask(task.id)}
                                       />
                                     </div>
                                   )}
