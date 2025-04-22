@@ -3,7 +3,14 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
 import { InsightsFeed } from '@/components/action-studio/InsightsFeed';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 // Define the insight categories
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
@@ -27,21 +34,26 @@ export default function ActionStudio() {
         {/* Suggested Tasks Section */}
         <SuggestedTasksSection />
 
-        {/* Category Tabs */}
+        {/* Category Selection and Insights Feed */}
         <div className="flex flex-col space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Insights Feed</h2>
-            <Tabs defaultValue="All" className="w-fit" onValueChange={(value) => setSelectedCategory(value as InsightCategory)}>
-              <TabsList>
-                <TabsTrigger value="All">All</TabsTrigger>
-                <TabsTrigger value="Sales">Sales</TabsTrigger>
-                <TabsTrigger value="Inventory">Inventory</TabsTrigger>
-                <TabsTrigger value="Listings">Listings</TabsTrigger>
-                <TabsTrigger value="Customers">Customers</TabsTrigger>
-                <TabsTrigger value="Competitors">Competitors</TabsTrigger>
-                <TabsTrigger value="Advertising">Advertising</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as InsightCategory)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="Sales">Sales</SelectItem>
+                  <SelectItem value="Inventory">Inventory</SelectItem>
+                  <SelectItem value="Listings">Listings</SelectItem>
+                  <SelectItem value="Customers">Customers</SelectItem>
+                  <SelectItem value="Competitors">Competitors</SelectItem>
+                  <SelectItem value="Advertising">Advertising</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Insights Feed */}
