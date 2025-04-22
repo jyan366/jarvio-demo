@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -132,22 +133,22 @@ export const SuggestedTasksSection: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 px-4 sm:px-0">
-      <h2 className="text-lg sm:text-xl font-semibold">Suggested Tasks</h2>
+    <div className="space-y-2 px-2 sm:px-0">
+      <h2 className="text-base sm:text-xl font-semibold pl-2 sm:pl-0">Suggested Tasks</h2>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
         {suggestedTasks.map(task => (
-          <Card key={task.id} className="p-3 sm:p-4 border hover:shadow-md transition-shadow">
-            <div className="flex flex-col space-y-2 sm:space-y-3">
-              <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-0">
+          <Card key={task.id} className="p-2 sm:p-3 border hover:shadow-md transition-shadow">
+            <div className="flex flex-col space-y-1 sm:space-y-2">
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-1 sm:gap-2">
                 <div>
-                  <h3 className="font-medium text-base sm:text-lg">{task.title}</h3>
-                  <Badge className={`mt-1 text-xs sm:text-sm ${categoryColors[task.category]}`}>
+                  <h3 className="font-medium text-sm sm:text-base">{task.title}</h3>
+                  <Badge className={`mt-1 text-xs ${categoryColors[task.category]}`}>
                     {task.category}
                   </Badge>
                 </div>
-                <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                  <span className="mr-1">Create Task</span>
+                <Button variant="outline" size="sm" className="w-full sm:w-auto mt-1 sm:mt-0">
+                  <span className="mr-1 text-xs sm:text-sm">Create Task</span>
                   <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
@@ -155,25 +156,25 @@ export const SuggestedTasksSection: React.FC = () => {
               <Collapsible
                 open={openTaskIds.includes(task.id)}
                 onOpenChange={() => toggleTask(task.id)}
-                className="mt-2"
+                className="mt-1"
               >
-                <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                <div className="flex items-center text-xs text-muted-foreground">
                   <span>Based on {task.linkedInsights.length} insights</span>
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-0 h-6 w-6 sm:h-8 sm:w-8 ml-1">
+                    <Button variant="ghost" size="sm" className="p-0 h-6 w-6 ml-1">
                       {openTaskIds.includes(task.id) ? (
-                        <ChevronUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <ChevronUp className="h-3 w-3" />
                       ) : (
-                        <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <ChevronDown className="h-3 w-3" />
                       )}
                     </Button>
                   </CollapsibleTrigger>
                 </div>
 
-                <CollapsibleContent className="mt-2 sm:mt-3 space-y-2 sm:space-y-3">
+                <CollapsibleContent className="mt-1 space-y-1">
                   {task.linkedInsights.map(insight => (
-                    <div key={insight.id} className="bg-muted/50 p-2 rounded-md">
-                      <p className="font-medium text-xs sm:text-sm">{insight.title}</p>
+                    <div key={insight.id} className="bg-muted/50 p-1 rounded-md">
+                      <p className="font-medium text-xs">{insight.title}</p>
                       <p className="text-xs text-muted-foreground">{insight.summary}</p>
                     </div>
                   ))}
