@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, Pencil, MessageSquare, ExternalLink, Star, AlertTriangle, Flag, TrendingDown } from "lucide-react";
+import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from 'react-router-dom';
 import {
@@ -15,6 +15,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TaskCardProps {
   task: {
@@ -115,24 +121,45 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
     <>
       <Card 
         className={cn(
-          "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl border-0",
+          "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl border-0 relative",
           cardBg ? "" : "bg-white",
           task.fromInsight && "border-l-4 border-l-blue-500"
         )}
         style={cardBg ? { background: 'white' } : {}}
         onClick={onClick}
       >
-        <div className="flex items-center gap-2 mb-2">
-          <span className={cn("rounded-md px-2 py-1 flex items-center text-xs font-medium", 
-            categoryColors[task.category as keyof typeof categoryColors] || 'bg-[#FDF6ED] text-[#EEAF57]')}>
-            {renderCategoryIcon()}
-            {task.category}
-          </span>
-          
-          {task.fromInsight && (
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-              From Insight
-            </Badge>
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-2 mb-2">
+            <span className={cn("rounded-md px-2 py-1 flex items-center text-xs font-medium", 
+              categoryColors[task.category as keyof typeof categoryColors] || 'bg-[#FDF6ED] text-[#EEAF57]')}>
+              {renderCategoryIcon()}
+              {task.category}
+            </span>
+            
+            {task.fromInsight && (
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                From Insight
+              </Badge>
+            )}
+          </div>
+
+          {!isSuggested && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 hover:bg-gray-100"
+                >
+                  <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleDeleteClick} className="text-red-600">
+                  Delete Task
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
         
@@ -176,16 +203,6 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              {onDelete && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700"
-                  onClick={handleDeleteClick}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
               <Button 
                 onClick={handleWorkOnClick}
                 size="sm"
