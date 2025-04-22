@@ -1,6 +1,6 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
-import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2 } from 'lucide-react';
+import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2, Link } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { 
@@ -17,6 +17,8 @@ import { InsightData } from '@/components/tasks/InsightCard';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 
 export default function CustomerInsights() {
   const navigate = useNavigate();
@@ -27,6 +29,7 @@ export default function CustomerInsights() {
   const [insightsDialogOpen, setInsightsDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<string>("");
   const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
+  const [selectedInsights, setSelectedInsights] = useState<InsightData[]>([]);
   const { toast } = useToast();
 
   const ratings = [
@@ -73,38 +76,48 @@ export default function CustomerInsights() {
     }
   ];
 
-  const insights = [
+  const insightGroups = [
     {
-      id: "1",
-      title: "Unmet Feature Expectations",
-      description: "Customers frequently mention certain functionalities they expected but didn't find, highlighting missed opportunities for product enhancements.",
-      category: "REVIEW" as const,
-      severity: "HIGH" as const,
-      date: "2025-04-20"
+      title: "Product Quality",
+      insights: [
+        {
+          id: "1",
+          title: "Unmet Feature Expectations",
+          description: "Customers frequently mention certain functionalities they expected but didn't find.",
+          category: "REVIEW" as const,
+          severity: "HIGH" as const,
+          date: "2025-04-20"
+        },
+        {
+          id: "2",
+          title: "Consistent Quality Concerns",
+          description: "Reviews show patterns questioning product durability and performance.",
+          category: "REVIEW" as const,
+          severity: "MEDIUM" as const,
+          date: "2025-04-19"
+        }
+      ]
     },
     {
-      id: "2",
-      title: "Consistent Quality Concerns",
-      description: "Reviews show patterns questioning product durability and performance, indicating potential quality control improvements needed.",
-      category: "REVIEW" as const,
-      severity: "MEDIUM" as const,
-      date: "2025-04-19"
-    },
-    {
-      id: "3",
-      title: "Value vs. Price Perception",
-      description: "Customer reviews consistently comment on price-value relationship, providing insights for pricing strategy optimization.",
-      category: "PRICING" as const,
-      severity: "LOW" as const,
-      date: "2025-04-18"
-    },
-    {
-      id: "4",
-      title: "Positive Differentiators",
-      description: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages.",
-      category: "LISTING" as const,
-      severity: "LOW" as const,
-      date: "2025-04-17"
+      title: "Pricing and Value",
+      insights: [
+        {
+          id: "3",
+          title: "Value vs. Price Perception",
+          description: "Customer reviews consistently comment on price-value relationship.",
+          category: "PRICING" as const,
+          severity: "LOW" as const,
+          date: "2025-04-18"
+        },
+        {
+          id: "4",
+          title: "Positive Differentiators",
+          description: "Specific product elements like packaging and setup receive consistent praise.",
+          category: "LISTING" as const,
+          severity: "LOW" as const,
+          date: "2025-04-17"
+        }
+      ]
     }
   ];
 
@@ -133,6 +146,47 @@ export default function CustomerInsights() {
       title: "Task Created",
       description: `"${insight.title}" has been added to your tasks.`,
     });
+  };
+
+  const handleInsightSelect = (insight: InsightData) => {
+    setSelectedInsights(prev => {
+      const isSelected = prev.some(i => i.id === insight.id);
+      if (isSelected) {
+        return prev.filter(i => i.id !== insight.id);
+      } else {
+        return [...prev, insight];
+      }
+    });
+  };
+
+  const handleCreateTaskFromSelected = () => {
+    if (selectedInsights.length === 0) return;
+
+    const combinedTitle = selectedInsights.length === 1 
+      ? selectedInsights[0].title 
+      : `Combined Task: ${selectedInsights[0].title} +${selectedInsights.length - 1} more`;
+
+    const combinedDescription = selectedInsights
+      .map(insight => `- ${insight.title}: ${insight.description}`)
+      .join('\n');
+
+    const highestSeverity = selectedInsights.some(i => i.severity === "HIGH") 
+      ? "HIGH" 
+      : selectedInsights.some(i => i.severity === "MEDIUM") 
+        ? "MEDIUM" 
+        : "LOW";
+
+    const taskInsight = {
+      id: crypto.randomUUID(),
+      title: combinedTitle,
+      description: combinedDescription,
+      category: selectedInsights[0].category,
+      severity: highestSeverity,
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    handleCreateTaskFromInsight(taskInsight);
+    setSelectedInsights([]);
   };
 
   const handleInsightClick = (insight: InsightData) => {
@@ -206,113 +260,130 @@ export default function CustomerInsights() {
         </Card>
       </div>
 
-      <Card className="p-4 md:p-6 my-[20px]">
+      <Card className="p-6 my-[20px]">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Zap className="w-6 h-6 text-primary" />
-            <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
+            <h2 className="text-lg md:text-xl font-semibold">Customer Insights Groups</h2>
           </div>
+          {selectedInsights.length > 0 && (
+            <Button onClick={handleCreateTaskFromSelected}>
+              <Link className="w-4 h-4 mr-2" />
+              Create Task from {selectedInsights.length} Selected
+            </Button>
+          )}
         </div>
-        <Card className={`p-4 md:p-6 border transition-all duration-300 min-h-[200px] flex flex-col`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex gap-3 items-center">
-              {currentInsight.category === "REVIEW" && <Star className="w-5 h-5" />}
-              {currentInsight.category === "PRICING" && <TrendingUp className="w-5 h-5" />}
-              {currentInsight.category === "LISTING" && <BookOpen className="w-5 h-5" />}
-              <h3 className="font-medium">{currentInsight.title}</h3>
-            </div>
-            <span className="text-xs bg-white/50 px-2 py-1 rounded-full">
-              {currentInsightIndex + 1} of {insights.length}
-            </span>
-          </div>
-          <p className="text-sm font-medium mb-2">{currentInsight.title}</p>
-          <p className="text-sm flex-1">{currentInsight.description}</p>
-          <div className="flex justify-between items-center mt-4 pt-4 border-t border-current/10">
-            <Button variant="outline" size="icon" onClick={previousInsight} className="h-8 w-8">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={nextInsight} className="h-8 w-8">
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </Card>
-      </Card>
-    </div>
-
-    <Card>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>IMAGE</TableHead>
-              <TableHead>NAME</TableHead>
-              <TableHead>ASIN</TableHead>
-              <TableHead>Review Rating</TableHead>
-              <TableHead>Number of Reviews</TableHead>
-              <TableHead>Feedback Quality</TableHead>
-              <TableHead>Reviews</TableHead>
-              <TableHead>Insights</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {products.map(product => <TableRow key={product.asin}>
-                <TableCell>
-                  <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
+        
+        <div className="space-y-6">
+          {insightGroups.map((group, index) => (
+            <Card key={index} className="p-4">
+              <h3 className="font-semibold mb-4">{group.title}</h3>
+              <div className="space-y-3">
+                {group.insights.map((insight) => (
+                  <div key={insight.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                    <Checkbox 
+                      checked={selectedInsights.some(i => i.id === insight.id)}
+                      onCheckedChange={() => handleInsightSelect(insight)}
+                      className="mt-1"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium">{insight.title}</h4>
+                        <Badge variant="secondary" className={
+                          insight.severity === "HIGH" 
+                            ? "bg-red-100 text-red-800" 
+                            : insight.severity === "MEDIUM"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-blue-100 text-blue-800"
+                        }>
+                          {insight.severity}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{insight.description}</p>
+                    </div>
                   </div>
-                </TableCell>
-                <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
-                <TableCell>{product.asin}</TableCell>
-                <TableCell>{product.rating}</TableCell>
-                <TableCell>{product.reviews}</TableCell>
-                <TableCell>
-                  <span className={`px-2 py-1 rounded text-sm ${product.quality === 'Good' ? 'bg-green-100 text-green-800' : product.quality === 'Fair' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                    {product.quality}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <Button variant="outline" size="sm" onClick={() => handleViewReviews(product.asin)} className="w-full">
-                    <BookOpen className="w-4 h-4 mr-2" />
-                    View Reviews
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleViewInsights(product.name)} 
-                    className="w-full flex items-center gap-2"
-                  >
-                    <BarChart2 className="w-4 h-4" />
-                    View Insights
-                  </Button>
-                </TableCell>
-              </TableRow>)}
-          </TableBody>
-        </Table>
-      </div>
-    </Card>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </Card>
 
-    <InsightsDialog 
-      open={insightsDialogOpen} 
-      onOpenChange={setInsightsDialogOpen} 
-      onCreateTask={handleCreateTaskFromInsight} 
-      productNames={currentProduct ? [currentProduct] : []} 
-      onInsightClick={handleInsightClick}
-    />
+      <Card>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>IMAGE</TableHead>
+                <TableHead>NAME</TableHead>
+                <TableHead>ASIN</TableHead>
+                <TableHead>Review Rating</TableHead>
+                <TableHead>Number of Reviews</TableHead>
+                <TableHead>Feedback Quality</TableHead>
+                <TableHead>Reviews</TableHead>
+                <TableHead>Insights</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map(product => <TableRow key={product.asin}>
+                  <TableCell>
+                    <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
+                      <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
+                  <TableCell>{product.asin}</TableCell>
+                  <TableCell>{product.rating}</TableCell>
+                  <TableCell>{product.reviews}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded text-sm ${product.quality === 'Good' ? 'bg-green-100 text-green-800' : product.quality === 'Fair' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                      {product.quality}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="outline" size="sm" onClick={() => handleViewReviews(product.asin)} className="w-full">
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      View Reviews
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleViewInsights(product.name)} 
+                      className="w-full flex items-center gap-2"
+                    >
+                      <BarChart2 className="w-4 h-4" />
+                      View Insights
+                    </Button>
+                  </TableCell>
+                </TableRow>)}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
 
-    <InsightDetailDialog 
-      insight={detailInsight}
-      open={!!detailInsight}
-      onClose={() => setDetailInsight(null)}
-      onCreateTask={() => {
-        if (detailInsight) {
-          handleCreateTaskFromInsight(detailInsight);
-          setDetailInsight(null);
-        }
-      }}
-    />
-    
-    <FloatingChatButton />
+      <InsightsDialog 
+        open={insightsDialogOpen} 
+        onOpenChange={setInsightsDialogOpen} 
+        onCreateTask={handleCreateTaskFromInsight} 
+        productNames={currentProduct ? [currentProduct] : []} 
+        onInsightClick={handleInsightClick}
+      />
+
+      <InsightDetailDialog 
+        insight={detailInsight}
+        open={!!detailInsight}
+        onClose={() => setDetailInsight(null)}
+        onCreateTask={() => {
+          if (detailInsight) {
+            handleCreateTaskFromInsight(detailInsight);
+            setDetailInsight(null);
+          }
+        }}
+      />
+      
+      <FloatingChatButton />
+    </div>
   </MainLayout>;
 }
