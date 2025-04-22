@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -7,7 +8,10 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { suggestedTasks } from '@/components/action-studio/SuggestedTasksSection';
-import { TaskPreviewDialog, InsightsDialog, InsightDetailDialog } from '@/components/tasks';
+// Import the components individually instead of from a barrel file
+import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
+import { InsightsDialog } from '@/components/tasks/InsightsDialog';
+import { InsightDetailDialog } from '@/components/tasks/InsightDetailDialog';
 import { fetchTasks, fetchSubtasks, createTask, createSubtasks, initializeSampleTasks, addSampleSubtasksToTask } from '@/lib/supabaseTasks';
 import { initialTasks, insightsData } from './constants';
 import { mapInsightToTask } from './helpers';
@@ -209,7 +213,7 @@ export default function TaskBoard() {
       }
       
       const newTask = await createTask(mapInsightToTask(insight, suggestedTasks));
-      let subtasks: SupabaseSubtask[] = [];
+      let subtasks: any[] = [];
       
       if (suggestedTasks && suggestedTasks.length > 0) {
         subtasks = await createSubtasks(
@@ -231,7 +235,7 @@ export default function TaskBoard() {
               : 'todo';
 
         const statusMapped = t.status as 'Not Started' | 'In Progress' | 'Done';
-        const priorityMapped = (t.priority || 'MEDIUM') as 'HIGH' | 'MEDIUM' | 'LOW';
+        const priorityMapped = (t.priority || 'MEDIUM') as 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
         byStatus[group].push({
           ...t,
@@ -269,7 +273,7 @@ export default function TaskBoard() {
                 setSelectedTask({
                   ...newTask,
                   status: newTask.status as 'Not Started' | 'In Progress' | 'Done',
-                  priority: (newTask.priority || 'MEDIUM') as 'HIGH' | 'MEDIUM' | 'LOW',
+                  priority: (newTask.priority || 'MEDIUM') as 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW',
                   date: new Date(newTask.created_at).toLocaleDateString('en-US', {
                     day: 'numeric',
                     month: 'short',
