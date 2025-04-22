@@ -1,4 +1,3 @@
-
 import { InsightCategory } from '@/pages/ActionStudio';
 
 export type SeverityLevel = 'high' | 'medium' | 'low' | 'info';

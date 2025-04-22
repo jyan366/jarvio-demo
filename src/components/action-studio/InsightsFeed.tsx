@@ -200,7 +200,6 @@ interface InsightsFeedProps {
 }
 
 export const InsightsFeed: React.FC<InsightsFeedProps> = ({ selectedCategory }) => {
-  // Generate mock insights using existing function
   const insights = mockInsights;
   
   return (
