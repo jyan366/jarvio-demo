@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
@@ -12,14 +11,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from '@/components/ui/card';
-import { X } from 'lucide-react';
+import { X, Circle, CheckCircle, BookText } from 'lucide-react';
 
 // Define the insight categories
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
 
 export default function ActionStudio() {
   const [selectedCategory, setSelectedCategory] = useState<InsightCategory>('All');
-  const [showPathway, setShowPathway] = useState(true);
+  const [showHowItWorks, setShowHowItWorks] = useState(true);
 
   return (
     <MainLayout>
@@ -34,19 +33,35 @@ export default function ActionStudio() {
           </div>
         </div>
 
-        {/* Action Pathway Notification */}
-        {showPathway && (
-          <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100 shadow-sm relative">
+        {/* How Action Studio Works Notification */}
+        {showHowItWorks && (
+          <Card className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-100 shadow-sm relative overflow-hidden">
             <button 
-              onClick={() => setShowPathway(false)}
-              className="absolute top-3 right-3 text-blue-600 hover:text-blue-800 transition-colors"
+              onClick={() => setShowHowItWorks(false)}
+              className="absolute top-3 right-3 text-purple-600 hover:text-purple-800 transition-colors z-10"
             >
               <X className="h-4 w-4" />
             </button>
-            <div className="pr-6">
-              <h3 className="font-medium text-blue-800">Action Pathway</h3>
-              <p className="text-sm text-blue-700">Suggested Tasks or Insights → Tasks → Resolution</p>
-              <p className="text-xs text-blue-600 mt-1">Click the checkmark on any suggestion to create a task in your Task Manager</p>
+            
+            <div className="flex items-start space-x-4 pr-8">
+              <BookText className="h-8 w-8 text-purple-600 mt-1 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-purple-800 text-lg mb-2">How Action Studio Works</h3>
+                <div className="space-y-2 text-purple-700 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <Circle className="h-4 w-4 text-purple-500" />
+                    <span>Discover actionable insights across your business</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-purple-500" />
+                    <span>Create tasks directly from insights with a single click</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <BookText className="h-4 w-4 text-purple-500" />
+                    <span>Track your progress from suggestion to resolution</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </Card>
         )}
