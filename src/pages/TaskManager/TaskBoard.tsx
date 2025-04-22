@@ -288,7 +288,19 @@ export default function TaskBoard() {
     }
     
     createTaskFromInsight(task);
+    setHandledTasks(prev => [...prev, task.id]);
   };
+
+  const handleDismissTask = (taskId: string) => {
+    setHandledTasks(prev => [...prev, taskId]);
+    toast({
+      description: "Task dismissed",
+    });
+  };
+
+  const filteredSuggestedTasks = suggestedTasksFormatted.filter(
+    task => !handledTasks.includes(task.id)
+  );
 
   return (
     <div className="space-y-6">
@@ -339,7 +351,7 @@ export default function TaskBoard() {
                       {col.label}
                       <span className="ml-2 text-base text-gray-400 font-medium">
                         {col.id === 'suggested' 
-                          ? suggestedTasksFormatted.length 
+                          ? filteredSuggestedTasks.length 
                           : tasksByStatus[col.id]?.length || 0}
                       </span>
                     </h2>
@@ -351,7 +363,7 @@ export default function TaskBoard() {
                           className="space-y-4"
                         >
                           {col.id === 'suggested' 
-                            ? suggestedTasksFormatted.map((task, index) => (
+                            ? filteredSuggestedTasks.map((task, index) => (
                                 <Draggable
                                   key={task.id}
                                   draggableId={task.id}
@@ -372,12 +384,7 @@ export default function TaskBoard() {
                                         cardBg={col.bg}
                                         isSuggested={true}
                                         onAccept={() => handleCreateTask(task)}
-                                        onReject={() => {
-                                          toast({
-                                            description: `Dismissed "${task.title}"`,
-                                          });
-                                          setHandledTasks(prev => [...prev, task.id]);
-                                        }}
+                                        onReject={() => handleDismissTask(task.id)}
                                       />
                                     </div>
                                   )}
