@@ -1,4 +1,3 @@
-
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
@@ -76,7 +75,7 @@ const brandToolkitItems: MenuItem[] = [{
   icon: Users,
   label: 'Customers',
   href: '#',
-  status: 'coming-soon',
+  status: 'active',
   submenu: [{
     label: 'Customer Insights',
     href: '/customer-insights'
