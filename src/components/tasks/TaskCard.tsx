@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, X, Pencil, MessageSquare, ExternalLink, Star, AlertTriangle, Flag, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TaskCardProps {
   task: {
@@ -59,9 +69,10 @@ const categoryColors = {
 
 export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, isSuggested = false }: TaskCardProps) {
   const navigate = useNavigate();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   const handleWorkOnClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the card's onClick
+    e.stopPropagation();
     navigate(`/task/${task.id}`);
   };
 
@@ -75,7 +86,16 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
     onReject?.();
   };
 
-  // Determine which icon to use based on the category
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete?.();
+    setShowDeleteDialog(false);
+  };
+
   const renderCategoryIcon = () => {
     switch (task.category) {
       case 'REVIEWS':
@@ -92,94 +112,114 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
   };
   
   return (
-    <Card 
-      className={cn(
-        "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl border-0",
-        cardBg ? "" : "bg-white",
-        task.fromInsight && "border-l-4 border-l-blue-500"
-      )}
-      style={cardBg ? { background: 'white' } : {}}
-      onClick={onClick}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <span className={cn("rounded-md px-2 py-1 flex items-center text-xs font-medium", 
-          categoryColors[task.category as keyof typeof categoryColors] || 'bg-[#FDF6ED] text-[#EEAF57]')}>
-          {renderCategoryIcon()}
-          {task.category}
-        </span>
-        
-        {task.fromInsight && (
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-            From Insight
-          </Badge>
+    <>
+      <Card 
+        className={cn(
+          "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl border-0",
+          cardBg ? "" : "bg-white",
+          task.fromInsight && "border-l-4 border-l-blue-500"
         )}
-      </div>
-      
-      <h3 className="font-semibold text-base mb-1 leading-snug flex gap-1">
-        {task.title}
-      </h3>
-      <p className="text-sm text-gray-500 leading-snug line-clamp-2 mb-3">{task.description}</p>
-      
-      <div className="flex flex-wrap gap-2 mb-3">
-        <Badge variant="secondary" className={cn(statusColors[task.status])}>
-          {task.status}
-        </Badge>
-        <Badge variant="secondary" className={cn(priorityColors[task.priority])}>
-          {task.priority}
-        </Badge>
-      </div>
-      
-      <div className="flex items-center justify-between gap-2">
-        <div className="text-xs text-gray-400 flex items-center gap-1">
-          <span className="inline-block">📅</span>
-          <span>{task.date}</span>
+        style={cardBg ? { background: 'white' } : {}}
+        onClick={onClick}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <span className={cn("rounded-md px-2 py-1 flex items-center text-xs font-medium", 
+            categoryColors[task.category as keyof typeof categoryColors] || 'bg-[#FDF6ED] text-[#EEAF57]')}>
+            {renderCategoryIcon()}
+            {task.category}
+          </span>
+          
+          {task.fromInsight && (
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+              From Insight
+            </Badge>
+          )}
         </div>
-        {isSuggested ? (
-          <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 hover:bg-green-100 text-green-600 hover:text-green-700"
-              onClick={handleAccept}
-            >
-              <Check className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700"
-              onClick={handleReject}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+        
+        <h3 className="font-semibold text-base mb-1 leading-snug flex gap-1">
+          {task.title}
+        </h3>
+        <p className="text-sm text-gray-500 leading-snug line-clamp-2 mb-3">{task.description}</p>
+        
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Badge variant="secondary" className={cn(statusColors[task.status])}>
+            {task.status}
+          </Badge>
+          <Badge variant="secondary" className={cn(priorityColors[task.priority])}>
+            {task.priority}
+          </Badge>
+        </div>
+        
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-xs text-gray-400 flex items-center gap-1">
+            <span className="inline-block">📅</span>
+            <span>{task.date}</span>
           </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            {onDelete && (
+          {isSuggested ? (
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-green-100 text-green-600 hover:text-green-700"
+                onClick={handleAccept}
+              >
+                <Check className="h-4 w-4" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
+                onClick={handleReject}
               >
                 <X className="h-4 w-4" />
               </Button>
-            )}
-            <Button 
-              onClick={handleWorkOnClick}
-              size="sm"
-              variant="outline"
-              className="text-xs px-2 py-1 h-7 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition border-0"
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              {onDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700"
+                  onClick={handleDeleteClick}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+              <Button 
+                onClick={handleWorkOnClick}
+                size="sm"
+                variant="outline"
+                className="text-xs px-2 py-1 h-7 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition border-0"
+              >
+                <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                Work on
+              </Button>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the task 
+              "{task.title}" and all its associated subtasks and comments.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
-              <ExternalLink className="h-3.5 w-3.5 mr-1" />
-              Work on
-            </Button>
-          </div>
-        )}
-      </div>
-    </Card>
+              Delete Task
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
