@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -126,9 +125,7 @@ export default function TaskBoard() {
         const taskIds = supabaseTasks.map(t => t.id);
         const subtasks = await fetchSubtasks(taskIds);
 
-        // Create a Map to track unique tasks by ID
-        const uniqueTasks = new Map();
-        
+        const byStatus: { [key: string]: Task[] } = { todo: [], inProgress: [], done: [] };
         for (const t of supabaseTasks) {
           const group =
             t.status === 'Done'
@@ -138,43 +135,26 @@ export default function TaskBoard() {
                 : 'todo';
 
           const statusMapped = t.status as 'Not Started' | 'In Progress' | 'Done';
-          const priorityMapped = (t.priority || 'MEDIUM') as 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+          const priorityMapped = (t.priority || 'MEDIUM') as 'HIGH' | 'MEDIUM' | 'LOW';
 
-          // Only add the task if we haven't seen this ID before
-          if (!uniqueTasks.has(t.id)) {
-            uniqueTasks.set(t.id, {
-              ...t,
-              status: statusMapped,
-              priority: priorityMapped,
-              date: new Date(t.created_at).toLocaleDateString('en-US', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-              }),
-              subtasks: subtasks.filter(st => st.task_id === t.id).map(st => ({
-                id: st.id,
-                title: st.title,
-                done: st.completed,
-              })),
-              comments: [],
-              products: [],
-            });
-          }
+          byStatus[group].push({
+            ...t,
+            status: statusMapped,
+            priority: priorityMapped,
+            date: new Date(t.created_at).toLocaleDateString('en-US', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric'
+            }),
+            subtasks: subtasks.filter(st => st.task_id === t.id).map(st => ({
+              id: st.id,
+              title: st.title,
+              done: st.completed,
+            })),
+            comments: [],
+            products: [],
+          });
         }
-        
-        // Convert the Map values to arrays by status
-        const byStatus: { [key: string]: Task[] } = { todo: [], inProgress: [], done: [] };
-        
-        uniqueTasks.forEach(task => {
-          const group =
-            task.status === 'Done'
-              ? 'done'
-              : task.status === 'In Progress'
-                ? 'inProgress'
-                : 'todo';
-          
-          byStatus[group].push(task);
-        });
 
         setTasksByStatus(byStatus);
       } catch (e) {
