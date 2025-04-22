@@ -126,7 +126,7 @@ export function InsightsDialog({
             {dialogTitle}
           </DialogTitle>
           <DialogDescription>
-            Review grouped insights and create actionable tasks for your workflow.
+            Review grouped insights for your products.
           </DialogDescription>
         </DialogHeader>
         
@@ -170,7 +170,7 @@ export function InsightsDialog({
                 <p className="text-sm text-gray-600">{currentGroup.suggestedTask.description}</p>
               </div>
               
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center justify-center mt-4">
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -189,19 +189,6 @@ export function InsightsDialog({
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
-                <Button
-                  onClick={() => {
-                    const mainInsight = currentGroup.insights[0];
-                    onCreateTask(mainInsight, currentGroup.insights.slice(1));
-                    toast({
-                      title: "Task Created",
-                      description: `Created task: ${currentGroup.suggestedTask.title}`,
-                    });
-                  }}
-                  className="ml-auto"
-                >
-                  Create Task from Group
-                </Button>
               </div>
             </div>
           </div>
