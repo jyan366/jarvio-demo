@@ -34,6 +34,7 @@ export default function TaskBoard() {
   const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
   const [detailInsight, setDetailInsight] = useState<any>(null);
   const [isDragging, setIsDragging] = useState(false);
+  // Fix: Explicitly define showSuggestedTasks state with default true
   const [showSuggestedTasks, setShowSuggestedTasks] = useState(true);
 
   const { toast } = useToast();
@@ -280,17 +281,22 @@ export default function TaskBoard() {
     setIsDragging(false);
     if (!result.destination) return;
 
-    const sourceColumn = Array.from(tasksByStatus[result.source.droppableId]);
-    const destColumn = Array.from(tasksByStatus[result.destination.droppableId]);
+    const sourceColumn = result.source.droppableId === 'suggested' 
+      ? [] // For suggested tasks, we don't modify the original array
+      : Array.from(tasksByStatus[result.source.droppableId] || []);
+    
+    const destColumn = Array.from(tasksByStatus[result.destination.droppableId] || []);
 
     // Handle dragging from suggested tasks to other columns
     if (result.source.droppableId === 'suggested') {
-      const [suggestedTask] = suggestedTasksFormatted.splice(result.source.index, 1);
+      const suggestedTask = suggestedTasksFormatted[result.source.index];
       const newTask: Task = {
         ...suggestedTask,
         status: result.destination.droppableId === 'inProgress' 
           ? 'In Progress' as 'In Progress' 
-          : 'Not Started' as 'Not Started'
+          : result.destination.droppableId === 'done'
+            ? 'Done' as 'Done'
+            : 'Not Started' as 'Not Started'
       };
       destColumn.splice(result.destination.index, 0, newTask);
       
@@ -359,7 +365,7 @@ export default function TaskBoard() {
             onClick={toggleSuggestedTasks}
             className="flex items-center gap-2"
           >
-            <span>{shouldShowSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
+            <span>{showSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
           </Button>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
