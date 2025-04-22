@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, MoreHorizontal } from "lucide-react";
+import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, MoreHorizontal, PencilLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from 'react-router-dom';
 import {
@@ -56,12 +57,12 @@ const priorityColors = {
 };
 
 const categoryIcons = {
-  'LISTINGS': 'Pencil',
+  'LISTINGS': 'PencilLine',
   'SUPPORT': 'MessageSquare',
   'REVIEWS': 'MessageSquare',
-  'KEYWORDS': 'Pencil',
-  'INVENTORY': 'Pencil',
-  'PRICING': 'Pencil',
+  'KEYWORDS': 'PencilLine',
+  'INVENTORY': 'PencilLine',
+  'PRICING': 'PencilLine',
 };
 
 const categoryColors = {
@@ -113,7 +114,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
       case 'LISTINGS':
         return <Flag className="w-3 h-3 mr-1 opacity-75" />;
       default:
-        return <Pencil className="w-3 h-3 mr-1 opacity-75" />;
+        return <PencilLine className="w-3 h-3 mr-1 opacity-75" />;
     }
   };
   
