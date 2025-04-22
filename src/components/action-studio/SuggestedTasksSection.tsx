@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -19,7 +18,7 @@ interface SuggestedTask {
   linkedInsights: LinkedInsight[];
 }
 
-const suggestedTasks: SuggestedTask[] = [
+export const suggestedTasks: SuggestedTask[] = [
   {
     id: '1',
     title: 'Fix Suppressed Listings',

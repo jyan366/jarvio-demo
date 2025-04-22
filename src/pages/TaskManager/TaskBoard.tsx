@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,17 +9,16 @@ import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { suggestedTasks } from '@/components/action-studio/SuggestedTasksSection';
 import {
   fetchTasks,
   fetchSubtasks,
   createTask,
   createSubtasks,
-  SupabaseTask,
-  SupabaseSubtask,
   initializeSampleTasks,
   addSampleSubtasksToTask
 } from '@/lib/supabaseTasks';
-import { initialTasks, COLUMN_CONFIG, insightsData } from './constants';
+import { initialTasks, insightsData } from './constants';
 import { mapInsightToTask } from './helpers';
 import type { Task } from './types';
 
@@ -32,29 +30,85 @@ export default function TaskBoard() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
   const [detailInsight, setDetailInsight] = useState<any>(null);
+  const [showSuggestedTasks, setShowSuggestedTasks] = useState(false);
 
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const columns = showSuggestedTasks
+    ? [
+        {
+          id: 'suggested',
+          label: 'Suggested Tasks',
+          bg: 'bg-[#F1F0FB]',
+          headerColor: 'text-[#3527A0]',
+        },
+        {
+          id: 'todo',
+          label: 'To Do',
+          bg: 'bg-[#F1F0FB]',
+          headerColor: 'text-[#3527A0]',
+        },
+        {
+          id: 'inProgress',
+          label: 'In Progress',
+          bg: 'bg-[#FFF8E8]',
+          headerColor: 'text-[#AB860B]',
+        },
+      ]
+    : [
+        {
+          id: 'todo',
+          label: 'To Do',
+          bg: 'bg-[#F1F0FB]',
+          headerColor: 'text-[#3527A0]',
+        },
+        {
+          id: 'inProgress',
+          label: 'In Progress',
+          bg: 'bg-[#FFF8E8]',
+          headerColor: 'text-[#AB860B]',
+        },
+        {
+          id: 'done',
+          label: 'Done',
+          bg: 'bg-[#F1FBF5]',
+          headerColor: 'text-[#199255]',
+        },
+      ];
+
+  const suggestedTasksFormatted = suggestedTasks.map(st => ({
+    id: st.id,
+    title: st.title,
+    description: st.linkedInsights[0]?.summary || '',
+    status: 'Not Started',
+    priority: 'MEDIUM',
+    category: st.category.toUpperCase(),
+    date: new Date().toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    }),
+    subtasks: [],
+    comments: [],
+    products: [],
+  }));
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        // Ensure user is authenticated for demo purposes
         if (!localStorage.getItem('isAuthenticated')) {
           localStorage.setItem('isAuthenticated', 'true');
           console.log("Auto-authenticated user for demo purposes in TaskBoard");
         }
         
-        // Try to fetch tasks from Supabase
         let supabaseTasks = await fetchTasks();
 
-        // If no tasks exist, initialize with sample data
         if (supabaseTasks.length === 0) {
           console.log("No tasks found, initializing sample data...");
           supabaseTasks = await initializeSampleTasks();
 
-          // Add sample subtasks to each task
           for (const task of supabaseTasks) {
             await addSampleSubtasksToTask(task.id, task.title);
           }
@@ -115,7 +169,6 @@ export default function TaskBoard() {
 
   const createTaskFromInsight = async (insight: any, suggestedTasks?: any[]) => {
     try {
-      // Ensure we're authenticated for demo
       if (!localStorage.getItem('isAuthenticated')) {
         localStorage.setItem('isAuthenticated', 'true');
         console.log("Auto-authenticated user before creating task from insight");
@@ -130,7 +183,6 @@ export default function TaskBoard() {
         );
       }
 
-      // Refresh tasks after creating a new one
       const supabaseTasks = await fetchTasks();
       const taskIds = supabaseTasks.map(t => t.id);
       const subtasksData = await fetchSubtasks(taskIds);
@@ -251,10 +303,10 @@ export default function TaskBoard() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => setIsInsightsDialogOpen(true)}
+            onClick={() => setShowSuggestedTasks(!showSuggestedTasks)}
             className="flex items-center gap-2"
           >
-            <span>Insights</span>
+            <span>{showSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
           </Button>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
@@ -267,13 +319,17 @@ export default function TaskBoard() {
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-            {COLUMN_CONFIG.map((col) => (
+            {columns.map((col) => (
               <div key={col.id} className="rounded-xl p-3 md:p-2">
                 <Card className={`p-0 bg-transparent shadow-none border-0`}>
                   <div className={`px-3 pt-2 pb-4 ${col.bg} rounded-xl`}>
                     <h2 className={`font-semibold mb-4 text-lg flex items-center gap-2 ${col.headerColor}`}>
                       {col.label}
-                      <span className="ml-2 text-base text-gray-400 font-medium">{tasksByStatus[col.id]?.length || 0}</span>
+                      <span className="ml-2 text-base text-gray-400 font-medium">
+                        {col.id === 'suggested' 
+                          ? suggestedTasksFormatted.length 
+                          : tasksByStatus[col.id]?.length || 0}
+                      </span>
                     </h2>
                     <Droppable droppableId={col.id}>
                       {(provided) => (
@@ -282,30 +338,55 @@ export default function TaskBoard() {
                           ref={provided.innerRef}
                           className="space-y-4"
                         >
-                          {tasksByStatus[col.id]?.map((task, index) => (
-                            <Draggable
-                              key={task.id}
-                              draggableId={task.id}
-                              index={index}
-                            >
-                              {(provided) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
+                          {col.id === 'suggested' 
+                            ? suggestedTasksFormatted.map((task, index) => (
+                                <Draggable
+                                  key={task.id}
+                                  draggableId={task.id}
+                                  index={index}
                                 >
-                                  <TaskCard
-                                    task={task}
-                                    onClick={() => {
-                                      setSelectedTask(task);
-                                      setIsPreviewOpen(true);
-                                    }}
-                                    cardBg={col.bg}
-                                  />
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
+                                  {(provided) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                    >
+                                      <TaskCard
+                                        task={task}
+                                        onClick={() => {
+                                          setSelectedTask(task);
+                                          setIsPreviewOpen(true);
+                                        }}
+                                        cardBg={col.bg}
+                                      />
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))
+                            : tasksByStatus[col.id]?.map((task, index) => (
+                                <Draggable
+                                  key={task.id}
+                                  draggableId={task.id}
+                                  index={index}
+                                >
+                                  {(provided) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                    >
+                                      <TaskCard
+                                        task={task}
+                                        onClick={() => {
+                                          setSelectedTask(task);
+                                          setIsPreviewOpen(true);
+                                        }}
+                                        cardBg={col.bg}
+                                      />
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
                           {provided.placeholder}
                         </div>
                       )}
