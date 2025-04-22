@@ -1,20 +1,18 @@
 import React from 'react';
 import { ClusteredInsightsFeed } from './ClusteredInsightsFeed';
 import type { InsightCategory } from '@/pages/ActionStudio';
-import type { Insight } from './types';
+import type { Insight, SeverityLevel } from './types';
+import { TrendingDown, AlertTriangle, TrendingUp, Info } from 'lucide-react';
 
-// Define the severity levels
-type SeverityLevel = 'high' | 'medium' | 'low' | 'info';
-
-// Define the insight interface
-interface Insight {
-  id: string;
-  title: string;
-  summary: string;
-  category: Exclude<InsightCategory, 'All'>;
-  severity: SeverityLevel;
-  date: string;
-}
+// Define the category color mapping
+const categoryColors: Record<Exclude<InsightCategory, 'All'>, string> = {
+  Sales: 'bg-red-100 text-red-800',
+  Inventory: 'bg-blue-100 text-blue-800',
+  Listings: 'bg-green-100 text-green-800',
+  Customers: 'bg-purple-100 text-purple-800',
+  Competitors: 'bg-orange-100 text-orange-800',
+  Advertising: 'bg-yellow-100 text-yellow-800'
+};
 
 // Helper function to get icon based on severity
 const getSeverityIcon = (severity: SeverityLevel) => {
@@ -28,16 +26,6 @@ const getSeverityIcon = (severity: SeverityLevel) => {
     case 'info':
       return <Info className="h-5 w-5 text-blue-500" />;
   }
-};
-
-// Category badge color mapping
-const categoryColors: Record<Exclude<InsightCategory, 'All'>, string> = {
-  Sales: 'bg-red-100 text-red-800',
-  Inventory: 'bg-blue-100 text-blue-800',
-  Listings: 'bg-green-100 text-green-800',
-  Customers: 'bg-purple-100 text-purple-800',
-  Competitors: 'bg-orange-100 text-orange-800',
-  Advertising: 'bg-yellow-100 text-yellow-800'
 };
 
 // Generate mock insights data (50 entries)
