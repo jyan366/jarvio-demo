@@ -90,7 +90,7 @@ const suggestedTasks: SuggestedTask[] = [
     title: 'Update Product Images',
     category: 'Listings',
     linkedInsights: [
-      { id: '15', title: 'Listing Quality Alert', summary: 'Product images for 3 variants don't meet Amazon's requirements' },
+      { id: '15', title: 'Listing Quality Alert', summary: 'Product images for 3 variants don\'t meet Amazon\'s requirements' },
       { id: '16', title: 'Click-Through Rate Drop', summary: '27% decrease in CTR potentially related to image quality' }
     ]
   },
