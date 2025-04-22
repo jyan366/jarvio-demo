@@ -10,8 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import { suggestedTasks } from '@/components/action-studio/SuggestedTasksSection';
 // Import the components individually instead of from a barrel file
 import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
-import { InsightsDialog } from '@/components/tasks/InsightsDialog';
-import { InsightDetailDialog } from '@/components/tasks/InsightDetailDialog';
+import { InsightsDialog } from '@/components/insights/InsightsDialog';
+import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { fetchTasks, fetchSubtasks, createTask, createSubtasks, initializeSampleTasks, addSampleSubtasksToTask } from '@/lib/supabaseTasks';
 import { initialTasks, insightsData } from './constants';
 import { mapInsightToTask } from './helpers';
