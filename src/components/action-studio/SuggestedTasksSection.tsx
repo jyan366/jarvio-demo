@@ -16,13 +16,23 @@ interface SuggestedTask {
   title: string;
   category: 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
   linkedInsights: LinkedInsight[];
+  priority: PriorityLevel;
 }
 
-export const suggestedTasks: SuggestedTask[] = [
+type PriorityLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+const priorityOrder: Record<PriorityLevel, number> = {
+  'CRITICAL': 0,
+  'HIGH': 1,
+  'MEDIUM': 2,
+  'LOW': 3,
+};
+
+export const suggestedTasks: (SuggestedTask & { priority: PriorityLevel })[] = [
   {
     id: '1',
     title: 'Fix Suppressed Listings',
     category: 'Listings',
+    priority: 'CRITICAL',
     linkedInsights: [
       { id: '1', title: 'Listing Suppression Alert', summary: 'Multiple listings suppressed due to ingredient compliance issues' },
       { id: '2', title: 'Ingredient Mislabel Detected', summary: 'System detected "Guava" in product description but not in ingredients list' }
@@ -32,6 +42,7 @@ export const suggestedTasks: SuggestedTask[] = [
     id: '2',
     title: 'Restock Best Sellers',
     category: 'Inventory',
+    priority: 'HIGH',
     linkedInsights: [
       { id: '3', title: 'Inventory Alert', summary: 'Top-selling product "Beetroot Kimchi" inventory below 20% threshold' },
       { id: '4', title: 'Sales Velocity Increase', summary: '47% increase in daily sales rate for "Beetroot Kimchi" detected' }
@@ -41,6 +52,7 @@ export const suggestedTasks: SuggestedTask[] = [
     id: '3',
     title: 'Optimize PPC Campaign',
     category: 'Advertising',
+    priority: 'MEDIUM',
     linkedInsights: [
       { id: '5', title: 'High ACoS Alert', summary: 'Campaign "Summer Probiotic" has 43% ACoS, exceeding target by 18%' },
       { id: '6', title: 'Keyword Performance', summary: '3 keywords with CTR below threshold in "Summer Probiotic" campaign' }
@@ -50,6 +62,7 @@ export const suggestedTasks: SuggestedTask[] = [
     id: '4',
     title: 'Address Negative Reviews',
     category: 'Customers',
+    priority: 'LOW',
     linkedInsights: [
       { id: '7', title: 'Review Pattern Alert', summary: '3 recent 1-star reviews mention "leaking packaging" on Chilli Kimchi product' },
       { id: '8', title: 'Product Return Increase', summary: '15% increase in returns for Chilli Kimchi in the past week' }
@@ -59,6 +72,7 @@ export const suggestedTasks: SuggestedTask[] = [
     id: '5',
     title: 'Price Match Competitor',
     category: 'Competitors',
+    priority: 'MEDIUM',
     linkedInsights: [
       { id: '9', title: 'Competitor Price Drop', summary: 'Main competitor lowered price on similar Kimchi product by 12%' },
       { id: '10', title: 'Buy Box Loss', summary: 'Buy Box win rate dropped from 94% to 76% in past 3 days' }
@@ -68,6 +82,7 @@ export const suggestedTasks: SuggestedTask[] = [
     id: '6',
     title: 'Replenish Low Stock Items',
     category: 'Inventory',
+    priority: 'LOW',
     linkedInsights: [
       { id: '11', title: 'Stock Level Alert', summary: 'Multiple products approaching reorder point within 7 days' },
       { id: '12', title: 'Lead Time Warning', summary: 'Supplier has increased lead time for next shipment by 5 days' }
@@ -77,6 +92,7 @@ export const suggestedTasks: SuggestedTask[] = [
     id: '7',
     title: 'Investigate Sales Decline',
     category: 'Sales',
+    priority: 'CRITICAL',
     linkedInsights: [
       { id: '13', title: 'Sales Trend Alert', summary: '22% week-over-week decline in Carrot & Fennel Kimchi sales' },
       { id: '14', title: 'Category Performance', summary: 'Overall fermented foods category growing while our products declining' }
@@ -86,6 +102,7 @@ export const suggestedTasks: SuggestedTask[] = [
     id: '8',
     title: 'Update Product Images',
     category: 'Listings',
+    priority: 'MEDIUM',
     linkedInsights: [
       { id: '15', title: 'Listing Quality Alert', summary: 'Product images for 3 variants don\'t meet Amazon\'s requirements' },
       { id: '16', title: 'Click-Through Rate Drop', summary: '27% decrease in CTR potentially related to image quality' }
@@ -95,6 +112,7 @@ export const suggestedTasks: SuggestedTask[] = [
     id: '9',
     title: 'Respond to Customer Questions',
     category: 'Customers',
+    priority: 'LOW',
     linkedInsights: [
       { id: '17', title: 'Unanswered Questions Alert', summary: '4 customer questions pending for more than 48 hours' },
       { id: '18', title: 'Question Topic Analysis', summary: 'Multiple questions about product storage requirements' }
@@ -104,6 +122,7 @@ export const suggestedTasks: SuggestedTask[] = [
     id: '10',
     title: 'Review Advertising Budget',
     category: 'Advertising',
+    priority: 'MEDIUM',
     linkedInsights: [
       { id: '19', title: 'Budget Utilization', summary: 'Daily budget exhausted before 2pm for 5 consecutive days' },
       { id: '20', title: 'Impression Share Loss', summary: 'Losing 42% of possible impressions due to budget constraints' }
@@ -111,13 +130,27 @@ export const suggestedTasks: SuggestedTask[] = [
   }
 ];
 
-const categoryColors: Record<SuggestedTask['category'], string> = {
+const categoryColors: Record<string, string> = {
   Sales: 'bg-red-100 text-red-800',
   Inventory: 'bg-blue-100 text-blue-800',
   Listings: 'bg-green-100 text-green-800',
   Customers: 'bg-purple-100 text-purple-800',
   Competitors: 'bg-orange-100 text-orange-800',
   Advertising: 'bg-yellow-100 text-yellow-800'
+};
+
+const priorityColors: Record<PriorityLevel, string> = {
+  'CRITICAL': 'bg-red-100 border-red-300 shadow-sm',
+  'HIGH': 'bg-orange-50 border-orange-200',
+  'MEDIUM': 'bg-blue-50 border-blue-100',
+  'LOW': 'bg-gray-50 border-gray-100',
+};
+
+const priorityBadgeColors: Record<PriorityLevel, string> = {
+  'CRITICAL': 'bg-red-100 text-red-800 border-red-200',
+  'HIGH': 'bg-orange-100 text-orange-800 border-orange-200',
+  'MEDIUM': 'bg-blue-100 text-blue-700',
+  'LOW': 'bg-gray-100 text-gray-700',
 };
 
 export const SuggestedTasksSection: React.FC = () => {
@@ -131,16 +164,33 @@ export const SuggestedTasksSection: React.FC = () => {
     );
   };
 
+  const sortedTasks = [...suggestedTasks].sort((a, b) => 
+    priorityOrder[a.priority] - priorityOrder[b.priority]
+  );
+
   return (
     <div className="space-y-2 px-2 sm:px-0">
       <h2 className="text-base sm:text-xl font-semibold pl-2 sm:pl-0">Suggested Tasks</h2>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-        {suggestedTasks.map(task => (
-          <Card key={task.id} className="p-2 sm:p-3 border hover:shadow-md transition-shadow">
+        {sortedTasks.map(task => (
+          <Card 
+            key={task.id} 
+            className={cn(
+              "p-2 sm:p-3 border hover:shadow-md transition-shadow",
+              priorityColors[task.priority],
+              task.priority === 'CRITICAL' && 'ring-2 ring-red-200'
+            )}
+          >
             <div className="flex flex-col space-y-1 sm:space-y-2">
               <div className="flex flex-col sm:flex-row items-start justify-between gap-1 sm:gap-2">
                 <div>
+                  <Badge className={cn(
+                    "mb-2",
+                    priorityBadgeColors[task.priority]
+                  )}>
+                    {task.priority}
+                  </Badge>
                   <h3 className="font-medium text-sm sm:text-base">{task.title}</h3>
                   <Badge className={`mt-1 text-xs ${categoryColors[task.category]}`}>
                     {task.category}
