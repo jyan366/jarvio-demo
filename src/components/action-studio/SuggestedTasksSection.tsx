@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, ChevronDown, ChevronUp, Check, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Check, X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -134,32 +134,33 @@ export const suggestedTasks: (SuggestedTask & { priority: PriorityLevel })[] = [
 ];
 
 const categoryColors: Record<string, string> = {
-  Sales: 'bg-red-100 text-red-800',
+  Sales: 'bg-purple-100 text-purple-800',
   Inventory: 'bg-blue-100 text-blue-800',
   Listings: 'bg-green-100 text-green-800',
-  Customers: 'bg-purple-100 text-purple-800',
+  Customers: 'bg-indigo-100 text-indigo-800',
   Competitors: 'bg-orange-100 text-orange-800',
   Advertising: 'bg-yellow-100 text-yellow-800'
 };
 
 const priorityColors: Record<PriorityLevel, string> = {
-  'CRITICAL': 'bg-red-100 border-red-300 shadow-sm',
-  'HIGH': 'bg-orange-50 border-orange-200',
-  'MEDIUM': 'bg-blue-50 border-blue-100',
+  'CRITICAL': 'bg-purple-50 border-purple-200 shadow-sm',
+  'HIGH': 'bg-blue-50 border-blue-200',
+  'MEDIUM': 'bg-indigo-50 border-indigo-100',
   'LOW': 'bg-gray-50 border-gray-100',
 };
 
 const priorityBadgeColors: Record<PriorityLevel, string> = {
-  'CRITICAL': 'bg-red-100 text-red-800 border-red-200',
-  'HIGH': 'bg-orange-100 text-orange-800 border-orange-200',
-  'MEDIUM': 'bg-blue-100 text-blue-700',
-  'LOW': 'bg-gray-100 text-gray-700',
+  'CRITICAL': 'bg-purple-100 text-purple-800 border-purple-200',
+  'HIGH': 'bg-blue-100 text-blue-800 border-blue-200',
+  'MEDIUM': 'bg-indigo-100 text-indigo-800',
+  'LOW': 'bg-gray-100 text-gray-800',
 };
 
 export const SuggestedTasksSection: React.FC = () => {
   const [openTaskIds, setOpenTaskIds] = useState<string[]>([]);
   const { toast } = useToast();
   const [processingTasks, setProcessingTasks] = useState<string[]>([]);
+  const [handledTasks, setHandledTasks] = useState<string[]>([]);
 
   const toggleTask = (taskId: string) => {
     setOpenTaskIds(prev => 
@@ -192,6 +193,7 @@ export const SuggestedTasksSection: React.FC = () => {
           description: `Dismissed "${task.title}"`,
         });
       }
+      setHandledTasks(prev => [...prev, task.id]);
     } catch (error) {
       toast({
         title: "Error",
@@ -203,9 +205,20 @@ export const SuggestedTasksSection: React.FC = () => {
     }
   };
 
-  const sortedTasks = [...suggestedTasks].sort((a, b) => 
-    priorityOrder[a.priority] - priorityOrder[b.priority]
-  );
+  const sortedTasks = [...suggestedTasks]
+    .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
+    .filter(task => !handledTasks.includes(task.id));
+
+  if (sortedTasks.length === 0) {
+    return (
+      <div className="space-y-2 px-2 sm:px-0">
+        <h2 className="text-base sm:text-xl font-semibold pl-2 sm:pl-0">Suggested Tasks</h2>
+        <Card className="p-6 text-center text-muted-foreground">
+          No suggested tasks available
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2 px-2 sm:px-0">
