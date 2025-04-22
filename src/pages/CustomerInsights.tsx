@@ -1,6 +1,6 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
-import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2, Link, ChevronDown } from 'lucide-react';
+import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2, Link, ChevronDown, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { 
@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 
 export default function CustomerInsights() {
   const navigate = useNavigate();
@@ -232,6 +233,45 @@ export default function CustomerInsights() {
     setDetailInsight(insight);
   };
 
+  const suggestedTasks = [
+    {
+      id: '1',
+      title: 'Fix Suppressed Listings',
+      category: 'LISTINGS',
+      linkedInsights: [
+        { id: '1', title: 'Listing Suppression Alert', summary: 'Multiple listings suppressed due to ingredient compliance issues' },
+        { id: '2', title: 'Ingredient Mislabel Detected', summary: 'System detected "Guava" in product description but not in ingredients list' }
+      ]
+    },
+    {
+      id: '2',
+      title: 'Restock Best Sellers',
+      category: 'INVENTORY',
+      linkedInsights: [
+        { id: '3', title: 'Inventory Alert', summary: 'Top-selling product "Beetroot Kimchi" inventory below 20% threshold' },
+        { id: '4', title: 'Sales Velocity Increase', summary: '47% increase in daily sales rate for "Beetroot Kimchi" detected' }
+      ]
+    },
+    {
+      id: '3',
+      title: 'Optimize PPC Campaign',
+      category: 'ADVERTISING',
+      linkedInsights: [
+        { id: '5', title: 'High ACoS Alert', summary: 'Campaign "Summer Probiotic" has 43% ACoS, exceeding target by 18%' },
+        { id: '6', title: 'Keyword Performance', summary: '3 keywords with CTR below threshold in "Summer Probiotic" campaign' }
+      ]
+    },
+    {
+      id: '4',
+      title: 'Address Negative Reviews',
+      category: 'CUSTOMERS',
+      linkedInsights: [
+        { id: '7', title: 'Review Pattern Alert', summary: '3 recent 1-star reviews mention "leaking packaging" on Chilli Kimchi product' },
+        { id: '8', title: 'Product Return Increase', summary: '15% increase in returns for Chilli Kimchi in the past week' }
+      ]
+    }
+  ];
+
   return <MainLayout>
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start gap-4">
@@ -303,62 +343,54 @@ export default function CustomerInsights() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Zap className="w-6 h-6 text-primary" />
-            <h2 className="text-lg md:text-xl font-semibold">Suggested Actions</h2>
+            <h2 className="text-lg md:text-xl font-semibold">Suggested Tasks</h2>
           </div>
-          {selectedInsights.length > 0 && (
-            <Button onClick={handleCreateTaskFromSelected}>
-              <Link className="w-4 h-4 mr-2" />
-              Create Task from {selectedInsights.length} Selected
-            </Button>
-          )}
         </div>
         
-        <div className="space-y-6">
-          {insightGroups.map((group, index) => (
-            <Card key={index} className="p-4">
-              <div 
-                className="flex items-start justify-between cursor-pointer"
-                onClick={() => toggleGroupExpansion(group.title)}
-              >
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{group.title}</h3>
-                  <p className="text-sm text-muted-foreground">{group.description}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+          {suggestedTasks.map(task => (
+            <Card key={task.id} className="p-2 sm:p-3 border hover:shadow-md transition-shadow">
+              <div className="flex flex-col space-y-1 sm:space-y-2">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-1 sm:gap-2">
+                  <div>
+                    <h3 className="font-medium text-sm sm:text-base">{task.title}</h3>
+                    <Badge 
+                      className={`mt-1 text-xs ${
+                        task.category === 'LISTINGS' ? 'bg-green-100 text-green-800' :
+                        task.category === 'INVENTORY' ? 'bg-blue-100 text-blue-800' :
+                        task.category === 'ADVERTISING' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-purple-100 text-purple-800'
+                      }`}
+                    >
+                      {task.category}
+                    </Badge>
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto mt-1 sm:mt-0">
+                    <span className="mr-1 text-xs sm:text-sm">Create Task</span>
+                    <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
                 </div>
-                <Button variant="ghost" size="icon">
-                  <ChevronDown className={`w-5 h-5 transition-transform ${
-                    expandedGroups.includes(group.title) ? 'transform rotate-180' : ''
-                  }`} />
-                </Button>
-              </div>
+                
+                <Collapsible>
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <span>Based on {task.linkedInsights.length} insights</span>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="p-0 h-6 w-6 ml-1">
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </CollapsibleTrigger>
+                  </div>
 
-              {expandedGroups.includes(group.title) && (
-                <div className="mt-4 space-y-3">
-                  {group.insights.map((insight) => (
-                    <div key={insight.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                      <Checkbox 
-                        checked={selectedInsights.some(i => i.id === insight.id)}
-                        onCheckedChange={() => handleInsightSelect(insight)}
-                        className="mt-1"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium">{insight.title}</h4>
-                          <Badge variant="secondary" className={
-                            insight.severity === "HIGH" 
-                              ? "bg-red-100 text-red-800" 
-                              : insight.severity === "MEDIUM"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-blue-100 text-blue-800"
-                          }>
-                            {insight.severity}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{insight.description}</p>
+                  <CollapsibleContent className="mt-1 space-y-1">
+                    {task.linkedInsights.map(insight => (
+                      <div key={insight.id} className="bg-muted/50 p-1 rounded-md">
+                        <p className="font-medium text-xs">{insight.title}</p>
+                        <p className="text-xs text-muted-foreground">{insight.summary}</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
             </Card>
           ))}
         </div>
