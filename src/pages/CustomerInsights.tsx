@@ -1,7 +1,6 @@
-
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
-import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2, Link } from 'lucide-react';
+import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2, Link, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { 
@@ -77,7 +76,6 @@ export default function CustomerInsights() {
     }
   ];
 
-  // Define the insights array that was missing
   const insights = [
     {
       title: "Unmet Feature Expectations",
@@ -107,7 +105,8 @@ export default function CustomerInsights() {
 
   const insightGroups = [
     {
-      title: "Product Quality",
+      title: "Update Product Features",
+      description: "Implement missing features and improve existing functionality",
       insights: [
         {
           id: "1",
@@ -119,8 +118,8 @@ export default function CustomerInsights() {
         },
         {
           id: "2",
-          title: "Consistent Quality Concerns",
-          description: "Reviews show patterns questioning product durability and performance.",
+          title: "Missing Integration Options",
+          description: "Reviews show patterns requesting third-party integrations.",
           category: "REVIEW" as const,
           severity: "MEDIUM" as const,
           date: "2025-04-19"
@@ -128,7 +127,8 @@ export default function CustomerInsights() {
       ]
     },
     {
-      title: "Pricing and Value",
+      title: "Optimize Pricing Strategy",
+      description: "Review and adjust pricing based on customer feedback",
       insights: [
         {
           id: "3",
@@ -140,8 +140,8 @@ export default function CustomerInsights() {
         },
         {
           id: "4",
-          title: "Positive Differentiators",
-          description: "Specific product elements like packaging and setup receive consistent praise.",
+          title: "Competitive Price Analysis",
+          description: "Reviews indicate price comparisons with alternatives.",
           category: "LISTING" as const,
           severity: "LOW" as const,
           date: "2025-04-17"
@@ -149,6 +149,16 @@ export default function CustomerInsights() {
       ]
     }
   ];
+
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
+  const toggleGroupExpansion = (title: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(title) 
+        ? prev.filter(t => t !== title)
+        : [...prev, title]
+    );
+  };
 
   const nextInsight = () => {
     setCurrentInsightIndex(prev => (prev + 1) % insights.length);
@@ -293,7 +303,7 @@ export default function CustomerInsights() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Zap className="w-6 h-6 text-primary" />
-            <h2 className="text-lg md:text-xl font-semibold">Customer Insights Groups</h2>
+            <h2 className="text-lg md:text-xl font-semibold">Suggested Actions</h2>
           </div>
           {selectedInsights.length > 0 && (
             <Button onClick={handleCreateTaskFromSelected}>
@@ -306,33 +316,49 @@ export default function CustomerInsights() {
         <div className="space-y-6">
           {insightGroups.map((group, index) => (
             <Card key={index} className="p-4">
-              <h3 className="font-semibold mb-4">{group.title}</h3>
-              <div className="space-y-3">
-                {group.insights.map((insight) => (
-                  <div key={insight.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                    <Checkbox 
-                      checked={selectedInsights.some(i => i.id === insight.id)}
-                      onCheckedChange={() => handleInsightSelect(insight)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium">{insight.title}</h4>
-                        <Badge variant="secondary" className={
-                          insight.severity === "HIGH" 
-                            ? "bg-red-100 text-red-800" 
-                            : insight.severity === "MEDIUM"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-blue-100 text-blue-800"
-                        }>
-                          {insight.severity}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{insight.description}</p>
-                    </div>
-                  </div>
-                ))}
+              <div 
+                className="flex items-start justify-between cursor-pointer"
+                onClick={() => toggleGroupExpansion(group.title)}
+              >
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg">{group.title}</h3>
+                  <p className="text-sm text-muted-foreground">{group.description}</p>
+                </div>
+                <Button variant="ghost" size="icon">
+                  <ChevronDown className={`w-5 h-5 transition-transform ${
+                    expandedGroups.includes(group.title) ? 'transform rotate-180' : ''
+                  }`} />
+                </Button>
               </div>
+
+              {expandedGroups.includes(group.title) && (
+                <div className="mt-4 space-y-3">
+                  {group.insights.map((insight) => (
+                    <div key={insight.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                      <Checkbox 
+                        checked={selectedInsights.some(i => i.id === insight.id)}
+                        onCheckedChange={() => handleInsightSelect(insight)}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium">{insight.title}</h4>
+                          <Badge variant="secondary" className={
+                            insight.severity === "HIGH" 
+                              ? "bg-red-100 text-red-800" 
+                              : insight.severity === "MEDIUM"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-blue-100 text-blue-800"
+                          }>
+                            {insight.severity}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{insight.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </Card>
           ))}
         </div>
