@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,15 +29,78 @@ const getSeverityIcon = (severity: SeverityLevel) => {
   }
 };
 
+const getClusterTitle = (clusterKey: string, category: Exclude<InsightCategory, 'All'>): string => {
+  const titleMappings: Record<Exclude<InsightCategory, 'All'>, Record<string, string>> = {
+    Sales: {
+      'revenue-momentum': 'Revenue Growth Opportunities',
+      'conversion-issues': 'Sales Conversion Challenges',
+      'product-sales-trends': 'Product Performance Insights',
+      'regional-shifts': 'Geographic Sales Variations',
+      'price-sensitivity': 'Pricing Strategy Evaluation'
+    },
+    Inventory: {
+      'stockout-risk': 'Inventory Shortage Risks',
+      'excess-stock': 'Overstock Management',
+      'fulfillment-issues': 'Warehouse Efficiency Alerts',
+      'seasonal-demand': 'Seasonal Inventory Planning',
+      'aged-inventory': 'Slow-Moving Stock Warning'
+    },
+    Listings: {
+      'listing-compliance': 'Listing Compliance Risks',
+      'listing-performance': 'Listing Optimization Opportunities',
+      'seo-optimization': 'SEO and Visibility Improvements',
+      'visual-content': 'Product Presentation Enhancements',
+      'category-alignment': 'Category Matching Insights'
+    },
+    Customers: {
+      'sentiment-trends': 'Customer Sentiment Analysis',
+      'positive-feedback': 'Customer Satisfaction Highlights',
+      'product-feedback': 'Product Experience Insights',
+      'support-issues': 'Customer Support Improvement Areas',
+      'user-content': 'User-Generated Content Opportunities'
+    },
+    Competitors: {
+      'competitor-pricing': 'Competitive Pricing Intelligence',
+      'competitor-content': 'Competitor Listing Strategies',
+      'competitor-products': 'New Competitor Product Launches',
+      'competitor-reviews': 'Competitor Review Landscape',
+      'market-share': 'Market Position Tracking'
+    },
+    Advertising: {
+      'ad-budget': 'Advertising Spend Optimization',
+      'ad-performance': 'Campaign Performance Insights',
+      'underperforming-ads': 'Ad Efficiency Improvement',
+      'ad-placement': 'Ad Placement Strategies',
+      'targeting-gaps': 'Audience Targeting Refinement'
+    }
+  };
+
+  if (titleMappings[category] && titleMappings[category][clusterKey]) {
+    return titleMappings[category][clusterKey];
+  }
+
+  const genericTitles: Record<string, string> = {
+    'other': 'General Insights',
+    'low': 'Low Priority Observations',
+    'medium': 'Moderate Significance Findings',
+    'high': 'Critical Action Items'
+  };
+
+  const genericKey = Object.keys(genericTitles).find(key => clusterKey.includes(key));
+  if (genericKey) {
+    return genericTitles[genericKey];
+  }
+
+  return `${category} Insights`;
+};
+
 const clusterInsights = (insights: Insight[]): InsightCluster[] => {
   const clusters: Map<string, InsightCluster> = new Map();
 
   insights.forEach(insight => {
-    // Determine cluster based on category and keywords
     let clusterKey = '';
     const title = insight.title.toLowerCase();
     
-    // Sales clusters
     if (insight.category === 'Sales') {
       if (title.includes('revenue') || title.includes('order value')) {
         clusterKey = 'revenue-momentum';
@@ -52,7 +114,6 @@ const clusterInsights = (insights: Insight[]): InsightCluster[] => {
         clusterKey = 'price-sensitivity';
       }
     }
-    // Inventory clusters
     else if (insight.category === 'Inventory') {
       if (title.includes('stock') || title.includes('out')) {
         clusterKey = 'stockout-risk';
@@ -66,7 +127,6 @@ const clusterInsights = (insights: Insight[]): InsightCluster[] => {
         clusterKey = 'aged-inventory';
       }
     }
-    // Listings clusters
     else if (insight.category === 'Listings') {
       if (title.includes('suppress') || title.includes('flag')) {
         clusterKey = 'listing-compliance';
@@ -80,7 +140,6 @@ const clusterInsights = (insights: Insight[]): InsightCluster[] => {
         clusterKey = 'category-alignment';
       }
     }
-    // Customer clusters
     else if (insight.category === 'Customers') {
       if (title.includes('sentiment') || title.includes('rating')) {
         clusterKey = 'sentiment-trends';
@@ -94,7 +153,6 @@ const clusterInsights = (insights: Insight[]): InsightCluster[] => {
         clusterKey = 'user-content';
       }
     }
-    // Competitor clusters
     else if (insight.category === 'Competitors') {
       if (title.includes('price') || title.includes('discount')) {
         clusterKey = 'competitor-pricing';
@@ -108,7 +166,6 @@ const clusterInsights = (insights: Insight[]): InsightCluster[] => {
         clusterKey = 'market-share';
       }
     }
-    // Advertising clusters
     else if (insight.category === 'Advertising') {
       if (title.includes('budget') || title.includes('spend')) {
         clusterKey = 'ad-budget';
@@ -123,16 +180,11 @@ const clusterInsights = (insights: Insight[]): InsightCluster[] => {
       }
     }
 
-    // Default cluster if no specific match
-    if (!clusterKey) {
-      clusterKey = `${insight.category.toLowerCase()}-other`;
-    }
-
     if (!clusters.has(clusterKey)) {
       clusters.set(clusterKey, {
         id: clusterKey,
-        title: clusterKey.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-        description: `Key insights related to ${clusterKey.replace('-', ' ')}`,
+        title: getClusterTitle(clusterKey, insight.category),
+        description: `Key insights related to ${insight.category.toLowerCase()} performance`,
         insights: [],
         category: insight.category,
         severity: insight.severity
@@ -142,7 +194,6 @@ const clusterInsights = (insights: Insight[]): InsightCluster[] => {
     const cluster = clusters.get(clusterKey)!;
     cluster.insights.push(insight);
     
-    // Update cluster severity based on highest severity insight
     if (insight.severity === 'high') {
       cluster.severity = 'high';
     } else if (insight.severity === 'medium' && cluster.severity !== 'high') {
@@ -223,4 +274,3 @@ export const ClusteredInsightsFeed: React.FC<ClusteredInsightsFeedProps> = ({
     </div>
   );
 };
-
