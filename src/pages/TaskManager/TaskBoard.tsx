@@ -40,8 +40,10 @@ export default function TaskBoard() {
   const navigate = useNavigate();
 
   // Determine if we should show suggested tasks based on the number of done tasks
-  const shouldShowSuggestedTasks = showSuggestedTasks && !isDragging && tasksByStatus['done'].length === 0;
+  // and the showSuggestedTasks state
+  const shouldShowSuggestedTasks = showSuggestedTasks && !isDragging && tasksByStatus['done']?.length === 0;
 
+  // Define columns based on whether we should show suggested tasks
   const columns = shouldShowSuggestedTasks
     ? [
         {
@@ -324,6 +326,11 @@ export default function TaskBoard() {
     });
   };
 
+  // Toggle function for suggested tasks visibility
+  const toggleSuggestedTasks = () => {
+    setShowSuggestedTasks(!showSuggestedTasks);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -349,7 +356,7 @@ export default function TaskBoard() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => setShowSuggestedTasks(!showSuggestedTasks)}
+            onClick={toggleSuggestedTasks}
             className="flex items-center gap-2"
           >
             <span>{shouldShowSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
@@ -387,8 +394,8 @@ export default function TaskBoard() {
                           {col.id === 'suggested' 
                             ? suggestedTasksFormatted.map((task, index) => (
                                 <Draggable
-                                  key={task.id}
-                                  draggableId={task.id}
+                                  key={`suggested-${task.id}`}
+                                  draggableId={`suggested-${task.id}`}
                                   index={index}
                                 >
                                   {(provided) => (
