@@ -86,8 +86,8 @@ export default function TaskBoard() {
     id: st.id,
     title: st.title,
     description: st.linkedInsights[0]?.summary || '',
-    status: 'Not Started' as const,
-    priority: 'MEDIUM' as const,
+    status: 'Not Started' as 'Not Started',
+    priority: 'MEDIUM' as 'HIGH' | 'MEDIUM' | 'LOW',
     category: st.category.toUpperCase(),
     date: new Date().toLocaleDateString('en-US', {
       day: 'numeric',
@@ -282,9 +282,9 @@ export default function TaskBoard() {
     // Handle dragging from suggested tasks to other columns
     if (result.source.droppableId === 'suggested') {
       const [suggestedTask] = suggestedTasksFormatted.splice(result.source.index, 1);
-      const newTask = {
+      const newTask: Task = {
         ...suggestedTask,
-        status: result.destination.droppableId === 'inProgress' ? 'In Progress' : 'Not Started'
+        status: result.destination.droppableId === 'inProgress' ? 'In Progress' as 'In Progress' : 'Not Started' as 'Not Started'
       };
       destColumn.splice(result.destination.index, 0, newTask);
       
@@ -303,13 +303,13 @@ export default function TaskBoard() {
 
     // Handle regular task movement
     const [removed] = sourceColumn.splice(result.source.index, 1);
-    const updatedTask = {
+    const updatedTask: Task = {
       ...removed,
       status: result.destination.droppableId === 'inProgress' 
-        ? 'In Progress' 
+        ? 'In Progress' as 'In Progress'
         : result.destination.droppableId === 'done'
-          ? 'Done'
-          : 'Not Started'
+          ? 'Done' as 'Done'
+          : 'Not Started' as 'Not Started'
     };
     destColumn.splice(result.destination.index, 0, updatedTask);
 
@@ -345,7 +345,7 @@ export default function TaskBoard() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => setShowSuggestedTasks(!showSuggestedTasks)}
+            onClick={() => setIsDragging(!isDragging)}
             className="flex items-center gap-2"
           >
             <span>{shouldShowSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
