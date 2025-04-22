@@ -1,10 +1,7 @@
-
 import React from 'react';
-import { ArrowRight, TrendingUp, TrendingDown, AlertTriangle, Info } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { ClusteredInsightsFeed } from './ClusteredInsightsFeed';
 import type { InsightCategory } from '@/pages/ActionStudio';
+import type { Insight } from './types';
 
 // Define the severity levels
 type SeverityLevel = 'high' | 'medium' | 'low' | 'info';
@@ -203,44 +200,15 @@ interface InsightsFeedProps {
 }
 
 export const InsightsFeed: React.FC<InsightsFeedProps> = ({ selectedCategory }) => {
-  // Filter insights based on selected category
-  const filteredInsights = selectedCategory === 'All'
-    ? mockInsights
-    : mockInsights.filter(insight => insight.category === selectedCategory);
-
+  // Generate mock insights using existing function
+  const insights = mockInsights;
+  
   return (
-    <div className="space-y-3 sm:space-y-4 px-4 sm:px-0">
-      {filteredInsights.map(insight => (
-        <Card key={insight.id} className="p-3 sm:p-4 flex flex-col sm:flex-row items-start gap-2 sm:gap-3 hover:shadow-sm transition-shadow">
-          <div className="sm:mt-1">
-            {getSeverityIcon(insight.severity)}
-          </div>
-          
-          <div className="flex-grow w-full">
-            <div className="flex flex-col gap-2">
-              <div className="space-y-1">
-                <h3 className="font-medium text-sm sm:text-base">{insight.title}</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground">{insight.summary}</p>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-2 mt-1">
-                <Badge className={categoryColors[insight.category]}>
-                  {insight.category}
-                </Badge>
-                <span className="text-xs text-muted-foreground">{insight.date}</span>
-              </div>
-            </div>
-            
-            <div className="mt-2 sm:mt-3 flex justify-end">
-              <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                <span className="mr-1">Take Action</span>
-                <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-            </div>
-          </div>
-        </Card>
-      ))}
+    <div className="px-4 sm:px-0">
+      <ClusteredInsightsFeed 
+        selectedCategory={selectedCategory}
+        insights={insights}
+      />
     </div>
   );
 };
-
