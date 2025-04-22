@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +7,7 @@ import { ArrowRight, ChevronDown, TrendingUp, TrendingDown, AlertTriangle, Info 
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { Insight, InsightCluster, SeverityLevel } from './types';
 import { InsightCategory } from '@/pages/ActionStudio';
+import { InsightActionDialog } from './InsightActionDialog';
 
 const categoryColors: Record<Exclude<InsightCategory, 'All'>, string> = {
   Sales: 'bg-red-100 text-red-800',
@@ -213,6 +215,19 @@ export const ClusteredInsightsFeed: React.FC<ClusteredInsightsFeedProps> = ({
   selectedCategory,
   insights
 }) => {
+  const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
+  const [isActionDialogOpen, setIsActionDialogOpen] = useState(false);
+
+  const handleTakeAction = (insight: Insight) => {
+    setSelectedInsight(insight);
+    setIsActionDialogOpen(true);
+  };
+
+  const closeActionDialog = () => {
+    setIsActionDialogOpen(false);
+    setTimeout(() => setSelectedInsight(null), 300);
+  };
+
   const filteredInsights = selectedCategory === 'All'
     ? insights
     : insights.filter(insight => insight.category === selectedCategory);
@@ -259,7 +274,12 @@ export const ClusteredInsightsFeed: React.FC<ClusteredInsightsFeedProps> = ({
                     <h4 className="font-medium text-sm">{insight.title}</h4>
                     <p className="text-sm text-muted-foreground mt-1">{insight.summary}</p>
                     <div className="flex justify-end mt-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="hover:bg-primary/10 hover:text-primary transition-colors"
+                        onClick={() => handleTakeAction(insight)}
+                      >
                         <span className="mr-1">Take Action</span>
                         <ArrowRight className="h-3 w-3" />
                       </Button>
@@ -271,6 +291,12 @@ export const ClusteredInsightsFeed: React.FC<ClusteredInsightsFeedProps> = ({
           </Collapsible>
         </Card>
       ))}
+
+      <InsightActionDialog 
+        insight={selectedInsight} 
+        isOpen={isActionDialogOpen} 
+        onClose={closeActionDialog} 
+      />
     </div>
   );
 };

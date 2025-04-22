@@ -11,6 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Card } from '@/components/ui/card';
+import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 // Define the insight categories
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
@@ -30,6 +33,20 @@ export default function ActionStudio() {
             </div>
           </div>
         </div>
+
+        {/* Action Path Card */}
+        <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100 shadow-sm">
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <h3 className="font-medium text-blue-800">Action Pathway</h3>
+              <p className="text-sm text-blue-700">Insights → Tasks → Resolution</p>
+              <p className="text-xs text-blue-600 mt-1">Click "Take Action" on any insight to create a task in your Task Manager</p>
+            </div>
+            <Link to="/taskmanager" className="text-blue-700 hover:text-blue-800 flex items-center text-sm font-medium">
+              View Tasks <ArrowRight className="h-4 w-4 ml-1" />
+            </Link>
+          </div>
+        </Card>
 
         {/* Suggested Tasks Section */}
         <SuggestedTasksSection />
