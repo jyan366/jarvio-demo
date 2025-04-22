@@ -209,21 +209,21 @@ export const InsightsFeed: React.FC<InsightsFeedProps> = ({ selectedCategory }) 
     : mockInsights.filter(insight => insight.category === selectedCategory);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4 px-4 sm:px-0">
       {filteredInsights.map(insight => (
-        <Card key={insight.id} className="p-4 flex items-start gap-3 hover:shadow-sm transition-shadow">
-          <div className="flex-shrink-0 mt-1">
+        <Card key={insight.id} className="p-3 sm:p-4 flex flex-col sm:flex-row items-start gap-2 sm:gap-3 hover:shadow-sm transition-shadow">
+          <div className="sm:mt-1">
             {getSeverityIcon(insight.severity)}
           </div>
           
-          <div className="flex-grow">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex-grow w-full">
+            <div className="flex flex-col gap-2">
               <div className="space-y-1">
-                <h3 className="font-medium">{insight.title}</h3>
-                <p className="text-sm text-muted-foreground">{insight.summary}</p>
+                <h3 className="font-medium text-sm sm:text-base">{insight.title}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">{insight.summary}</p>
               </div>
               
-              <div className="flex items-center gap-2 mt-2 sm:mt-0">
+              <div className="flex flex-wrap items-center gap-2 mt-1">
                 <Badge className={categoryColors[insight.category]}>
                   {insight.category}
                 </Badge>
@@ -231,10 +231,10 @@ export const InsightsFeed: React.FC<InsightsFeedProps> = ({ selectedCategory }) 
               </div>
             </div>
             
-            <div className="mt-3 flex justify-end">
-              <Button variant="outline" size="sm">
+            <div className="mt-2 sm:mt-3 flex justify-end">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto">
                 <span className="mr-1">Take Action</span>
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </div>
           </div>
@@ -243,3 +243,4 @@ export const InsightsFeed: React.FC<InsightsFeedProps> = ({ selectedCategory }) 
     </div>
   );
 };
+

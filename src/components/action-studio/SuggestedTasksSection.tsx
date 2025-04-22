@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -6,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
-// Define types for our data structure
 interface LinkedInsight {
   id: string;
   title: string;
@@ -20,7 +18,6 @@ interface SuggestedTask {
   linkedInsights: LinkedInsight[];
 }
 
-// Mock data for suggested tasks
 const suggestedTasks: SuggestedTask[] = [
   {
     id: '1',
@@ -114,7 +111,6 @@ const suggestedTasks: SuggestedTask[] = [
   }
 ];
 
-// Category badge color mapping
 const categoryColors: Record<SuggestedTask['category'], string> = {
   Sales: 'bg-red-100 text-red-800',
   Inventory: 'bg-blue-100 text-blue-800',
@@ -136,23 +132,23 @@ export const SuggestedTasksSection: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Suggested Tasks</h2>
+    <div className="space-y-4 px-4 sm:px-0">
+      <h2 className="text-lg sm:text-xl font-semibold">Suggested Tasks</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {suggestedTasks.map(task => (
-          <Card key={task.id} className="p-4 border hover:shadow-md transition-shadow">
-            <div className="flex flex-col space-y-3">
-              <div className="flex items-start justify-between">
+          <Card key={task.id} className="p-3 sm:p-4 border hover:shadow-md transition-shadow">
+            <div className="flex flex-col space-y-2 sm:space-y-3">
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-0">
                 <div>
-                  <h3 className="font-medium text-lg">{task.title}</h3>
-                  <Badge className={`mt-1 ${categoryColors[task.category]}`}>
+                  <h3 className="font-medium text-base sm:text-lg">{task.title}</h3>
+                  <Badge className={`mt-1 text-xs sm:text-sm ${categoryColors[task.category]}`}>
                     {task.category}
                   </Badge>
                 </div>
-                <Button variant="outline" size="sm" className="ml-2">
+                <Button variant="outline" size="sm" className="w-full sm:w-auto">
                   <span className="mr-1">Create Task</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
               
@@ -161,23 +157,23 @@ export const SuggestedTasksSection: React.FC = () => {
                 onOpenChange={() => toggleTask(task.id)}
                 className="mt-2"
               >
-                <div className="flex items-center text-sm text-muted-foreground">
+                <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
                   <span>Based on {task.linkedInsights.length} insights</span>
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-0 h-8 w-8 ml-1">
+                    <Button variant="ghost" size="sm" className="p-0 h-6 w-6 sm:h-8 sm:w-8 ml-1">
                       {openTaskIds.includes(task.id) ? (
-                        <ChevronUp className="h-4 w-4" />
+                        <ChevronUp className="h-3 w-3 sm:h-4 sm:w-4" />
                       ) : (
-                        <ChevronDown className="h-4 w-4" />
+                        <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
                       )}
                     </Button>
                   </CollapsibleTrigger>
                 </div>
 
-                <CollapsibleContent className="mt-3 space-y-3">
+                <CollapsibleContent className="mt-2 sm:mt-3 space-y-2 sm:space-y-3">
                   {task.linkedInsights.map(insight => (
                     <div key={insight.id} className="bg-muted/50 p-2 rounded-md">
-                      <p className="font-medium text-sm">{insight.title}</p>
+                      <p className="font-medium text-xs sm:text-sm">{insight.title}</p>
                       <p className="text-xs text-muted-foreground">{insight.summary}</p>
                     </div>
                   ))}
@@ -189,4 +185,4 @@ export const SuggestedTasksSection: React.FC = () => {
       </div>
     </div>
   );
-}
+};
