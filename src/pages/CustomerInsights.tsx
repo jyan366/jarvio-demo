@@ -1,3 +1,4 @@
+
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2, Link } from 'lucide-react';
@@ -73,6 +74,34 @@ export default function CustomerInsights() {
       rating: 3.7,
       reviews: 12,
       quality: "Poor"
+    }
+  ];
+
+  // Define the insights array that was missing
+  const insights = [
+    {
+      title: "Unmet Feature Expectations",
+      description: "Customers frequently mention certain functionalities they expected but didn't find.",
+      category: "REVIEW" as const,
+      severity: "HIGH" as const,
+      date: "2025-04-20",
+      id: "insight-1"
+    },
+    {
+      title: "Value vs. Price Perception",
+      description: "Customer reviews consistently comment on price-value relationship.",
+      category: "PRICING" as const, 
+      severity: "MEDIUM" as const,
+      date: "2025-04-19",
+      id: "insight-2"
+    },
+    {
+      title: "Missing Integration Options",
+      description: "Reviews indicate demand for integration with popular third-party services.",
+      category: "REVIEW" as const,
+      severity: "LOW" as const,
+      date: "2025-04-18",
+      id: "insight-3"
     }
   ];
 
@@ -176,12 +205,12 @@ export default function CustomerInsights() {
         ? "MEDIUM" 
         : "LOW";
 
-    const taskInsight = {
+    const taskInsight: InsightData = {
       id: crypto.randomUUID(),
       title: combinedTitle,
       description: combinedDescription,
       category: selectedInsights[0].category,
-      severity: highestSeverity,
+      severity: highestSeverity as "HIGH" | "MEDIUM" | "LOW",
       date: new Date().toISOString().split('T')[0]
     };
 
