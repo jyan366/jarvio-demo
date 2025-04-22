@@ -1,7 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
-import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -17,6 +15,7 @@ import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { InsightData } from '@/components/tasks/InsightCard';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 export default function CustomerInsights() {
   const navigate = useNavigate();
@@ -217,14 +216,6 @@ export default function CustomerInsights() {
             <Zap className="w-6 h-6 text-primary" />
             <h2 className="text-lg md:text-xl font-semibold">Customer Insights Assistant</h2>
           </div>
-          <Button 
-            onClick={openMainInsightsDialog}
-            className="flex items-center gap-2"
-            variant="outline"
-          >
-            <BarChart2 className="w-4 h-4" />
-            View Insights
-          </Button>
         </div>
         <Card className={`p-4 md:p-6 border transition-all duration-300 min-h-[200px] flex flex-col`}>
           <div className="flex items-start justify-between mb-4">
