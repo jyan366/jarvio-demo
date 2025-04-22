@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
@@ -55,11 +54,11 @@ export default function ActionStudio() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-primary/50" />
-                    <span>Create tasks directly from insights with a single click</span>
+                    <span>Create tasks directly from insights in one click</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <BookText className="h-4 w-4 text-primary/50" />
-                    <span>Track your progress from suggestion to resolution</span>
+                    <span>Monitor task status from creation to completion</span>
                   </div>
                 </div>
               </div>
@@ -99,4 +98,3 @@ export default function ActionStudio() {
     </MainLayout>
   );
 }
-
