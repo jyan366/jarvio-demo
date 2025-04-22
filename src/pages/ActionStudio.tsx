@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
@@ -35,29 +36,29 @@ export default function ActionStudio() {
 
         {/* How Action Studio Works Notification */}
         {showHowItWorks && (
-          <Card className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-100 shadow-sm relative overflow-hidden">
+          <Card className="p-4 bg-muted/30 border-border shadow-sm relative">
             <button 
               onClick={() => setShowHowItWorks(false)}
-              className="absolute top-3 right-3 text-purple-600 hover:text-purple-800 transition-colors z-10"
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors z-10"
             >
               <X className="h-4 w-4" />
             </button>
             
             <div className="flex items-start space-x-4 pr-8">
-              <BookText className="h-8 w-8 text-purple-600 mt-1 flex-shrink-0" />
+              <BookText className="h-8 w-8 text-primary/70 mt-1 flex-shrink-0" />
               <div>
-                <h3 className="font-semibold text-purple-800 text-lg mb-2">How Action Studio Works</h3>
-                <div className="space-y-2 text-purple-700 text-sm">
+                <h3 className="font-semibold text-foreground text-lg mb-2">How Action Studio Works</h3>
+                <div className="space-y-2 text-muted-foreground text-sm">
                   <div className="flex items-center space-x-2">
-                    <Circle className="h-4 w-4 text-purple-500" />
+                    <Circle className="h-4 w-4 text-primary/50" />
                     <span>Discover actionable insights across your business</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-purple-500" />
+                    <CheckCircle className="h-4 w-4 text-primary/50" />
                     <span>Create tasks directly from insights with a single click</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <BookText className="h-4 w-4 text-purple-500" />
+                    <BookText className="h-4 w-4 text-primary/50" />
                     <span>Track your progress from suggestion to resolution</span>
                   </div>
                 </div>
@@ -98,3 +99,4 @@ export default function ActionStudio() {
     </MainLayout>
   );
 }
+
