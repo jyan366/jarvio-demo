@@ -16,6 +16,7 @@ import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
 import { InsightData } from '@/components/tasks/InsightCard';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
 
 export default function CustomerInsights() {
   const navigate = useNavigate();
@@ -136,11 +137,6 @@ export default function CustomerInsights() {
 
   const handleInsightClick = (insight: InsightData) => {
     setDetailInsight(insight);
-  };
-
-  const openMainInsightsDialog = () => {
-    setCurrentProduct("");
-    setInsightsDialogOpen(true);
   };
 
   return <MainLayout>
