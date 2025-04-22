@@ -3,7 +3,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { InsightData, InsightCard } from "../tasks/InsightCard";
 import { useToast } from "@/hooks/use-toast";
-import { AlertCircle, DollarSign, ThumbsUp, Zap } from "lucide-react";
+import { AlertTriangle, Star, TrendingDown, Flag } from "lucide-react";
 
 interface InsightsDialogProps {
   open: boolean;
@@ -45,34 +45,34 @@ export function InsightsDialog({
     {
       id: "1",
       title: "Unmet Feature Expectations",
-      icon: AlertCircle,
-      preview: "27% of customers expected additional features",
-      color: "bg-blue-50 text-blue-700 border-blue-200",
-      details: "Customers frequently mention certain functionalities they expected but didn't find, highlighting missed opportunities for product enhancements."
+      description: "Customers frequently mention certain functionalities they expected but didn't find, highlighting missed opportunities for product enhancements.",
+      category: "REVIEW",
+      severity: "HIGH",
+      date: "2025-04-20"
     },
     {
       id: "2",
       title: "Consistent Quality Concerns",
-      icon: Zap,
-      preview: "Quality mentioned in 42% of recent reviews",
-      color: "bg-amber-50 text-amber-700 border-amber-200",
-      details: "Reviews show patterns questioning product durability and performance, indicating potential quality control improvements needed."
+      description: "Reviews show patterns questioning product durability and performance, indicating potential quality control improvements needed.",
+      category: "REVIEW",
+      severity: "MEDIUM",
+      date: "2025-04-19"
     },
     {
       id: "3",
       title: "Value vs. Price Perception",
-      icon: DollarSign,
-      preview: "68% consider the product fairly priced",
-      color: "bg-green-50 text-green-700 border-green-200",
-      details: "Customer reviews consistently comment on price-value relationship, providing insights for pricing strategy optimization."
+      description: "Customer reviews consistently comment on price-value relationship, providing insights for pricing strategy optimization.",
+      category: "PRICING",
+      severity: "LOW",
+      date: "2025-04-18"
     },
     {
       id: "4",
       title: "Positive Differentiators",
-      icon: ThumbsUp,
-      preview: "Packaging praised in 89% of reviews",
-      color: "bg-indigo-50 text-indigo-700 border-indigo-200",
-      details: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages."
+      description: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages.",
+      category: "LISTING",
+      severity: "LOW",
+      date: "2025-04-17"
     }
   ];
 

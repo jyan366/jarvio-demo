@@ -1,4 +1,3 @@
-
 import { MainLayout } from '@/components/layout/MainLayout';
 import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
 import { Card } from '@/components/ui/card';
@@ -16,7 +15,6 @@ import {
 } from '@/components/ui/table';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
-import { AlertCircle, DollarSign, ThumbsUp } from 'lucide-react';
 import { InsightData } from '@/components/tasks/InsightCard';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,75 +29,84 @@ export default function CustomerInsights() {
   const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
   const { toast } = useToast();
 
-  const ratings = [{
-    stars: 5,
-    percentage: 70
-  }, {
-    stars: 4,
-    percentage: 20
-  }, {
-    stars: 3,
-    percentage: 5
-  }, {
-    stars: 2,
-    percentage: 2
-  }, {
-    stars: 1,
-    percentage: 3
-  }];
+  const ratings = [
+    {
+      stars: 5,
+      percentage: 70
+    }, {
+      stars: 4,
+      percentage: 20
+    }, {
+      stars: 3,
+      percentage: 5
+    }, {
+      stars: 2,
+      percentage: 2
+    }, {
+      stars: 1,
+      percentage: 3
+    }
+  ];
 
-  const products = [{
-    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg",
-    name: "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's",
-    asin: "B00CD1D8OY",
-    rating: 4.7,
-    reviews: 147,
-    quality: "Good"
-  }, {
-    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//415+Np8jrQL.jpg",
-    name: "Chilli Kimchi 2x300g Jar - The Cultured Food Company's",
-    asin: "B00ZGAUNYW",
-    rating: 4.1,
-    reviews: 293,
-    quality: "Fair"
-  }, {
-    image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//41SF9iv9eXL.jpg",
-    name: "Carrot & Fennel Kimchi 2x300g Jar - The Cultured Food Company's",
-    asin: "B071144YXD",
-    rating: 3.7,
-    reviews: 12,
-    quality: "Poor"
-  }];
+  const products = [
+    {
+      image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg",
+      name: "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's",
+      asin: "B00CD1D8OY",
+      rating: 4.7,
+      reviews: 147,
+      quality: "Good"
+    }, {
+      image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//415+Np8jrQL.jpg",
+      name: "Chilli Kimchi 2x300g Jar - The Cultured Food Company's",
+      asin: "B00ZGAUNYW",
+      rating: 4.1,
+      reviews: 293,
+      quality: "Fair"
+    }, {
+      image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//41SF9iv9eXL.jpg",
+      name: "Carrot & Fennel Kimchi 2x300g Jar - The Cultured Food Company's",
+      asin: "B071144YXD",
+      rating: 3.7,
+      reviews: 12,
+      quality: "Poor"
+    }
+  ];
 
-  const insights = [{
-    id: "1",
-    title: "Unmet Feature Expectations",
-    icon: AlertCircle,
-    preview: "27% of customers expected additional features",
-    color: "bg-blue-50 text-blue-700 border-blue-200",
-    details: "Customers frequently mention certain functionalities they expected but didn't find, highlighting missed opportunities for product enhancements."
-  }, {
-    id: "2",
-    title: "Consistent Quality Concerns",
-    icon: Zap,
-    preview: "Quality mentioned in 42% of recent reviews",
-    color: "bg-amber-50 text-amber-700 border-amber-200",
-    details: "Reviews show patterns questioning product durability and performance, indicating potential quality control improvements needed."
-  }, {
-    id: "3",
-    title: "Value vs. Price Perception",
-    icon: DollarSign,
-    preview: "68% consider the product fairly priced",
-    color: "bg-green-50 text-green-700 border-green-200",
-    details: "Customer reviews consistently comment on price-value relationship, providing insights for pricing strategy optimization."
-  }, {
-    id: "4",
-    title: "Positive Differentiators",
-    icon: ThumbsUp,
-    preview: "Packaging praised in 89% of reviews",
-    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    details: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages."
-  }];
+  const insights = [
+    {
+      id: "1",
+      title: "Unmet Feature Expectations",
+      description: "Customers frequently mention certain functionalities they expected but didn't find, highlighting missed opportunities for product enhancements.",
+      category: "REVIEW" as const,
+      severity: "HIGH" as const,
+      date: "2025-04-20"
+    },
+    {
+      id: "2",
+      title: "Consistent Quality Concerns",
+      description: "Reviews show patterns questioning product durability and performance, indicating potential quality control improvements needed.",
+      category: "REVIEW" as const,
+      severity: "MEDIUM" as const,
+      date: "2025-04-19"
+    },
+    {
+      id: "3",
+      title: "Value vs. Price Perception",
+      description: "Customer reviews consistently comment on price-value relationship, providing insights for pricing strategy optimization.",
+      category: "PRICING" as const,
+      severity: "LOW" as const,
+      date: "2025-04-18"
+    },
+    {
+      id: "4",
+      title: "Positive Differentiators",
+      description: "Specific product elements like packaging and setup receive consistent praise, offering potential marketing advantages.",
+      category: "LISTING" as const,
+      severity: "LOW" as const,
+      date: "2025-04-17"
+    }
+  ];
 
   const nextInsight = () => {
     setCurrentInsightIndex(prev => (prev + 1) % insights.length);
@@ -219,18 +226,20 @@ export default function CustomerInsights() {
             View Insights
           </Button>
         </div>
-        <Card className={`p-4 md:p-6 border ${currentInsight.color} transition-all duration-300 min-h-[200px] flex flex-col`}>
+        <Card className={`p-4 md:p-6 border transition-all duration-300 min-h-[200px] flex flex-col`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex gap-3 items-center">
-              <currentInsight.icon className="w-5 h-5" />
+              {currentInsight.category === "REVIEW" && <Star className="w-5 h-5" />}
+              {currentInsight.category === "PRICING" && <TrendingUp className="w-5 h-5" />}
+              {currentInsight.category === "LISTING" && <BookOpen className="w-5 h-5" />}
               <h3 className="font-medium">{currentInsight.title}</h3>
             </div>
             <span className="text-xs bg-white/50 px-2 py-1 rounded-full">
               {currentInsightIndex + 1} of {insights.length}
             </span>
           </div>
-          <p className="text-sm font-medium mb-2">{currentInsight.preview}</p>
-          <p className="text-sm flex-1">{currentInsight.details}</p>
+          <p className="text-sm font-medium mb-2">{currentInsight.title}</p>
+          <p className="text-sm flex-1">{currentInsight.description}</p>
           <div className="flex justify-between items-center mt-4 pt-4 border-t border-current/10">
             <Button variant="outline" size="icon" onClick={previousInsight} className="h-8 w-8">
               <ChevronLeft className="h-4 w-4" />
