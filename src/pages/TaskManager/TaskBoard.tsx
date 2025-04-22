@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -16,7 +17,9 @@ import {
   createTask,
   createSubtasks,
   initializeSampleTasks,
-  addSampleSubtasksToTask
+  addSampleSubtasksToTask,
+  SupabaseTask,
+  SupabaseSubtask
 } from '@/lib/supabaseTasks';
 import { initialTasks, insightsData } from './constants';
 import { mapInsightToTask } from './helpers';
@@ -81,8 +84,8 @@ export default function TaskBoard() {
     id: st.id,
     title: st.title,
     description: st.linkedInsights[0]?.summary || '',
-    status: 'Not Started',
-    priority: 'MEDIUM',
+    status: 'Not Started' as const,
+    priority: 'MEDIUM' as const,
     category: st.category.toUpperCase(),
     date: new Date().toLocaleDateString('en-US', {
       day: 'numeric',
@@ -244,7 +247,7 @@ export default function TaskBoard() {
                   subtasks: subtasks.map(st => ({ id: st.id, title: st.title, done: st.completed })),
                   comments: [],
                   products: []
-                } as Task);
+                });
                 setIsPreviewOpen(true);
               }}
             >
