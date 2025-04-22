@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronUp, Check, X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { createTask } from '@/lib/supabaseTasks';
 
 interface LinkedInsight {
   id: string;
@@ -156,6 +158,8 @@ const priorityBadgeColors: Record<PriorityLevel, string> = {
 
 export const SuggestedTasksSection: React.FC = () => {
   const [openTaskIds, setOpenTaskIds] = useState<string[]>([]);
+  const { toast } = useToast();
+  const [processingTasks, setProcessingTasks] = useState<string[]>([]);
 
   const toggleTask = (taskId: string) => {
     setOpenTaskIds(prev => 
@@ -163,6 +167,40 @@ export const SuggestedTasksSection: React.FC = () => {
         ? prev.filter(id => id !== taskId)
         : [...prev, taskId]
     );
+  };
+
+  const handleTaskAction = async (task: SuggestedTask, accepted: boolean) => {
+    if (processingTasks.includes(task.id)) return;
+    
+    setProcessingTasks(prev => [...prev, task.id]);
+    
+    try {
+      if (accepted) {
+        await createTask({
+          title: task.title,
+          category: task.category,
+          priority: task.priority,
+          description: `Created from suggested task with priority ${task.priority}.\n\nLinked Insights:\n${task.linkedInsights.map(i => `- ${i.title}: ${i.summary}`).join('\n')}`,
+        });
+
+        toast({
+          title: "Task Created",
+          description: `Added "${task.title}" to your tasks`,
+        });
+      } else {
+        toast({
+          description: `Dismissed "${task.title}"`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process task",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingTasks(prev => prev.filter(id => id !== task.id));
+    }
   };
 
   const sortedTasks = [...suggestedTasks].sort((a, b) => 
@@ -184,8 +222,8 @@ export const SuggestedTasksSection: React.FC = () => {
             )}
           >
             <div className="flex flex-col space-y-1 sm:space-y-2">
-              <div className="flex flex-col sm:flex-row items-start justify-between gap-1 sm:gap-2">
-                <div>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1">
                   <Badge className={cn(
                     "mb-2",
                     priorityBadgeColors[task.priority]
@@ -197,10 +235,26 @@ export const SuggestedTasksSection: React.FC = () => {
                     {task.category}
                   </Badge>
                 </div>
-                <Button variant="outline" size="sm" className="w-full sm:w-auto mt-1 sm:mt-0">
-                  <span className="mr-1 text-xs sm:text-sm">Create Task</span>
-                  <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 hover:bg-green-100 text-green-600 hover:text-green-700"
+                    onClick={() => handleTaskAction(task, true)}
+                    disabled={processingTasks.includes(task.id)}
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700"
+                    onClick={() => handleTaskAction(task, false)}
+                    disabled={processingTasks.includes(task.id)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               
               <Collapsible
