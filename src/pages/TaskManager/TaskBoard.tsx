@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -34,6 +33,7 @@ export default function TaskBoard() {
   const [isInsightsDialogOpen, setIsInsightsDialogOpen] = useState(false);
   const [detailInsight, setDetailInsight] = useState<any>(null);
   const [showSuggestedTasks, setShowSuggestedTasks] = useState(false);
+  const [handledTasks, setHandledTasks] = useState<string[]>([]);
 
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -85,7 +85,7 @@ export default function TaskBoard() {
     title: st.title,
     description: st.linkedInsights[0]?.summary || '',
     status: 'Not Started' as const,
-    priority: 'MEDIUM' as const,
+    priority: st.priority as 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW',
     category: st.category.toUpperCase(),
     date: new Date().toLocaleDateString('en-US', {
       day: 'numeric',
@@ -281,6 +281,15 @@ export default function TaskBoard() {
     });
   };
 
+  const handleCreateTask = (task: Task) => {
+    if (!localStorage.getItem('isAuthenticated')) {
+      localStorage.setItem('isAuthenticated', 'true');
+      console.log("Auto-authenticated user before creating task from insight");
+    }
+    
+    createTaskFromInsight(task);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -361,6 +370,14 @@ export default function TaskBoard() {
                                           setIsPreviewOpen(true);
                                         }}
                                         cardBg={col.bg}
+                                        isSuggested={true}
+                                        onAccept={() => handleCreateTask(task)}
+                                        onReject={() => {
+                                          toast({
+                                            description: `Dismissed "${task.title}"`,
+                                          });
+                                          setHandledTasks(prev => [...prev, task.id]);
+                                        }}
                                       />
                                     </div>
                                   )}

@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, MessageSquare, ExternalLink, Star, AlertTriangle, Flag, TrendingDown } from "lucide-react";
+import { Check, X, Pencil, MessageSquare, ExternalLink, Star, AlertTriangle, Flag, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from 'react-router-dom';
 
@@ -13,7 +12,7 @@ interface TaskCardProps {
     title: string;
     description: string;
     status: 'Not Started' | 'In Progress' | 'Done';
-    priority: 'HIGH' | 'MEDIUM' | 'LOW';
+    priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
     category: string;
     commentsCount?: number;
     date: string;
@@ -21,6 +20,9 @@ interface TaskCardProps {
   };
   onClick?: () => void;
   cardBg?: string;
+  onAccept?: () => void;
+  onReject?: () => void;
+  isSuggested?: boolean;
 }
 
 const statusColors = {
@@ -30,6 +32,7 @@ const statusColors = {
 };
 
 const priorityColors = {
+  'CRITICAL': 'bg-purple-100 text-purple-800 border-purple-200',
   'HIGH': 'bg-[#FEF2E3] text-[#FFA833] font-medium',
   'MEDIUM': 'bg-yellow-50 text-yellow-700',
   'LOW': 'bg-blue-50 text-blue-700'
@@ -53,12 +56,22 @@ const categoryColors = {
   'PRICING': 'bg-[#FDF6ED] text-[#EEAF57]',
 };
 
-export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
+export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggested = false }: TaskCardProps) {
   const navigate = useNavigate();
   
   const handleWorkOnClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the card's onClick
     navigate(`/task/${task.id}`);
+  };
+
+  const handleAccept = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAccept?.();
+  };
+
+  const handleReject = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onReject?.();
   };
 
   // Determine which icon to use based on the category
@@ -113,12 +126,6 @@ export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
         <Badge variant="secondary" className={cn(priorityColors[task.priority])}>
           {task.priority}
         </Badge>
-        {task.commentsCount !== undefined && task.commentsCount > 0 && (
-          <span className="text-xs flex items-center gap-1 text-gray-400 font-medium">
-            <MessageSquare className="w-3 h-3" />
-            {task.commentsCount}
-          </span>
-        )}
       </div>
       
       <div className="flex items-center justify-between gap-2">
@@ -126,15 +133,36 @@ export function TaskCard({ task, onClick, cardBg }: TaskCardProps) {
           <span className="inline-block">📅</span>
           <span>{task.date}</span>
         </div>
-        <Button 
-          onClick={handleWorkOnClick}
-          size="sm"
-          variant="outline"
-          className="ml-auto text-xs px-2 py-1 h-7 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition border-0"
-        >
-          <ExternalLink className="h-3.5 w-3.5 mr-1" />
-          Work on
-        </Button>
+        {isSuggested ? (
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:bg-green-100 text-green-600 hover:text-green-700"
+              onClick={handleAccept}
+            >
+              <Check className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700"
+              onClick={handleReject}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <Button 
+            onClick={handleWorkOnClick}
+            size="sm"
+            variant="outline"
+            className="ml-auto text-xs px-2 py-1 h-7 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition border-0"
+          >
+            <ExternalLink className="h-3.5 w-3.5 mr-1" />
+            Work on
+          </Button>
+        )}
       </div>
     </Card>
   );
