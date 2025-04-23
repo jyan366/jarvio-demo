@@ -5,6 +5,8 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Check, X, Image, ListTodo, Target, TrendingUp } from 'lucide-react';
+import { PlusIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const products = [{
   id: 1,
@@ -78,11 +80,23 @@ const recommendations = [{
 }];
 
 export default function ListingQuality() {
+  const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   return <MainLayout>
       <div className="space-y-6">
-        <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Listings Hub</h1>
-        
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">Listings Hub</h1>
+          </div>
+          <Button 
+            onClick={() => navigate('/task-manager/new')}
+            className="bg-[#4457ff] hover:bg-[#4457ff]/90"
+          >
+            <PlusIcon className="w-4 h-4 mr-2" />
+            Create Task
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="space-y-4">
             <Card className="p-4 md:p-6">
