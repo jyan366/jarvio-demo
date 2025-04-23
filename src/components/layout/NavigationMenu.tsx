@@ -1,5 +1,5 @@
 
-import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -28,7 +28,7 @@ const workflowItems: MenuItem[] = [{
   href: '/'
 }, {
   icon: CheckSquare,
-  label: 'Task Manager',
+  label: 'Home', // Changed from 'Task Manager'
   id: 'task-manager',
   href: '/task-manager',
   status: 'active'
@@ -237,9 +237,9 @@ export function NavigationMenu() {
 
   return (
     <div className="w-full h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
+      {/* Removed SidebarGroupLabel for "Workflow" */}
       {isSectionVisible("workflow") && (
         <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Workflow</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderMenuItems(workflowItems, "workflow")}
@@ -272,3 +272,4 @@ export function NavigationMenu() {
     </div>
   );
 }
+
