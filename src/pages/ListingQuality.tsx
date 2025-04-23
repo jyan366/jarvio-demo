@@ -88,7 +88,7 @@ export default function ListingQuality() {
           <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Listings Hub</h1>
           <Button 
             onClick={() => navigate('/task-manager')}
-            className="bg-[#9b87f5] hover:bg-[#9b87f5]/90"
+            className="bg-[#4457ff] hover:bg-[#4457ff]/90"
           >
             <PlusCircle className="w-4 h-4 mr-2" />
             Create Task
