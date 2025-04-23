@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -17,7 +16,11 @@ import { mapInsightToTask } from './helpers';
 import type { Task } from './types';
 import { supabase } from '@/integrations/supabase/client';
 
-export default function TaskBoard() {
+interface TaskBoardProps {
+  onCreateTask?: () => void;
+}
+
+export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [tasksByStatus, setTasksByStatus] = useState<{ [key: string]: Task[] }>({ todo: [], inProgress: [], done: [] });
   const [loading, setLoading] = useState(true);
@@ -367,7 +370,7 @@ export default function TaskBoard() {
             <span>{showSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
           </Button>
           <Button 
-            onClick={() => navigate('/task-manager')}
+            onClick={onCreateTask}
             className="bg-[#4457ff] hover:bg-[#4457ff]/90"
           >
             <Plus className="w-4 h-4 mr-2" />

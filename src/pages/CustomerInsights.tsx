@@ -20,6 +20,7 @@ import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 
 export default function CustomerInsights() {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ export default function CustomerInsights() {
   const [currentProduct, setCurrentProduct] = useState<string>("");
   const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
   const [selectedInsights, setSelectedInsights] = useState<InsightData[]>([]);
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const { toast } = useToast();
 
   const ratings = [
@@ -284,7 +286,7 @@ export default function CustomerInsights() {
           </div>
           <div className="flex items-center gap-2">
             <Button 
-              onClick={() => navigate('/task-manager')}
+              onClick={() => setIsCreateTaskOpen(true)}
               className="bg-[#4457ff] hover:bg-[#4457ff]/90"
             >
               <PlusCircle className="w-4 h-4 mr-2" />
@@ -478,6 +480,11 @@ export default function CustomerInsights() {
               setDetailInsight(null);
             }
           }}
+        />
+
+        <CreateTaskFlow 
+          open={isCreateTaskOpen} 
+          onOpenChange={setIsCreateTaskOpen} 
         />
       </div>
       <FloatingChatButton />
