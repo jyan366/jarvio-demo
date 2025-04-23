@@ -1,3 +1,4 @@
+
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect, useContext } from 'react';
@@ -236,7 +237,8 @@ export function NavigationMenu() {
 
   return (
     <div className="w-full h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
-      {/* Removed SidebarGroupLabel for "Workflow" */}
+      {/* Removed visible text for "Workflow" but kept the spacing */}
+      <span className="sr-only">Workflow</span>
       {isSectionVisible("workflow") && (
         <SidebarGroup>
           <SidebarGroupContent>
