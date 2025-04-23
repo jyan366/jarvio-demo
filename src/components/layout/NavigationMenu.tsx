@@ -218,13 +218,13 @@ export function NavigationMenu() {
               data-active={location.pathname === item.href}
               className={cn(
                 "p-2",
-                item.id === 'task-manager' && "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 font-semibold"
+                item.id === 'task-manager' && "bg-[#4457ff]/10 hover:bg-[#4457ff]/20 text-[#4457ff] font-semibold"
               )}
             >
               <Link to={item.href} className="flex items-center gap-2">
                 <item.icon className={cn(
                   "w-4 h-4 shrink-0",
-                  item.id === 'task-manager' && "text-purple-600"
+                  item.id === 'task-manager' && "text-[#4457ff]"
                 )} />
                 <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
               </Link>
