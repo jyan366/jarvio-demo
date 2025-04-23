@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
@@ -37,7 +38,7 @@ export default function ActionStudio() {
           </div>
           <Button 
             onClick={() => navigate('/task-manager')}
-            className="bg-[#9b87f5] hover:bg-[#9b87f5]/90"
+            className="bg-[#4457ff] hover:bg-[#4457ff]/90"
           >
             <PlusCircle className="w-4 h-4 mr-2" />
             Create Task

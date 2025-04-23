@@ -285,7 +285,7 @@ export default function CustomerInsights() {
           <div className="flex items-center gap-2">
             <Button 
               onClick={() => navigate('/task-manager')}
-              className="bg-[#9b87f5] hover:bg-[#9b87f5]/90"
+              className="bg-[#4457ff] hover:bg-[#4457ff]/90"
             >
               <PlusCircle className="w-4 h-4 mr-2" />
               Create Task
