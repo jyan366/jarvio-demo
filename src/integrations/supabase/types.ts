@@ -75,6 +75,7 @@ export type Database = {
           id: string
           insight_id: string | null
           priority: string | null
+          source: string | null
           status: string | null
           title: string
           user_id: string
@@ -87,6 +88,7 @@ export type Database = {
           id?: string
           insight_id?: string | null
           priority?: string | null
+          source?: string | null
           status?: string | null
           title: string
           user_id: string
@@ -99,6 +101,7 @@ export type Database = {
           id?: string
           insight_id?: string | null
           priority?: string | null
+          source?: string | null
           status?: string | null
           title?: string
           user_id?: string
