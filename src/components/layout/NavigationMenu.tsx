@@ -1,3 +1,4 @@
+
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect, useContext } from 'react';
@@ -217,13 +218,13 @@ export function NavigationMenu() {
               data-active={location.pathname === item.href}
               className={cn(
                 "p-2",
-                item.id === 'task-manager' && "bg-primary/10 hover:bg-primary/20 text-primary"
+                item.id === 'task-manager' && "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 font-semibold"
               )}
             >
               <Link to={item.href} className="flex items-center gap-2">
                 <item.icon className={cn(
                   "w-4 h-4 shrink-0",
-                  item.id === 'task-manager' && "text-primary"
+                  item.id === 'task-manager' && "text-purple-600"
                 )} />
                 <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
               </Link>
