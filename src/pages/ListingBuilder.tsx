@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Check, Image as ImageIcon, Zap } from 'lucide-react';
+import { Check, Image as ImageIcon, Zap, PlusCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ListingData {
   title: string;
@@ -17,6 +17,7 @@ interface ListingData {
 }
 
 export default function ListingBuilder() {
+  const navigate = useNavigate();
   const [listingData, setListingData] = useState<ListingData>({
     title: '',
     bulletPoints: '',
@@ -47,9 +48,12 @@ export default function ListingBuilder() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Listing Builder</h1>
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
-            <Button variant="default" className="w-full md:w-auto">
-              <Zap className="mr-2" />
-              Optimise Listing
+            <Button 
+              onClick={() => navigate('/task-manager')}
+              className="bg-[#9b87f5] hover:bg-[#9b87f5]/90"
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Create Task
             </Button>
             <Button variant="outline" onClick={handleSelectProduct} className="w-full md:w-auto">
               {listingData.isLoaded ? (

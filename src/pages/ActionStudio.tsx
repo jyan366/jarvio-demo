@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
 import { InsightsFeed } from '@/components/action-studio/InsightsFeed';
+import { PlusCircle } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -12,11 +13,14 @@ import {
 } from "@/components/ui/select";
 import { Card } from '@/components/ui/card';
 import { X, Circle, CheckCircle, BookText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 // Define the insight categories
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
 
 export default function ActionStudio() {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<InsightCategory>('All');
   const [showHowItWorks, setShowHowItWorks] = useState(true);
 
@@ -31,6 +35,13 @@ export default function ActionStudio() {
               <span className="text-muted-foreground">UK</span>
             </div>
           </div>
+          <Button 
+            onClick={() => navigate('/task-manager')}
+            className="bg-[#9b87f5] hover:bg-[#9b87f5]/90"
+          >
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Create Task
+          </Button>
         </div>
 
         {/* How Action Studio Works Notification */}

@@ -1,6 +1,6 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
-import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2, Link, ChevronDown, ArrowRight } from 'lucide-react';
+import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2, Link, ChevronDown, ArrowRight, PlusCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { 
@@ -282,10 +282,19 @@ export default function CustomerInsights() {
               Analyze customer feedback and compare product performance
             </p>
           </div>
-          <Button onClick={() => navigate('/all-product-reviews')} variant="outline">
-            <BookOpen className="mr-2 h-4 w-4" />
-            View All Reviews
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              onClick={() => navigate('/task-manager')}
+              className="bg-[#9b87f5] hover:bg-[#9b87f5]/90"
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Create Task
+            </Button>
+            <Button onClick={() => navigate('/all-product-reviews')} variant="outline">
+              <BookOpen className="mr-2 h-4 w-4" />
+              View All Reviews
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
