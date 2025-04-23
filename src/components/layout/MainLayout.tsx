@@ -8,6 +8,7 @@ import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
 import { LogOut, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../ui/button';
+import { NavigationSettings } from './NavigationSettings';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -59,14 +60,17 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                   <p className="text-xs text-muted-foreground">demo@jarvio.io</p>
                 </div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleSignOut}
-                className="group-data-[collapsible=icon]:hidden"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center space-x-2">
+                <NavigationSettings />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleSignOut}
+                  className="group-data-[collapsible=icon]:hidden"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </SidebarFooter>
         </Sidebar>
