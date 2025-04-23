@@ -1,14 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Grid, List, Plus } from 'lucide-react';
+import { Grid, List } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { suggestedTasks } from '@/components/action-studio/SuggestedTasksSection';
-// Import the components individually instead of from a barrel file
 import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
@@ -366,10 +364,6 @@ export default function TaskBoard() {
             className="flex items-center gap-2"
           >
             <span>{showSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
-          </Button>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            New Task
           </Button>
         </div>
       </div>
