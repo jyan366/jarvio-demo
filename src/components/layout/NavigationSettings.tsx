@@ -166,7 +166,7 @@ export function NavigationSettings() {
                         id={item.id}
                         checked={visibleItems.includes(item.id)}
                         onCheckedChange={() => toggleItem(item.id)}
-                        size="sm"
+                        className="scale-75" // Using className for smaller switch instead of size prop
                       />
                     </div>
                   ))}
