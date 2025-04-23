@@ -12,12 +12,7 @@ export default function TaskManager() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <Button variant="outline" onClick={() => {}}>
-              View Suggested Tasks
-            </Button>
-          </div>
+        <div className="flex justify-end">
           <Button 
             onClick={() => navigate('/task-manager')}
             className="bg-[#4457ff] hover:bg-[#4457ff]/90"
