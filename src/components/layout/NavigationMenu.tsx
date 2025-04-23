@@ -1,3 +1,4 @@
+
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect, useContext } from 'react';
@@ -181,38 +182,54 @@ export function NavigationMenu() {
       
       return (
         <SidebarMenuItem key={index}>
-          <SidebarMenuButton 
-            asChild 
-            tooltip={item.label} 
-            data-active={location.pathname === item.href}
-            className={cn(
-              "p-2",
-              item.id === 'task-manager' && location.pathname === item.href 
-                ? "bg-[#4457ff]/20 text-[#4457ff] font-bold" 
-                : item.id === 'task-manager' 
-                ? "bg-[#4457ff]/10 hover:bg-[#4457ff]/20"
-                : ""
-            )}
-          >
-            <Link to={item.href} className="flex items-center gap-2">
-              <item.icon className={cn(
-                "w-4 h-4 shrink-0",
-                item.id === 'task-manager' && location.pathname === item.href 
-                  ? "text-[#4457ff] font-bold" 
-                  : item.id === 'task-manager'
-                  ? ""
-                  : ""
-              )} />
-              <span className={cn(
-                "group-data-[collapsible=icon]:hidden",
-                item.id === 'task-manager' && location.pathname === item.href 
-                  ? "font-bold" 
-                  : ""
-              )}>
-                {item.label}
-              </span>
-            </Link>
-          </SidebarMenuButton>
+          {item.submenu ? (
+            <div className="w-full">
+              <SidebarMenuButton 
+                onClick={() => toggleSubmenu(item.label)} 
+                tooltip={item.status === 'coming-soon' ? 'Demo data available' : item.label} 
+                className="w-full relative p-2"
+              >
+                <div className="flex items-center w-full pr-2">
+                  <div className="flex items-center min-w-0">
+                    <item.icon className="w-4 h-4 shrink-0" />
+                    <span className="ml-2 truncate group-data-[collapsible=icon]:hidden">{item.label}</span>
+                  </div>
+                  {renderStatusIndicator(item.status)}
+                  <ChevronRight className={cn("w-4 h-4 ml-2 transition-transform duration-200 group-data-[collapsible=icon]:hidden", expandedMenus[item.label] ? "rotate-90" : "rotate-0")} />
+                </div>
+              </SidebarMenuButton>
+              <div className="group-data-[collapsible=icon]:hidden">
+                {expandedMenus[item.label] && <SidebarMenu className="ml-6 mt-2 relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200" />
+                    {item.submenu.map((subitem, subindex) => <SidebarMenuItem key={`${index}-${subindex}`}>
+                        <SidebarMenuButton asChild data-active={location.pathname === subitem.href} className="relative">
+                          <Link to={subitem.href} className="text-sm">
+                            {subitem.label}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>)}
+                  </SidebarMenu>}
+              </div>
+            </div>
+          ) : (
+            <SidebarMenuButton 
+              asChild 
+              tooltip={item.label} 
+              data-active={location.pathname === item.href}
+              className={cn(
+                "p-2",
+                item.id === 'task-manager' && "bg-[#4457ff]/10 hover:bg-[#4457ff]/20 text-[#4457ff] font-semibold"
+              )}
+            >
+              <Link to={item.href} className="flex items-center gap-2">
+                <item.icon className={cn(
+                  "w-4 h-4 shrink-0",
+                  item.id === 'task-manager' && "text-[#4457ff]"
+                )} />
+                <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+              </Link>
+            </SidebarMenuButton>
+          )}
         </SidebarMenuItem>
       );
     }).filter(Boolean);
