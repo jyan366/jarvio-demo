@@ -1,4 +1,3 @@
-
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect, useContext } from 'react';
@@ -30,7 +29,8 @@ const workflowItems: MenuItem[] = [{
   icon: CheckSquare,
   label: 'Task Manager',
   id: 'task-manager',
-  href: '/task-manager'
+  href: '/task-manager',
+  status: 'active'
 }, {
   icon: Box,
   label: 'Action Studio',
@@ -211,16 +211,27 @@ export function NavigationMenu() {
               </div>
             </div>
           ) : (
-            <SidebarMenuButton asChild tooltip={item.label} data-active={location.pathname === item.href} className="p-2">
+            <SidebarMenuButton 
+              asChild 
+              tooltip={item.label} 
+              data-active={location.pathname === item.href}
+              className={cn(
+                "p-2",
+                item.id === 'task-manager' && "bg-primary/10 hover:bg-primary/20 text-primary"
+              )}
+            >
               <Link to={item.href} className="flex items-center gap-2">
-                <item.icon className="w-4 h-4 shrink-0" />
+                <item.icon className={cn(
+                  "w-4 h-4 shrink-0",
+                  item.id === 'task-manager' && "text-primary"
+                )} />
                 <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
               </Link>
             </SidebarMenuButton>
           )}
         </SidebarMenuItem>
       );
-    }).filter(Boolean); // Filter out null items
+    }).filter(Boolean);
   };
 
   return (
