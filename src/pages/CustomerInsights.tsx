@@ -1,254 +1,477 @@
-
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  PlusIcon, 
-  TrendingUp, 
-  Users, 
-  Star, 
-  MessageSquare, 
-  ShoppingBag 
-} from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Star, Zap, TrendingUp, BookOpen, ChevronLeft, ChevronRight, BarChart2, Link, ChevronDown, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Progress } from '@/components/ui/progress';
+import { useState } from 'react';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { InsightsDialog } from '@/components/insights/InsightsDialog';
+import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
+import { InsightData } from '@/components/tasks/InsightCard';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { FloatingChatButton } from '@/components/chat/FloatingChatButton';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 
 export default function CustomerInsights() {
   const navigate = useNavigate();
 
-  // Sample customer sentiment data
-  const sentimentData = [
-    { id: 1, productName: "Organic Kimchi", asin: "B08P5PVDS3", positive: 85, negative: 15, neutral: 0 },
-    { id: 2, productName: "Probiotic Kefir", asin: "B082J56YCV", positive: 78, negative: 8, neutral: 14 },
-    { id: 3, productName: "Fermented Vegetables", asin: "B0CJYLQQS8", positive: 62, negative: 23, neutral: 15 },
-    { id: 4, productName: "Kombucha Starter Kit", asin: "B0CK4XV6QV", positive: 91, negative: 4, neutral: 5 },
-    { id: 5, productName: "Sauerkraut", asin: "B0CVL54ZDV", positive: 73, negative: 17, neutral: 10 },
+  const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [reviewsDialogOpen, setReviewsDialogOpen] = useState(false);
+  const [insightsDialogOpen, setInsightsDialogOpen] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState<string>("");
+  const [detailInsight, setDetailInsight] = useState<InsightData | null>(null);
+  const [selectedInsights, setSelectedInsights] = useState<InsightData[]>([]);
+  const { toast } = useToast();
+
+  const ratings = [
+    {
+      stars: 5,
+      percentage: 70
+    }, {
+      stars: 4,
+      percentage: 20
+    }, {
+      stars: 3,
+      percentage: 5
+    }, {
+      stars: 2,
+      percentage: 2
+    }, {
+      stars: 1,
+      percentage: 3
+    }
   ];
 
-  // Sample stats data
-  const statsData = [
+  const products = [
     {
-      title: "Customer Satisfaction",
-      value: "87%",
-      description: "Overall satisfaction rating",
-      icon: <Star className="h-4 w-4 text-yellow-500" />,
-      trend: "+5.2%",
-      trendPositive: true
+      image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//411tW589v5L.jpg",
+      name: "Beetroot Kimchi 2x300g Jar - The Cultured Food Company's",
+      asin: "B00CD1D8OY",
+      rating: 4.7,
+      reviews: 147,
+      quality: "Good"
+    }, {
+      image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//415+Np8jrQL.jpg",
+      name: "Chilli Kimchi 2x300g Jar - The Cultured Food Company's",
+      asin: "B00ZGAUNYW",
+      rating: 4.1,
+      reviews: 293,
+      quality: "Fair"
+    }, {
+      image: "https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/product-images//41SF9iv9eXL.jpg",
+      name: "Carrot & Fennel Kimchi 2x300g Jar - The Cultured Food Company's",
+      asin: "B071144YXD",
+      rating: 3.7,
+      reviews: 12,
+      quality: "Poor"
+    }
+  ];
+
+  const insights = [
+    {
+      title: "Unmet Feature Expectations",
+      description: "Customers frequently mention certain functionalities they expected but didn't find.",
+      category: "REVIEW" as const,
+      severity: "HIGH" as const,
+      date: "2025-04-20",
+      id: "insight-1"
     },
     {
-      title: "Review Response Rate",
-      value: "92%",
-      description: "Seller response to customer reviews",
-      icon: <MessageSquare className="h-4 w-4 text-blue-500" />,
-      trend: "+7.8%",
-      trendPositive: true
+      title: "Value vs. Price Perception",
+      description: "Customer reviews consistently comment on price-value relationship.",
+      category: "PRICING" as const, 
+      severity: "MEDIUM" as const,
+      date: "2025-04-19",
+      id: "insight-2"
     },
     {
-      title: "Repeat Customers",
-      value: "63%",
-      description: "Customers who made multiple purchases",
-      icon: <ShoppingBag className="h-4 w-4 text-green-500" />,
-      trend: "+2.4%",
-      trendPositive: true
+      title: "Missing Integration Options",
+      description: "Reviews indicate demand for integration with popular third-party services.",
+      category: "REVIEW" as const,
+      severity: "LOW" as const,
+      date: "2025-04-18",
+      id: "insight-3"
+    }
+  ];
+
+  const insightGroups = [
+    {
+      title: "Update Product Features",
+      description: "Implement missing features and improve existing functionality",
+      insights: [
+        {
+          id: "1",
+          title: "Unmet Feature Expectations",
+          description: "Customers frequently mention certain functionalities they expected but didn't find.",
+          category: "REVIEW" as const,
+          severity: "HIGH" as const,
+          date: "2025-04-20"
+        },
+        {
+          id: "2",
+          title: "Missing Integration Options",
+          description: "Reviews show patterns requesting third-party integrations.",
+          category: "REVIEW" as const,
+          severity: "MEDIUM" as const,
+          date: "2025-04-19"
+        }
+      ]
     },
     {
-      title: "Customer Growth",
-      value: "1,284",
-      description: "New customers this month",
-      icon: <Users className="h-4 w-4 text-purple-500" />,
-      trend: "+12.3%",
-      trendPositive: true
+      title: "Optimize Pricing Strategy",
+      description: "Review and adjust pricing based on customer feedback",
+      insights: [
+        {
+          id: "3",
+          title: "Value vs. Price Perception",
+          description: "Customer reviews consistently comment on price-value relationship.",
+          category: "PRICING" as const,
+          severity: "LOW" as const,
+          date: "2025-04-18"
+        },
+        {
+          id: "4",
+          title: "Competitive Price Analysis",
+          description: "Reviews indicate price comparisons with alternatives.",
+          category: "LISTING" as const,
+          severity: "LOW" as const,
+          date: "2025-04-17"
+        }
+      ]
+    }
+  ];
+
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
+  const toggleGroupExpansion = (title: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(title) 
+        ? prev.filter(t => t !== title)
+        : [...prev, title]
+    );
+  };
+
+  const nextInsight = () => {
+    setCurrentInsightIndex(prev => (prev + 1) % insights.length);
+  };
+
+  const previousInsight = () => {
+    setCurrentInsightIndex(prev => (prev - 1 + insights.length) % insights.length);
+  };
+
+  const currentInsight = insights[currentInsightIndex];
+
+  const handleViewReviews = (asin: string) => {
+    navigate(`/product-reviews/${asin}`);
+  };
+
+  const handleViewInsights = (productName: string) => {
+    setCurrentProduct(productName);
+    setInsightsDialogOpen(true);
+  };
+
+  const handleCreateTaskFromInsight = (insight: InsightData) => {
+    console.log("Creating task from insight:", insight);
+    toast({
+      title: "Task Created",
+      description: `"${insight.title}" has been added to your tasks.`,
+    });
+  };
+
+  const handleInsightSelect = (insight: InsightData) => {
+    setSelectedInsights(prev => {
+      const isSelected = prev.some(i => i.id === insight.id);
+      if (isSelected) {
+        return prev.filter(i => i.id !== insight.id);
+      } else {
+        return [...prev, insight];
+      }
+    });
+  };
+
+  const handleCreateTaskFromSelected = () => {
+    if (selectedInsights.length === 0) return;
+
+    const combinedTitle = selectedInsights.length === 1 
+      ? selectedInsights[0].title 
+      : `Combined Task: ${selectedInsights[0].title} +${selectedInsights.length - 1} more`;
+
+    const combinedDescription = selectedInsights
+      .map(insight => `- ${insight.title}: ${insight.description}`)
+      .join('\n');
+
+    const highestSeverity = selectedInsights.some(i => i.severity === "HIGH") 
+      ? "HIGH" 
+      : selectedInsights.some(i => i.severity === "MEDIUM") 
+        ? "MEDIUM" 
+        : "LOW";
+
+    const taskInsight: InsightData = {
+      id: crypto.randomUUID(),
+      title: combinedTitle,
+      description: combinedDescription,
+      category: selectedInsights[0].category,
+      severity: highestSeverity as "HIGH" | "MEDIUM" | "LOW",
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    handleCreateTaskFromInsight(taskInsight);
+    setSelectedInsights([]);
+  };
+
+  const handleInsightClick = (insight: InsightData) => {
+    setDetailInsight(insight);
+  };
+
+  const suggestedTasks = [
+    {
+      id: '1',
+      title: 'Fix Suppressed Listings',
+      category: 'LISTINGS',
+      linkedInsights: [
+        { id: '1', title: 'Listing Suppression Alert', summary: 'Multiple listings suppressed due to ingredient compliance issues' },
+        { id: '2', title: 'Ingredient Mislabel Detected', summary: 'System detected "Guava" in product description but not in ingredients list' }
+      ]
+    },
+    {
+      id: '2',
+      title: 'Restock Best Sellers',
+      category: 'INVENTORY',
+      linkedInsights: [
+        { id: '3', title: 'Inventory Alert', summary: 'Top-selling product "Beetroot Kimchi" inventory below 20% threshold' },
+        { id: '4', title: 'Sales Velocity Increase', summary: '47% increase in daily sales rate for "Beetroot Kimchi" detected' }
+      ]
+    },
+    {
+      id: '3',
+      title: 'Optimize PPC Campaign',
+      category: 'ADVERTISING',
+      linkedInsights: [
+        { id: '5', title: 'High ACoS Alert', summary: 'Campaign "Summer Probiotic" has 43% ACoS, exceeding target by 18%' },
+        { id: '6', title: 'Keyword Performance', summary: '3 keywords with CTR below threshold in "Summer Probiotic" campaign' }
+      ]
+    },
+    {
+      id: '4',
+      title: 'Address Negative Reviews',
+      category: 'CUSTOMERS',
+      linkedInsights: [
+        { id: '7', title: 'Review Pattern Alert', summary: '3 recent 1-star reviews mention "leaking packaging" on Chilli Kimchi product' },
+        { id: '8', title: 'Product Return Increase', summary: '15% increase in returns for Chilli Kimchi in the past week' }
+      ]
     }
   ];
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Customer Insights</h1>
-            <p className="text-muted-foreground mt-1">Analyze and understand your customer behavior</p>
+          <div className="space-y-2">
+            <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Customer Insights</h1>
+            <p className="text-muted-foreground">
+              Analyze customer feedback and compare product performance
+            </p>
           </div>
-          <Button 
-            onClick={() => navigate('/task-manager/new')}
-            className="bg-[#4457ff] hover:bg-[#4457ff]/90"
-          >
-            <PlusIcon className="w-4 h-4 mr-2" />
-            Create Task
+          <Button onClick={() => navigate('/all-product-reviews')} variant="outline">
+            <BookOpen className="mr-2 h-4 w-4" />
+            View All Reviews
           </Button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statsData.map((stat, index) => (
-            <Card key={index}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </CardTitle>
-                  <div className="rounded-full p-1 bg-muted">
-                    {stat.icon}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-semibold mb-6">Customer Feedback</h2>
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map(star => <Star key={star} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
+                <span className="font-semibold ml-2">4.7 out of 5</span>
+              </div>
+              <p className="text-sm text-muted-foreground">Based on 456 reviews</p>
+              <div className="space-y-3">
+                {ratings.map(rating => <div key={rating.stars} className="flex items-center gap-4">
+                    <span className="w-12 text-sm">{rating.stars} Star</span>
+                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-primary" style={{
+                    width: `${rating.percentage}%`
+                  }} />
+                    </div>
+                    <span className="text-sm text-muted-foreground">{rating.percentage}%</span>
+                  </div>)}
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4 md:p-6">
+            <div className="flex justify-between items-start">
+              <h2 className="text-lg md:text-xl font-semibold">Feedback Score</h2>
+              <Zap className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex flex-col items-center justify-center h-[calc(100%-2rem)]">
+              <div className="relative w-32 h-32 md:w-40 md:h-40">
+                <div className="w-full h-full rounded-full border-8 border-muted flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-3xl md:text-4xl font-bold">89</div>
+                    <div className="text-sm text-muted-foreground">out of 100</div>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-baseline justify-between">
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <div className={`text-xs font-medium flex items-center gap-1 ${
-                    stat.trendPositive ? "text-green-500" : "text-red-500"
-                  }`}>
-                    <TrendingUp className="h-3 w-3" />
-                    {stat.trend}
-                  </div>
-                </div>
-                <CardDescription className="mt-1 text-xs">
-                  {stat.description}
-                </CardDescription>
-              </CardContent>
-            </Card>
-          ))}
+                <div className="absolute inset-0 border-8 border-primary rounded-full" style={{
+                clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 75%)'
+              }} />
+              </div>
+              <div className="text-center mt-6">
+                <p className="text-sm text-muted-foreground">Current Performance</p>
+                <p className="font-semibold">On Track</p>
+                <p className="text-sm text-green-600 flex items-center justify-center gap-1 mt-1">
+                  <TrendingUp className="w-4 h-4" />
+                  +5 since last month
+                </p>
+              </div>
+            </div>
+          </Card>
         </div>
 
-        {/* Customer Sentiment Analysis */}
+        <Card className="p-6 my-[20px]">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Zap className="w-6 h-6 text-primary" />
+              <h2 className="text-lg md:text-xl font-semibold">Suggested Tasks</h2>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            {suggestedTasks.slice(0, 4).map(task => (
+              <Card key={task.id} className="p-2 sm:p-3 border hover:shadow-md transition-shadow">
+                <div className="flex flex-col space-y-1 sm:space-y-2">
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-1 sm:gap-2">
+                    <div>
+                      <h3 className="font-medium text-sm sm:text-base">{task.title}</h3>
+                      <Badge 
+                        className={`mt-1 text-xs ${
+                          task.category === 'LISTINGS' ? 'bg-green-100 text-green-800' :
+                          task.category === 'INVENTORY' ? 'bg-blue-100 text-blue-800' :
+                          task.category === 'ADVERTISING' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-purple-100 text-purple-800'
+                        }`}
+                      >
+                        {task.category}
+                      </Badge>
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto mt-1 sm:mt-0">
+                      <span className="mr-1 text-xs sm:text-sm">Create Task</span>
+                      <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Button>
+                  </div>
+                  
+                  <Collapsible>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <span>Based on {task.linkedInsights.length} insights</span>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="sm" className="p-0 h-6 w-6 ml-1">
+                          <ChevronDown className="h-3 w-3" />
+                        </Button>
+                      </CollapsibleTrigger>
+                    </div>
+
+                    <CollapsibleContent className="mt-1 space-y-1">
+                      {task.linkedInsights.map(insight => (
+                        <div key={insight.id} className="bg-muted/50 p-1 rounded-md">
+                          <p className="font-medium text-xs">{insight.title}</p>
+                          <p className="text-xs text-muted-foreground">{insight.summary}</p>
+                        </div>
+                      ))}
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Card>
+
         <Card>
-          <CardHeader>
-            <CardTitle>Customer Sentiment Analysis</CardTitle>
-            <CardDescription>
-              Analyze customer sentiment across your product range
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Product</TableHead>
+                  <TableHead>IMAGE</TableHead>
+                  <TableHead>NAME</TableHead>
                   <TableHead>ASIN</TableHead>
-                  <TableHead>Sentiment</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Review Rating</TableHead>
+                  <TableHead>Number of Reviews</TableHead>
+                  <TableHead>Feedback Quality</TableHead>
+                  <TableHead>Reviews</TableHead>
+                  <TableHead>Insights</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sentimentData.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.productName}</TableCell>
-                    <TableCell>{item.asin}</TableCell>
+                {products.map(product => <TableRow key={product.asin}>
                     <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span>Positive</span>
-                          <span>{item.positive}%</span>
-                        </div>
-                        <Progress value={item.positive} className="bg-muted h-2" />
-                        
-                        <div className="flex items-center justify-between text-xs">
-                          <span>Negative</span>
-                          <span>{item.negative}%</span>
-                        </div>
-                        <Progress value={item.negative} className="bg-muted h-2" />
-
-                        <div className="flex items-center justify-between text-xs">
-                          <span>Neutral</span>
-                          <span>{item.neutral}%</span>
-                        </div>
-                        <Progress value={item.neutral} className="bg-muted h-2" />
+                      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md overflow-hidden">
+                        <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => navigate(`/product-reviews/${item.asin}`)}
-                      >
+                    <TableCell className="max-w-[200px] md:max-w-[300px]">{product.name}</TableCell>
+                    <TableCell>{product.asin}</TableCell>
+                    <TableCell>{product.rating}</TableCell>
+                    <TableCell>{product.reviews}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded text-sm ${product.quality === 'Good' ? 'bg-green-100 text-green-800' : product.quality === 'Fair' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                        {product.quality}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="outline" size="sm" onClick={() => handleViewReviews(product.asin)} className="w-full">
+                        <BookOpen className="w-4 h-4 mr-2" />
                         View Reviews
                       </Button>
                     </TableCell>
-                  </TableRow>
-                ))}
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleViewInsights(product.name)} 
+                        className="w-full flex items-center gap-2"
+                      >
+                        <BarChart2 className="w-4 h-4" />
+                        View Insights
+                      </Button>
+                    </TableCell>
+                  </TableRow>)}
               </TableBody>
             </Table>
-          </CardContent>
+          </div>
         </Card>
 
-        {/* Customer Demographics */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Customer Demographics</CardTitle>
-            <CardDescription>
-              Understand your customer base demographics
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="flex flex-col space-y-4">
-                <h4 className="text-sm font-semibold">Age Distribution</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">18-24</span>
-                    <span className="text-sm font-medium">12%</span>
-                  </div>
-                  <Progress value={12} className="h-2" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">25-34</span>
-                    <span className="text-sm font-medium">38%</span>
-                  </div>
-                  <Progress value={38} className="h-2" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">35-44</span>
-                    <span className="text-sm font-medium">29%</span>
-                  </div>
-                  <Progress value={29} className="h-2" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">45-54</span>
-                    <span className="text-sm font-medium">15%</span>
-                  </div>
-                  <Progress value={15} className="h-2" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">55+</span>
-                    <span className="text-sm font-medium">6%</span>
-                  </div>
-                  <Progress value={6} className="h-2" />
-                </div>
-              </div>
-              
-              <div className="flex flex-col space-y-4">
-                <h4 className="text-sm font-semibold">Purchase Frequency</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">One-time</span>
-                    <span className="text-sm font-medium">37%</span>
-                  </div>
-                  <Progress value={37} className="h-2" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Monthly</span>
-                    <span className="text-sm font-medium">42%</span>
-                  </div>
-                  <Progress value={42} className="h-2" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Weekly</span>
-                    <span className="text-sm font-medium">18%</span>
-                  </div>
-                  <Progress value={18} className="h-2" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Daily</span>
-                    <span className="text-sm font-medium">3%</span>
-                  </div>
-                  <Progress value={3} className="h-2" />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <InsightsDialog 
+          open={insightsDialogOpen} 
+          onOpenChange={setInsightsDialogOpen} 
+          onCreateTask={handleCreateTaskFromInsight} 
+          productNames={currentProduct ? [currentProduct] : []} 
+          onInsightClick={handleInsightClick}
+        />
 
+        <InsightDetailDialog 
+          insight={detailInsight}
+          open={!!detailInsight}
+          onClose={() => setDetailInsight(null)}
+          onCreateTask={() => {
+            if (detailInsight) {
+              handleCreateTaskFromInsight(detailInsight);
+              setDetailInsight(null);
+            }
+          }}
+        />
       </div>
+      <FloatingChatButton />
     </MainLayout>
   );
 }
