@@ -4,9 +4,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createTask } from "@/lib/supabaseTasks";
+import { createTask, createSubtasks } from "@/lib/supabaseTasks";
 import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type CreateTaskStep = 1 | 2 | 3;
 
@@ -14,18 +15,39 @@ interface CreateTaskFlowProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  initialData?: {
+    title?: string;
+    description?: string;
+    category?: string;
+    priority?: string;
+  };
 }
 
-export function CreateTaskFlow({ open, onOpenChange, onSuccess }: CreateTaskFlowProps) {
+export function CreateTaskFlow({ open, onOpenChange, onSuccess, initialData }: CreateTaskFlowProps) {
+  const navigate = useNavigate();
   const [step, setStep] = useState<CreateTaskStep>(1);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [taskData, setTaskData] = useState({
-    title: "",
-    description: "",
-    category: "LISTINGS",
-    priority: "MEDIUM",
+    title: initialData?.title || "",
+    description: initialData?.description || "",
+    category: initialData?.category || "LISTINGS",
+    priority: initialData?.priority || "MEDIUM",
     status: "Not Started",
+  });
+
+  // Reset form when dialog opens/closes
+  useState(() => {
+    if (open) {
+      setStep(1);
+      setTaskData({
+        title: initialData?.title || "",
+        description: initialData?.description || "",
+        category: initialData?.category || "LISTINGS",
+        priority: initialData?.priority || "MEDIUM",
+        status: "Not Started",
+      });
+    }
   });
 
   const handleNext = () => {
@@ -43,7 +65,52 @@ export function CreateTaskFlow({ open, onOpenChange, onSuccess }: CreateTaskFlow
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
+      
+      // Ensure user is "authenticated" for demo
+      if (!localStorage.getItem('isAuthenticated')) {
+        localStorage.setItem('isAuthenticated', 'true');
+      }
+      
+      // Create the task in Supabase
       const createdTask = await createTask(taskData);
+      
+      // Add default subtasks based on category
+      if (createdTask?.id) {
+        let defaultSubtasks = [];
+        
+        // Generate different subtasks based on category
+        switch(taskData.category) {
+          case "LISTINGS":
+            defaultSubtasks = [
+              { task_id: createdTask.id, title: "Review listing issues" },
+              { task_id: createdTask.id, title: "Prepare updated content" },
+              { task_id: createdTask.id, title: "Submit changes to Amazon" }
+            ];
+            break;
+          case "INVENTORY":
+            defaultSubtasks = [
+              { task_id: createdTask.id, title: "Analyze inventory levels" },
+              { task_id: createdTask.id, title: "Contact supplier" },
+              { task_id: createdTask.id, title: "Update inventory plan" }
+            ];
+            break;
+          case "MARKETING":
+            defaultSubtasks = [
+              { task_id: createdTask.id, title: "Review marketing metrics" },
+              { task_id: createdTask.id, title: "Create campaign assets" },
+              { task_id: createdTask.id, title: "Launch campaign" }
+            ];
+            break;
+          default:
+            defaultSubtasks = [
+              { task_id: createdTask.id, title: "Research requirements" },
+              { task_id: createdTask.id, title: "Create action plan" },
+              { task_id: createdTask.id, title: "Implement solution" }
+            ];
+        }
+        
+        await createSubtasks(defaultSubtasks);
+      }
       
       toast({
         title: "Task Created",
@@ -51,14 +118,13 @@ export function CreateTaskFlow({ open, onOpenChange, onSuccess }: CreateTaskFlow
       });
       
       onOpenChange(false);
-      setStep(1);
-      setTaskData({
-        title: "",
-        description: "",
-        category: "LISTINGS",
-        priority: "MEDIUM",
-        status: "Not Started",
-      });
+      
+      // Navigate to the task work page if task was created
+      if (createdTask?.id) {
+        setTimeout(() => {
+          navigate(`/task-work/${createdTask.id}`);
+        }, 300);
+      }
       
       if (onSuccess) {
         onSuccess();
@@ -72,6 +138,19 @@ export function CreateTaskFlow({ open, onOpenChange, onSuccess }: CreateTaskFlow
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const validateCurrentStep = () => {
+    switch (step) {
+      case 1:
+        return taskData.title.trim().length > 0;
+      case 2:
+        return true; // Category always has a default value
+      case 3:
+        return true; // Priority always has a default value
+      default:
+        return false;
     }
   };
 
@@ -178,9 +257,9 @@ export function CreateTaskFlow({ open, onOpenChange, onSuccess }: CreateTaskFlow
             <div />
           )}
           {step < 3 ? (
-            <Button onClick={handleNext}>Next</Button>
+            <Button onClick={handleNext} disabled={!validateCurrentStep()}>Next</Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={isLoading}>
+            <Button onClick={handleSubmit} disabled={isLoading || !validateCurrentStep()}>
               {isLoading ? "Creating..." : "Create Task"}
             </Button>
           )}

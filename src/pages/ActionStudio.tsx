@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/card';
 import { X, Circle, CheckCircle, BookText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 
 // Define the insight categories
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
@@ -24,6 +25,7 @@ export default function ActionStudio() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<InsightCategory>('All');
   const [showHowItWorks, setShowHowItWorks] = useState(true);
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
   return (
     <MainLayout>
@@ -37,7 +39,7 @@ export default function ActionStudio() {
             </div>
           </div>
           <Button 
-            onClick={() => navigate('/task-manager')}
+            onClick={() => setIsCreateTaskOpen(true)}
             className="bg-[#4457ff] hover:bg-[#4457ff]/90"
           >
             <PlusCircle className="w-4 h-4 mr-2" />
@@ -107,6 +109,15 @@ export default function ActionStudio() {
           <InsightsFeed selectedCategory={selectedCategory} />
         </div>
       </div>
+
+      {/* Create Task Flow */}
+      <CreateTaskFlow 
+        open={isCreateTaskOpen} 
+        onOpenChange={setIsCreateTaskOpen} 
+        onSuccess={() => {
+          navigate('/task-manager');
+        }}
+      />
     </MainLayout>
   );
 }

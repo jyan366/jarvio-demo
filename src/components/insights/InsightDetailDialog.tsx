@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,8 @@ import { AlertTriangle, CheckCircle, ArrowRight, Loader2 } from "lucide-react";
 import { InsightData } from "../tasks/InsightCard";
 import { useToast } from "@/hooks/use-toast";
 import { suggestTasks, SuggestedTask } from "@/lib/apiUtils";
+import { useNavigate } from 'react-router-dom';
+import { createTask, createSubtasks } from "@/lib/supabaseTasks";
 
 interface InsightDetailDialogProps {
   insight: InsightData | null;
@@ -22,6 +25,7 @@ export function InsightDetailDialog({
   onClose,
   onCreateTask,
 }: InsightDetailDialogProps) {
+  const navigate = useNavigate();
   const [processingTask, setProcessingTask] = useState(false);
   const [taskCreated, setTaskCreated] = useState(false);
   const [suggestedTasks, setSuggestedTasks] = useState<(SuggestedTask & { selected?: boolean })[]>([]);
@@ -70,25 +74,65 @@ export function InsightDetailDialog({
     );
   };
 
-  const handleCreateTask = () => {
+  const handleCreateTask = async () => {
+    if (!insight) return;
+    
     setProcessingTask(true);
 
     const selectedTasks = suggestedTasks.filter(task => task.selected);
-
-    setTimeout(() => {
+    
+    try {
+      // Create the main task
+      const taskData = await createTask({
+        title: insight.title,
+        description: insight.description || "",
+        category: insight.category,
+        priority: insight.severity === 'HIGH' ? 'HIGH' : 
+                insight.severity === 'MEDIUM' ? 'MEDIUM' : 'LOW',
+        status: "Not Started",
+        insight_id: insight.id,
+        data: { 
+          insightType: insight.category,
+          insightDate: insight.date,
+          insightSeverity: insight.severity
+        }
+      });
+      
+      // Create subtasks from the selected suggested tasks
+      if (selectedTasks.length > 0 && taskData?.id) {
+        const subtasksToCreate = selectedTasks.map(task => ({
+          task_id: taskData.id,
+          title: task.title,
+          description: task.description || "",
+        }));
+        
+        await createSubtasks(subtasksToCreate);
+      }
+      
       onCreateTask(selectedTasks);
-      setProcessingTask(false);
-      setTaskCreated(true);
-
+      
       toast({
         title: "Task Created",
-        description: `"${insight?.title}" has been added to your tasks with ${selectedTasks.length} subtasks.`,
+        description: `"${insight.title}" has been added to your tasks with ${selectedTasks.length} subtasks.`,
       });
-
+      
       setTimeout(() => {
         setTaskCreated(false);
-      }, 2000);
-    }, 600);
+        onClose();
+        navigate('/task-manager');
+      }, 1000);
+      
+    } catch (error) {
+      console.error("Error creating task:", error);
+      toast({
+        title: "Error Creating Task",
+        description: "There was a problem creating your task. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessingTask(false);
+      setTaskCreated(true);
+    }
   };
 
   if (!insight) return null;
