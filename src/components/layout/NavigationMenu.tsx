@@ -1,4 +1,3 @@
-
 import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect, useContext } from 'react';
@@ -28,7 +27,7 @@ const workflowItems: MenuItem[] = [{
   href: '/'
 }, {
   icon: CheckSquare,
-  label: 'Home', // Changed from 'Task Manager'
+  label: 'Home',
   id: 'task-manager',
   href: '/task-manager',
   status: 'active'
@@ -177,11 +176,13 @@ export function NavigationMenu() {
 
   const renderMenuItems = (items: MenuItem[], sectionId: string) => {
     return items.map((item, index) => {
-      // Skip this item if it's not visible
       if (!isItemVisible(item.id, sectionId)) return null;
       
       return (
-        <SidebarMenuItem key={index}>
+        <SidebarMenuItem 
+          key={index} 
+          className={`${item.id === 'task-manager' ? 'pt-4' : ''}`}
+        >
           {item.submenu ? (
             <div className="w-full">
               <SidebarMenuButton 
@@ -237,7 +238,6 @@ export function NavigationMenu() {
 
   return (
     <div className="w-full h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
-      {/* Removed visible text for "Workflow" but kept the spacing */}
       <span className="sr-only">Workflow</span>
       {isSectionVisible("workflow") && (
         <SidebarGroup>
