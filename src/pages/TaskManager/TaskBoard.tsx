@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Grid, List } from 'lucide-react';
+import { Grid, List, Plus } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { useToast } from '@/hooks/use-toast';
@@ -364,6 +365,13 @@ export default function TaskBoard() {
             className="flex items-center gap-2"
           >
             <span>{showSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
+          </Button>
+          <Button 
+            onClick={() => navigate('/task-manager')}
+            className="bg-[#4457ff] hover:bg-[#4457ff]/90"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Task
           </Button>
         </div>
       </div>
