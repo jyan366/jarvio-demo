@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export function CreateTaskFlow({
     priority: initialData.priority || "MEDIUM",
     status: "Not Started",
     source: initialData.source || 'manual',
-    sourceData: initialData.sourceData || null
+    data: initialData.sourceData || null
   });
 
   const handleNext = () => {
@@ -74,8 +75,8 @@ export function CreateTaskFlow({
         let defaultSubtasks = [];
         
         // If source is an insight or suggested task, use its context
-        if (taskData.source !== 'manual' && taskData.sourceData) {
-          const aiSuggestedTasks = await suggestTasks(taskData.sourceData);
+        if (taskData.source !== 'manual' && taskData.data) {
+          const aiSuggestedTasks = await suggestTasks(taskData.data);
           defaultSubtasks = aiSuggestedTasks.map(task => ({
             task_id: createdTask.id,
             title: task.title,
