@@ -8,6 +8,7 @@ import { createTask, createSubtasks } from "@/lib/supabaseTasks";
 import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { suggestTasks } from "@/lib/apiUtils";
 
 type CreateTaskStep = 1 | 2 | 3;
 
@@ -20,34 +21,29 @@ interface CreateTaskFlowProps {
     description?: string;
     category?: string;
     priority?: string;
+    source?: 'manual' | 'insight' | 'suggested';
+    sourceData?: any;
   };
 }
 
-export function CreateTaskFlow({ open, onOpenChange, onSuccess, initialData }: CreateTaskFlowProps) {
+export function CreateTaskFlow({ 
+  open, 
+  onOpenChange, 
+  onSuccess, 
+  initialData = {} 
+}: CreateTaskFlowProps) {
   const navigate = useNavigate();
   const [step, setStep] = useState<CreateTaskStep>(1);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [taskData, setTaskData] = useState({
-    title: initialData?.title || "",
-    description: initialData?.description || "",
-    category: initialData?.category || "LISTINGS",
-    priority: initialData?.priority || "MEDIUM",
+    title: initialData.title || "",
+    description: initialData.description || "",
+    category: initialData.category || "LISTINGS",
+    priority: initialData.priority || "MEDIUM",
     status: "Not Started",
-  });
-
-  // Reset form when dialog opens/closes
-  useState(() => {
-    if (open) {
-      setStep(1);
-      setTaskData({
-        title: initialData?.title || "",
-        description: initialData?.description || "",
-        category: initialData?.category || "LISTINGS",
-        priority: initialData?.priority || "MEDIUM",
-        status: "Not Started",
-      });
-    }
+    source: initialData.source || 'manual',
+    sourceData: initialData.sourceData || null
   });
 
   const handleNext = () => {
@@ -71,42 +67,28 @@ export function CreateTaskFlow({ open, onOpenChange, onSuccess, initialData }: C
         localStorage.setItem('isAuthenticated', 'true');
       }
       
-      // Create the task in Supabase
+      // Create the main task
       const createdTask = await createTask(taskData);
       
-      // Add default subtasks based on category
+      // Generate AI-suggested subtasks based on task details
       if (createdTask?.id) {
         let defaultSubtasks = [];
         
-        // Generate different subtasks based on category
-        switch(taskData.category) {
-          case "LISTINGS":
-            defaultSubtasks = [
-              { task_id: createdTask.id, title: "Review listing issues" },
-              { task_id: createdTask.id, title: "Prepare updated content" },
-              { task_id: createdTask.id, title: "Submit changes to Amazon" }
-            ];
-            break;
-          case "INVENTORY":
-            defaultSubtasks = [
-              { task_id: createdTask.id, title: "Analyze inventory levels" },
-              { task_id: createdTask.id, title: "Contact supplier" },
-              { task_id: createdTask.id, title: "Update inventory plan" }
-            ];
-            break;
-          case "MARKETING":
-            defaultSubtasks = [
-              { task_id: createdTask.id, title: "Review marketing metrics" },
-              { task_id: createdTask.id, title: "Create campaign assets" },
-              { task_id: createdTask.id, title: "Launch campaign" }
-            ];
-            break;
-          default:
-            defaultSubtasks = [
-              { task_id: createdTask.id, title: "Research requirements" },
-              { task_id: createdTask.id, title: "Create action plan" },
-              { task_id: createdTask.id, title: "Implement solution" }
-            ];
+        // If source is an insight or suggested task, use its context
+        if (taskData.source !== 'manual' && taskData.sourceData) {
+          const aiSuggestedTasks = await suggestTasks(taskData.sourceData);
+          defaultSubtasks = aiSuggestedTasks.map(task => ({
+            task_id: createdTask.id,
+            title: task.title,
+            description: task.description || ""
+          }));
+        } else {
+          // Default subtasks for manual creation
+          defaultSubtasks = [
+            { task_id: createdTask.id, title: "Research requirements" },
+            { task_id: createdTask.id, title: "Create action plan" },
+            { task_id: createdTask.id, title: "Implement solution" }
+          ];
         }
         
         await createSubtasks(defaultSubtasks);
@@ -146,9 +128,9 @@ export function CreateTaskFlow({ open, onOpenChange, onSuccess, initialData }: C
       case 1:
         return taskData.title.trim().length > 0;
       case 2:
-        return true; // Category always has a default value
+        return true;
       case 3:
-        return true; // Priority always has a default value
+        return true;
       default:
         return false;
     }
