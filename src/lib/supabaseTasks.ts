@@ -108,13 +108,23 @@ export async function createTask(task: Partial<SupabaseTask> & { title: string }
 
 // Create multiple subtasks, returns array of created subtasks
 export const createSubtasks = async (subtasks: { task_id: string; title: string; description?: string }[]): Promise<SupabaseSubtask[]> => {
+  // Validate subtasks before insertion
+  const validSubtasks = subtasks
+    .filter(st => st && st.task_id && st.title && st.title.trim() !== '')
+    .map(st => ({
+      task_id: st.task_id,
+      title: st.title.trim(),
+      description: st.description || "", // Ensure description is properly passed
+    }));
+    
+  if (validSubtasks.length === 0) {
+    console.error("No valid subtasks to create");
+    throw new Error("No valid subtasks to create");
+  }
+  
   const { data, error } = await supabase
     .from("subtasks")
-    .insert(subtasks.map(st => ({
-      task_id: st.task_id,
-      title: st.title,
-      description: st.description || "", // Ensure description is properly passed
-    })))
+    .insert(validSubtasks)
     .select();
 
   if (error) {

@@ -60,7 +60,7 @@ serve(async (req) => {
               1. Refined task title and description
               2. Appropriate category and priority
               3. 3-5 specific subtasks that break down the work
-              Format response as JSON with: title, description, category, priority, and subtasks array.`
+              Format response as JSON with: title, description, category, priority, and subtasks array with each subtask having a title and description.`
             },
             {
               role: 'user',
@@ -83,6 +83,23 @@ serve(async (req) => {
       let suggestions;
       try {
         suggestions = JSON.parse(aiResponse.choices[0].message.content);
+        
+        // Validate the structure and ensure subtasks have titles
+        if (!Array.isArray(suggestions.subtasks)) {
+          suggestions.subtasks = defaultSuggestion.subtasks;
+        } else {
+          // Filter out any subtasks without titles and provide defaults if none are valid
+          suggestions.subtasks = suggestions.subtasks
+            .filter(subtask => subtask && typeof subtask === 'object' && subtask.title)
+            .map(subtask => ({
+              title: String(subtask.title || '').trim() || 'Untitled subtask',
+              description: String(subtask.description || '').trim() || 'No description provided'
+            }));
+            
+          if (suggestions.subtasks.length === 0) {
+            suggestions.subtasks = defaultSuggestion.subtasks;
+          }
+        }
       } catch (e) {
         console.error('Error parsing AI response:', e);
         suggestions = defaultSuggestion;
@@ -99,30 +116,31 @@ serve(async (req) => {
     }
   } catch (error) {
     console.error('Error in enhanced-task-suggestions:', error);
+    const defaultResponse = {
+      title: 'New Task',
+      description: 'Task description',
+      category: 'LISTINGS',
+      priority: 'MEDIUM',
+      subtasks: [
+        {
+          title: 'Review requirements',
+          description: 'Analyze what needs to be done'
+        },
+        {
+          title: 'Create action plan',
+          description: 'Plan your approach'
+        },
+        {
+          title: 'Implement solution',
+          description: 'Complete the required work'
+        }
+      ]
+    };
+    
     return new Response(
-      JSON.stringify({ 
-        error: 'Failed to generate suggestions',
-        title: 'New Task',
-        description: 'Task description',
-        category: 'LISTINGS',
-        priority: 'MEDIUM',
-        subtasks: [
-          {
-            title: 'Review requirements',
-            description: 'Analyze what needs to be done'
-          },
-          {
-            title: 'Create action plan',
-            description: 'Plan your approach'
-          },
-          {
-            title: 'Implement solution',
-            description: 'Complete the required work'
-          }
-        ]
-      }),
+      JSON.stringify(defaultResponse),
       { 
-        status: 200, // Return success even if there was an error, but with default data
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );

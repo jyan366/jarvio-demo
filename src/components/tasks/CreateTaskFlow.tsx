@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -136,14 +137,18 @@ export function CreateTaskFlow({
         
         try {
           const aiSuggestedTasks = await generateEnhancedTaskSuggestions(taskData);
-          if (aiSuggestedTasks?.subtasks) {
-            defaultSubtasks = aiSuggestedTasks.subtasks.map(task => ({
-              task_id: createdTask.id,
-              title: task.title,
-              description: task.description || ""
-            }));
-          } else {
-            // Fallback if AI suggestions fail
+          if (aiSuggestedTasks?.subtasks && aiSuggestedTasks.subtasks.length > 0) {
+            defaultSubtasks = aiSuggestedTasks.subtasks
+              .filter(subtask => subtask && subtask.title && subtask.title.trim() !== '')
+              .map(task => ({
+                task_id: createdTask.id,
+                title: task.title,
+                description: task.description || ""
+              }));
+          } 
+          
+          // Fallback if no valid AI suggestions
+          if (defaultSubtasks.length === 0) {
             defaultSubtasks = [
               { task_id: createdTask.id, title: "Review requirements", description: "Analyze the task requirements thoroughly." },
               { task_id: createdTask.id, title: "Create action plan", description: "Develop a comprehensive action plan." },
@@ -171,9 +176,6 @@ export function CreateTaskFlow({
         if (onSuccess) {
           onSuccess();
         }
-        
-        // Stay on the current page instead of navigating to task-work
-        // This prevents the 404 error we were seeing
       }
     } catch (error) {
       console.error("Error creating task:", error);
