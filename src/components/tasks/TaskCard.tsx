@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -98,14 +97,12 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
     setShowDeleteDialog(true);
   };
 
-  const handleConfirmDelete = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  const handleConfirmDelete = () => {
     onDelete?.();
     setShowDeleteDialog(false);
   };
 
-  const handleCancelDelete = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  const handleCancelDelete = () => {
     setShowDeleteDialog(false);
   };
 
@@ -125,7 +122,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
   };
   
   return (
-    <>
+    <div className="relative" onClick={(e) => e.stopPropagation()}>
       <Card 
         className={cn(
           "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl border-0 relative",
@@ -155,25 +152,23 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
 
           {!isSuggested && (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 hover:bg-gray-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
                 >
                   <MoreHorizontal className="h-4 w-4 text-gray-500" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" onClick={(e) => {
-                e.stopPropagation();
-              }}>
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClick(e);
-                }} className="text-red-600">
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(e);
+                  }} 
+                  className="text-red-600"
+                >
                   Delete Task
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -235,16 +230,19 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
         </div>
       </Card>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={(open) => {
-        if (!open) {
-          // When dialog is closing without explicit action
-          handleCancelDelete();
-        }
-        setShowDeleteDialog(open);
-      }}>
-        <AlertDialogContent onClick={(e) => {
-          e.stopPropagation();
-        }}>
+      <AlertDialog 
+        open={showDeleteDialog} 
+        onOpenChange={(open) => {
+          setShowDeleteDialog(open);
+          if (!open) {
+            handleCancelDelete();
+          }
+        }}
+      >
+        <AlertDialogContent 
+          className="fixed z-50" 
+          onClick={(e) => e.stopPropagation()}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -255,12 +253,14 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
           <AlertDialogFooter>
             <AlertDialogCancel onClick={(e) => {
               e.stopPropagation();
-              handleCancelDelete(e);
-            }}>Cancel</AlertDialogCancel>
+              handleCancelDelete();
+            }}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.stopPropagation();
-                handleConfirmDelete(e);
+                handleConfirmDelete();
               }}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
@@ -269,6 +269,6 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   );
 }

@@ -114,6 +114,10 @@ export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
         title: "Task Deleted",
         description: "The task has been successfully removed.",
       });
+      
+      setTimeout(() => {
+        setLoading(false);
+      }, 0);
     } catch (e) {
       console.error("Error deleting task:", e);
       toast({
@@ -340,7 +344,7 @@ export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold">Task Manager</h1>
@@ -401,6 +405,7 @@ export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
                           {...provided.droppableProps}
                           ref={provided.innerRef}
                           className="space-y-4"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           {col.id === 'suggested' 
                             ? filteredSuggestedTasks.map((task, index) => (
@@ -470,12 +475,18 @@ export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
       )}
       <TaskPreviewDialog
         open={isPreviewOpen}
-        onOpenChange={setIsPreviewOpen}
+        onOpenChange={(open) => {
+          setIsPreviewOpen(open);
+          if (!open) setSelectedTask(null);
+        }}
         task={selectedTask}
       />
       <InsightsDialog
         open={isInsightsDialogOpen}
-        onOpenChange={setIsInsightsDialogOpen}
+        onOpenChange={(open) => {
+          setIsInsightsDialogOpen(open);
+          if (!open) setDetailInsight(null);
+        }}
         onCreateTask={createTaskFromInsight}
         insights={insightsData}
         onInsightClick={setDetailInsight}
