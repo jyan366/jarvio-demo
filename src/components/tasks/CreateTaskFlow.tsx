@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createTask, createSubtasks } from "@/lib/supabaseTasks";
+import { createTask } from "@/lib/supabaseTasks";
 import { useToast } from "@/hooks/use-toast";
 import { X, AlertCircle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -134,41 +135,9 @@ export function CreateTaskFlow({
       const createdTask = await createTask(taskData);
       
       if (createdTask?.id) {
-        let defaultSubtasks = [];
-        
-        try {
-          const aiSuggestedTasks = await generateEnhancedTaskSuggestions(taskData);
-          if (aiSuggestedTasks?.subtasks && aiSuggestedTasks.subtasks.length > 0) {
-            defaultSubtasks = aiSuggestedTasks.subtasks
-              .filter(subtask => subtask && subtask.title && subtask.title.trim() !== '')
-              .map(task => ({
-                task_id: createdTask.id,
-                title: task.title,
-                description: task.description || ""
-              }));
-          } 
-          
-          if (defaultSubtasks.length === 0) {
-            defaultSubtasks = [
-              { task_id: createdTask.id, title: "Review requirements", description: "Analyze the task requirements thoroughly." },
-              { task_id: createdTask.id, title: "Create action plan", description: "Develop a comprehensive action plan." },
-              { task_id: createdTask.id, title: "Implement solution", description: "Execute the plan effectively." }
-            ];
-          }
-        } catch (error) {
-          console.error("Error generating subtasks:", error);
-          defaultSubtasks = [
-            { task_id: createdTask.id, title: "Review requirements", description: "Analyze the task requirements thoroughly." },
-            { task_id: createdTask.id, title: "Create action plan", description: "Develop a comprehensive action plan." },
-            { task_id: createdTask.id, title: "Implement solution", description: "Execute the plan effectively." }
-          ];
-        }
-        
-        await createSubtasks(defaultSubtasks);
-        
         toast({
           title: "Task Created Successfully",
-          description: "Your new task has been created with AI-suggested optimizations.",
+          description: "Your new task has been created and added to your tasks.",
         });
         
         onOpenChange(false);

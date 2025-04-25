@@ -10,7 +10,7 @@ import { InsightData } from "../tasks/InsightCard";
 import { useToast } from "@/hooks/use-toast";
 import { suggestTasks, SuggestedTask } from "@/lib/apiUtils";
 import { useNavigate } from 'react-router-dom';
-import { createTask, createSubtasks } from "@/lib/supabaseTasks";
+import { createTask } from "@/lib/supabaseTasks";
 
 interface InsightDetailDialogProps {
   insight: InsightData | null;
@@ -98,22 +98,11 @@ export function InsightDetailDialog({
         }
       });
       
-      // Create subtasks from the selected suggested tasks
-      if (selectedTasks.length > 0 && taskData?.id) {
-        const subtasksToCreate = selectedTasks.map(task => ({
-          task_id: taskData.id,
-          title: task.title,
-          description: task.description || "",
-        }));
-        
-        await createSubtasks(subtasksToCreate);
-      }
-      
       onCreateTask(selectedTasks);
       
       toast({
         title: "Task Created",
-        description: `"${insight.title}" has been added to your tasks with ${selectedTasks.length} subtasks.`,
+        description: `"${insight.title}" has been added to your tasks.`,
       });
       
       setTimeout(() => {
@@ -235,7 +224,7 @@ export function InsightDetailDialog({
               variant="default" 
               disabled={processingTask || loadingSuggestions || suggestedTasks.filter(t => t.selected).length === 0}
             >
-              {processingTask ? "Creating..." : `Create Task with ${suggestedTasks.filter(t => t.selected).length} Subtasks`}
+              {processingTask ? "Creating..." : `Create Task`}
             </Button>
           )}
           <DialogClose asChild>
