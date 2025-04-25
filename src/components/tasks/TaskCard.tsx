@@ -2,9 +2,21 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, MoreHorizontal, PencilLine } from "lucide-react";
+import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, Trash2, PencilLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TaskCardProps {
   task: {
@@ -58,6 +70,8 @@ const categoryColors = {
 
 export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggested = false }: TaskCardProps) {
   const navigate = useNavigate();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { toast } = useToast();
   
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -103,7 +117,41 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
         return <PencilLine className="w-3 h-3 mr-1 opacity-75" />;
     }
   };
-  
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', task.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Task Deleted",
+        description: "The task has been successfully deleted.",
+      });
+
+      // Close the dialog
+      setShowDeleteDialog(false);
+      
+      // Refresh the task list
+      window.location.reload();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete the task. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="relative" onClick={(e) => e.stopPropagation()}>
       <Card 
@@ -180,10 +228,33 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
                 <ExternalLink className="h-3.5 w-3.5 mr-1" />
                 Work on
               </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 hover:bg-red-100 text-red-600 hover:text-red-700"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
             </div>
           )}
         </div>
       </Card>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this task? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
