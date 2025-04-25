@@ -98,8 +98,14 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
     setShowDeleteDialog(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     onDelete?.();
+    setShowDeleteDialog(false);
+  };
+
+  const handleCancelDelete = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setShowDeleteDialog(false);
   };
 
@@ -151,11 +157,12 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 hover:bg-gray-100"
+                  onClick={e => e.stopPropagation()}
                 >
                   <MoreHorizontal className="h-4 w-4 text-gray-500" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
                 <DropdownMenuItem onClick={handleDeleteClick} className="text-red-600">
                   Delete Task
                 </DropdownMenuItem>
@@ -219,7 +226,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
       </Card>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent onClick={e => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -228,7 +235,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleCancelDelete}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-red-600 hover:bg-red-700 text-white"
