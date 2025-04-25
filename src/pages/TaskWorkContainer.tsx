@@ -15,6 +15,17 @@ export interface Subtask {
   priority: string;
   category: string;
 }
+
+export interface TaskInsight {
+  id: string;
+  title: string;
+  description: string;
+  severity: 'HIGH' | 'MEDIUM' | 'LOW';
+  category: string;
+  date: string;
+  status: 'new' | 'viewed' | 'actioned' | 'dismissed';
+}
+
 export interface Product {
   image: string;
   name: string;
@@ -36,6 +47,7 @@ export interface TaskWorkType {
   products: Product[];
   subtasks: Subtask[];
   comments: { user: string; text: string; ago: string; subtaskId?: string }[];
+  insights?: TaskInsight[]; // Added insights property as optional
 }
 
 export default function TaskWorkContainer() {

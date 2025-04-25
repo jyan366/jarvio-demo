@@ -1,9 +1,10 @@
+
 import React from "react";
 import { TaskWorkHeader } from "./TaskWorkHeader";
 import { TaskWorkProductCard } from "./TaskWorkProductCard";
 import { TaskWorkSubtasks } from "./TaskWorkSubtasks";
 import { TaskInsights } from "./TaskInsights";
-import { TaskWorkType, Subtask } from "@/pages/TaskWorkContainer";
+import { TaskWorkType, Subtask, TaskInsight } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -46,7 +47,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
     });
   };
 
-  const handleConvertToSubtask = async (insight: any) => {
+  const handleConvertToSubtask = async (insight: TaskInsight) => {
     try {
       await onAddSubtask(insight.title);
       toast({
@@ -62,7 +63,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
     }
   };
 
-  const handleAddComment = (insight: any) => {
+  const handleAddComment = (insight: TaskInsight) => {
     onOpenSidebarMobile();
   };
 

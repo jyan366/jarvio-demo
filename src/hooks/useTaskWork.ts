@@ -4,7 +4,8 @@ import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask, createSubtasks
 import { generateTaskSteps, updateTaskState } from "@/lib/apiUtils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { TaskWorkType, Subtask, Product } from "@/pages/TaskWorkContainer";
+import { TaskWorkType, Subtask, Product, TaskInsight } from "@/pages/TaskWorkContainer";
+import { generateEnhancedTaskSuggestions } from "@/utils/taskSuggestions";
 
 const PRODUCT_IMAGE = "/lovable-uploads/98f7d2f8-e54c-46c1-bc30-7cea0a73ca70.png";
 
@@ -345,6 +346,23 @@ export function useTaskWork() {
           category: st.category ?? "",
         }));
 
+        // Generate sample insights based on task data
+        let taskInsights: TaskInsight[] = [];
+        try {
+          // Try to load insights from enhanced task suggestions
+          const enhancedData = await generateEnhancedTaskSuggestions({
+            title: taskData.title,
+            description: taskData.description,
+            category: taskData.category
+          });
+          
+          if (enhancedData && enhancedData.insights) {
+            taskInsights = enhancedData.insights;
+          }
+        } catch (err) {
+          console.error("Error loading insights:", err);
+        }
+
         const task: TaskWorkType = {
           id: taskData.id,
           title: taskData.title,
@@ -371,6 +389,7 @@ export function useTaskWork() {
           ],
           subtasks: normalizedSubs,
           comments: [{ user: "you", text: "new comment", ago: "2 days ago", subtaskId: normalizedSubs[0]?.id }],
+          insights: taskInsights // Added insights
         };
 
         setTaskState(task);
