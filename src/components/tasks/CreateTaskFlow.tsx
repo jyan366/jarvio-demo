@@ -1,30 +1,24 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { createTask } from "@/lib/supabaseTasks";
 import { useToast } from "@/hooks/use-toast";
-import { X, AlertCircle, Loader2 } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { generateEnhancedTaskSuggestions } from "@/utils/taskSuggestions";
-
-type CreateTaskStep = 1 | 2 | 3;
+import { CreateTaskStepOne } from "./steps/CreateTaskStepOne";
+import { CreateTaskStepTwo } from "./steps/CreateTaskStepTwo";
+import { CreateTaskStepThree } from "./steps/CreateTaskStepThree";
+import { TaskFormData } from "./types/createTask";
 
 interface CreateTaskFlowProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
-  initialData?: {
-    title?: string;
-    description?: string;
-    category?: string;
-    priority?: string;
-    source?: 'manual' | 'insight' | 'suggested';
-    sourceData?: any;
-  };
+  initialData?: Partial<TaskFormData>;
 }
+
+type CreateTaskStep = 1 | 2 | 3;
 
 export function CreateTaskFlow({ 
   open, 
@@ -38,7 +32,7 @@ export function CreateTaskFlow({
   const [isSuggesting, setIsSuggesting] = useState(false);
   const { toast } = useToast();
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [taskData, setTaskData] = useState({
+  const [taskData, setTaskData] = useState<TaskFormData>({
     title: initialData.title || "",
     description: initialData.description || "",
     category: initialData.category || "LISTINGS",
@@ -78,40 +72,8 @@ export function CreateTaskFlow({
     return Object.keys(newErrors).length === 0;
   };
 
-  useEffect(() => {
-    const getSuggestions = async () => {
-      if (taskData.description && taskData.description.length > 10 && !isSuggesting) {
-        setIsSuggesting(true);
-        try {
-          const suggestions = await generateEnhancedTaskSuggestions(taskData);
-          if (suggestions) {
-            setTaskData(prev => ({
-              ...prev,
-              category: suggestions.category || prev.category,
-              priority: suggestions.priority || prev.priority,
-            }));
-            
-            if (suggestions.insights && suggestions.insights.length > 0) {
-              toast({
-                title: "Related Insights Found",
-                description: `${suggestions.insights.length} insights found that may be relevant to this task.`,
-              });
-            }
-          }
-        } catch (error) {
-          console.error("Error getting suggestions:", error);
-        } finally {
-          setIsSuggesting(false);
-        }
-      }
-    };
-
-    const debounceTimer = setTimeout(getSuggestions, 1000);
-    return () => clearTimeout(debounceTimer);
-  }, [taskData.description]);
-
   const handleNext = () => {
-    if (step < 3) {
+    if (validateStep(step)) {
       setStep((prev) => (prev + 1) as CreateTaskStep);
     }
   };
@@ -158,6 +120,39 @@ export function CreateTaskFlow({
     }
   };
 
+  const renderStepContent = () => {
+    switch (step) {
+      case 1:
+        return (
+          <CreateTaskStepOne
+            taskData={taskData}
+            setTaskData={setTaskData}
+            errors={errors}
+            setErrors={setErrors}
+            isSuggesting={isSuggesting}
+          />
+        );
+      case 2:
+        return (
+          <CreateTaskStepTwo
+            taskData={taskData}
+            setTaskData={setTaskData}
+            errors={errors}
+            setErrors={setErrors}
+          />
+        );
+      case 3:
+        return (
+          <CreateTaskStepThree
+            taskData={taskData}
+            setTaskData={setTaskData}
+            errors={errors}
+            setErrors={setErrors}
+          />
+        );
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -189,106 +184,7 @@ export function CreateTaskFlow({
           ))}
         </div>
 
-        {step === 1 && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Input
-                placeholder="Task Name"
-                value={taskData.title}
-                onChange={(e) => {
-                  setTaskData({ ...taskData, title: e.target.value });
-                  setErrors({ ...errors, title: "" });
-                }}
-                className={errors.title ? "border-destructive" : ""}
-              />
-              {errors.title && (
-                <div className="text-sm text-destructive flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4" />
-                  {errors.title}
-                </div>
-              )}
-            </div>
-            <div className="space-y-2">
-              <div className="relative">
-                <Textarea
-                  placeholder="Description"
-                  value={taskData.description}
-                  onChange={(e) => {
-                    setTaskData({ ...taskData, description: e.target.value });
-                    setErrors({ ...errors, description: "" });
-                  }}
-                  className={errors.description ? "border-destructive" : ""}
-                />
-                {isSuggesting && (
-                  <div className="absolute right-2 top-2">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-              {errors.description && (
-                <div className="text-sm text-destructive flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4" />
-                  {errors.description}
-                </div>
-              )}
-            </div>
-            {taskData.description && taskData.description.length > 10 && (
-              <div className="mt-4">
-                <h4 className="text-sm font-medium mb-2">Related Insights</h4>
-                {isSuggesting ? (
-                  <div className="flex items-center justify-center p-4">
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                    <span className="ml-2 text-sm text-muted-foreground">Looking for insights...</span>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {/* Show insights if available */}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <select
-                className="w-full rounded-md border border-input bg-background px-3 py-2"
-                value={taskData.category}
-                onChange={(e) =>
-                  setTaskData({ ...taskData, category: e.target.value })
-                }
-              >
-                <option value="LISTINGS">Listings</option>
-                <option value="INVENTORY">Inventory</option>
-                <option value="MARKETING">Marketing</option>
-                <option value="SALES">Sales</option>
-                <option value="ADVERTISING">Advertising</option>
-                <option value="SUPPORT">Support</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <select
-                className="w-full rounded-md border border-input bg-background px-3 py-2"
-                value={taskData.priority}
-                onChange={(e) =>
-                  setTaskData({ ...taskData, priority: e.target.value })
-                }
-              >
-                <option value="LOW">Low Priority</option>
-                <option value="MEDIUM">Medium Priority</option>
-                <option value="HIGH">High Priority</option>
-                <option value="CRITICAL">Critical</option>
-              </select>
-            </div>
-          </div>
-        )}
+        {renderStepContent()}
 
         <div className="flex justify-between mt-6">
           {step > 1 ? (
@@ -299,18 +195,11 @@ export function CreateTaskFlow({
             <div />
           )}
           {step < 3 ? (
-            <Button 
-              onClick={() => validateStep(step) && handleNext()}
-              disabled={isSuggesting}
-            >
+            <Button onClick={handleNext} disabled={isSuggesting}>
               Next
             </Button>
           ) : (
-            <Button 
-              onClick={handleSubmit} 
-              disabled={isLoading || isSuggesting}
-              className="relative"
-            >
+            <Button onClick={handleSubmit} disabled={isLoading}>
               {isLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               {isLoading ? "Creating..." : "Create Task"}
             </Button>
