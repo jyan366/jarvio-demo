@@ -22,6 +22,11 @@ export async function generateEnhancedTaskSuggestions(
   }
 ): Promise<TaskSuggestionResponse | null> {
   try {
+    // Don't make API calls for empty or very short descriptions
+    if (!taskContext.description || taskContext.description.length < 10) {
+      return null;
+    }
+    
     const { data, error } = await supabase.functions.invoke('enhanced-task-suggestions', {
       body: { context: taskContext }
     });
@@ -34,6 +39,26 @@ export async function generateEnhancedTaskSuggestions(
     return data;
   } catch (error) {
     console.error('Failed to generate task suggestions:', error);
-    return null;
+    // Return default structure instead of null to avoid downstream errors
+    return {
+      title: taskContext.title || '',
+      description: taskContext.description || '',
+      category: taskContext.category,
+      priority: 'MEDIUM',
+      subtasks: [
+        {
+          title: 'Review requirements',
+          description: 'Analyze the task details and identify key requirements.'
+        },
+        {
+          title: 'Create action plan',
+          description: 'Outline steps needed to complete the task.'
+        },
+        {
+          title: 'Implement solution',
+          description: 'Execute the plan and resolve the task.'
+        }
+      ]
+    };
   }
 }

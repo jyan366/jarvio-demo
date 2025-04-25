@@ -134,50 +134,46 @@ export function CreateTaskFlow({
       if (createdTask?.id) {
         let defaultSubtasks = [];
         
-        if (taskData.source !== 'manual' && taskData.data) {
-          try {
-            const aiSuggestedTasks = await generateEnhancedTaskSuggestions(taskData.data);
-            if (aiSuggestedTasks?.subtasks) {
-              defaultSubtasks = aiSuggestedTasks.subtasks.map(task => ({
-                task_id: createdTask.id,
-                title: task.title,
-                description: task.description || ""
-              }));
-            }
-          } catch (error) {
-            console.error("Error generating subtasks:", error);
+        try {
+          const aiSuggestedTasks = await generateEnhancedTaskSuggestions(taskData);
+          if (aiSuggestedTasks?.subtasks) {
+            defaultSubtasks = aiSuggestedTasks.subtasks.map(task => ({
+              task_id: createdTask.id,
+              title: task.title,
+              description: task.description || ""
+            }));
+          } else {
+            // Fallback if AI suggestions fail
             defaultSubtasks = [
-              { task_id: createdTask.id, title: "Review requirements" },
-              { task_id: createdTask.id, title: "Create action plan" },
-              { task_id: createdTask.id, title: "Implement solution" }
+              { task_id: createdTask.id, title: "Review requirements", description: "Analyze the task requirements thoroughly." },
+              { task_id: createdTask.id, title: "Create action plan", description: "Develop a comprehensive action plan." },
+              { task_id: createdTask.id, title: "Implement solution", description: "Execute the plan effectively." }
             ];
           }
-        } else {
+        } catch (error) {
+          console.error("Error generating subtasks:", error);
           defaultSubtasks = [
-            { task_id: createdTask.id, title: "Review requirements" },
-            { task_id: createdTask.id, title: "Create action plan" },
-            { task_id: createdTask.id, title: "Implement solution" }
+            { task_id: createdTask.id, title: "Review requirements", description: "Analyze the task requirements thoroughly." },
+            { task_id: createdTask.id, title: "Create action plan", description: "Develop a comprehensive action plan." },
+            { task_id: createdTask.id, title: "Implement solution", description: "Execute the plan effectively." }
           ];
         }
         
         await createSubtasks(defaultSubtasks);
-      }
-      
-      toast({
-        title: "Task Created Successfully",
-        description: "Your new task has been created with AI-suggested optimizations.",
-      });
-      
-      onOpenChange(false);
-      
-      if (createdTask?.id) {
-        setTimeout(() => {
-          navigate(`/task-work/${createdTask.id}`);
-        }, 300);
-      }
-      
-      if (onSuccess) {
-        onSuccess();
+        
+        toast({
+          title: "Task Created Successfully",
+          description: "Your new task has been created with AI-suggested optimizations.",
+        });
+        
+        onOpenChange(false);
+        
+        if (onSuccess) {
+          onSuccess();
+        }
+        
+        // Stay on the current page instead of navigating to task-work
+        // This prevents the 404 error we were seeing
       }
     } catch (error) {
       console.error("Error creating task:", error);
