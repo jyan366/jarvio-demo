@@ -6,6 +6,12 @@ interface TaskSuggestionResponse {
   description: string;
   category?: string;
   priority?: string;
+  insights?: {
+    title: string;
+    description: string;
+    severity: string;
+    category: string;
+  }[];
   subtasks: {
     title: string;
     description: string;
@@ -36,7 +42,6 @@ export async function generateEnhancedTaskSuggestions(
       throw error;
     }
 
-    // Validate the response to ensure it has required fields
     if (!data || typeof data !== 'object') {
       throw new Error('Invalid response from task suggestions service');
     }
@@ -51,7 +56,7 @@ export async function generateEnhancedTaskSuggestions(
           }))
       : [];
 
-    // If there are no valid subtasks, use default ones
+    // Use provided or default subtasks
     const subtasks = validSubtasks.length > 0 
       ? validSubtasks
       : [
@@ -74,6 +79,7 @@ export async function generateEnhancedTaskSuggestions(
       description: data.description || taskContext.description || '',
       category: data.category || taskContext.category,
       priority: data.priority || 'MEDIUM',
+      insights: data.insights || [],
       subtasks
     };
   } catch (error) {
@@ -84,6 +90,7 @@ export async function generateEnhancedTaskSuggestions(
       description: taskContext.description || '',
       category: taskContext.category,
       priority: 'MEDIUM',
+      insights: [],
       subtasks: [
         {
           title: 'Review requirements',

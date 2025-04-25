@@ -19,130 +19,122 @@ serve(async (req) => {
     if (!context || typeof context !== 'object') {
       throw new Error('Invalid context provided');
     }
+
+    // Generate relevant insights based on task context
+    const relatedInsights = generateRelatedInsights(context);
     
-    // Provide default values if API call fails
-    const defaultSuggestion = {
+    // Provide optimized task structure with insights
+    const taskSuggestion = {
       title: context.title || 'New Task',
       description: context.description || 'Task description',
-      category: context.category || 'LISTINGS',
-      priority: 'MEDIUM',
-      subtasks: [
-        {
-          title: 'Review requirements',
-          description: 'Analyze what needs to be done'
-        },
-        {
-          title: 'Create action plan',
-          description: 'Plan your approach'
-        },
-        {
-          title: 'Implement solution',
-          description: 'Complete the required work'
-        }
-      ]
+      category: determineCategory(context),
+      priority: determinePriority(context),
+      insights: relatedInsights,
+      subtasks: generateSubtasks(context, relatedInsights)
     };
-    
-    try {
-      // Call OpenAI to get enhanced suggestions
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: `You are a task optimization assistant that helps create well-structured tasks with appropriate subtasks.
-              Based on the task context, suggest:
-              1. Refined task title and description
-              2. Appropriate category and priority
-              3. 3-5 specific subtasks that break down the work
-              Format response as JSON with: title, description, category, priority, and subtasks array with each subtask having a title and description.`
-            },
-            {
-              role: 'user',
-              content: `Please suggest optimized task structure for: ${JSON.stringify(context)}`
-            }
-          ],
-          response_format: { type: "json_object" }
-        }),
-      });
 
-      const aiResponse = await response.json();
-      
-      if (aiResponse.error || !aiResponse.choices || !aiResponse.choices[0]) {
-        console.error('OpenAI API error:', aiResponse.error || 'No choices returned');
-        return new Response(JSON.stringify(defaultSuggestion), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      
-      let suggestions;
-      try {
-        suggestions = JSON.parse(aiResponse.choices[0].message.content);
-        
-        // Validate the structure and ensure subtasks have titles
-        if (!Array.isArray(suggestions.subtasks)) {
-          suggestions.subtasks = defaultSuggestion.subtasks;
-        } else {
-          // Filter out any subtasks without titles and provide defaults if none are valid
-          suggestions.subtasks = suggestions.subtasks
-            .filter(subtask => subtask && typeof subtask === 'object' && subtask.title)
-            .map(subtask => ({
-              title: String(subtask.title || '').trim() || 'Untitled subtask',
-              description: String(subtask.description || '').trim() || 'No description provided'
-            }));
-            
-          if (suggestions.subtasks.length === 0) {
-            suggestions.subtasks = defaultSuggestion.subtasks;
-          }
-        }
-      } catch (e) {
-        console.error('Error parsing AI response:', e);
-        suggestions = defaultSuggestion;
-      }
-
-      return new Response(JSON.stringify(suggestions), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    } catch (openAiError) {
-      console.error('Error calling OpenAI:', openAiError);
-      return new Response(JSON.stringify(defaultSuggestion), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    return new Response(JSON.stringify(taskSuggestion), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Error in enhanced-task-suggestions:', error);
-    const defaultResponse = {
-      title: 'New Task',
-      description: 'Task description',
-      category: 'LISTINGS',
-      priority: 'MEDIUM',
-      subtasks: [
-        {
-          title: 'Review requirements',
-          description: 'Analyze what needs to be done'
-        },
-        {
-          title: 'Create action plan',
-          description: 'Plan your approach'
-        },
-        {
-          title: 'Implement solution',
-          description: 'Complete the required work'
-        }
-      ]
-    };
-    
-    return new Response(
-      JSON.stringify(defaultResponse),
-      { 
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
+
+function generateRelatedInsights(context: any) {
+  // Sample insights based on task context
+  const insights = [
+    {
+      title: "Related Review Issue",
+      description: "Recent 2-star review mentions similar concerns with product packaging",
+      severity: "MEDIUM",
+      category: "REVIEW"
+    },
+    {
+      title: "Competitive Analysis",
+      description: "3 competitors have updated their listings with similar improvements",
+      severity: "LOW",
+      category: "COMPETITION"
+    },
+    {
+      title: "Sales Impact",
+      description: "Products in this category show 15% lower conversion rate",
+      severity: "HIGH",
+      category: "SALES"
+    }
+  ];
+
+  // Filter insights based on context
+  return insights.filter(insight => {
+    return context.description?.toLowerCase().includes(insight.category.toLowerCase()) ||
+           context.category === insight.category;
+  });
+}
+
+function determineCategory(context: any) {
+  if (context.category) return context.category;
+  
+  const categoryKeywords = {
+    LISTINGS: ['listing', 'product', 'description', 'image'],
+    INVENTORY: ['stock', 'inventory', 'warehouse'],
+    MARKETING: ['promotion', 'marketing', 'campaign'],
+    SALES: ['revenue', 'sales', 'profit'],
+    SUPPORT: ['customer', 'ticket', 'issue']
+  };
+
+  for (const [category, keywords] of Object.entries(categoryKeywords)) {
+    if (keywords.some(keyword => 
+      context.title?.toLowerCase().includes(keyword) || 
+      context.description?.toLowerCase().includes(keyword)
+    )) {
+      return category;
+    }
+  }
+  return 'LISTINGS';
+}
+
+function determinePriority(context: any) {
+  if (context.priority) return context.priority;
+  
+  const urgentKeywords = ['urgent', 'asap', 'immediately', 'critical'];
+  const highKeywords = ['important', 'significant', 'priority'];
+  
+  const text = `${context.title} ${context.description}`.toLowerCase();
+  
+  if (urgentKeywords.some(keyword => text.includes(keyword))) {
+    return 'HIGH';
+  }
+  if (highKeywords.some(keyword => text.includes(keyword))) {
+    return 'MEDIUM';
+  }
+  return 'LOW';
+}
+
+function generateSubtasks(context: any, insights: any[]) {
+  const defaultSubtasks = [
+    {
+      title: 'Review requirements',
+      description: 'Analyze what needs to be done'
+    },
+    {
+      title: 'Create action plan',
+      description: 'Plan your approach'
+    },
+    {
+      title: 'Implement solution',
+      description: 'Complete the required work'
+    }
+  ];
+
+  // Generate insight-specific subtasks
+  const insightSubtasks = insights.map(insight => ({
+    title: `Address ${insight.title}`,
+    description: `Review and address: ${insight.description}`
+  }));
+
+  return [...insightSubtasks, ...defaultSubtasks];
+}

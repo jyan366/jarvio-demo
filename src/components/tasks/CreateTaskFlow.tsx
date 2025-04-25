@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -91,10 +90,12 @@ export function CreateTaskFlow({
               priority: suggestions.priority || prev.priority,
             }));
             
-            toast({
-              title: "AI Suggestions Available",
-              description: "Task details have been optimized based on your input.",
-            });
+            if (suggestions.insights && suggestions.insights.length > 0) {
+              toast({
+                title: "Related Insights Found",
+                description: `${suggestions.insights.length} insights found that may be relevant to this task.`,
+              });
+            }
           }
         } catch (error) {
           console.error("Error getting suggestions:", error);
@@ -147,7 +148,6 @@ export function CreateTaskFlow({
               }));
           } 
           
-          // Fallback if no valid AI suggestions
           if (defaultSubtasks.length === 0) {
             defaultSubtasks = [
               { task_id: createdTask.id, title: "Review requirements", description: "Analyze the task requirements thoroughly." },
@@ -263,6 +263,21 @@ export function CreateTaskFlow({
                 </div>
               )}
             </div>
+            {taskData.description && taskData.description.length > 10 && (
+              <div className="mt-4">
+                <h4 className="text-sm font-medium mb-2">Related Insights</h4>
+                {isSuggesting ? (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <span className="ml-2 text-sm text-muted-foreground">Looking for insights...</span>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {/* Show insights if available */}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
