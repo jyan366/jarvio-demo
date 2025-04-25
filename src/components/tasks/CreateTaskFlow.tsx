@@ -39,7 +39,7 @@ export function CreateTaskFlow({
     priority: initialData.priority || "MEDIUM",
     status: "Not Started",
     source: initialData.source || 'manual',
-    data: initialData.sourceData || null
+    sourceData: initialData.sourceData || null
   });
 
   const validateStep = (stepNum: CreateTaskStep): boolean => {
