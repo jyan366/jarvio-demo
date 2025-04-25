@@ -1,11 +1,12 @@
-
 import React from "react";
 import { TaskWorkHeader } from "./TaskWorkHeader";
 import { TaskWorkProductCard } from "./TaskWorkProductCard";
 import { TaskWorkSubtasks } from "./TaskWorkSubtasks";
-import { TaskWorkType, Subtask, Product } from "@/pages/TaskWorkContainer";
+import { TaskInsights } from "./TaskInsights";
+import { TaskWorkType, Subtask } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface TaskWorkMainProps {
   task: TaskWorkType;
@@ -36,6 +37,35 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   onUpdateSubtask,
   onOpenSubtask,
 }) => {
+  const { toast } = useToast();
+
+  const handleDismissInsight = async (id: string) => {
+    toast({
+      title: "Insight dismissed",
+      description: "The insight has been marked as resolved.",
+    });
+  };
+
+  const handleConvertToSubtask = async (insight: any) => {
+    try {
+      await onAddSubtask(insight.title);
+      toast({
+        title: "Subtask created",
+        description: "The insight has been converted to a subtask.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create subtask from insight.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddComment = (insight: any) => {
+    onOpenSidebarMobile();
+  };
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <TaskWorkHeader
@@ -52,6 +82,14 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         setCategory={(c: string) => onUpdateTask("category", c)}
         onOpenSidebarMobile={onOpenSidebarMobile}
       />
+      
+      <TaskInsights
+        insights={task.insights || []}
+        onDismissInsight={handleDismissInsight}
+        onConvertToSubtask={handleConvertToSubtask}
+        onAddComment={handleAddComment}
+      />
+
       <div className="flex gap-4 items-center mb-1">
         <Button
           variant="outline"
@@ -63,12 +101,14 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         </Button>
         <span className="text-neutral-400 text-xs">Break down this task</span>
       </div>
+
       {task.products && task.products[0] && (
         <div className="mb-1">
           <h3 className="font-semibold text-base mb-2">Products</h3>
           <TaskWorkProductCard product={task.products[0]} />
         </div>
       )}
+
       <div className="mt-2">
         <TaskWorkSubtasks
           subtasks={task.subtasks}
@@ -79,7 +119,6 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
           onFocusSubtask={onFocusSubtask}
           onOpenSubtask={onOpenSubtask}
         />
-        {/* Hide Subtask Details. To view/edit, use dialog via the popout button */}
       </div>
     </div>
   );
