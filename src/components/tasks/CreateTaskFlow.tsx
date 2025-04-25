@@ -94,7 +94,16 @@ export function CreateTaskFlow({
         localStorage.setItem('isAuthenticated', 'true');
       }
       
-      const createdTask = await createTask(taskData);
+      // Remove sourceData from the task data before sending to API
+      const { sourceData, ...taskDataToSend } = taskData;
+      
+      // If source data exists, add it to the data field instead
+      const finalTaskData = {
+        ...taskDataToSend,
+        data: sourceData ? { sourceData } : null
+      };
+      
+      const createdTask = await createTask(finalTaskData);
       
       if (createdTask?.id) {
         toast({
