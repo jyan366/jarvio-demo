@@ -94,47 +94,6 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
     products: [],
   }));
 
-  const handleDeleteTask = async (taskId: string) => {
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      setTasksByStatus(prev => {
-        const newState = { ...prev };
-        Object.keys(newState).forEach(status => {
-          newState[status] = newState[status].filter(task => task.id !== taskId);
-        });
-        return newState;
-      });
-
-      toast({
-        title: "Task Deleted",
-        description: "The task has been successfully removed.",
-      });
-      
-      if (onTaskDeleted) {
-        setTimeout(() => {
-          onTaskDeleted();
-        }, 0);
-      }
-    } catch (e) {
-      console.error("Error deleting task:", e);
-      toast({
-        title: "Error",
-        description: "Failed to delete task. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -463,7 +422,6 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
                                           setIsPreviewOpen(true);
                                         }}
                                         cardBg={col.bg}
-                                        onDelete={() => handleDeleteTask(task.id)}
                                       />
                                     </div>
                                   )}

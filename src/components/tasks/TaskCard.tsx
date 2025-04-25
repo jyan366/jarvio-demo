@@ -5,22 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, MoreHorizontal, PencilLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from 'react-router-dom';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface TaskCardProps {
   task: {
@@ -38,7 +22,6 @@ interface TaskCardProps {
   cardBg?: string;
   onAccept?: () => void;
   onReject?: () => void;
-  onDelete?: () => void;
   isSuggested?: boolean;
 }
 
@@ -73,9 +56,8 @@ const categoryColors = {
   'PRICING': 'bg-[#FDF6ED] text-[#EEAF57]',
 };
 
-export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, isSuggested = false }: TaskCardProps) {
+export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggested = false }: TaskCardProps) {
   const navigate = useNavigate();
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -105,38 +87,6 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
     if (onReject) {
       onReject();
     }
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowDeleteDialog(true);
-  };
-
-  const handleConfirmDelete = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
-    if (onDelete) {
-      onDelete();
-    }
-    
-    setShowDeleteDialog(false);
-  };
-
-  const handleCancelDelete = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    setShowDeleteDialog(false);
-  };
-
-  const handleDialogClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
   };
 
   const renderCategoryIcon = () => {
@@ -179,29 +129,6 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
               </Badge>
             )}
           </div>
-
-          {!isSuggested && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 hover:bg-gray-100"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                <DropdownMenuItem 
-                  onClick={handleDeleteClick}
-                  className="text-red-600"
-                >
-                  Delete Task
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
         </div>
         
         <h3 className="font-semibold text-base mb-1 leading-snug flex gap-1">
@@ -257,40 +184,6 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
           )}
         </div>
       </Card>
-
-      <AlertDialog 
-        open={showDeleteDialog} 
-        onOpenChange={(open) => {
-          setShowDeleteDialog(open);
-          if (!open && !document.body.querySelector('[role="alertdialog"]')) {
-            handleCancelDelete();
-          }
-        }}
-      >
-        <AlertDialogContent 
-          className="fixed z-50" 
-          onClick={handleDialogClick}
-        >
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the task 
-              "{task.title}" and all its associated subtasks and comments.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelDelete}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Delete Task
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
