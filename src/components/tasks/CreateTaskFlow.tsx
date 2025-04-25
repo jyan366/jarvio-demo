@@ -1,14 +1,13 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createTask, createSubtasks } from "@/lib/supabaseTasks";
 import { useToast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
+import { X, AlertCircle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { suggestTasks } from "@/lib/apiUtils";
+import { generateEnhancedTaskSuggestions } from "@/utils/taskSuggestions";
 
 type CreateTaskStep = 1 | 2 | 3;
 
@@ -35,7 +34,9 @@ export function CreateTaskFlow({
   const navigate = useNavigate();
   const [step, setStep] = useState<CreateTaskStep>(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuggesting, setIsSuggesting] = useState(false);
   const { toast } = useToast();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [taskData, setTaskData] = useState({
     title: initialData.title || "",
     description: initialData.description || "",
@@ -45,6 +46,66 @@ export function CreateTaskFlow({
     source: initialData.source || 'manual',
     data: initialData.sourceData || null
   });
+
+  const validateStep = (stepNum: CreateTaskStep): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    switch (stepNum) {
+      case 1:
+        if (!taskData.title.trim()) {
+          newErrors.title = "Title is required";
+        } else if (taskData.title.length < 3) {
+          newErrors.title = "Title must be at least 3 characters";
+        }
+        if (!taskData.description.trim()) {
+          newErrors.description = "Description is required";
+        }
+        break;
+      case 2:
+        if (!taskData.category) {
+          newErrors.category = "Category is required";
+        }
+        break;
+      case 3:
+        if (!taskData.priority) {
+          newErrors.priority = "Priority is required";
+        }
+        break;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  useEffect(() => {
+    const getSuggestions = async () => {
+      if (taskData.description && taskData.description.length > 10 && !isSuggesting) {
+        setIsSuggesting(true);
+        try {
+          const suggestions = await generateEnhancedTaskSuggestions(taskData);
+          if (suggestions) {
+            setTaskData(prev => ({
+              ...prev,
+              category: suggestions.category || prev.category,
+              priority: suggestions.priority || prev.priority,
+            }));
+            
+            toast({
+              title: "AI Suggestions Available",
+              description: "Task details have been optimized based on your input.",
+            });
+          }
+        } catch (error) {
+          console.error("Error getting suggestions:", error);
+        } finally {
+          setIsSuggesting(false);
+        }
+      }
+    };
+
+    const debounceTimer = setTimeout(getSuggestions, 1000);
+    return () => clearTimeout(debounceTimer);
+  }, [taskData.description]);
 
   const handleNext = () => {
     if (step < 3) {
@@ -59,33 +120,41 @@ export function CreateTaskFlow({
   };
 
   const handleSubmit = async () => {
+    if (!validateStep(3)) return;
+
     try {
       setIsLoading(true);
       
-      // Ensure user is "authenticated" for demo
       if (!localStorage.getItem('isAuthenticated')) {
         localStorage.setItem('isAuthenticated', 'true');
       }
       
-      // Create the main task
       const createdTask = await createTask(taskData);
       
-      // Generate AI-suggested subtasks based on task details
       if (createdTask?.id) {
         let defaultSubtasks = [];
         
-        // If source is an insight or suggested task, use its context
         if (taskData.source !== 'manual' && taskData.data) {
-          const aiSuggestedTasks = await suggestTasks(taskData.data);
-          defaultSubtasks = aiSuggestedTasks.map(task => ({
-            task_id: createdTask.id,
-            title: task.title,
-            description: task.description || ""
-          }));
+          try {
+            const aiSuggestedTasks = await generateEnhancedTaskSuggestions(taskData.data);
+            if (aiSuggestedTasks?.subtasks) {
+              defaultSubtasks = aiSuggestedTasks.subtasks.map(task => ({
+                task_id: createdTask.id,
+                title: task.title,
+                description: task.description || ""
+              }));
+            }
+          } catch (error) {
+            console.error("Error generating subtasks:", error);
+            defaultSubtasks = [
+              { task_id: createdTask.id, title: "Review requirements" },
+              { task_id: createdTask.id, title: "Create action plan" },
+              { task_id: createdTask.id, title: "Implement solution" }
+            ];
+          }
         } else {
-          // Default subtasks for manual creation
           defaultSubtasks = [
-            { task_id: createdTask.id, title: "Research requirements" },
+            { task_id: createdTask.id, title: "Review requirements" },
             { task_id: createdTask.id, title: "Create action plan" },
             { task_id: createdTask.id, title: "Implement solution" }
           ];
@@ -95,13 +164,12 @@ export function CreateTaskFlow({
       }
       
       toast({
-        title: "Task Created",
-        description: "Your new task has been created successfully.",
+        title: "Task Created Successfully",
+        description: "Your new task has been created with AI-suggested optimizations.",
       });
       
       onOpenChange(false);
       
-      // Navigate to the task work page if task was created
       if (createdTask?.id) {
         setTimeout(() => {
           navigate(`/task-work/${createdTask.id}`);
@@ -114,25 +182,12 @@ export function CreateTaskFlow({
     } catch (error) {
       console.error("Error creating task:", error);
       toast({
-        title: "Error",
+        title: "Error Creating Task",
         description: "There was an error creating your task. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const validateCurrentStep = () => {
-    switch (step) {
-      case 1:
-        return taskData.title.trim().length > 0;
-      case 2:
-        return true;
-      case 3:
-        return true;
-      default:
-        return false;
     }
   };
 
@@ -173,19 +228,42 @@ export function CreateTaskFlow({
               <Input
                 placeholder="Task Name"
                 value={taskData.title}
-                onChange={(e) =>
-                  setTaskData({ ...taskData, title: e.target.value })
-                }
+                onChange={(e) => {
+                  setTaskData({ ...taskData, title: e.target.value });
+                  setErrors({ ...errors, title: "" });
+                }}
+                className={errors.title ? "border-destructive" : ""}
               />
+              {errors.title && (
+                <div className="text-sm text-destructive flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  {errors.title}
+                </div>
+              )}
             </div>
             <div className="space-y-2">
-              <Textarea
-                placeholder="Description"
-                value={taskData.description}
-                onChange={(e) =>
-                  setTaskData({ ...taskData, description: e.target.value })
-                }
-              />
+              <div className="relative">
+                <Textarea
+                  placeholder="Description"
+                  value={taskData.description}
+                  onChange={(e) => {
+                    setTaskData({ ...taskData, description: e.target.value });
+                    setErrors({ ...errors, description: "" });
+                  }}
+                  className={errors.description ? "border-destructive" : ""}
+                />
+                {isSuggesting && (
+                  <div className="absolute right-2 top-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              {errors.description && (
+                <div className="text-sm text-destructive flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  {errors.description}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -239,9 +317,19 @@ export function CreateTaskFlow({
             <div />
           )}
           {step < 3 ? (
-            <Button onClick={handleNext} disabled={!validateCurrentStep()}>Next</Button>
+            <Button 
+              onClick={() => validateStep(step) && handleNext()}
+              disabled={isSuggesting}
+            >
+              Next
+            </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={isLoading || !validateCurrentStep()}>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={isLoading || isSuggesting}
+              className="relative"
+            >
+              {isLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               {isLoading ? "Creating..." : "Create Task"}
             </Button>
           )}
