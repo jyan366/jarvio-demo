@@ -133,7 +133,10 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
           task.fromInsight && "border-l-4 border-l-blue-500"
         )}
         style={cardBg ? { background: 'white' } : {}}
-        onClick={onClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.();
+        }}
       >
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2 mb-2">
@@ -157,13 +160,20 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 hover:bg-gray-100"
-                  onClick={e => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
                 >
                   <MoreHorizontal className="h-4 w-4 text-gray-500" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
-                <DropdownMenuItem onClick={handleDeleteClick} className="text-red-600">
+              <DropdownMenuContent align="end" onClick={(e) => {
+                e.stopPropagation();
+              }}>
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick(e);
+                }} className="text-red-600">
                   Delete Task
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -225,8 +235,16 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
         </div>
       </Card>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent onClick={e => e.stopPropagation()}>
+      <AlertDialog open={showDeleteDialog} onOpenChange={(open) => {
+        if (!open) {
+          // When dialog is closing without explicit action
+          handleCancelDelete();
+        }
+        setShowDeleteDialog(open);
+      }}>
+        <AlertDialogContent onClick={(e) => {
+          e.stopPropagation();
+        }}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -235,9 +253,15 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, onDelete, 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={(e) => {
+              e.stopPropagation();
+              handleCancelDelete(e);
+            }}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleConfirmDelete}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleConfirmDelete(e);
+              }}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               Delete Task

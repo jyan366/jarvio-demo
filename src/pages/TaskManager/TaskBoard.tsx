@@ -414,6 +414,7 @@ export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
                                       ref={provided.innerRef}
                                       {...provided.draggableProps}
                                       {...provided.dragHandleProps}
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       <TaskCard
                                         task={task}
@@ -441,6 +442,7 @@ export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
                                       ref={provided.innerRef}
                                       {...provided.draggableProps}
                                       {...provided.dragHandleProps}
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       <TaskCard
                                         task={task}
