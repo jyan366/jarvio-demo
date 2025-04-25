@@ -18,9 +18,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface TaskBoardProps {
   onCreateTask?: () => void;
+  onTaskDeleted?: () => void;
 }
 
-export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
+export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProps) {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [tasksByStatus, setTasksByStatus] = useState<{ [key: string]: Task[] }>({ todo: [], inProgress: [], done: [] });
   const [loading, setLoading] = useState(true);
@@ -95,6 +96,8 @@ export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
 
   const handleDeleteTask = async (taskId: string) => {
     try {
+      setLoading(true);
+      
       const { error } = await supabase
         .from('tasks')
         .delete()
@@ -115,9 +118,11 @@ export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
         description: "The task has been successfully removed.",
       });
       
-      setTimeout(() => {
-        setLoading(false);
-      }, 0);
+      if (onTaskDeleted) {
+        setTimeout(() => {
+          onTaskDeleted();
+        }, 0);
+      }
     } catch (e) {
       console.error("Error deleting task:", e);
       toast({
@@ -125,6 +130,8 @@ export default function TaskBoard({ onCreateTask }: TaskBoardProps) {
         description: "Failed to delete task. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
