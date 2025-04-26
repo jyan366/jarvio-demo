@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { supabase } from "@/lib/supabase";
 
 // Pre-defined PPC process steps
 const PPC_STEPS = [
@@ -42,6 +44,8 @@ export function ProcessBuilder({ open, onOpenChange }: ProcessBuilderProps) {
     return savedAutoRun ? JSON.parse(savedAutoRun) : false;
   });
 
+  const [processName, setProcessName] = useState('');
+  const [processSchedule, setProcessSchedule] = useState('weekly');
   const [isRunning, setIsRunning] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
 
@@ -77,11 +81,41 @@ export function ProcessBuilder({ open, onOpenChange }: ProcessBuilderProps) {
     ));
   };
 
-  const saveWorkflow = () => {
-    localStorage.setItem('ppcProcessSteps', JSON.stringify(selectedSteps));
-    localStorage.setItem('ppcProcessAutoRun', JSON.stringify(autoRun));
-    toast.success("PPC process saved successfully");
-    onOpenChange(false);
+  const saveWorkflow = async () => {
+    if (!processName) {
+      toast.error("Please enter a name for your process");
+      return;
+    }
+
+    try {
+      const processData = {
+        name: processName,
+        steps: selectedSteps,
+        schedule: processSchedule,
+        autoRun: autoRun
+      };
+
+      // Store as a task with type "process"
+      await supabase
+        .from('tasks')
+        .insert({
+          title: processName,
+          description: `Process with ${selectedSteps.length} steps`,
+          category: 'PROCESS',
+          data: {
+            type: 'process',
+            steps: selectedSteps,
+            schedule: processSchedule,
+            autoRun
+          }
+        });
+
+      toast.success("Process saved successfully");
+      onOpenChange(false);
+    } catch (err) {
+      toast.error("Failed to save process");
+      console.error("Error saving process:", err);
+    }
   };
 
   const runProcess = async () => {
@@ -125,116 +159,142 @@ export function ProcessBuilder({ open, onOpenChange }: ProcessBuilderProps) {
       <DialogContent className="sm:max-w-md md:max-w-lg max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <Workflow className="h-5 w-5 text-blue-500" />
-            <span>PPC Optimization Process</span>
+            <Package className="h-5 w-5 text-blue-500" />
+            <span>Process Builder</span>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Create a custom PPC optimization workflow by selecting the steps needed for your process.
+            Create and save repeatable processes by selecting the steps needed.
           </DialogDescription>
         </DialogHeader>
         
-        <div className="flex flex-col gap-6 my-4 overflow-y-auto max-h-[50vh] p-1">
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium">Available Steps:</h3>
-            <div className="space-y-2">
-              {PPC_STEPS.map((step) => (
-                <div 
-                  key={step.id}
-                  className={`flex items-center gap-2 p-3 rounded-md border cursor-pointer
-                            hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors
-                            ${isStepSelected(step.id) ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700'}`}
-                  onClick={() => toggleStep(step)}
-                >
-                  <Checkbox 
-                    checked={isStepSelected(step.id)} 
-                    onCheckedChange={() => toggleStep(step)}
-                  />
-                  <span>{step.content}</span>
-                </div>
-              ))}
-            </div>
+        <div className="flex flex-col gap-4 my-4">
+          <div className="space-y-2">
+            <Label htmlFor="processName">Process Name</Label>
+            <Input
+              id="processName"
+              placeholder="e.g., Daily Inventory Check"
+              value={processName}
+              onChange={(e) => setProcessName(e.target.value)}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Schedule</Label>
+            <Select value={processSchedule} onValueChange={setProcessSchedule}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select schedule" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {selectedSteps.length > 0 && (
+          <div className="flex flex-col gap-4 my-4 overflow-y-auto max-h-[50vh] p-1">
             <div className="space-y-4">
-              <h3 className="text-sm font-medium">Your Process:</h3>
+              <h3 className="text-sm font-medium">Available Steps:</h3>
               <div className="space-y-2">
-                {selectedSteps.map((step, index) => (
+                {PPC_STEPS.map((step) => (
                   <div 
                     key={step.id}
-                    className={`flex items-center gap-2 p-3 bg-white dark:bg-slate-800 border rounded-md
-                              ${step.completed ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 
-                                currentStepIndex === index ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' : 
-                                'border-slate-200 dark:border-slate-700'}`}
+                    className={`flex items-center gap-2 p-3 rounded-md border cursor-pointer
+                              hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors
+                              ${isStepSelected(step.id) ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700'}`}
+                    onClick={() => toggleStep(step)}
                   >
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-medium">
-                      {index + 1}
-                    </div>
-                    <span className={step.completed ? 'line-through text-muted-foreground' : ''}>
-                      {step.content}
-                    </span>
-                    <div className="ml-auto flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => moveStepUp(index)}
-                        disabled={index === 0 || isRunning}
-                        className="h-7 w-7"
-                      >
-                        <ChevronUp className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => moveStepDown(index)}
-                        disabled={index === selectedSteps.length - 1 || isRunning}
-                        className="h-7 w-7"
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => toggleStepCompletion(step.id)}
-                        disabled={isRunning}
-                        className="h-7 w-7"
-                      >
-                        <Checkbox 
-                          checked={step.completed}
-                          onCheckedChange={() => toggleStepCompletion(step.id)}
-                          disabled={isRunning}
-                        />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleStep(step);
-                        }}
-                        disabled={isRunning}
-                        className="h-7 w-7 text-destructive hover:text-destructive/90"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Checkbox 
+                      checked={isStepSelected(step.id)} 
+                      onCheckedChange={() => toggleStep(step)}
+                    />
+                    <span>{step.content}</span>
                   </div>
                 ))}
               </div>
             </div>
-          )}
 
-          <div className="flex items-center space-x-2 pt-4 border-t">
-            <Switch 
-              id="auto-run" 
-              checked={autoRun}
-              onCheckedChange={setAutoRun}
-              disabled={isRunning}
-            />
-            <Label htmlFor="auto-run" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Automatically run every 7 days
-            </Label>
+            {selectedSteps.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Your Process:</h3>
+                <div className="space-y-2">
+                  {selectedSteps.map((step, index) => (
+                    <div 
+                      key={step.id}
+                      className={`flex items-center gap-2 p-3 bg-white dark:bg-slate-800 border rounded-md
+                                ${step.completed ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 
+                                  currentStepIndex === index ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' : 
+                                  'border-slate-200 dark:border-slate-700'}`}
+                    >
+                      <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-medium">
+                        {index + 1}
+                      </div>
+                      <span className={step.completed ? 'line-through text-muted-foreground' : ''}>
+                        {step.content}
+                      </span>
+                      <div className="ml-auto flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => moveStepUp(index)}
+                          disabled={index === 0 || isRunning}
+                          className="h-7 w-7"
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => moveStepDown(index)}
+                          disabled={index === selectedSteps.length - 1 || isRunning}
+                          className="h-7 w-7"
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleStepCompletion(step.id)}
+                          disabled={isRunning}
+                          className="h-7 w-7"
+                        >
+                          <Checkbox 
+                            checked={step.completed}
+                            onCheckedChange={() => toggleStepCompletion(step.id)}
+                            disabled={isRunning}
+                          />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleStep(step);
+                          }}
+                          disabled={isRunning}
+                          className="h-7 w-7 text-destructive hover:text-destructive/90"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center space-x-2 pt-4 border-t">
+              <Switch 
+                id="auto-run" 
+                checked={autoRun}
+                onCheckedChange={setAutoRun}
+                disabled={isRunning}
+              />
+              <Label htmlFor="auto-run" className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Automatically run every 7 days
+              </Label>
+            </div>
           </div>
         </div>
         
@@ -252,12 +312,12 @@ export function ProcessBuilder({ open, onOpenChange }: ProcessBuilderProps) {
             disabled={selectedSteps.length === 0 || isRunning}
           >
             <Play className="h-4 w-4" />
-            Run Process
+            Run Now
           </Button>
           <Button 
             onClick={saveWorkflow} 
             className="gap-2 bg-blue-600 hover:bg-blue-700"
-            disabled={isRunning}
+            disabled={isRunning || !processName || selectedSteps.length === 0}
           >
             <Save className="h-4 w-4" />
             Save Process
