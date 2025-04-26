@@ -1,5 +1,5 @@
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DocumentUploader } from './DocumentUploader';
 import { DocumentList } from './DocumentList';
@@ -32,7 +32,6 @@ export function JarvioAssistant({
 }: JarvioAssistantProps) {
   const {
     messages,
-    setMessages,
     inputValue,
     setInputValue,
     isLoading,
@@ -40,9 +39,7 @@ export function JarvioAssistant({
     autoRunPaused,
     subtaskData,
     isTransitioning,
-    subtasks: assistantSubtasks,
-    currentSubtaskIndex: assistantCurrentSubtaskIndex,
-    getPreviousSubtasksContext
+    handleSendMessage
   } = useJarvioAssistantLogic(
     taskId,
     taskTitle,
@@ -54,41 +51,6 @@ export function JarvioAssistant({
   );
 
   const { tab, setTab } = useJarvioAssistantTabs();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const handleSendMessage = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
-
-    // Add user message
-    const userMessage = {
-      id: crypto.randomUUID(),
-      isUser: true,
-      text: inputValue,
-      timestamp: new Date(),
-      subtaskIdx: currentSubtaskIndex,
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue("");
-
-    // Simulate AI response for now (in a real implementation, this would call an API)
-    setTimeout(() => {
-      const aiResponse = {
-        id: crypto.randomUUID(),
-        isUser: false,
-        text: `I'll help you with that request about "${inputValue}"`,
-        timestamp: new Date(),
-        subtaskIdx: currentSubtaskIndex,
-      };
-      setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
-  };
-
-  // Scroll to bottom of messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   return (
     <div className="h-full flex flex-col">

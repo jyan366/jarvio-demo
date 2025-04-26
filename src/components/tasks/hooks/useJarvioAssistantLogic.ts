@@ -18,6 +18,7 @@ export interface SubtaskData {
   completed: boolean;
   completedAt?: string;
 }
+
 export type SubtaskDataMap = {
   [subtaskId: string]: SubtaskData;
 };
@@ -31,62 +32,158 @@ export function useJarvioAssistantLogic(
   onSubtaskComplete: (idx: number) => Promise<void>,
   onSubtaskSelect: (idx: number) => void
 ) {
-  // State is exactly as before
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [autoRunMode, setAutoRunMode] = useState(false);
   const [autoRunPaused, setAutoRunPaused] = useState(false);
-  const [subtaskData, setSubtaskData] = useState<SubtaskDataMap>({});
   const [readyForNextSubtask, setReadyForNextSubtask] = useState(false);
+  const [subtaskData, setSubtaskData] = useState<SubtaskDataMap>({});
   const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
-  const [showDataLog, setShowDataLog] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const autoRunTimerRef = useRef<number | undefined>();
+  
+  const autoRunTimerRef = useRef<number>();
   const autoRunStepInProgressRef = useRef(false);
-  const [justMarkedAsDone, setJustMarkedAsDone] = useState<number | null>(null);
-
-  // Toast hook
   const { toast } = useToast();
 
-  // All UI helpers, effects, and handlers are moved in here.
+  // Function to handle sending messages to Jarvio
+  const handleSendMessage = async (message: string) => {
+    if (!message.trim() || isLoading) return;
 
-  // Boot up initial system message
-  useEffect(() => {
-    if (messages.length === 0 && subtasks && subtasks.length > 0) {
-      const currentSubtask = subtasks[currentSubtaskIndex];
-      if (currentSubtask) {
-        setMessages([
-          {
-            id: crypto.randomUUID(),
-            isUser: false,
-            text: `Hi! I'm Jarvio, your Amazon brand seller assistant. I'm here to help you complete your task "${taskTitle}". Let's work on the current subtask: "${currentSubtask.title}". How can I help you get started?`,
-            timestamp: new Date(),
-            subtaskIdx: currentSubtaskIndex
-          }
-        ]);
+    const userMessage = {
+      id: crypto.randomUUID(),
+      isUser: true,
+      text: message,
+      timestamp: new Date(),
+      subtaskIdx: currentSubtaskIndex,
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue("");
+    setIsLoading(true);
+
+    try {
+      const subtaskContext = subtasks[currentSubtaskIndex];
+      const response = await supabase.functions.invoke('jarvio-assistant', {
+        body: {
+          message,
+          taskContext: {
+            title: taskTitle,
+            description: taskDescription
+          },
+          subtasks,
+          currentSubtaskIndex,
+          conversationHistory: messages,
+          previousContext: getPreviousSubtasksContext()
+        }
+      });
+
+      if (response.error) throw response.error;
+
+      const { reply, subtaskComplete, approvalNeeded, collectedData } = response.data;
+
+      // Add AI response
+      const aiMessage = {
+        id: crypto.randomUUID(),
+        isUser: false,
+        text: reply,
+        timestamp: new Date(),
+        subtaskIdx: currentSubtaskIndex,
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+
+      // Handle collected data
+      if (collectedData && subtaskContext) {
+        await handleSaveSubtaskResult(subtaskContext.id, collectedData);
       }
+
+      // Handle subtask completion
+      if (subtaskComplete && !approvalNeeded) {
+        setReadyForNextSubtask(true);
+      }
+
+    } catch (error) {
+      console.error('Error in chat:', error);
+      toast({
+        title: "Error",
+        description: "Failed to get response from assistant",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
-    // Only run on initial
-    // eslint-disable-next-line
-  }, [currentSubtaskIndex, subtasks, messages.length, taskTitle]);
+  };
+
+  const handleSaveSubtaskResult = async (subtaskId: string, result: string) => {
+    try {
+      await supabase.functions.invoke('update-task-state', {
+        body: {
+          action: 'saveSubtaskResult',
+          taskId,
+          subtaskId,
+          data: { result }
+        }
+      });
+
+      setSubtaskData(prev => ({
+        ...prev,
+        [subtaskId]: {
+          ...prev[subtaskId] || {},
+          result,
+          completed: true,
+          completedAt: new Date().toISOString()
+        }
+      }));
+
+      return true;
+    } catch (err) {
+      console.error("Failed to save subtask result:", err);
+      return false;
+    }
+  };
 
   const getPreviousSubtasksContext = () => {
     if (!subtasks || subtasks.length === 0 || currentSubtaskIndex === 0) {
       return "";
     }
-    let context = "Previous subtasks data:\n";
+
+    let context = "";
     for (let i = 0; i < currentSubtaskIndex; i++) {
       const subtask = subtasks[i];
       if (subtask && subtaskData[subtask.id]) {
-        context += `- ${subtask.title}: ${subtaskData[subtask.id].result}\n`;
+        context += `${subtask.title}: ${subtaskData[subtask.id].result}\n`;
       }
     }
     return context;
   };
 
-  // All auto-run, handlers, messaging and others are to be imported from other hooks.
-  // The rest of the state and return structure stays the same.
+  // Auto-run mode effect
+  useEffect(() => {
+    const runNextStep = () => {
+      if (!autoRunMode || autoRunPaused || isTransitioning) return;
+      if (readyForNextSubtask && currentSubtaskIndex < subtasks.length - 1) {
+        setAutoRunPaused(true);
+        const moveToNextSubtask = async () => {
+          setIsTransitioning(true);
+          await onSubtaskComplete(currentSubtaskIndex);
+          onSubtaskSelect(currentSubtaskIndex + 1);
+          setReadyForNextSubtask(false);
+          setIsTransitioning(false);
+          setAutoRunPaused(false);
+        };
+        moveToNextSubtask();
+      } else if (!readyForNextSubtask && !autoRunStepInProgressRef.current) {
+        autoRunStepInProgressRef.current = true;
+        const currentSubtask = subtasks[currentSubtaskIndex];
+        handleSendMessage(`Let's work on the subtask "${currentSubtask.title}". What's the first step?`);
+        autoRunStepInProgressRef.current = false;
+      }
+    };
+
+    const timer = setInterval(runNextStep, 2000);
+    return () => clearInterval(timer);
+  }, [autoRunMode, autoRunPaused, currentSubtaskIndex, readyForNextSubtask, subtasks, isTransitioning]);
 
   return {
     messages,
@@ -94,34 +191,24 @@ export function useJarvioAssistantLogic(
     inputValue,
     setInputValue,
     isLoading,
-    setIsLoading,
     autoRunMode,
     setAutoRunMode,
     autoRunPaused,
     setAutoRunPaused,
     subtaskData,
-    setSubtaskData,
     readyForNextSubtask,
     setReadyForNextSubtask,
     historySubtaskIdx,
     setHistorySubtaskIdx,
-    showDataLog,
-    setShowDataLog,
     isTransitioning,
     setIsTransitioning,
-    autoRunTimerRef,
-    autoRunStepInProgressRef,
-    justMarkedAsDone,
-    setJustMarkedAsDone,
-    toast,
+    handleSendMessage,
+    handleSaveSubtaskResult,
     getPreviousSubtasksContext,
-    // Pass through props:
     subtasks,
     currentSubtaskIndex,
-    onSubtaskComplete,
-    onSubtaskSelect,
     taskId,
     taskTitle,
     taskDescription,
-  }
+  };
 }

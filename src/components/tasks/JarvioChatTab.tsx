@@ -17,7 +17,7 @@ interface JarvioChatTabProps {
   autoRunMode: boolean;
   autoRunPaused: boolean;
   isTransitioning: boolean;
-  onSendMessage: (e?: React.FormEvent) => void;
+  onSendMessage: (message: string) => void;
   onGenerateSteps?: () => void;
 }
 
@@ -34,18 +34,25 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   onSendMessage,
   onGenerateSteps,
 }) => {
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
-  const inputRef = React.useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoading && inputRef.current) {
       inputRef.current.focus();
     }
   }, [isLoading]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim() && !isLoading) {
+      onSendMessage(inputValue);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full relative">
@@ -59,7 +66,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         <div ref={messagesEndRef} />
       </ScrollArea>
       <div className="p-4 border-t bg-white">
-        <form onSubmit={onSendMessage} className="flex gap-2">
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <Textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -71,7 +78,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 if (inputValue.trim() && !isLoading) {
-                  onSendMessage();
+                  handleSubmit(e);
                 }
               }
             }}
