@@ -1,23 +1,10 @@
-
 import { cn } from '@/lib/utils';
 import { DocumentCard } from '@/components/knowledge-base/DocumentCard';
-
-interface Document {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  createdAt: string;
-  fileType: string;
-  metrics: {
-    views: number;
-    downloads: number;
-  };
-}
+import { Document, ViewMode } from '@/types/knowledge-base';
 
 interface DocumentListProps {
   documents: Document[];
-  viewMode: 'grid' | 'list';
+  viewMode: ViewMode;
 }
 
 export function DocumentList({ documents, viewMode }: DocumentListProps) {

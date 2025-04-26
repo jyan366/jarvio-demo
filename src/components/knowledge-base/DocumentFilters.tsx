@@ -11,15 +11,16 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Category, ViewMode } from '@/types/knowledge-base';
 
 interface DocumentFiltersProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   selectedCategory: string;
   onCategoryChange: (value: string) => void;
-  viewMode: 'grid' | 'list';
-  onViewModeChange: (mode: 'grid' | 'list') => void;
-  categories: Array<{ id: string; label: string; }>;
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
+  categories: Category[];
 }
 
 export function DocumentFilters({
