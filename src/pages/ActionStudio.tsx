@@ -18,8 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 import { ProcessBuilder } from '@/components/ads/ProcessBuilder';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SavedProcesses } from '@/components/action-studio/SavedProcesses';
 
-// Define the insight categories
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
 
 export default function ActionStudio() {
@@ -58,7 +58,6 @@ export default function ActionStudio() {
           </div>
         </div>
 
-        {/* How Action Studio Works Notification */}
         {showHowItWorks && (
           <Card className="p-4 bg-muted/30 border-border shadow-sm relative">
             <button 
@@ -91,7 +90,6 @@ export default function ActionStudio() {
           </Card>
         )}
 
-        {/* Main Content Tabs */}
         <Tabs defaultValue="tasks" className="space-y-6">
           <TabsList>
             <TabsTrigger value="tasks">Tasks & Insights</TabsTrigger>
@@ -99,10 +97,8 @@ export default function ActionStudio() {
           </TabsList>
 
           <TabsContent value="tasks">
-            {/* Suggested Tasks Section */}
             <SuggestedTasksSection />
 
-            {/* Category Selection and Insights Feed */}
             <div className="flex flex-col space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-semibold">Insights Feed</h2>
@@ -124,34 +120,16 @@ export default function ActionStudio() {
                 </Select>
               </div>
 
-              {/* Insights Feed */}
               <InsightsFeed selectedCategory={selectedCategory} />
             </div>
           </TabsContent>
 
           <TabsContent value="processes">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {/* These will be dynamically populated from saved processes */}
-              <Card className="p-4 space-y-2 cursor-pointer hover:shadow-md transition-shadow">
-                <h3 className="font-semibold">Daily Inventory Check</h3>
-                <p className="text-sm text-muted-foreground">7 steps • Runs daily</p>
-              </Card>
-              <Card className="p-4 space-y-2 cursor-pointer hover:shadow-md transition-shadow">
-                <h3 className="font-semibold">Weekly PPC Optimization</h3>
-                <p className="text-sm text-muted-foreground">5 steps • Runs weekly</p>
-              </Card>
-              <Card className="p-4 space-y-2 cursor-pointer hover:shadow-md transition-shadow border-dashed flex items-center justify-center hover:border-primary/50">
-                <Button variant="ghost" onClick={() => setIsProcessBuilderOpen(true)}>
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Create New Process
-                </Button>
-              </Card>
-            </div>
+            <SavedProcesses onCreateNew={() => setIsProcessBuilderOpen(true)} />
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* Create Task Flow */}
       <CreateTaskFlow 
         open={isCreateTaskOpen} 
         onOpenChange={setIsCreateTaskOpen} 
@@ -160,7 +138,6 @@ export default function ActionStudio() {
         }}
       />
 
-      {/* Process Builder */}
       <ProcessBuilder
         open={isProcessBuilderOpen}
         onOpenChange={setIsProcessBuilderOpen}

@@ -1,5 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Workflow, Save, Plus, Trash2, Package, Clock, ChevronUp, ChevronDown, Play } from "lucide-react";
@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 
-// Pre-defined PPC process steps
 const PPC_STEPS = [
   { id: "review-performance", content: "Review campaign performance metrics" },
   { id: "adjust-bids", content: "Analyze keyword performance & adjust bids" },
@@ -36,6 +35,7 @@ interface ProcessBuilderProps {
 }
 
 export function ProcessBuilder({ open, onOpenChange, pageType = 'ads' }: ProcessBuilderProps) {
+  const navigate = useNavigate();
   const [selectedSteps, setSelectedSteps] = useState<ProcessStep[]>(() => {
     const savedSteps = localStorage.getItem('ppcProcessSteps');
     return savedSteps ? JSON.parse(savedSteps) : [];
@@ -101,19 +101,27 @@ export function ProcessBuilder({ open, onOpenChange, pageType = 'ads' }: Process
         autoRun: autoRun
       };
 
-      // Store as a task with type "process"
-      await supabase
+      const { data, error } = await supabase
         .from('tasks')
         .insert({
           title: processName,
           description: `Process with ${selectedSteps.length} steps`,
           category: 'PROCESS',
-          data: processData as any, // Cast to any to bypass TypeScript's type checking
-          user_id: "00000000-0000-0000-0000-000000000000" // Using demo user ID
-        });
+          data: processData as any,
+          user_id: "00000000-0000-0000-0000-000000000000"
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
 
       toast.success("Process saved successfully");
       onOpenChange(false);
+      
+      const shouldRun = window.confirm("Process saved! Would you like to run it now?");
+      if (shouldRun && data) {
+        navigate(`/task/${data.id}`);
+      }
     } catch (err) {
       toast.error("Failed to save process");
       console.error("Error saving process:", err);
@@ -129,20 +137,15 @@ export function ProcessBuilder({ open, onOpenChange, pageType = 'ads' }: Process
     setIsRunning(true);
     setCurrentStepIndex(0);
     
-    // Reset all steps to not completed
     setSelectedSteps(selectedSteps.map(step => ({ ...step, completed: false })));
     
-    // Mock running through each step with delays
     for (let i = 0; i < selectedSteps.length; i++) {
       setCurrentStepIndex(i);
       
-      // Show toast for current step
       toast.info(`Running step ${i + 1}: ${selectedSteps[i].content}`);
       
-      // Add a delay to simulate processing
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Mark step as completed
       setSelectedSteps(prevSteps => {
         const newSteps = [...prevSteps];
         newSteps[i] = { ...newSteps[i], completed: true };
@@ -150,7 +153,6 @@ export function ProcessBuilder({ open, onOpenChange, pageType = 'ads' }: Process
       });
     }
     
-    // Process complete
     setCurrentStepIndex(-1);
     setIsRunning(false);
     toast.success(`${pageType === 'inventory' ? 'Inventory' : 'PPC'} Process Complete!`);
