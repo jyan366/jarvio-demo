@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { JarvioChatTab } from './JarvioAssistant/JarvioChatTab';
@@ -46,7 +47,8 @@ export function JarvioAssistant({ taskId }: { taskId: string }) {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="chat">Chat</TabsTrigger>
           <TabsTrigger value="data">Data Log</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsList>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
+        </TabsList>
         
         <TabsContent value="chat" className="flex-1 overflow-hidden">
           <JarvioChatTab 
