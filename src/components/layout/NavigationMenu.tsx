@@ -1,282 +1,32 @@
-import { LayoutDashboard, Box, FileText, FolderOpen, BarChart3, ShoppingCart, Settings, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { useState, useEffect, useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { LucideIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
+import React, { useContext } from 'react';
 import { NavigationVisibilityContext } from './NavigationSettings';
-
-interface SubMenuItem {
-  label: string;
-  href: string;
-}
-
-interface MenuItem {
-  icon: LucideIcon;
-  label: string;
-  href: string;
-  id: string;
-  submenu?: SubMenuItem[];
-  status?: 'active' | 'coming-soon';
-}
-
-const workflowItems: MenuItem[] = [{
-  icon: CheckSquare,
-  label: 'Home',
-  id: 'task-manager',
-  href: '/task-manager',
-  status: 'active'
-}, {
-  icon: Box,
-  label: 'Action Studio',
-  id: 'action-studio',
-  href: '/action-studio'
-}];
-
-const brandToolkitItems: MenuItem[] = [{
-  icon: ShoppingCart,
-  label: 'Sales Center',
-  id: 'sales-center',
-  href: '#',
-  status: 'active',
-  submenu: [{
-    label: 'Sales Hub',
-    href: '/sales-hub'
-  }, {
-    label: 'My Offers',
-    href: '/my-offers'
-  }, {
-    label: 'Reports Builder',
-    href: '/reports-builder'
-  }]
-}, {
-  icon: BarChart3,
-  label: 'Inventory',
-  id: 'inventory',
-  href: '#',
-  status: 'active',
-  submenu: [{
-    label: 'My Inventory',
-    href: '/inventory'
-  }, {
-    label: 'Reimbursements',
-    href: '/seller-reimbursements'
-  }]
-}, {
-  icon: FileText,
-  label: 'Listing Hub',
-  id: 'listing-hub',
-  href: '#',
-  status: 'active',
-  submenu: [{
-    label: 'Listing Quality',
-    href: '/listing-quality'
-  }, {
-    label: 'Listing Builder',
-    href: '/listing-builder'
-  }]
-}, {
-  icon: Users,
-  label: 'Customers',
-  id: 'customers',
-  href: '#',
-  status: 'active',
-  submenu: [{
-    label: 'Customer Insights',
-    href: '/customer-insights'
-  }]
-}, {
-  icon: Target,
-  label: 'Competitors',
-  id: 'competitors',
-  href: '#',
-  status: 'coming-soon',
-  submenu: [{
-    label: 'My Competitors',
-    href: '/my-competitors'
-  }]
-}, {
-  icon: Megaphone,
-  label: 'Advertising',
-  id: 'advertising',
-  href: '#',
-  status: 'coming-soon',
-  submenu: [{
-    label: 'Ads Performance',
-    href: '/ads-performance'
-  }, {
-    label: 'Ads Manager',
-    href: '/ads-manager'
-  }]
-}];
-
-const supportItems: MenuItem[] = [{
-  icon: MessageSquare,
-  label: 'Jarvio Assistant',
-  id: 'jarvio-assistant',
-  href: '/ai-assistant'
-}, {
-  icon: HelpCircle,
-  label: 'Get Support',
-  id: 'get-support',
-  href: '/get-support'
-}];
-
-const knowledgeBaseItems: MenuItem[] = [{
-  icon: FolderOpen,
-  label: 'Knowledge Base',
-  id: 'knowledge-base',
-  href: '/knowledge-base',
-  status: 'active'
-}];
+import { workflowItems } from './navigation/WorkflowItems';
+import { brandToolkitItems } from './navigation/BrandToolkitItems';
+import { supportItems } from './navigation/SupportItems';
+import { knowledgeBaseItems } from './navigation/KnowledgeBaseItems';
+import { MenuSection } from './navigation/MenuSection';
 
 export function NavigationMenu() {
-  const [expandedMenus, setExpandedMenus] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const location = useLocation();
-  const { isItemVisible, isSectionVisible } = useContext(NavigationVisibilityContext);
-
-  useEffect(() => {
-    const newExpandedMenus: {
-      [key: string]: boolean;
-    } = {};
-    [...workflowItems, ...brandToolkitItems, ...supportItems, ...knowledgeBaseItems].forEach(item => {
-      if (item.submenu) {
-        const isSubmenuActive = item.submenu.some(subitem => location.pathname === subitem.href);
-        if (isSubmenuActive) {
-          newExpandedMenus[item.label] = true;
-        }
-      }
-    });
-    setExpandedMenus(prev => ({
-      ...prev,
-      ...newExpandedMenus
-    }));
-  }, [location.pathname]);
-
-  const toggleSubmenu = (label: string) => {
-    setExpandedMenus(prev => ({
-      ...prev,
-      [label]: !prev[label]
-    }));
-  };
-
-  const renderStatusIndicator = (status?: 'active' | 'coming-soon') => {
-    if (!status) return null;
-    return <div className="ml-auto flex items-center gap-1.5 text-xs group-data-[collapsible=icon]:hidden">
-        <div className={cn("h-4 flex items-center rounded-full px-2 transition-colors duration-150", status === 'active' ? "bg-gradient-to-r from-green-500/10 to-green-500/5 text-green-600 hover:from-green-500/20 hover:to-green-500/10" : "bg-gradient-to-r from-amber-500/10 to-amber-500/5 text-amber-600 hover:from-amber-500/20 hover:to-amber-500/10")} title={status === 'active' ? 'Feature is live' : 'Demo data available'}>
-          <div className={cn("w-1 h-1 rounded-full mr-1.5", status === 'active' ? "bg-green-500" : "bg-amber-500")} />
-          {status === 'active' ? 'Live' : 'Demo'}
-        </div>
-      </div>;
-  };
-
-  const renderMenuItems = (items: MenuItem[], sectionId: string) => {
-    return items.map((item, index) => {
-      if (!isItemVisible(item.id, sectionId)) return null;
-      
-      return (
-        <SidebarMenuItem 
-          key={index} 
-          className={`${item.id === 'task-manager' ? 'pt-4' : ''}`}
-        >
-          {item.submenu ? (
-            <div className="w-full">
-              <SidebarMenuButton 
-                onClick={() => toggleSubmenu(item.label)} 
-                tooltip={item.status === 'coming-soon' ? 'Demo data available' : item.label} 
-                className="w-full relative p-2"
-              >
-                <div className="flex items-center w-full pr-2">
-                  <div className="flex items-center min-w-0">
-                    <item.icon className="w-4 h-4 shrink-0" />
-                    <span className="ml-2 truncate group-data-[collapsible=icon]:hidden">{item.label}</span>
-                  </div>
-                  {renderStatusIndicator(item.status)}
-                  <ChevronRight className={cn("w-4 h-4 ml-2 transition-transform duration-200 group-data-[collapsible=icon]:hidden", expandedMenus[item.label] ? "rotate-90" : "rotate-0")} />
-                </div>
-              </SidebarMenuButton>
-              <div className="group-data-[collapsible=icon]:hidden">
-                {expandedMenus[item.label] && <SidebarMenu className="ml-6 mt-2 relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200" />
-                    {item.submenu.map((subitem, subindex) => <SidebarMenuItem key={`${index}-${subindex}`}>
-                        <SidebarMenuButton asChild data-active={location.pathname === subitem.href} className="relative">
-                          <Link to={subitem.href} className="text-sm">
-                            {subitem.label}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>)}
-                  </SidebarMenu>}
-              </div>
-            </div>
-          ) : (
-            <SidebarMenuButton 
-              asChild 
-              tooltip={item.label} 
-              data-active={location.pathname === item.href}
-              className={cn(
-                "p-2",
-                item.id === 'task-manager' && "bg-[#4457ff]/10 hover:bg-[#4457ff]/20 text-[#4457ff] font-semibold"
-              )}
-            >
-              <Link to={item.href} className="flex items-center gap-2">
-                <item.icon className={cn(
-                  "w-4 h-4 shrink-0",
-                  item.id === 'task-manager' && "text-[#4457ff]"
-                )} />
-                <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-              </Link>
-            </SidebarMenuButton>
-          )}
-        </SidebarMenuItem>
-      );
-    }).filter(Boolean);
-  };
+  const { isSectionVisible } = useContext(NavigationVisibilityContext);
 
   return (
     <div className="w-full h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
       <span className="sr-only">Workflow</span>
       {isSectionVisible("workflow") && (
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderMenuItems(workflowItems, "workflow")}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <MenuSection items={workflowItems} sectionId="workflow" />
       )}
 
       {isSectionVisible("brand") && (
-        <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Brand Toolkit</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderMenuItems(brandToolkitItems, "brand")}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <MenuSection items={brandToolkitItems} sectionId="brand" label="Brand Toolkit" />
       )}
 
       {isSectionVisible("support") && (
-        <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Support</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderMenuItems(supportItems, "support")}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <MenuSection items={supportItems} sectionId="support" label="Support" />
       )}
 
       {isSectionVisible("knowledge-base") && (
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderMenuItems(knowledgeBaseItems, "knowledge-base")}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <MenuSection items={knowledgeBaseItems} sectionId="knowledge-base" />
       )}
     </div>
   );
