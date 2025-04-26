@@ -29,7 +29,7 @@ export function DocumentUploader() {
 
     setIsUploading(true);
     try {
-      // For demo purposes, since we might not have authentication set up
+      // For demo purposes, we're using a hardcoded user ID since Supabase RLS requires a user_id
       const demoUserId = "00000000-0000-0000-0000-000000000000";
 
       // Upload file to Supabase Storage
@@ -43,7 +43,7 @@ export function DocumentUploader() {
 
       if (uploadError) throw uploadError;
 
-      // Store document metadata in the database
+      // Store document metadata in the database with the required user_id
       const { error: dbError } = await supabase
         .from('ai_documents')
         .insert({
