@@ -29,6 +29,9 @@ export function DocumentUploader() {
 
     setIsUploading(true);
     try {
+      // For demo purposes, we'll use a fixed demo user ID
+      const demoUserId = "00000000-0000-0000-0000-000000000000";
+      
       // Upload file to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
@@ -40,7 +43,7 @@ export function DocumentUploader() {
 
       if (uploadError) throw uploadError;
 
-      // Store document metadata in the database
+      // Store document metadata in the database with required user_id
       const { error: dbError } = await supabase
         .from('ai_documents')
         .insert({
@@ -48,7 +51,8 @@ export function DocumentUploader() {
           description,
           file_path: filePath,
           file_type: file.type,
-          file_size: file.size
+          file_size: file.size,
+          user_id: demoUserId // Adding the required user_id field
         });
 
       if (dbError) throw dbError;
