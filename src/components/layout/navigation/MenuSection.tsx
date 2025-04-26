@@ -18,7 +18,7 @@ export function MenuSection({ sectionId, label, items }: MenuSectionProps) {
           {label}
         </SidebarGroupLabel>
       )}
-      <SidebarGroupContent>
+      <SidebarGroupContent className="pt-4"> {/* Added top padding */}
         <SidebarMenu>
           <MenuItems items={items} sectionId={sectionId} />
         </SidebarMenu>
