@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
 import { JarvioChatMessages } from "./JarvioChatMessages";
+import { AutoRunControls } from "./AutoRunControls";
 import { Subtask } from "@/pages/TaskWorkContainer";
 
 interface JarvioChatTabProps {
@@ -19,6 +20,8 @@ interface JarvioChatTabProps {
   isTransitioning: boolean;
   onSendMessage: (message: string) => void;
   onGenerateSteps?: () => void;
+  onToggleAutoRun?: () => void;
+  onTogglePause?: () => void;
 }
 
 export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
@@ -33,6 +36,8 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   isTransitioning,
   onSendMessage,
   onGenerateSteps,
+  onToggleAutoRun = () => {},
+  onTogglePause = () => {},
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -56,6 +61,15 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   return (
     <div className="flex flex-col h-full relative">
+      <div className="flex justify-between items-center p-4 border-b">
+        <AutoRunControls
+          autoRunMode={autoRunMode}
+          autoRunPaused={autoRunPaused}
+          onToggleAutoRun={onToggleAutoRun}
+          onTogglePause={onTogglePause}
+        />
+      </div>
+
       <ScrollArea className="flex-1 p-4 overflow-y-auto">
         <JarvioChatMessages 
           messages={messages} 
@@ -65,13 +79,14 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         />
         <div ref={messagesEndRef} />
       </ScrollArea>
-      <div className="p-4 border-t bg-white">
+
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={isLoading ? "Jarvio is thinking..." : "Type a message..."}
-            className="flex-1 min-h-[36px] max-h-24"
+            className="flex-1 min-h-[36px] max-h-24 resize-none"
             disabled={isLoading || isTransitioning}
             ref={inputRef}
             onKeyDown={(e) => {

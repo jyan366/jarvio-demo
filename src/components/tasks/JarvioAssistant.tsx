@@ -36,7 +36,9 @@ export function JarvioAssistant({
     setInputValue,
     isLoading,
     autoRunMode,
+    setAutoRunMode,
     autoRunPaused,
+    setAutoRunPaused,
     subtaskData,
     isTransitioning,
     handleSendMessage
@@ -51,6 +53,15 @@ export function JarvioAssistant({
   );
 
   const { tab, setTab } = useJarvioAssistantTabs();
+
+  const handleToggleAutoRun = () => {
+    setAutoRunMode(prev => !prev);
+    setAutoRunPaused(false);
+  };
+
+  const handleTogglePause = () => {
+    setAutoRunPaused(prev => !prev);
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -74,6 +85,8 @@ export function JarvioAssistant({
             isTransitioning={isTransitioning}
             onSendMessage={handleSendMessage}
             onGenerateSteps={onGenerateSteps}
+            onToggleAutoRun={handleToggleAutoRun}
+            onTogglePause={handleTogglePause}
           />
         </TabsContent>
         
