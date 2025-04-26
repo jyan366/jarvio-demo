@@ -18,4 +18,3 @@ export const workflowItems: MenuItem[] = [{
   id: 'knowledge-base',
   href: '/knowledge-base'
 }];
-

@@ -26,4 +26,3 @@ export function NavigationMenu() {
     </div>
   );
 }
-

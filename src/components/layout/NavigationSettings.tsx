@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Cog } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -108,6 +107,7 @@ const navigationItems = [
       { id: "dashboard", label: "Dashboard" },
       { id: "task-manager", label: "Task Manager" },
       { id: "action-studio", label: "Action Studio" },
+      { id: "knowledge-base", label: "Knowledge Base" },
     ]
   },
   {
