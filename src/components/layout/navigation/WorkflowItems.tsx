@@ -1,5 +1,5 @@
 
-import { CheckSquare, Box } from 'lucide-react';
+import { CheckSquare, Box, BookOpen } from 'lucide-react';
 import { MenuItem } from './types';
 
 export const workflowItems: MenuItem[] = [{
@@ -12,4 +12,10 @@ export const workflowItems: MenuItem[] = [{
   label: 'Action Studio',
   id: 'action-studio',
   href: '/action-studio'
+}, {
+  icon: BookOpen,
+  label: 'Knowledge Base',
+  id: 'knowledge-base',
+  href: '/knowledge-base'
 }];
+
