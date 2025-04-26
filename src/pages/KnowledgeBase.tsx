@@ -3,11 +3,10 @@ import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FileText, Search, Grid, List, Plus, TrendingUp, Users, BookOpen, Brain, Layers } from 'lucide-react';
+import { FileText, Search, Grid, List, Plus, TrendingUp, Users, Brain, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { DocumentCard } from '@/components/knowledge-base/DocumentCard';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function KnowledgeBase() {
@@ -60,6 +59,87 @@ export default function KnowledgeBase() {
       createdAt: '2024-04-15',
       fileType: 'doc',
       metrics: { views: 92, downloads: 28 }
+    },
+    {
+      id: '5',
+      title: 'Operational Efficiency Report',
+      description: 'Detailed analysis of operational processes and improvements',
+      category: 'operations',
+      createdAt: '2024-04-10',
+      fileType: 'pdf',
+      metrics: { views: 76, downloads: 22 }
+    },
+    {
+      id: '6',
+      title: 'Marketing Campaign Playbook',
+      description: 'Comprehensive guide to our marketing strategies',
+      category: 'market',
+      createdAt: '2024-04-05',
+      fileType: 'doc',
+      metrics: { views: 112, downloads: 41 }
+    },
+    {
+      id: '7',
+      title: 'Customer Persona Deep Dive',
+      description: 'In-depth research on our target customer segments',
+      category: 'customer',
+      createdAt: '2024-03-30',
+      fileType: 'pdf',
+      metrics: { views: 98, downloads: 35 }
+    },
+    {
+      id: '8',
+      title: 'Financial Forecast 2024-2025',
+      description: 'Detailed financial projections and strategic recommendations',
+      category: 'strategy',
+      createdAt: '2024-03-25',
+      fileType: 'doc',
+      metrics: { views: 85, downloads: 29 }
+    },
+    {
+      id: '9',
+      title: 'Brand Positioning Whitepaper',
+      description: 'Comprehensive exploration of our brand identity',
+      category: 'brand',
+      createdAt: '2024-03-20',
+      fileType: 'pdf',
+      metrics: { views: 105, downloads: 38 }
+    },
+    {
+      id: '10',
+      title: 'Product Development Roadmap',
+      description: 'Strategic plan for product innovation and growth',
+      category: 'strategy',
+      createdAt: '2024-03-15',
+      fileType: 'doc',
+      metrics: { views: 93, downloads: 33 }
+    },
+    {
+      id: '11',
+      title: 'Competitive Landscape Analysis',
+      description: 'Comprehensive review of market competitors',
+      category: 'market',
+      createdAt: '2024-03-10',
+      fileType: 'pdf',
+      metrics: { views: 87, downloads: 26 }
+    },
+    {
+      id: '12',
+      title: 'Operational Risk Management',
+      description: 'Strategies for mitigating operational risks',
+      category: 'operations',
+      createdAt: '2024-03-05',
+      fileType: 'doc',
+      metrics: { views: 79, downloads: 24 }
+    },
+    {
+      id: '13',
+      title: 'Customer Success Metrics',
+      description: 'Key performance indicators for customer satisfaction',
+      category: 'customer',
+      createdAt: '2024-02-28',
+      fileType: 'pdf',
+      metrics: { views: 102, downloads: 37 }
     }
   ];
 
@@ -124,7 +204,7 @@ export default function KnowledgeBase() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Team Members</p>
-                  <h3 className="text-2xl font-bold">34</h3>
+                  <h3 className="text-2xl font-bold">7</h3>
                 </div>
               </div>
             </CardContent>
@@ -139,22 +219,7 @@ export default function KnowledgeBase() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Knowledge Base Docs</p>
-                  <h3 className="text-2xl font-bold">247</h3>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden bg-gradient-to-br from-yellow-50 to-white dark:from-gray-800 dark:to-gray-900">
-            <div className="absolute right-0 top-0 w-32 h-32 bg-gradient-to-b from-yellow-200/20 to-transparent rounded-full transform translate-x-8 -translate-y-8" />
-            <CardContent className="p-6 relative">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900">
-                  <BookOpen className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Monthly Views</p>
-                  <h3 className="text-2xl font-bold">1,893</h3>
+                  <h3 className="text-2xl font-bold">13</h3>
                 </div>
               </div>
             </CardContent>
@@ -218,3 +283,4 @@ export default function KnowledgeBase() {
     </MainLayout>
   );
 }
+
