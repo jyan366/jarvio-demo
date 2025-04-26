@@ -32,6 +32,22 @@ export default function KnowledgeBase() {
       category: 'Brand Guidelines',
       createdAt: '2024-04-20',
       fileType: 'doc'
+    },
+    {
+      id: '3',
+      title: 'Marketing Plan',
+      description: 'Annual marketing strategy',
+      category: 'Marketing',
+      createdAt: '2024-04-18',
+      fileType: 'pdf'
+    },
+    {
+      id: '4',
+      title: 'Sales Projections',
+      description: 'Q2 2024 sales forecasts',
+      category: 'Sales',
+      createdAt: '2024-04-15',
+      fileType: 'doc'
     }
   ]);
 
@@ -88,19 +104,21 @@ export default function KnowledgeBase() {
             <div 
               key={doc.id} 
               className={cn(
-                "border rounded-lg p-4 flex items-center space-x-4 hover:shadow-sm transition-shadow",
-                viewMode === 'list' && "flex-row",
-                viewMode === 'grid' && "flex-col text-center items-center"
+                "border rounded-lg p-4 hover:shadow-sm transition-shadow cursor-pointer",
+                viewMode === 'list' ? "flex items-center space-x-4" : "flex flex-col text-center items-center"
               )}
             >
               {renderDocumentIcon(doc.fileType)}
-              <div className={viewMode === 'grid' ? "text-center mt-2" : ""}>
+              <div className={viewMode === 'grid' ? "text-center mt-2 w-full" : "flex-1"}>
                 <h3 className="font-semibold">{doc.title}</h3>
                 {doc.description && (
                   <p className="text-sm text-gray-500 mt-1">{doc.description}</p>
                 )}
                 <div className="text-xs text-gray-400 mt-1">
-                  {doc.category} • Created {doc.createdAt}
+                  <span className="inline-block px-2 py-1 bg-gray-100 rounded-full mr-2">
+                    {doc.category}
+                  </span>
+                  <span>Created {doc.createdAt}</span>
                 </div>
               </div>
             </div>

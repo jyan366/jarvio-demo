@@ -21,11 +21,6 @@ interface MenuItem {
 }
 
 const workflowItems: MenuItem[] = [{
-  icon: LayoutDashboard,
-  label: 'Dashboard',
-  id: 'dashboard',
-  href: '/'
-}, {
   icon: CheckSquare,
   label: 'Home',
   id: 'task-manager',
@@ -115,16 +110,11 @@ const brandToolkitItems: MenuItem[] = [{
   }]
 }];
 
-const aiAssistantItems: MenuItem[] = [{
+const supportItems: MenuItem[] = [{
   icon: MessageSquare,
   label: 'Jarvio Assistant',
   id: 'jarvio-assistant',
   href: '/ai-assistant'
-}, {
-  icon: DollarSign,
-  label: 'Financing',
-  id: 'financing',
-  href: '/financing'
 }, {
   icon: HelpCircle,
   label: 'Get Support',
@@ -151,7 +141,7 @@ export function NavigationMenu() {
     const newExpandedMenus: {
       [key: string]: boolean;
     } = {};
-    [...workflowItems, ...brandToolkitItems, ...aiAssistantItems, ...knowledgeBaseItems].forEach(item => {
+    [...workflowItems, ...brandToolkitItems, ...supportItems, ...knowledgeBaseItems].forEach(item => {
       if (item.submenu) {
         const isSubmenuActive = item.submenu.some(subitem => location.pathname === subitem.href);
         if (isSubmenuActive) {
@@ -268,23 +258,22 @@ export function NavigationMenu() {
         </SidebarGroup>
       )}
 
-      {isSectionVisible("knowledge-base") && (
-        <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Knowledge Base</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderMenuItems(knowledgeBaseItems, "knowledge-base")}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      )}
-
       {isSectionVisible("support") && (
         <SidebarGroup>
           <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Support</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {renderMenuItems(aiAssistantItems, "support")}
+              {renderMenuItems(supportItems, "support")}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      )}
+
+      {isSectionVisible("knowledge-base") && (
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderMenuItems(knowledgeBaseItems, "knowledge-base")}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
