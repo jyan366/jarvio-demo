@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { EmptyKnowledgeBase } from '@/components/knowledge-base/EmptyKnowledgeBase';
@@ -8,7 +9,13 @@ import { FileText, Search, Grid, List, Plus, TrendingUp, Users, Brain, Layers } 
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { DocumentCard } from '@/components/knowledge-base/DocumentCard';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function KnowledgeBase() {
@@ -270,23 +277,21 @@ export default function KnowledgeBase() {
             </div>
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <Tabs 
-                defaultValue="all" 
-                className="w-full sm:max-w-3xl overflow-x-auto" 
+              <Select 
+                value={selectedCategory} 
                 onValueChange={setSelectedCategory}
               >
-                <TabsList className="w-full justify-start bg-gray-100/50 dark:bg-gray-800 p-1 gap-2 flex-nowrap">
+                <SelectTrigger className="w-full sm:max-w-xs">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
                   {categories.map((category) => (
-                    <TabsTrigger
-                      key={category.id}
-                      value={category.id}
-                      className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 whitespace-nowrap"
-                    >
+                    <SelectItem key={category.id} value={category.id}>
                       {category.label}
-                    </TabsTrigger>
+                    </SelectItem>
                   ))}
-                </TabsList>
-              </Tabs>
+                </SelectContent>
+              </Select>
               
               <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
                 <Button 
