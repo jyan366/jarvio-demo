@@ -1,4 +1,4 @@
-import { LayoutDashboard, Box, BarChart3, ShoppingCart, Settings, FileText, ChevronDown, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, Box, FileText, FolderOpen, BarChart3, ShoppingCart, Settings, Users, Target, Megaphone, MessageSquare, ChevronRight, HelpCircle, DollarSign, CheckSquare } from 'lucide-react';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -132,6 +132,14 @@ const aiAssistantItems: MenuItem[] = [{
   href: '/get-support'
 }];
 
+const knowledgeBaseItems: MenuItem[] = [{
+  icon: FolderOpen,
+  label: 'Knowledge Base',
+  id: 'knowledge-base',
+  href: '/knowledge-base',
+  status: 'active'
+}];
+
 export function NavigationMenu() {
   const [expandedMenus, setExpandedMenus] = useState<{
     [key: string]: boolean;
@@ -143,7 +151,7 @@ export function NavigationMenu() {
     const newExpandedMenus: {
       [key: string]: boolean;
     } = {};
-    [...workflowItems, ...brandToolkitItems, ...aiAssistantItems].forEach(item => {
+    [...workflowItems, ...brandToolkitItems, ...aiAssistantItems, ...knowledgeBaseItems].forEach(item => {
       if (item.submenu) {
         const isSubmenuActive = item.submenu.some(subitem => location.pathname === subitem.href);
         if (isSubmenuActive) {
@@ -255,6 +263,17 @@ export function NavigationMenu() {
           <SidebarGroupContent>
             <SidebarMenu>
               {renderMenuItems(brandToolkitItems, "brand")}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      )}
+
+      {isSectionVisible("knowledge-base") && (
+        <SidebarGroup>
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Knowledge Base</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderMenuItems(knowledgeBaseItems, "knowledge-base")}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

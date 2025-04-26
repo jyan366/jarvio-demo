@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,6 +28,7 @@ import AdsManager from "./pages/AdsManager";
 import TaskWork from "./pages/TaskWork";
 import ProductReviews from "./pages/ProductReviews";
 import AllProductReviews from "./pages/AllProductReviews";
+import KnowledgeBase from "./pages/KnowledgeBase";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +63,7 @@ export default function App() {
               <Route path="/ai-assistant" element={<AIAssistant />} />
               <Route path="/get-support" element={<GetSupport />} />
               <Route path="/task/:id" element={<TaskWork />} />
+              <Route path="/knowledge-base" element={<KnowledgeBase />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
@@ -71,4 +72,3 @@ export default function App() {
     </ThemeProvider>
   );
 }
-
