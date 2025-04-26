@@ -5,6 +5,11 @@ import { TaskWorkSidebar } from "@/components/tasks/TaskWorkSidebar";
 import { SubtaskDialog } from "@/components/tasks/SubtaskDialog";
 import { CollapseNavButton } from "@/components/tasks/CollapseNavButton";
 import { useTaskWork } from "@/hooks/useTaskWork";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Circle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Subtask {
   id: string;
@@ -36,6 +41,7 @@ export interface Product {
   last30Sales: string;
   last30Units: string;
 }
+
 export interface TaskWorkType {
   id: string;
   title: string;
@@ -47,10 +53,12 @@ export interface TaskWorkType {
   products: Product[];
   subtasks: Subtask[];
   comments: { user: string; text: string; ago: string; subtaskId?: string }[];
-  insights?: TaskInsight[]; // Added insights property as optional
+  insights?: TaskInsight[];
 }
 
 export default function TaskWorkContainer() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const {
     loading,
     taskState,
@@ -76,6 +84,47 @@ export default function TaskWorkContainer() {
     subtaskData,
   } = useTaskWork();
 
+  const handleConvertToProcess = async () => {
+    if (!taskState) return;
+
+    try {
+      const processData = {
+        name: taskState.title,
+        steps: taskState.subtasks.map(st => ({
+          id: st.id,
+          content: st.title,
+          completed: false
+        })),
+        schedule: 'monthly',
+        autoRun: false
+      };
+
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          category: 'PROCESS',
+          data: processData
+        })
+        .eq('id', taskState.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Task converted to process",
+        description: "You can now find this in the Saved Processes section",
+      });
+
+      navigate('/action-studio');
+    } catch (err) {
+      console.error('Error converting to process:', err);
+      toast({
+        title: "Error",
+        description: "Failed to convert task to process",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading)
     return (
       <MainLayout>
@@ -96,7 +145,6 @@ export default function TaskWorkContainer() {
 
   let dialogSubtask = subtaskDialogIdx !== null ? taskState?.subtasks[subtaskDialogIdx] : null;
   
-  // Get Jarvio (AI) work log
   let jarvioWorkLog: string | undefined = undefined;
   let jarvioCompletedAt: string | undefined = undefined;
   if (dialogSubtask && subtaskData && subtaskData[dialogSubtask.id]) {
@@ -104,7 +152,6 @@ export default function TaskWorkContainer() {
     jarvioCompletedAt = subtaskData[dialogSubtask.id].completedAt;
   }
 
-  // Find user comments (user log) attached to the current subtask
   let userWorkLog = dialogSubtask && Array.isArray(taskState.comments)
     ? taskState.comments.filter(
         (c) =>
@@ -113,7 +160,6 @@ export default function TaskWorkContainer() {
       )
     : [];
 
-  // Comments section will be unchanged
   let dialogComments =
     dialogSubtask && Array.isArray(taskState.comments)
       ? taskState.comments.filter(
@@ -126,11 +172,20 @@ export default function TaskWorkContainer() {
       <div className="w-full h-full max-w-none flex flex-row gap-0 bg-background">
         <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col h-screen overflow-hidden">
           <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-6 overflow-y-auto">
-            <div className="mb-2 w-full">
+            <div className="mb-4 flex items-center justify-between">
               <CollapseNavButton
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
               />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleConvertToProcess}
+                className="ml-auto"
+              >
+                <Circle className="w-4 h-4 mr-2" />
+                Convert to Process
+              </Button>
             </div>
             <TaskWorkMain
               task={taskState}

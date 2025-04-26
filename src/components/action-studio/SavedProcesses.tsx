@@ -61,7 +61,6 @@ export function SavedProcesses({ onCreateNew }: { onCreateNew: () => void }) {
       {processes?.map((process) => {
         const processData = process.data as unknown as ProcessData;
         if (!processData || !processData.steps) {
-          console.error('Invalid process data structure:', process);
           return null;
         }
         
