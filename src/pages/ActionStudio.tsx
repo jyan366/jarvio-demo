@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
 import { InsightsFeed } from '@/components/action-studio/InsightsFeed';
-import { PlusCircle, Play } from 'lucide-react';
+import { PlusCircle, Play, Package } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -19,6 +20,7 @@ import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 import { ProcessBuilder } from '@/components/ads/ProcessBuilder';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SavedProcesses } from '@/components/action-studio/SavedProcesses';
+import { BestSellersRestockProcess } from '@/components/inventory/BestSellersRestockProcess';
 
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
 
@@ -28,6 +30,7 @@ export default function ActionStudio() {
   const [showHowItWorks, setShowHowItWorks] = useState(true);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [isProcessBuilderOpen, setIsProcessBuilderOpen] = useState(false);
+  const [isRestockProcessOpen, setIsRestockProcessOpen] = useState(false);
 
   return (
     <MainLayout>
@@ -125,6 +128,27 @@ export default function ActionStudio() {
           </TabsContent>
 
           <TabsContent value="processes">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg sm:text-xl font-semibold">Saved Processes</h2>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setIsRestockProcessOpen(true)}
+                >
+                  <Package className="w-4 h-4 mr-2 text-amber-500" />
+                  Best Sellers Restock
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setIsProcessBuilderOpen(true)}
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  New Process
+                </Button>
+              </div>
+            </div>
             <SavedProcesses onCreateNew={() => setIsProcessBuilderOpen(true)} />
           </TabsContent>
         </Tabs>
@@ -141,6 +165,11 @@ export default function ActionStudio() {
       <ProcessBuilder
         open={isProcessBuilderOpen}
         onOpenChange={setIsProcessBuilderOpen}
+      />
+
+      <BestSellersRestockProcess
+        open={isRestockProcessOpen}
+        onOpenChange={setIsRestockProcessOpen}
       />
     </MainLayout>
   );

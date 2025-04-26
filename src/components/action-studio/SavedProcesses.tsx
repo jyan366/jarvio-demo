@@ -3,7 +3,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Play, Clock } from 'lucide-react';
+import { PlusCircle, Play, Clock, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -39,6 +39,19 @@ export function SavedProcesses({ onCreateNew }: { onCreateNew: () => void }) {
   const handleRunProcess = (taskId: string) => {
     navigate(`/task/${taskId}`);
   };
+  
+  const getScheduleText = (schedule: string) => {
+    switch(schedule) {
+      case 'daily': return 'Daily';
+      case 'weekly': return 'Weekly';
+      case 'monthly': return 'Monthly';
+      default: return schedule;
+    }
+  };
+
+  const getScheduleIcon = (schedule: string) => {
+    return schedule === 'monthly' ? <Calendar className="w-4 h-4 mr-2 text-amber-500" /> : <Clock className="w-4 h-4 mr-2 text-blue-500" />;
+  };
 
   if (isLoading) {
     return <div className="text-muted-foreground">Loading processes...</div>;
@@ -57,9 +70,15 @@ export function SavedProcesses({ onCreateNew }: { onCreateNew: () => void }) {
         
         return (
           <Card key={process.id} className="p-4 space-y-2">
-            <h3 className="font-semibold">{process.title}</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="font-semibold">{process.title}</h3>
+              <div className="flex items-center text-xs px-2 py-1 bg-muted rounded-full">
+                {getScheduleIcon(processData.schedule)}
+                <span>{getScheduleText(processData.schedule)}</span>
+              </div>
+            </div>
             <p className="text-sm text-muted-foreground">
-              {processData.steps.length} steps • Runs {processData.schedule}
+              {processData.steps.length} steps • {processData.autoRun ? 'Auto runs' : 'Manual run'}
             </p>
             <div className="flex justify-end gap-2 mt-4">
               <Button 
