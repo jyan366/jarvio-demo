@@ -16,6 +16,5 @@ export const workflowItems: MenuItem[] = [{
   icon: BookOpen,
   label: 'Knowledge Base',
   id: 'knowledge-base',
-  href: '/knowledge-base',
-  status: 'active'
+  href: '/knowledge-base'
 }];
