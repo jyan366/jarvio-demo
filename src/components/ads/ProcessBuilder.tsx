@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -107,7 +108,7 @@ export function ProcessBuilder({ open, onOpenChange, pageType = 'ads' }: Process
           title: processName,
           description: `Process with ${selectedSteps.length} steps`,
           category: 'PROCESS',
-          data: processData as any,
+          data: processData,
           user_id: "00000000-0000-0000-0000-000000000000"
         })
         .select()

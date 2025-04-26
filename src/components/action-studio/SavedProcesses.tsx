@@ -7,13 +7,15 @@ import { PlusCircle, Play, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 
+interface ProcessStep {
+  id: string;
+  content: string;
+  completed: boolean;
+}
+
 interface ProcessData {
   name: string;
-  steps: Array<{
-    id: string;
-    content: string;
-    completed: boolean;
-  }>;
+  steps: ProcessStep[];
   schedule: string;
   autoRun: boolean;
 }
@@ -45,7 +47,14 @@ export function SavedProcesses({ onCreateNew }: { onCreateNew: () => void }) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {processes?.map((process) => {
-        const processData = process.data as ProcessData;
+        // Type checking and safe conversion to ProcessData
+        const processData = process.data as unknown as ProcessData;
+        // Make sure processData has the expected structure before using it
+        if (!processData || !processData.steps) {
+          console.error('Invalid process data structure:', process);
+          return null; // Skip rendering this process
+        }
+        
         return (
           <Card key={process.id} className="p-4 space-y-2">
             <h3 className="font-semibold">{process.title}</h3>
