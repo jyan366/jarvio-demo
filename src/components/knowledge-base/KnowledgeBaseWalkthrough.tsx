@@ -57,10 +57,10 @@ export function KnowledgeBaseWalkthrough({ onComplete }: KnowledgeBaseWalkthroug
             <div className="p-4 rounded-full bg-purple-100 dark:bg-purple-900/20 mb-6 inline-block">
               <Upload className="w-8 h-8 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="text-xl font-semibold mb-4">Upload Your First Document</h3>
+            <h3 className="text-xl font-semibold mb-4">Upload Your Documents</h3>
             <p className="text-muted-foreground mb-6">
-              Start by uploading your first document. We support various file formats including PDF, 
-              Word, and Excel files. Your documents will be processed and analyzed by our AI.
+              Start by uploading your documents to build your knowledge base. We support various file formats 
+              including PDF, Word, and Excel files. Your documents will be processed and analyzed by our AI.
             </p>
             <Button
               size="lg"
@@ -78,13 +78,25 @@ export function KnowledgeBaseWalkthrough({ onComplete }: KnowledgeBaseWalkthroug
             <div className="p-4 rounded-full bg-purple-100 dark:bg-purple-900/20 mb-6 inline-block">
               <Upload className="w-8 h-8 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="text-xl font-semibold mb-4">Processing Your Document</h3>
+            <h3 className="text-xl font-semibold mb-4">Processing Your Documents</h3>
             <p className="text-muted-foreground mb-6">
-              Your document is being processed. Our AI is analyzing the content to generate insights 
+              Your documents are being processed. Our AI is analyzing the content to generate insights 
               and organize information for your team.
             </p>
-            <div className="w-full max-w-xs mx-auto mb-6 bg-gray-100 dark:bg-gray-800 rounded-full h-2">
-              <div className="bg-purple-600 h-2 rounded-full w-2/3 animate-pulse" />
+            <div className="space-y-3 mb-6">
+              <div className="w-full max-w-xs mx-auto bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+                <div className="bg-purple-600 h-2 rounded-full w-full" />
+              </div>
+              <div className="w-full max-w-xs mx-auto bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+                <div className="bg-purple-600 h-2 rounded-full w-3/4 animate-pulse" />
+              </div>
+              <div className="w-full max-w-xs mx-auto bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+                <div className="bg-purple-600 h-2 rounded-full w-1/2 animate-pulse" />
+              </div>
+            </div>
+            <div className="text-sm text-muted-foreground mb-6">
+              <p>3 documents processed</p>
+              <p>2 documents in progress</p>
             </div>
             <Button
               size="lg"
@@ -104,7 +116,7 @@ export function KnowledgeBaseWalkthrough({ onComplete }: KnowledgeBaseWalkthroug
             </div>
             <h3 className="text-xl font-semibold mb-4">Setup Complete!</h3>
             <p className="text-muted-foreground mb-6">
-              Great! Your document has been processed and your Knowledge Hub is ready to use. 
+              Great! Your documents have been processed and your Knowledge Hub is ready to use. 
               You can now start collaborating with your team and leveraging AI-powered insights.
             </p>
             <Button
@@ -121,3 +133,4 @@ export function KnowledgeBaseWalkthrough({ onComplete }: KnowledgeBaseWalkthroug
     </div>
   );
 }
+
