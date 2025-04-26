@@ -8,11 +8,13 @@ import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { DocumentCard } from '@/components/knowledge-base/DocumentCard';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function KnowledgeBase() {
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('all');
+  const isMobile = useIsMobile();
 
   const categories = [
     { id: 'all', label: 'All Documents' },
@@ -179,7 +181,7 @@ export default function KnowledgeBase() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <Card className="relative overflow-hidden bg-gradient-to-br from-purple-50 to-white dark:from-gray-800 dark:to-gray-900">
             <div className="absolute right-0 top-0 w-32 h-32 bg-gradient-to-b from-purple-200/20 to-transparent rounded-full transform translate-x-8 -translate-y-8" />
             <CardContent className="p-6 relative">
@@ -227,9 +229,10 @@ export default function KnowledgeBase() {
         </div>
 
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-            <div className="w-full space-y-4">
-              <div className="relative flex-1 max-w-2xl w-full">
+          {/* Improved responsive control section */}
+          <div className="flex flex-col space-y-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+            <div className="w-full">
+              <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <Input 
                   placeholder="Search documents..." 
@@ -238,41 +241,51 @@ export default function KnowledgeBase() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              
-              <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedCategory}>
-                <TabsList className="w-full justify-start bg-gray-100/50 dark:bg-gray-800 p-1 gap-2">
+            </div>
+            
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <Tabs 
+                defaultValue="all" 
+                className="w-full sm:max-w-3xl overflow-x-auto" 
+                onValueChange={setSelectedCategory}
+              >
+                <TabsList className="w-full justify-start bg-gray-100/50 dark:bg-gray-800 p-1 gap-2 flex-nowrap">
                   {categories.map((category) => (
                     <TabsTrigger
                       key={category.id}
                       value={category.id}
-                      className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700"
+                      className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 whitespace-nowrap"
                     >
                       {category.label}
                     </TabsTrigger>
                   ))}
                 </TabsList>
               </Tabs>
-            </div>
-            
-            <div className="flex items-center space-x-4 shrink-0">
-              <Button 
-                variant="outline" 
-                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                className="bg-gray-50 dark:bg-gray-900"
-              >
-                {viewMode === 'grid' ? <List className="mr-2 h-4 w-4" /> : <Grid className="mr-2 h-4 w-4" />}
-                {viewMode === 'grid' ? 'List View' : 'Grid View'}
-              </Button>
-              <Button className="bg-purple-600 hover:bg-purple-700">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Document
-              </Button>
+              
+              <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                  className="bg-gray-50 dark:bg-gray-900 text-sm sm:text-base flex-1 sm:flex-none"
+                  size={isMobile ? "sm" : "default"}
+                >
+                  {viewMode === 'grid' ? <List className="mr-2 h-4 w-4" /> : <Grid className="mr-2 h-4 w-4" />}
+                  {viewMode === 'grid' ? 'List View' : 'Grid View'}
+                </Button>
+                <Button 
+                  className="bg-purple-600 hover:bg-purple-700 text-sm sm:text-base flex-1 sm:flex-none"
+                  size={isMobile ? "sm" : "default"}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Document
+                </Button>
+              </div>
             </div>
           </div>
 
           <div className={cn(
             "grid gap-6", 
-            viewMode === 'grid' ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+            viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
           )}>
             {filteredDocuments.map((doc) => (
               <DocumentCard key={doc.id} document={doc} viewMode={viewMode} />
@@ -283,4 +296,3 @@ export default function KnowledgeBase() {
     </MainLayout>
   );
 }
-
