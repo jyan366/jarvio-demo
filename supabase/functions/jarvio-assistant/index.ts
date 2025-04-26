@@ -1,6 +1,6 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -84,6 +84,47 @@ Guidelines:
 5. For each step, output a plausible result that would demonstrate to the user what finding/generation looks like.
 `;
 
+    // Fetch relevant documents for context
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') || '',
+      Deno.env.get('SUPABASE_ANON_KEY') || ''
+    );
+
+    // Get documents metadata
+    const { data: documents } = await supabaseClient
+      .from('ai_documents')
+      .select('*');
+
+    // Get document contents
+    const documentsContent = [];
+    if (documents) {
+      for (const doc of documents) {
+        const { data } = await supabaseClient
+          .storage
+          .from('documents')
+          .download(doc.file_path);
+        
+        if (data) {
+          const text = await data.text();
+          documentsContent.push({
+            title: doc.title,
+            content: text
+          });
+        }
+      }
+    }
+
+    // Add documents to system prompt
+    const documentsContext = documentsContent.length > 0 
+      ? `\nAvailable documents for reference:\n${documentsContent.map(doc => 
+          `${doc.title}:\n${doc.content}\n`).join('\n')}`
+      : '';
+
+    const systemPromptWithContext = `
+      ${systemPrompt}
+      ${documentsContext}
+    `;
+
     // Format prior conversation
     const formattedHistory = conversationHistory?.map(msg => ({
       role: msg.isUser ? "user" : "assistant",
@@ -91,7 +132,7 @@ Guidelines:
     })) || [];
 
     const messages = [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: systemPromptWithContext },
       ...formattedHistory,
       { role: "user", content: message }
     ];
