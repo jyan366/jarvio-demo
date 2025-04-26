@@ -1,8 +1,8 @@
 
 import { useEffect, useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { FileText, Trash2 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -10,7 +10,6 @@ interface Document {
   id: string;
   title: string;
   description: string | null;
-  file_path: string;
   created_at: string;
 }
 
@@ -32,22 +31,14 @@ export function DocumentList() {
     setDocuments(data || []);
   };
 
-  const handleDelete = async (id: string, filePath: string) => {
+  const handleDelete = async (id: string) => {
     try {
-      // Delete file from storage
-      const { error: storageError } = await supabase.storage
-        .from('documents')
-        .remove([filePath]);
-
-      if (storageError) throw storageError;
-
-      // Delete metadata from database
-      const { error: dbError } = await supabase
+      const { error } = await supabase
         .from('ai_documents')
         .delete()
         .eq('id', id);
 
-      if (dbError) throw dbError;
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -73,7 +64,7 @@ export function DocumentList() {
   if (documents.length === 0) {
     return (
       <div className="text-center text-muted-foreground p-4">
-        No documents uploaded yet
+        No documents saved yet
       </div>
     );
   }
@@ -94,7 +85,7 @@ export function DocumentList() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => handleDelete(doc.id, doc.file_path)}
+            onClick={() => handleDelete(doc.id)}
             className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="h-4 w-4" />

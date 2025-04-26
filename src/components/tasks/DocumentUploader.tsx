@@ -9,68 +9,46 @@ import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export function DocumentUploader() {
-  const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      if (!title) {
-        setTitle(e.target.files[0].name.split('.')[0]);
-      }
-    }
-  };
-
   const handleUpload = async () => {
-    if (!file || !title) return;
+    if (!title) return;
 
     setIsUploading(true);
     try {
       // For demo purposes, we'll use a fixed demo user ID
       const demoUserId = "00000000-0000-0000-0000-000000000000";
       
-      // Upload file to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Store document metadata in the database with required user_id
+      // Store document metadata in the database
       const { error: dbError } = await supabase
         .from('ai_documents')
         .insert({
           title,
           description,
-          file_path: filePath,
-          file_type: file.type,
-          file_size: file.size,
-          user_id: demoUserId // Adding the required user_id field
+          file_path: 'demo-path', // Placeholder path
+          file_type: 'text/plain',
+          file_size: 0,
+          user_id: demoUserId
         });
 
       if (dbError) throw dbError;
 
       toast({
         title: "Success",
-        description: "Document uploaded successfully",
+        description: "Document saved successfully",
       });
 
       // Reset form
-      setFile(null);
       setTitle('');
       setDescription('');
     } catch (error) {
-      console.error('Error uploading document:', error);
+      console.error('Error saving document:', error);
       toast({
         title: "Error",
-        description: "Failed to upload document. Please try again.",
+        description: "Failed to save document. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -101,27 +79,17 @@ export function DocumentUploader() {
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="file">File</Label>
-        <Input
-          id="file"
-          type="file"
-          onChange={handleFileChange}
-          accept=".pdf,.doc,.docx,.txt"
-        />
-      </div>
-
       <Button
         onClick={handleUpload}
-        disabled={!file || !title || isUploading}
+        disabled={!title || isUploading}
         className="w-full"
       >
         {isUploading ? (
-          "Uploading..."
+          "Saving..."
         ) : (
           <>
             <Upload className="mr-2 h-4 w-4" />
-            Upload Document
+            Save Document
           </>
         )}
       </Button>
