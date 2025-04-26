@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -60,12 +59,10 @@ export function SavedProcesses({ onCreateNew }: { onCreateNew: () => void }) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {processes?.map((process) => {
-        // Type checking and safe conversion to ProcessData
         const processData = process.data as unknown as ProcessData;
-        // Make sure processData has the expected structure before using it
         if (!processData || !processData.steps) {
           console.error('Invalid process data structure:', process);
-          return null; // Skip rendering this process
+          return null;
         }
         
         return (
@@ -87,7 +84,7 @@ export function SavedProcesses({ onCreateNew }: { onCreateNew: () => void }) {
                 onClick={() => handleRunProcess(process.id)}
               >
                 <Play className="w-4 h-4 mr-2" />
-                Run Process
+                Work on Process
               </Button>
             </div>
           </Card>

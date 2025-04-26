@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
@@ -130,24 +129,14 @@ export default function ActionStudio() {
           <TabsContent value="processes">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg sm:text-xl font-semibold">Saved Processes</h2>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setIsRestockProcessOpen(true)}
-                >
-                  <Package className="w-4 h-4 mr-2 text-amber-500" />
-                  Best Sellers Restock
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setIsProcessBuilderOpen(true)}
-                >
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  New Process
-                </Button>
-              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsProcessBuilderOpen(true)}
+              >
+                <PlusCircle className="w-4 h-4 mr-2" />
+                New Process
+              </Button>
             </div>
             <SavedProcesses onCreateNew={() => setIsProcessBuilderOpen(true)} />
           </TabsContent>

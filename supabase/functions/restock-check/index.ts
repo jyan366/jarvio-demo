@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
@@ -17,7 +16,49 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
+
+    // First, check if the Best Sellers Restock process already exists
+    const { data: existingProcess } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('title', 'Monthly Best Sellers Restock Check')
+      .eq('category', 'PROCESS')
+      .single();
+
+    // If the process doesn't exist, create it
+    if (!existingProcess) {
+      const processData = {
+        name: 'Monthly Best Sellers Restock Check',
+        steps: [
+          { id: "check-stock-levels", content: "Check current stock levels of best sellers", completed: false },
+          { id: "analyze-sales", content: "Analyze sales velocity for the past 30 days", completed: false },
+          { id: "create-restock-plan", content: "Create restock plan based on sales analysis", completed: false },
+          { id: "contact-suppliers", content: "Contact suppliers with purchase orders", completed: false },
+          { id: "update-inventory", content: "Update inventory system with new orders", completed: false }
+        ],
+        schedule: 'monthly',
+        autoRun: true,
+        products: [
+          {
+            name: "Beetroot Kimchi 1kg Jar",
+            sku: "BK1000",
+            threshold: 20,
+            supplier: "Organic Farms Ltd"
+          }
+        ]
+      };
+
+      await supabase
+        .from('tasks')
+        .insert({
+          title: 'Monthly Best Sellers Restock Check',
+          description: 'Inventory restock process with 5 steps - runs monthly',
+          category: 'PROCESS',
+          data: processData,
+          user_id: "00000000-0000-0000-0000-000000000000" // Demo user ID
+        });
+    }
+
     // Get all restock processes that are set to auto-run
     const { data: processes, error: processError } = await supabase
       .from('tasks')
