@@ -6,8 +6,7 @@ export const workflowItems: MenuItem[] = [{
   icon: CheckSquare,
   label: 'Home',
   id: 'task-manager',
-  href: '/task-manager',
-  status: 'active'
+  href: '/task-manager'
 }, {
   icon: Box,
   label: 'Action Studio',
