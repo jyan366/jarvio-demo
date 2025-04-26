@@ -4,7 +4,6 @@ import { NavigationVisibilityContext } from './NavigationSettings';
 import { workflowItems } from './navigation/WorkflowItems';
 import { brandToolkitItems } from './navigation/BrandToolkitItems';
 import { supportItems } from './navigation/SupportItems';
-import { knowledgeBaseItems } from './navigation/KnowledgeBaseItems';
 import { MenuSection } from './navigation/MenuSection';
 
 export function NavigationMenu() {
@@ -24,10 +23,7 @@ export function NavigationMenu() {
       {isSectionVisible("support") && (
         <MenuSection items={supportItems} sectionId="support" label="Support" />
       )}
-
-      {isSectionVisible("knowledge-base") && (
-        <MenuSection items={knowledgeBaseItems} sectionId="knowledge-base" />
-      )}
     </div>
   );
 }
+

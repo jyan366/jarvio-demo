@@ -34,7 +34,7 @@ export function NavigationVisibilityProvider({ children }: { children: React.Rea
   // Default navigation settings
   const defaultSections = ["workflow", "brand", "support"];
   const defaultItems = [
-    "dashboard", "task-manager", "action-studio",
+    "dashboard", "task-manager", "action-studio", "knowledge-base",
     "sales-center", "inventory", "listing-hub", "customers", "competitors", "advertising",
     "jarvio-assistant", "financing", "get-support"
   ];
