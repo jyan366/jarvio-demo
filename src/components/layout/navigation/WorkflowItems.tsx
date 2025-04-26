@@ -17,5 +17,5 @@ export const workflowItems: MenuItem[] = [{
   label: 'Knowledge Base',
   id: 'knowledge-base',
   href: '/knowledge-base',
-  status: 'active' // Adding status to make it more prominent
+  status: 'active'
 }];

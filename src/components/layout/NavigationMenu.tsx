@@ -8,8 +8,6 @@ import { MenuSection } from './navigation/MenuSection';
 
 export function NavigationMenu() {
   const { isSectionVisible } = useContext(NavigationVisibilityContext);
-
-  // Force render by using a key with timestamp
   const renderKey = Date.now().toString();
 
   return (
