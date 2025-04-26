@@ -1,8 +1,9 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Dashboard from "./pages/Dashboard";
 import TaskManager from "./pages/TaskManager";
@@ -41,7 +42,7 @@ export default function App() {
           <Router>
             <Routes>
               <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Navigate to="/task-manager" replace />} />
               <Route path="/task-manager" element={<TaskManager />} />
               <Route path="/action-studio" element={<ActionStudio />} />
               <Route path="/sales-hub" element={<SalesHub />} />
@@ -70,3 +71,4 @@ export default function App() {
     </ThemeProvider>
   );
 }
+
