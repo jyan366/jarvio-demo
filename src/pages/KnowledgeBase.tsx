@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { EmptyKnowledgeBase } from '@/components/knowledge-base/EmptyKnowledgeBase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FileText, Search, Grid, List, Plus, TrendingUp, Users, Brain, Layers } from 'lucide-react';
@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function KnowledgeBase() {
+  const [hasDocuments, setHasDocuments] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('all');
@@ -24,6 +25,18 @@ export default function KnowledgeBase() {
     { id: 'customer', label: 'Customer Insights' },
     { id: 'operations', label: 'Operations' },
   ];
+
+  const handleGetStarted = () => {
+    setHasDocuments(true);
+  };
+
+  if (!hasDocuments) {
+    return (
+      <MainLayout>
+        <EmptyKnowledgeBase onGetStarted={handleGetStarted} />
+      </MainLayout>
+    );
+  }
 
   const documents = [
     {
@@ -229,7 +242,6 @@ export default function KnowledgeBase() {
         </div>
 
         <div className="space-y-6">
-          {/* Improved responsive control section */}
           <div className="flex flex-col space-y-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
             <div className="w-full">
               <div className="relative w-full">
