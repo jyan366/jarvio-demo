@@ -4,37 +4,46 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload } from 'lucide-react';
+import { Upload, File } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export function DocumentUploader() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [fileName, setFileName] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+
+  // Simulate file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFileName(e.target.files[0].name);
+      if (!title) {
+        setTitle(e.target.files[0].name.split('.')[0]);
+      }
+    }
+  };
 
   const handleUpload = async () => {
     if (!title) return;
 
     setIsUploading(true);
+    
     try {
-      // For demo purposes, we'll use a fixed demo user ID
-      const demoUserId = "00000000-0000-0000-0000-000000000000";
+      // Store document in local storage for demo purposes
+      const newDoc = {
+        id: crypto.randomUUID(),
+        title,
+        description,
+        created_at: new Date().toISOString(),
+      };
       
-      // Store document metadata in the database
-      const { error: dbError } = await supabase
-        .from('ai_documents')
-        .insert({
-          title,
-          description,
-          file_path: 'demo-path', // Placeholder path
-          file_type: 'text/plain',
-          file_size: 0,
-          user_id: demoUserId
-        });
-
-      if (dbError) throw dbError;
+      // Get existing documents
+      const existingDocs = JSON.parse(localStorage.getItem('ai_documents') || '[]');
+      
+      // Add new document
+      localStorage.setItem('ai_documents', JSON.stringify([newDoc, ...existingDocs]));
 
       toast({
         title: "Success",
@@ -44,6 +53,7 @@ export function DocumentUploader() {
       // Reset form
       setTitle('');
       setDescription('');
+      setFileName('');
     } catch (error) {
       console.error('Error saving document:', error);
       toast({
@@ -77,6 +87,27 @@ export function DocumentUploader() {
           placeholder="Enter document description"
           rows={3}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="file">Select File (optional)</Label>
+        <div className="flex items-center gap-2">
+          <Input
+            id="file"
+            type="file"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => document.getElementById('file')?.click()}
+            className="w-full"
+          >
+            <File className="mr-2 h-4 w-4" />
+            {fileName ? fileName : "Browse Files..."}
+          </Button>
+        </div>
       </div>
 
       <Button

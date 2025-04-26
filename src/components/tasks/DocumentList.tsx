@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { FileText, Trash2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 interface Document {
   id: string;
@@ -17,36 +16,31 @@ export function DocumentList() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const { toast } = useToast();
 
-  const fetchDocuments = async () => {
-    const { data, error } = await supabase
-      .from('ai_documents')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching documents:', error);
-      return;
+  const fetchDocuments = () => {
+    const storedDocs = localStorage.getItem('ai_documents');
+    if (storedDocs) {
+      setDocuments(JSON.parse(storedDocs));
     }
-
-    setDocuments(data || []);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     try {
-      const { error } = await supabase
-        .from('ai_documents')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      // Get existing documents
+      const existingDocs = JSON.parse(localStorage.getItem('ai_documents') || '[]');
+      
+      // Filter out the deleted document
+      const updatedDocs = existingDocs.filter((doc: Document) => doc.id !== id);
+      
+      // Update localStorage
+      localStorage.setItem('ai_documents', JSON.stringify(updatedDocs));
+      
+      // Update state
+      setDocuments(updatedDocs);
 
       toast({
         title: "Success",
         description: "Document deleted successfully",
       });
-
-      // Refresh the list
-      fetchDocuments();
     } catch (error) {
       console.error('Error deleting document:', error);
       toast({
@@ -59,6 +53,18 @@ export function DocumentList() {
 
   useEffect(() => {
     fetchDocuments();
+  }, []);
+
+  // Add an effect to listen for storage changes from other instances
+  useEffect(() => {
+    const handleStorageChange = () => {
+      fetchDocuments();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   if (documents.length === 0) {
