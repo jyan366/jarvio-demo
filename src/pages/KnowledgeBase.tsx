@@ -1,6 +1,7 @@
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { EmptyKnowledgeBase } from '@/components/knowledge-base/EmptyKnowledgeBase';
+import { KnowledgeBaseWalkthrough } from '@/components/knowledge-base/KnowledgeBaseWalkthrough';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FileText, Search, Grid, List, Plus, TrendingUp, Users, Brain, Layers } from 'lucide-react';
@@ -12,6 +13,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function KnowledgeBase() {
   const [hasDocuments, setHasDocuments] = React.useState(false);
+  const [isWalkthrough, setIsWalkthrough] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('all');
@@ -27,10 +29,22 @@ export default function KnowledgeBase() {
   ];
 
   const handleGetStarted = () => {
+    setIsWalkthrough(true);
+  };
+
+  const handleWalkthroughComplete = () => {
+    setIsWalkthrough(false);
     setHasDocuments(true);
   };
 
   if (!hasDocuments) {
+    if (isWalkthrough) {
+      return (
+        <MainLayout>
+          <KnowledgeBaseWalkthrough onComplete={handleWalkthroughComplete} />
+        </MainLayout>
+      );
+    }
     return (
       <MainLayout>
         <EmptyKnowledgeBase onGetStarted={handleGetStarted} />
