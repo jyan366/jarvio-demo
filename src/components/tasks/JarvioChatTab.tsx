@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -65,24 +66,25 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full relative">
-      <ScrollArea 
-        ref={scrollAreaRef}
-        className="flex-1"
-      >
-        <div className="p-4 pb-20">
-          <JarvioChatMessages 
-            messages={messages}
-            subtasks={subtasks}
-            activeSubtaskIdx={activeSubtaskIdx}
-            onGenerateSteps={onGenerateSteps}
-          />
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+    <div className="flex flex-col h-full">
+      {/* Main container with fixed height and overflow handling */}
+      <div className="flex-1 relative h-full">
+        {/* Scrollable messages area taking full height */}
+        <ScrollArea className="absolute inset-0 pb-16">
+          <div className="p-4">
+            <JarvioChatMessages 
+              messages={messages}
+              subtasks={subtasks}
+              activeSubtaskIdx={activeSubtaskIdx}
+              onGenerateSteps={onGenerateSteps}
+            />
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
+      </div>
 
-      {/* Input area - fixed at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 border-t bg-white">
+      {/* Input area - fixed at bottom using absolute positioning */}
+      <div className="absolute bottom-0 left-0 right-0 border-t bg-white z-10">
         <form 
           onSubmit={(e) => {
             e.preventDefault();
