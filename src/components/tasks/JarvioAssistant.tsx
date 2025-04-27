@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { JarvioHeader } from './JarvioHeader';
@@ -30,7 +29,6 @@ export function JarvioAssistant({
   onSubtaskSelect = () => {},
   onGenerateSteps
 }: JarvioAssistantProps) {
-  // Get core assistant logic and state
   const {
     messages,
     setMessages,
@@ -54,12 +52,15 @@ export function JarvioAssistant({
     onSubtaskSelect
   );
 
-  // Tab management
   const { tab, setTab } = useJarvioAssistantTabs();
+
+  // Filter messages for current subtask
+  const currentSubtaskMessages = messages.filter(
+    msg => msg.subtaskIdx === currentSubtaskIndex
+  );
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header with tabs */}
       <JarvioHeader
         tab={tab}
         setTab={setTab}
@@ -68,12 +69,11 @@ export function JarvioAssistant({
         currentStepTitle={subtasks[currentSubtaskIndex]?.title}
       />
       
-      {/* Tab contents */}
       <Tabs value={tab} className="flex-1 overflow-hidden" onValueChange={(value) => setTab(value as JarvioTab)}>
-        <TabsContent value="chat" className="flex-1 overflow-hidden">
+        <TabsContent value="chat" className="flex-1 overflow-hidden relative">
           <div className="flex flex-col h-full">
             <JarvioChatTab
-              messages={messages}
+              messages={currentSubtaskMessages}
               subtasks={subtasks}
               activeSubtaskIdx={currentSubtaskIndex}
               inputValue={inputValue}

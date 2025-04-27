@@ -45,7 +45,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   return (
     <div className="flex flex-col h-full relative">
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 px-4 pt-4 pb-24">
         <JarvioChatMessages 
           messages={messages} 
           subtasks={subtasks}
@@ -54,7 +54,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         />
         <div ref={messagesEndRef} />
       </ScrollArea>
-      <div className="sticky bottom-0 z-10 w-full p-4 bg-white border-t shadow-sm">
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-4 bg-white border-t shadow-sm">
         <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end">
           <Textarea
             value={inputValue}
