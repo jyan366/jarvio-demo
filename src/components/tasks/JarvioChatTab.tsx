@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,22 +47,22 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          <div className="px-4 pt-4 pb-[88px]">
-            <JarvioChatMessages 
-              messages={messages}
-              subtasks={subtasks}
-              activeSubtaskIdx={activeSubtaskIdx}
-              onGenerateSteps={onGenerateSteps}
-            />
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
-      </div>
+      <ScrollArea className="h-full">
+        <div className="px-4 pt-4 pb-[100px]">
+          <JarvioChatMessages 
+            messages={messages}
+            subtasks={subtasks}
+            activeSubtaskIdx={activeSubtaskIdx}
+            onGenerateSteps={onGenerateSteps}
+          />
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
       
-      <div className="absolute bottom-0 right-0 p-4 bg-white border-t shadow-sm" 
-           style={{ width: '380px', marginRight: '32px', borderTopLeftRadius: '8px', borderBottomLeftRadius: '8px' }}>
+      <div 
+        className="absolute bottom-0 right-[32px] p-4 bg-white border-t shadow-sm rounded-l-lg"
+        style={{ width: '380px' }}
+      >
         <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end">
           <Textarea
             value={inputValue}
