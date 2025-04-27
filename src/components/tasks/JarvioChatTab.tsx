@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -33,14 +32,6 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  // Initial scroll to bottom
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
-  }, []);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -66,11 +57,10 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Main container with fixed height and overflow handling */}
-      <div className="flex-1 relative h-full">
-        {/* Scrollable messages area taking full height */}
-        <ScrollArea className="absolute inset-0 pb-16">
+    <div className="h-[calc(100vh-12rem)] flex flex-col relative overflow-hidden">
+      {/* Messages container with scroll */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full pb-[76px]">
           <div className="p-4">
             <JarvioChatMessages 
               messages={messages}
@@ -83,8 +73,8 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         </ScrollArea>
       </div>
 
-      {/* Input area - fixed at bottom using absolute positioning */}
-      <div className="absolute bottom-0 left-0 right-0 border-t bg-white z-10">
+      {/* Fixed input at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 border-t bg-white shadow-md" style={{ width: 'inherit' }}>
         <form 
           onSubmit={(e) => {
             e.preventDefault();
