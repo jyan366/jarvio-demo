@@ -47,7 +47,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   return (
     <div className="flex flex-col h-full relative">
-      <ScrollArea className="flex-1 pb-[100px]">
+      <ScrollArea className="h-[calc(100vh-200px)] overflow-y-auto">
         <div className="px-4 pt-4">
           <JarvioChatMessages 
             messages={messages}
