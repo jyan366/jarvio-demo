@@ -1,14 +1,14 @@
 
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DocumentUploader } from './DocumentUploader';
-import { DocumentList } from './DocumentList';
+import { useState, useRef } from 'react';
+import { TabsContent } from "@/components/ui/tabs";
+import { JarvioHeader } from './JarvioHeader';
 import { JarvioChatTab } from './JarvioChatTab';
 import { JarvioDataLogTab } from './JarvioDataLogTab';
+import { JarvioDocumentsTab } from './JarvioDocumentsTab';
 import { useJarvioAssistantLogic } from './hooks/useJarvioAssistantLogic';
 import { useJarvioAssistantTabs } from './hooks/useJarvioAssistantTabs';
+import { useJarvioAutoRun } from './hooks/useJarvioAutoRun';
 import { Subtask } from "@/pages/TaskWorkContainer";
-import { AutoRunControls } from './AutoRunControls';
 
 interface JarvioAssistantProps {
   taskId: string;
@@ -31,6 +31,17 @@ export function JarvioAssistant({
   onSubtaskSelect = () => {},
   onGenerateSteps
 }: JarvioAssistantProps) {
+  // Get core assistant logic and state
+  const jarvioLogic = useJarvioAssistantLogic(
+    taskId,
+    taskTitle,
+    taskDescription,
+    subtasks,
+    currentSubtaskIndex,
+    onSubtaskComplete,
+    onSubtaskSelect
+  );
+  
   const {
     messages,
     inputValue,
@@ -43,18 +54,18 @@ export function JarvioAssistant({
     subtaskData,
     isTransitioning,
     handleSendMessage
-  } = useJarvioAssistantLogic(
-    taskId,
-    taskTitle,
-    taskDescription,
-    subtasks,
-    currentSubtaskIndex,
-    onSubtaskComplete,
-    onSubtaskSelect
-  );
+  } = jarvioLogic;
 
+  // Tab management
   const { tab, setTab } = useJarvioAssistantTabs();
 
+  // Auto-run functionality
+  useJarvioAutoRun({
+    ...jarvioLogic,
+    messages
+  });
+
+  // Handle toggle functions for auto-run controls
   const handleToggleAutoRun = () => {
     setAutoRunMode(prev => !prev);
     setAutoRunPaused(false);
@@ -66,24 +77,20 @@ export function JarvioAssistant({
 
   return (
     <div className="h-full flex flex-col">
-      <Tabs defaultValue="chat" className="flex-1" value={tab} onValueChange={(value) => setTab(value as "chat" | "datalog")}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="chat">Chat</TabsTrigger>
-          <TabsTrigger value="datalog">Data Log</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-        </TabsList>
-        
+      {/* Header with tabs and auto-run controls */}
+      <JarvioHeader
+        tab={tab}
+        setTab={setTab}
+        autoRunMode={autoRunMode}
+        autoRunPaused={autoRunPaused}
+        onToggleAutoRun={handleToggleAutoRun}
+        onTogglePause={handleTogglePause}
+      />
+      
+      {/* Tab contents */}
+      <div className="flex-1 overflow-hidden">
         <TabsContent value="chat" className="flex-1 overflow-hidden">
           <div className="flex flex-col h-full">
-            <div className="flex justify-between items-center p-3 border-b">
-              <AutoRunControls
-                autoRunMode={autoRunMode}
-                autoRunPaused={autoRunPaused}
-                onToggleAutoRun={handleToggleAutoRun}
-                onTogglePause={handleTogglePause}
-                className="w-full"
-              />
-            </div>
             <JarvioChatTab
               messages={messages}
               subtasks={subtasks}
@@ -109,15 +116,9 @@ export function JarvioAssistant({
         </TabsContent>
 
         <TabsContent value="documents" className="flex-1 overflow-auto">
-          <div className="space-y-6 p-4">
-            <DocumentUploader />
-            <div className="border-t pt-6">
-              <h3 className="font-medium mb-4">Uploaded Documents</h3>
-              <DocumentList />
-            </div>
-          </div>
+          <JarvioDocumentsTab />
         </TabsContent>
-      </Tabs>
+      </div>
     </div>
   );
 }
