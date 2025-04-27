@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -43,11 +42,26 @@ export function useJarvioAssistantLogic(
   const [subtaskData, setSubtaskData] = useState<SubtaskDataMap>({});
   const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [hasWelcomeMessage, setHasWelcomeMessage] = useState(false);
   
   // References for auto-run functionality
   const autoRunTimerRef = useRef<number>();
   const autoRunStepInProgressRef = useRef(false);
   const { toast } = useToast();
+
+  // Send welcome message when component mounts
+  useEffect(() => {
+    if (!hasWelcomeMessage && subtasks.length > 0) {
+      // Create a welcome message
+      const currentSubtask = subtasks[currentSubtaskIndex];
+      let welcomeMessage = `Hello! How can I assist you today? If you're ready to work on "${taskTitle}", we can start with the current subtask: ${currentSubtask?.title}.`;
+      
+      // Add the welcome message to the messages list
+      const welcomeSystemMessage = formatJarvioResponse(crypto.randomUUID(), welcomeMessage, currentSubtaskIndex);
+      setMessages([welcomeSystemMessage]);
+      setHasWelcomeMessage(true);
+    }
+  }, [subtasks, currentSubtaskIndex, hasWelcomeMessage, taskTitle]);
 
   // Function to handle sending messages to Jarvio
   const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string) => {

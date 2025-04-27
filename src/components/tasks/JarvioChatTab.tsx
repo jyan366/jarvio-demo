@@ -32,13 +32,16 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
+  // Focus input when loading completes
   useEffect(() => {
     if (!isLoading && inputRef.current) {
       inputRef.current.focus();
@@ -47,10 +50,17 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Main scrollable area with explicit scrollbar */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-[calc(100vh-220px)] overflow-y-auto show-scrollbar pr-2">
-          <div className="px-4 py-4">
+      {/* Main scrollable area with visible scrollbar */}
+      <div className="flex-1 relative overflow-hidden">
+        <div 
+          ref={scrollContainerRef}
+          className="absolute inset-0 overflow-y-auto scrollbar-visible"
+          style={{
+            scrollbarWidth: "thin",
+            scrollbarColor: "#D1D5DB transparent"
+          }}
+        >
+          <div className="px-4 py-4 pb-20">
             <JarvioChatMessages 
               messages={messages}
               subtasks={subtasks}
@@ -63,7 +73,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
       </div>
       
       {/* Fixed input area */}
-      <div className="sticky bottom-0 left-0 right-0 p-4 bg-white border-t shadow-md">
+      <div className="sticky bottom-0 left-0 right-0 p-4 bg-white border-t shadow-md z-10">
         <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end max-w-full">
           <Textarea
             value={inputValue}
