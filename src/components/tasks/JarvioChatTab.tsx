@@ -6,6 +6,7 @@ import { Loader2, Send } from "lucide-react";
 import { JarvioChatMessages } from "./JarvioChatMessages";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { toast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface JarvioChatTabProps {
   messages: any[];
@@ -32,6 +33,14 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Initial scroll to bottom
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  }, []);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -58,8 +67,11 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Messages area - flexible height with scrolling */}
-      <div className="flex-1 overflow-y-auto pb-2">
+      {/* Messages container with ScrollArea */}
+      <ScrollArea 
+        className="flex-1" 
+        ref={scrollContainerRef}
+      >
         <div className="p-4">
           <JarvioChatMessages 
             messages={messages}
@@ -69,10 +81,10 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           />
           <div ref={messagesEndRef} />
         </div>
-      </div>
-      
+      </ScrollArea>
+
       {/* Input area - fixed at bottom */}
-      <div className="flex-shrink-0 border-t bg-white shadow-md mt-auto">
+      <div className="flex-shrink-0 border-t bg-white">
         <form 
           onSubmit={(e) => {
             e.preventDefault();
@@ -114,3 +126,4 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     </div>
   );
 };
+
