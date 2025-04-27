@@ -8,6 +8,7 @@ import { JarvioDataLogTab } from './JarvioDataLogTab';
 import { useJarvioAssistantLogic } from './hooks/useJarvioAssistantLogic';
 import { useJarvioAssistantTabs } from './hooks/useJarvioAssistantTabs';
 import { Subtask } from "@/pages/TaskWorkContainer";
+import { AutoRunControls } from './AutoRunControls';
 
 interface JarvioAssistantProps {
   taskId: string;
@@ -73,21 +74,30 @@ export function JarvioAssistant({
         </TabsList>
         
         <TabsContent value="chat" className="flex-1 overflow-hidden">
-          <JarvioChatTab
-            messages={messages}
-            subtasks={subtasks}
-            activeSubtaskIdx={currentSubtaskIndex}
-            inputValue={inputValue}
-            setInputValue={setInputValue}
-            isLoading={isLoading}
-            autoRunMode={autoRunMode}
-            autoRunPaused={autoRunPaused}
-            isTransitioning={isTransitioning}
-            onSendMessage={handleSendMessage}
-            onGenerateSteps={onGenerateSteps}
-            onToggleAutoRun={handleToggleAutoRun}
-            onTogglePause={handleTogglePause}
-          />
+          <div className="flex flex-col h-full">
+            <div className="flex justify-between items-center p-3 border-b">
+              <AutoRunControls
+                autoRunMode={autoRunMode}
+                autoRunPaused={autoRunPaused}
+                onToggleAutoRun={handleToggleAutoRun}
+                onTogglePause={handleTogglePause}
+                className="w-full"
+              />
+            </div>
+            <JarvioChatTab
+              messages={messages}
+              subtasks={subtasks}
+              activeSubtaskIdx={currentSubtaskIndex}
+              inputValue={inputValue}
+              setInputValue={setInputValue}
+              isLoading={isLoading}
+              autoRunMode={autoRunMode}
+              autoRunPaused={autoRunPaused}
+              isTransitioning={isTransitioning}
+              onSendMessage={handleSendMessage}
+              onGenerateSteps={onGenerateSteps}
+            />
+          </div>
         </TabsContent>
         
         <TabsContent value="datalog" className="flex-1 overflow-auto">

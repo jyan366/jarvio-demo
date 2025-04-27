@@ -93,4 +93,3 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     </div>
   );
 };
-
