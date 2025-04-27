@@ -1,6 +1,6 @@
 
 import { useState, useRef } from 'react';
-import { TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { JarvioHeader } from './JarvioHeader';
 import { JarvioChatTab } from './JarvioChatTab';
 import { JarvioDataLogTab } from './JarvioDataLogTab';
@@ -97,7 +97,7 @@ export function JarvioAssistant({
       />
       
       {/* Tab contents */}
-      <div className="flex-1 overflow-hidden">
+      <Tabs value={tab} className="flex-1 overflow-hidden" onValueChange={(value) => setTab(value as JarvioTab)}>
         <TabsContent value="chat" className="flex-1 overflow-hidden">
           <div className="flex flex-col h-full">
             <JarvioChatTab
@@ -127,7 +127,7 @@ export function JarvioAssistant({
         <TabsContent value="documents" className="flex-1 overflow-auto">
           <JarvioDocumentsTab />
         </TabsContent>
-      </div>
+      </Tabs>
     </div>
   );
 }

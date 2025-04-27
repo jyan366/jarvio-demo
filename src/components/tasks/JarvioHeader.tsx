@@ -23,18 +23,19 @@ export const JarvioHeader: React.FC<JarvioHeaderProps> = ({
 }) => {
   return (
     <>
-      <Tabs 
-        defaultValue="chat" 
-        className="flex-1" 
-        value={tab} 
-        onValueChange={(value) => setTab(value as JarvioTab)}
-      >
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="chat">Chat</TabsTrigger>
-          <TabsTrigger value="datalog">Data Log</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="border-b">
+        <Tabs 
+          value={tab} 
+          onValueChange={(value) => setTab(value as JarvioTab)}
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="chat">Chat</TabsTrigger>
+            <TabsTrigger value="datalog">Data Log</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
       {tab === "chat" && (
         <div className="flex justify-between items-center p-3 border-b">
