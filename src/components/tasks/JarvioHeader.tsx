@@ -25,17 +25,16 @@ export const JarvioHeader: React.FC<JarvioHeaderProps> = ({
           <p className="text-sm text-muted-foreground">
             Step {currentStep} of {totalSteps}
           </p>
-          <h3 className="font-medium truncate">{currentStepTitle}</h3>
+          <h3 className="font-medium truncate text-purple-700">{currentStepTitle}</h3>
         </div>
         <Tabs 
           value={tab} 
           onValueChange={(value) => setTab(value as JarvioTab)}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="chat">Chat</TabsTrigger>
-            <TabsTrigger value="datalog">Data Log</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="datalog">Work Log</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

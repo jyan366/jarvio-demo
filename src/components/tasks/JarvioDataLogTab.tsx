@@ -39,6 +39,11 @@ export const JarvioDataLogTab: React.FC<JarvioDataLogTabProps> = ({
     const aiMatch = data.result.match(/COLLECTED DATA:\s*([\s\S]+?)(?=(USER WORK LOG:|$))/i);
     jarvioWorkLog = aiMatch?.[1]?.trim() || "";
 
+    // If no explicit COLLECTED DATA section, use the whole result
+    if (!jarvioWorkLog && data.result) {
+      jarvioWorkLog = data.result.trim();
+    }
+
     // Extract any "USER WORK LOG:" section
     const userMatch = data.result.match(/USER WORK LOG:\s*([\s\S]+)/i);
     userWorkLog = userMatch?.[1]?.trim() || "";

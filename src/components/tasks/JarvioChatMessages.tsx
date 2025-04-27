@@ -1,6 +1,6 @@
 
 import React from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, CheckCircle2 } from "lucide-react";
 import Markdown from "markdown-to-jsx";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
@@ -37,36 +37,72 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
     );
   }
 
+  const currentSubtask = subtasks[activeSubtaskIdx];
+
   return (
     <div className="space-y-4 pb-4">
-      {messages.map((message, index) => (
-        <div
-          key={message.id || index}
-          className={`flex ${
-            message.isUser ? "justify-end" : "justify-start"
-          }`}
-        >
+      {messages.map((message, index) => {
+        // Check if message contains subtask complete notification
+        const isSubtaskComplete = !message.isUser && 
+          message.text.includes("SUBTASK COMPLETE") || 
+          message.text.includes("Subtask complete");
+
+        return (
           <div
-            className={`max-w-[85%] rounded-lg p-3 ${
-              message.isUser
-                ? "bg-primary text-primary-foreground ml-4"
-                : message.systemLog
-                ? "bg-muted border border-border"
-                : "bg-muted/50 border border-primary/10 mr-4"
+            key={message.id || index}
+            className={`flex ${
+              message.isUser ? "justify-end" : "justify-start"
             }`}
           >
-            <div className="prose prose-sm dark:prose-invert break-words">
-              <Markdown options={{
-                forceBlock: true,
-                wrapper: "div",
-                forceWrapper: true,
-              }}>
-                {message.text}
-              </Markdown>
+            {message.isUser && (
+              <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center mr-2 self-start mt-1">
+                <span className="text-sm font-semibold text-zinc-700">
+                  {message.user?.[0]?.toUpperCase() || "U"}
+                </span>
+              </div>
+            )}
+            
+            <div
+              className={`max-w-[85%] rounded-lg p-3 ${
+                message.isUser
+                  ? "bg-white border border-gray-200"
+                  : isSubtaskComplete
+                  ? "bg-purple-100 border border-purple-200 w-full"
+                  : "bg-muted/50 border border-primary/10"
+              }`}
+            >
+              {!message.isUser && !message.systemLog && currentSubtask && (
+                <div className="text-purple-600 font-medium text-sm mb-1">
+                  {currentSubtask.title}
+                </div>
+              )}
+              
+              <div className="prose prose-sm dark:prose-invert break-words">
+                {isSubtaskComplete ? (
+                  <div className="flex items-center text-purple-700">
+                    <CheckCircle2 className="h-5 w-5 mr-2 text-green-500" />
+                    <span>Subtask complete! Please mark this subtask as done and select the next one to continue.</span>
+                  </div>
+                ) : (
+                  <Markdown options={{
+                    forceBlock: true,
+                    wrapper: "div",
+                    forceWrapper: true,
+                  }}>
+                    {message.text}
+                  </Markdown>
+                )}
+              </div>
+              
+              {message.timestamp && (
+                <div className="text-right text-xs text-gray-400 mt-1">
+                  {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

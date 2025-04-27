@@ -75,7 +75,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           <Button 
             type="submit" 
             disabled={!inputValue.trim() || isLoading || isTransitioning}
-            className="self-end"
+            className="self-end rounded-full"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

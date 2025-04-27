@@ -1,9 +1,9 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { JarvioHeader } from './JarvioHeader';
 import { JarvioChatTab } from './JarvioChatTab';
 import { JarvioDataLogTab } from './JarvioDataLogTab';
-import { JarvioDocumentsTab } from './JarvioDocumentsTab';
 import { useJarvioAssistantLogic } from './hooks/useJarvioAssistantLogic';
 import { useJarvioAssistantTabs, JarvioTab } from './hooks/useJarvioAssistantTabs';
 import { Subtask } from "@/pages/TaskWorkContainer";
@@ -92,10 +92,6 @@ export function JarvioAssistant({
             subtaskData={subtaskData}
             activeSubtaskIdx={currentSubtaskIndex}
           />
-        </TabsContent>
-
-        <TabsContent value="documents" className="flex-1 overflow-auto">
-          <JarvioDocumentsTab />
         </TabsContent>
       </Tabs>
     </div>
