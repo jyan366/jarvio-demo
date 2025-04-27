@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,7 +46,6 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Main scrollable area with explicit scrollbar */}
       <div className="flex-1 overflow-hidden">
         <div className="h-[calc(100vh-220px)] overflow-y-auto show-scrollbar pr-2">
           <div className="px-4 py-4">
@@ -62,8 +60,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         </div>
       </div>
       
-      {/* Fixed input area */}
-      <div className="sticky bottom-0 left-0 right-0 p-4 bg-white border-t shadow-md">
+      <div className="sticky bottom-0 left-0 right-0 p-3 bg-white border-t shadow-md">
         <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end max-w-full">
           <Textarea
             value={inputValue}
