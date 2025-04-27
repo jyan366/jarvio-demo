@@ -46,24 +46,20 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   }, [isLoading]);
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Messages container with proper scrolling */}
-      <div className="flex-1 overflow-hidden relative">
-        <ScrollArea className="h-full pb-2">
-          <div className="px-4 pt-4">
-            <JarvioChatMessages 
-              messages={messages}
-              subtasks={subtasks}
-              activeSubtaskIdx={activeSubtaskIdx}
-              onGenerateSteps={onGenerateSteps}
-            />
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
-      </div>
+    <div className="flex flex-col h-full relative">
+      <ScrollArea className="flex-1 pb-[100px]">
+        <div className="px-4 pt-4">
+          <JarvioChatMessages 
+            messages={messages}
+            subtasks={subtasks}
+            activeSubtaskIdx={activeSubtaskIdx}
+            onGenerateSteps={onGenerateSteps}
+          />
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
       
-      {/* Fixed input area at bottom */}
-      <div className="border-t shadow-md bg-white py-4 px-4">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-md">
         <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end max-w-full">
           <Textarea
             value={inputValue}
