@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ interface JarvioChatTabProps {
   autoRunMode: boolean;
   autoRunPaused: boolean;
   isTransitioning: boolean;
-  onSendMessage: (message: string) => void;
+  onSendMessage: (e?: React.FormEvent) => void;
   onGenerateSteps?: () => void;
   onToggleAutoRun?: () => void;
   onTogglePause?: () => void;
@@ -52,13 +52,6 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     }
   }, [isLoading]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim() && !isLoading) {
-      onSendMessage(inputValue);
-    }
-  };
-
   return (
     <div className="flex flex-col h-full relative">
       <div className="flex justify-between items-center p-4 border-b">
@@ -81,7 +74,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
       </ScrollArea>
 
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={onSendMessage} className="flex gap-2">
           <Textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -93,7 +86,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 if (inputValue.trim() && !isLoading) {
-                  handleSubmit(e);
+                  onSendMessage(e);
                 }
               }
             }}
