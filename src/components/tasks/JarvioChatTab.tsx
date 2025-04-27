@@ -14,8 +14,6 @@ interface JarvioChatTabProps {
   inputValue: string;
   setInputValue: (value: string) => void;
   isLoading: boolean;
-  autoRunMode: boolean;
-  autoRunPaused: boolean;
   isTransitioning: boolean;
   onSendMessage: (e?: React.FormEvent, autoMessage?: string) => void;
   onGenerateSteps?: () => void;
@@ -28,8 +26,6 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   inputValue,
   setInputValue,
   isLoading,
-  autoRunMode,
-  autoRunPaused,
   isTransitioning,
   onSendMessage,
   onGenerateSteps,
@@ -49,7 +45,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   return (
     <div className="flex flex-col h-full relative">
-      <ScrollArea className="flex-1 p-4 overflow-y-auto">
+      <ScrollArea className="flex-1 p-4">
         <JarvioChatMessages 
           messages={messages} 
           subtasks={subtasks}
@@ -58,13 +54,13 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         />
         <div ref={messagesEndRef} />
       </ScrollArea>
-      <div className="p-4 border-t bg-white">
-        <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2">
+      <div className="sticky bottom-0 z-10 w-full p-4 bg-white border-t shadow-sm">
+        <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end">
           <Textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={isLoading ? "Jarvio is thinking..." : "Type a message..."}
-            className="flex-1 min-h-[36px] max-h-24"
+            className="flex-1 min-h-[36px] max-h-24 resize-none"
             disabled={isLoading || isTransitioning}
             ref={inputRef}
             onKeyDown={(e) => {

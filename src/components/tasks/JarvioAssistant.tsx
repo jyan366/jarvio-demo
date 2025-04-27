@@ -1,13 +1,12 @@
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { JarvioHeader } from './JarvioHeader';
 import { JarvioChatTab } from './JarvioChatTab';
 import { JarvioDataLogTab } from './JarvioDataLogTab';
 import { JarvioDocumentsTab } from './JarvioDocumentsTab';
 import { useJarvioAssistantLogic } from './hooks/useJarvioAssistantLogic';
-import { useJarvioAssistantTabs, JarvioTab } from './hooks/useJarvioAssistantTabs';
-import { useJarvioAutoRun } from './hooks/useJarvioAutoRun';
+import { useJarvioAssistantTabs } from './hooks/useJarvioAssistantTabs';
 import { Subtask } from "@/pages/TaskWorkContainer";
 
 interface JarvioAssistantProps {
@@ -32,7 +31,20 @@ export function JarvioAssistant({
   onGenerateSteps
 }: JarvioAssistantProps) {
   // Get core assistant logic and state
-  const jarvioLogic = useJarvioAssistantLogic(
+  const {
+    messages,
+    setMessages,
+    inputValue,
+    setInputValue,
+    isLoading,
+    subtaskData,
+    handleSendMessage,
+    readyForNextSubtask,
+    setReadyForNextSubtask,
+    historySubtaskIdx,
+    setHistorySubtaskIdx,
+    setIsTransitioning,
+  } = useJarvioAssistantLogic(
     taskId,
     taskTitle,
     taskDescription,
@@ -41,59 +53,19 @@ export function JarvioAssistant({
     onSubtaskComplete,
     onSubtaskSelect
   );
-  
-  const {
-    messages,
-    setMessages,
-    inputValue,
-    setInputValue,
-    isLoading,
-    autoRunMode,
-    setAutoRunMode,
-    autoRunPaused,
-    setAutoRunPaused,
-    subtaskData,
-    isTransitioning,
-    handleSendMessage,
-    readyForNextSubtask,
-    setReadyForNextSubtask,
-    historySubtaskIdx,
-    setIsTransitioning,
-    autoRunTimerRef,
-    autoRunStepInProgressRef
-  } = jarvioLogic;
 
   // Tab management
   const { tab, setTab } = useJarvioAssistantTabs();
 
-  // Auto-run functionality
-  useJarvioAutoRun({
-    ...jarvioLogic,
-    messages,
-    onSubtaskComplete,
-    onSubtaskSelect
-  });
-
-  // Handle toggle functions for auto-run controls
-  const handleToggleAutoRun = () => {
-    setAutoRunMode(prev => !prev);
-    setAutoRunPaused(false);
-  };
-
-  const handleTogglePause = () => {
-    setAutoRunPaused(prev => !prev);
-  };
-
   return (
     <div className="h-full flex flex-col">
-      {/* Header with tabs and auto-run controls */}
+      {/* Header with tabs */}
       <JarvioHeader
         tab={tab}
         setTab={setTab}
-        autoRunMode={autoRunMode}
-        autoRunPaused={autoRunPaused}
-        onToggleAutoRun={handleToggleAutoRun}
-        onTogglePause={handleTogglePause}
+        currentStep={currentSubtaskIndex + 1}
+        totalSteps={subtasks.length}
+        currentStepTitle={subtasks[currentSubtaskIndex]?.title}
       />
       
       {/* Tab contents */}
@@ -107,9 +79,7 @@ export function JarvioAssistant({
               inputValue={inputValue}
               setInputValue={setInputValue}
               isLoading={isLoading}
-              autoRunMode={autoRunMode}
-              autoRunPaused={autoRunPaused}
-              isTransitioning={isTransitioning}
+              isTransitioning={false}
               onSendMessage={handleSendMessage}
               onGenerateSteps={onGenerateSteps}
             />

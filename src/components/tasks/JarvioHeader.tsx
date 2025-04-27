@@ -1,29 +1,32 @@
 
 import React from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AutoRunControls } from "./AutoRunControls";
 import { JarvioTab } from "./hooks/useJarvioAssistantTabs";
 
 interface JarvioHeaderProps {
   tab: JarvioTab;
   setTab: (tab: JarvioTab) => void;
-  autoRunMode: boolean;
-  autoRunPaused: boolean;
-  onToggleAutoRun: () => void;
-  onTogglePause: () => void;
+  currentStep: number;
+  totalSteps: number;
+  currentStepTitle?: string;
 }
 
 export const JarvioHeader: React.FC<JarvioHeaderProps> = ({
   tab,
   setTab,
-  autoRunMode,
-  autoRunPaused,
-  onToggleAutoRun,
-  onTogglePause
+  currentStep,
+  totalSteps,
+  currentStepTitle
 }) => {
   return (
     <>
       <div className="border-b">
+        <div className="bg-muted/30 px-4 py-2 border-b">
+          <p className="text-sm text-muted-foreground">
+            Step {currentStep} of {totalSteps}
+          </p>
+          <h3 className="font-medium truncate">{currentStepTitle}</h3>
+        </div>
         <Tabs 
           value={tab} 
           onValueChange={(value) => setTab(value as JarvioTab)}
@@ -36,18 +39,6 @@ export const JarvioHeader: React.FC<JarvioHeaderProps> = ({
           </TabsList>
         </Tabs>
       </div>
-
-      {tab === "chat" && (
-        <div className="flex justify-between items-center p-3 border-b">
-          <AutoRunControls
-            autoRunMode={autoRunMode}
-            autoRunPaused={autoRunPaused}
-            onToggleAutoRun={onToggleAutoRun}
-            onTogglePause={onTogglePause}
-            className="w-full"
-          />
-        </div>
-      )}
     </>
   );
 };
