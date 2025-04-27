@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,10 +45,10 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   }, [isLoading]);
 
   return (
-    <div className="flex flex-col h-full relative">
-      <div className="flex-1 overflow-hidden" style={{ height: 'calc(100vh - 180px)' }}>
-        <ScrollArea className="h-full">
-          <div className="px-4 pt-4 pb-4">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto pb-[100px]">
+        <ScrollArea className="h-full relative">
+          <div className="px-4 py-4">
             <JarvioChatMessages 
               messages={messages}
               subtasks={subtasks}
