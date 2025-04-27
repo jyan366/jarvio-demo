@@ -6,7 +6,7 @@ import { JarvioChatTab } from './JarvioChatTab';
 import { JarvioDataLogTab } from './JarvioDataLogTab';
 import { JarvioDocumentsTab } from './JarvioDocumentsTab';
 import { useJarvioAssistantLogic } from './hooks/useJarvioAssistantLogic';
-import { useJarvioAssistantTabs } from './hooks/useJarvioAssistantTabs';
+import { useJarvioAssistantTabs, JarvioTab } from './hooks/useJarvioAssistantTabs';
 import { Subtask } from "@/pages/TaskWorkContainer";
 
 interface JarvioAssistantProps {
