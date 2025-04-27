@@ -34,7 +34,9 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -44,9 +46,9 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   }, [isLoading]);
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col h-full relative overflow-hidden">
       <ScrollArea className="flex-1 pb-[120px]">
-        <div className="px-4 pt-4">
+        <div className="px-4 pt-4 pb-20">
           <JarvioChatMessages 
             messages={messages}
             subtasks={subtasks}
@@ -57,9 +59,9 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         </div>
       </ScrollArea>
       
-      <div className="fixed bottom-0 left-0 right-0 z-10 p-4 bg-white border-t shadow-sm w-full" 
-           style={{ maxWidth: 'calc(100% - 64px)', marginLeft: '32px', marginRight: '32px' }}>
-        <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end max-w-[800px] mx-auto">
+      <div className="fixed bottom-0 right-0 z-10 p-4 bg-white border-t shadow-sm" 
+           style={{ width: '380px', marginRight: '32px', borderTopLeftRadius: '8px' }}>
+        <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end">
           <Textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
