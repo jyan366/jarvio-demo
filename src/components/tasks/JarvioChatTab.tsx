@@ -1,5 +1,5 @@
+
 import React, { useRef, useEffect } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
@@ -45,23 +45,21 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   }, [isLoading]);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-hidden">
-        <div className="h-[calc(100vh-220px)] overflow-y-auto show-scrollbar pr-2">
-          <div className="px-4 py-4">
-            <JarvioChatMessages 
-              messages={messages}
-              subtasks={subtasks}
-              activeSubtaskIdx={activeSubtaskIdx}
-              onGenerateSteps={onGenerateSteps}
-            />
-            <div ref={messagesEndRef} />
-          </div>
+    <div className="flex flex-col h-full relative">
+      <div className="flex-1 min-h-0 overflow-y-auto show-scrollbar">
+        <div className="p-4">
+          <JarvioChatMessages 
+            messages={messages}
+            subtasks={subtasks}
+            activeSubtaskIdx={activeSubtaskIdx}
+            onGenerateSteps={onGenerateSteps}
+          />
+          <div ref={messagesEndRef} />
         </div>
       </div>
       
-      <div className="sticky bottom-0 left-0 right-0 p-3 bg-white border-t shadow-md">
-        <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end max-w-full">
+      <div className="flex-shrink-0 border-t bg-white shadow-md">
+        <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end p-3">
           <Textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -95,3 +93,4 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     </div>
   );
 };
+
