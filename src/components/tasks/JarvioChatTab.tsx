@@ -48,15 +48,15 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   return (
     <div className="flex flex-col h-full relative">
       {/* Main scrollable area with padding for first/last messages */}
-      <ScrollArea className="flex-1 h-[calc(100vh-180px)] pr-4 pb-24 show-scrollbar">
-        <div className="px-4 py-8 min-h-full">
+      <ScrollArea className="flex-1 h-[calc(100vh-180px)] pr-4 overflow-y-auto show-scrollbar">
+        <div className="space-y-4 px-4 py-8">
           <JarvioChatMessages 
             messages={messages}
             subtasks={subtasks}
             activeSubtaskIdx={activeSubtaskIdx}
             onGenerateSteps={onGenerateSteps}
           />
-          <div ref={messagesEndRef} className="h-8" />
+          <div ref={messagesEndRef} className="h-12" />
         </div>
       </ScrollArea>
       
