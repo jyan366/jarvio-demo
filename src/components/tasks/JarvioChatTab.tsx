@@ -59,10 +59,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         </div>
       </ScrollArea>
       
-      <div 
-        className="absolute bottom-0 right-[32px] p-4 bg-white border-t shadow-sm rounded-l-lg"
-        style={{ width: '380px' }}
-      >
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t shadow-sm">
         <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 items-end">
           <Textarea
             value={inputValue}
