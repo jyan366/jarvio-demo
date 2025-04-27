@@ -1,6 +1,13 @@
 
 import { useState } from "react";
+
+export type JarvioTab = "chat" | "datalog" | "documents";
+
 export function useJarvioAssistantTabs() {
-  const [tab, setTab] = useState<"chat" | "datalog">("chat");
-  return { tab, setTab };
+  const [tab, setTab] = useState<JarvioTab>("chat");
+
+  return {
+    tab,
+    setTab,
+  };
 }

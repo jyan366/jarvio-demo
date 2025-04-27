@@ -6,7 +6,7 @@ import { JarvioChatTab } from './JarvioChatTab';
 import { JarvioDataLogTab } from './JarvioDataLogTab';
 import { JarvioDocumentsTab } from './JarvioDocumentsTab';
 import { useJarvioAssistantLogic } from './hooks/useJarvioAssistantLogic';
-import { useJarvioAssistantTabs } from './hooks/useJarvioAssistantTabs';
+import { useJarvioAssistantTabs, JarvioTab } from './hooks/useJarvioAssistantTabs';
 import { useJarvioAutoRun } from './hooks/useJarvioAutoRun';
 import { Subtask } from "@/pages/TaskWorkContainer";
 
@@ -44,6 +44,7 @@ export function JarvioAssistant({
   
   const {
     messages,
+    setMessages,
     inputValue,
     setInputValue,
     isLoading,
@@ -53,7 +54,13 @@ export function JarvioAssistant({
     setAutoRunPaused,
     subtaskData,
     isTransitioning,
-    handleSendMessage
+    handleSendMessage,
+    readyForNextSubtask,
+    setReadyForNextSubtask,
+    historySubtaskIdx,
+    setIsTransitioning,
+    autoRunTimerRef,
+    autoRunStepInProgressRef
   } = jarvioLogic;
 
   // Tab management
@@ -62,7 +69,9 @@ export function JarvioAssistant({
   // Auto-run functionality
   useJarvioAutoRun({
     ...jarvioLogic,
-    messages
+    messages,
+    onSubtaskComplete,
+    onSubtaskSelect
   });
 
   // Handle toggle functions for auto-run controls
