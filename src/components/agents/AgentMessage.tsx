@@ -15,7 +15,7 @@ export function AgentMessage({ message, agentColor }: AgentMessageProps) {
       message.isUser ? "justify-end" : "justify-start"
     )}>
       <div className={cn(
-        "max-w-[80%] rounded-lg p-3",
+        "max-w-[70%] rounded-lg p-3", // Changed from max-w-[80%] to max-w-[70%]
         message.isUser 
           ? "bg-primary text-primary-foreground" 
           : "bg-muted"
@@ -31,7 +31,7 @@ export function AgentMessage({ message, agentColor }: AgentMessageProps) {
             <span className="text-xs font-semibold">{message.sender}</span>
           </div>
         )}
-        <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+        <div className="text-sm whitespace-pre-wrap break-words">{message.content}</div>
         <div className="text-[10px] opacity-70 text-right mt-1">
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
