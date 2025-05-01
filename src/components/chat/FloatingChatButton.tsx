@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -7,6 +8,14 @@ import { JarvioAssistant } from '@/components/tasks/JarvioAssistant';
 
 export function FloatingChatButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  
+  // Hide button on agents hub page and any potential future agent-related pages
+  const isAgentsPage = location.pathname.includes('/agents-hub');
+  
+  if (isAgentsPage) {
+    return null;
+  }
   
   return (
     <>

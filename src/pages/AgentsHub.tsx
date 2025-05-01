@@ -1,7 +1,6 @@
 
 import React, { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { FloatingChatButton } from "@/components/chat/FloatingChatButton";
 import { AgentsList } from "@/components/agents/AgentsList";
 import { AgentChat } from "@/components/agents/AgentChat";
 import { GroupAgentChat } from "@/components/agents/GroupAgentChat";
@@ -59,7 +58,6 @@ export default function AgentsHub() {
           )}
         </div>
       </div>
-      <FloatingChatButton />
     </MainLayout>
   );
 }
