@@ -16,4 +16,5 @@ export interface Message {
   content: string;
   timestamp: Date;
   isUser: boolean;
+  agentColor?: string;
 }
