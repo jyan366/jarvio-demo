@@ -1,12 +1,12 @@
 
-import { MessageSquare, HelpCircle } from 'lucide-react';
+import { Users, HelpCircle } from 'lucide-react';
 import { MenuItem } from './types';
 
 export const supportItems: MenuItem[] = [{
-  icon: MessageSquare,
-  label: 'Jarvio Assistant',
-  id: 'jarvio-assistant',
-  href: '/ai-assistant'
+  icon: Users,
+  label: 'Agents Hub',
+  id: 'agents-hub',
+  href: '/agents-hub'
 }, {
   icon: HelpCircle,
   label: 'Get Support',

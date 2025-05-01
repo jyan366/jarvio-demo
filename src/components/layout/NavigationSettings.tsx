@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Cog } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -108,7 +107,6 @@ const navigationItems = [
       { id: "task-manager", label: "Home" },
       { id: "action-studio", label: "Action Studio" },
       { id: "knowledge-base", label: "Knowledge Base" },
-      { id: "agents-hub", label: "Agents Hub" },
     ]
   },
   {
@@ -127,7 +125,7 @@ const navigationItems = [
     section: "support",
     sectionLabel: "Support",
     items: [
-      { id: "jarvio-assistant", label: "Jarvio Assistant" },
+      { id: "agents-hub", label: "Agents Hub" },
       { id: "financing", label: "Financing" },
       { id: "get-support", label: "Get Support" },
     ]
