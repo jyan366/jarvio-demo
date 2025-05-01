@@ -6,6 +6,7 @@ import { Loader2, Send, ChevronLeft, Users } from "lucide-react";
 import { Agent, Message } from "./types";
 import { AgentMessage } from "./AgentMessage";
 import { agentsData } from "@/data/agentsData";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface GroupAgentChatProps {
   onBack: () => void;
@@ -16,7 +17,7 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
     {
       id: "welcome",
       sender: "Jarvio",
-      content: "Welcome to the group chat! All our specialist agents are here to help. What would you like to discuss today?",
+      content: "Welcome to the group chat! I'm Jarvio, your team manager. Tell me about your problem, and I'll identify which specialist agent can help you best.",
       timestamp: new Date(),
       isUser: false
     }
@@ -58,46 +59,38 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
     setInputValue("");
     setIsLoading(true);
     
-    // Simulate response - choose a random agent to respond
+    // Simulate Jarvio analyzing and selecting the appropriate agent
     setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * agentsData.length);
-      const respondingAgent = agentsData[randomIndex];
-      
-      const agentResponse: Message = {
-        id: `agent-${Date.now()}`,
-        sender: respondingAgent.name,
-        content: generateAgentResponse(respondingAgent, inputValue),
+      // First Jarvio responds by identifying which agent is best suited
+      const jarvioResponse: Message = {
+        id: `jarvio-${Date.now()}`,
+        sender: "Jarvio",
+        content: identifyRelevantAgent(inputValue),
         timestamp: new Date(),
         isUser: false,
-        agentColor: respondingAgent.avatarColor
+        agentColor: "#9b87f5" // Jarvio purple
       };
       
-      setMessages(prev => [...prev, agentResponse]);
-      setIsLoading(false);
+      setMessages(prev => [...prev, jarvioResponse]);
       
-      // Sometimes add a follow-up from another agent
-      if (Math.random() > 0.5) {
-        setTimeout(() => {
-          let secondAgentIndex = Math.floor(Math.random() * agentsData.length);
-          // Make sure it's a different agent
-          while (secondAgentIndex === randomIndex) {
-            secondAgentIndex = Math.floor(Math.random() * agentsData.length);
-          }
-          const secondAgent = agentsData[secondAgentIndex];
-          
-          const followUpResponse: Message = {
-            id: `agent-followup-${Date.now()}`,
-            sender: secondAgent.name,
-            content: generateFollowUpResponse(secondAgent, respondingAgent),
-            timestamp: new Date(),
-            isUser: false,
-            agentColor: secondAgent.avatarColor
-          };
-          
-          setMessages(prev => [...prev, followUpResponse]);
-        }, 2000);
-      }
-    }, 2000);
+      // Then have the selected agent respond
+      setTimeout(() => {
+        const relevantAgentIndex = determineRelevantAgentIndex(inputValue);
+        const respondingAgent = agentsData[relevantAgentIndex];
+        
+        const agentResponse: Message = {
+          id: `agent-${Date.now()}`,
+          sender: respondingAgent.name,
+          content: generateAgentResponse(respondingAgent, inputValue),
+          timestamp: new Date(),
+          isUser: false,
+          agentColor: respondingAgent.avatarColor
+        };
+        
+        setMessages(prev => [...prev, agentResponse]);
+        setIsLoading(false);
+      }, 1500);
+    }, 1500);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -109,7 +102,88 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
     }
   };
 
-  // Simple response generator based on agent's domain
+  // Determine which agent's domain is most relevant to the message
+  const determineRelevantAgentIndex = (message: string): number => {
+    const lowerMessage = message.toLowerCase();
+    
+    // Simple keyword matching to determine agent relevance
+    const relevanceScores = agentsData.map(agent => {
+      let score = 0;
+      
+      // Check for domain-specific keywords
+      if (agent.domain === "Analytics" && 
+          (lowerMessage.includes("trend") || lowerMessage.includes("data") || 
+           lowerMessage.includes("metric") || lowerMessage.includes("analytic") || 
+           lowerMessage.includes("report") || lowerMessage.includes("performance"))) {
+        score += 2;
+      }
+      
+      if (agent.domain === "Inventory" && 
+          (lowerMessage.includes("stock") || lowerMessage.includes("inventory") || 
+           lowerMessage.includes("restock") || lowerMessage.includes("supply") || 
+           lowerMessage.includes("product") || lowerMessage.includes("item"))) {
+        score += 2;
+      }
+      
+      if (agent.domain === "Listings" && 
+          (lowerMessage.includes("list") || lowerMessage.includes("product page") || 
+           lowerMessage.includes("description") || lowerMessage.includes("title") || 
+           lowerMessage.includes("bullet") || lowerMessage.includes("content"))) {
+        score += 2;
+      }
+      
+      if (agent.domain === "Customer Insights" && 
+          (lowerMessage.includes("customer") || lowerMessage.includes("review") || 
+           lowerMessage.includes("feedback") || lowerMessage.includes("sentiment") || 
+           lowerMessage.includes("rating") || lowerMessage.includes("buyer"))) {
+        score += 2;
+      }
+      
+      if (agent.domain === "Competitor Insights" && 
+          (lowerMessage.includes("competitor") || lowerMessage.includes("competition") || 
+           lowerMessage.includes("market") || lowerMessage.includes("rival") || 
+           lowerMessage.includes("similar product") || lowerMessage.includes("other seller"))) {
+        score += 2;
+      }
+      
+      if (agent.domain === "Advertising" && 
+          (lowerMessage.includes("ad") || lowerMessage.includes("ppc") || 
+           lowerMessage.includes("campaign") || lowerMessage.includes("advertising") || 
+           lowerMessage.includes("sponsor") || lowerMessage.includes("keyword"))) {
+        score += 2;
+      }
+      
+      return score;
+    });
+    
+    // Find the index of the agent with the highest relevance score
+    let maxScore = 0;
+    let maxIndex = 0;
+    
+    relevanceScores.forEach((score, index) => {
+      if (score > maxScore) {
+        maxScore = score;
+        maxIndex = index;
+      }
+    });
+    
+    // If no clear winner, default to a random agent
+    if (maxScore === 0) {
+      return Math.floor(Math.random() * agentsData.length);
+    }
+    
+    return maxIndex;
+  };
+
+  // Jarvio identifies which agent should respond
+  const identifyRelevantAgent = (message: string): string => {
+    const agentIndex = determineRelevantAgentIndex(message);
+    const agent = agentsData[agentIndex];
+    
+    return `I think this is a question for ${agent.name}, our ${agent.domain} specialist. Let me bring them in to help.`;
+  };
+
+  // Agent response based on their domain
   const generateAgentResponse = (agent: Agent, message: string): string => {
     const domains = {
       "Analytics": "Looking at your analytics data, I can see some interesting trends related to this question.",
@@ -140,9 +214,23 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
         >
           <Users className="h-4 w-4" />
         </div>
-        <div>
+        <div className="flex-1">
           <h2 className="font-semibold">Agent Group Chat</h2>
           <p className="text-xs text-muted-foreground">All specialists in one conversation</p>
+        </div>
+        
+        {/* Group members avatars */}
+        <div className="flex -space-x-2">
+          {[...agentsData].slice(0, 3).map((agent) => (
+            <Avatar key={agent.id} className="border-2 border-white h-6 w-6">
+              <AvatarFallback style={{ backgroundColor: agent.avatarColor }} className="text-[10px] text-white">
+                {agent.name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+          ))}
+          <div className="bg-muted h-6 w-6 rounded-full border-2 border-white flex items-center justify-center">
+            <span className="text-[10px] font-medium">+{agentsData.length - 3}</span>
+          </div>
         </div>
       </div>
       

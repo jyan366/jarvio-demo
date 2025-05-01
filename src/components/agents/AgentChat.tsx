@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -5,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, Send, ChevronLeft } from "lucide-react";
 import { Agent, Message } from "./types";
 import { AgentMessage } from "./AgentMessage";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface AgentChatProps {
   agent: Agent;
@@ -58,19 +60,52 @@ export function AgentChat({ agent, onBack }: AgentChatProps) {
     setInputValue("");
     setIsLoading(true);
     
-    // Simulate agent response
-    setTimeout(() => {
-      const agentResponse: Message = {
-        id: `agent-${Date.now()}`,
-        sender: agent.name,
-        content: generateAgentResponse(agent, inputValue),
-        timestamp: new Date(),
-        isUser: false
-      };
-      
-      setMessages(prev => [...prev, agentResponse]);
-      setIsLoading(false);
-    }, 2000);
+    // Check if the message is better suited for a different agent
+    const isForDifferentAgent = checkIfForDifferentAgent(inputValue, agent);
+    
+    if (isForDifferentAgent.shouldRedirect) {
+      // Have Jarvio step in to redirect
+      setTimeout(() => {
+        const jarvioResponse: Message = {
+          id: `jarvio-${Date.now()}`,
+          sender: "Jarvio",
+          content: `I noticed that your question might be better answered by ${isForDifferentAgent.recommendedAgent?.name}, our ${isForDifferentAgent.recommendedAgent?.domain} specialist. Would you like me to redirect you to chat with them? In the meantime, ${agent.name} will try to help.`,
+          timestamp: new Date(),
+          isUser: false,
+          agentColor: "#9b87f5" // Jarvio purple
+        };
+        
+        setMessages(prev => [...prev, jarvioResponse]);
+        
+        // Regular agent still tries to answer
+        setTimeout(() => {
+          const agentResponse: Message = {
+            id: `agent-${Date.now()}`,
+            sender: agent.name,
+            content: generateAgentResponse(agent, inputValue),
+            timestamp: new Date(),
+            isUser: false
+          };
+          
+          setMessages(prev => [...prev, agentResponse]);
+          setIsLoading(false);
+        }, 1500);
+      }, 1000);
+    } else {
+      // Regular response flow
+      setTimeout(() => {
+        const agentResponse: Message = {
+          id: `agent-${Date.now()}`,
+          sender: agent.name,
+          content: generateAgentResponse(agent, inputValue),
+          timestamp: new Date(),
+          isUser: false
+        };
+        
+        setMessages(prev => [...prev, agentResponse]);
+        setIsLoading(false);
+      }, 2000);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -80,6 +115,58 @@ export function AgentChat({ agent, onBack }: AgentChatProps) {
         handleSendMessage();
       }
     }
+  };
+
+  // Check if the message is better suited for a different agent
+  const checkIfForDifferentAgent = (message: string, currentAgent: Agent): { 
+    shouldRedirect: boolean, 
+    recommendedAgent: Agent | null 
+  } => {
+    const lowerMessage = message.toLowerCase();
+    
+    // Skip this check for short messages
+    if (message.length < 15) {
+      return { shouldRedirect: false, recommendedAgent: null };
+    }
+    
+    // Define keywords for each domain
+    const domainKeywords: {[key: string]: string[]} = {
+      "Analytics": ["trend", "data", "metric", "analytic", "report", "performance"],
+      "Inventory": ["stock", "inventory", "restock", "supply", "product", "item"],
+      "Listings": ["list", "product page", "description", "title", "bullet", "content"],
+      "Customer Insights": ["customer", "review", "feedback", "sentiment", "rating", "buyer"],
+      "Competitor Insights": ["competitor", "competition", "market", "rival", "similar product", "other seller"],
+      "Advertising": ["ad", "ppc", "campaign", "advertising", "sponsor", "keyword"]
+    };
+    
+    // Skip if current agent's domain matches message keywords
+    const currentAgentKeywords = domainKeywords[currentAgent.domain] || [];
+    for (const keyword of currentAgentKeywords) {
+      if (lowerMessage.includes(keyword)) {
+        return { shouldRedirect: false, recommendedAgent: null };
+      }
+    }
+    
+    // Check for other domains' keywords
+    for (const domain in domainKeywords) {
+      if (domain !== currentAgent.domain) {
+        const keywords = domainKeywords[domain];
+        for (const keyword of keywords) {
+          if (lowerMessage.includes(keyword)) {
+            // Find the agent for this domain
+            const agentForDomain = agentsFromData.find(a => a.domain === domain);
+            // Only redirect 25% of the time to not be annoying
+            const shouldRedirect = Math.random() < 0.25;
+            return { 
+              shouldRedirect: shouldRedirect, 
+              recommendedAgent: agentForDomain || null 
+            };
+          }
+        }
+      }
+    }
+    
+    return { shouldRedirect: false, recommendedAgent: null };
   };
 
   // Simple response generator based on agent's domain
@@ -97,6 +184,9 @@ export function AgentChat({ agent, onBack }: AgentChatProps) {
       "I understand your question and I'm analyzing the relevant data. Would you like me to provide more specific insights on this topic?";
   };
 
+  // Import agents data from the shared file
+  const agentsFromData = require("@/data/agentsData").agentsData;
+
   return (
     <div className="h-[calc(100vh-12rem)] flex flex-col relative">
       {/* Header */}
@@ -110,10 +200,17 @@ export function AgentChat({ agent, onBack }: AgentChatProps) {
         >
           {agent.name.charAt(0)}
         </div>
-        <div>
+        <div className="flex-1">
           <h2 className="font-semibold">{agent.name}</h2>
           <p className="text-xs text-muted-foreground">{agent.domain} Specialist</p>
         </div>
+        
+        {/* Jarvio is helping indicator */}
+        <Avatar className="h-6 w-6">
+          <AvatarFallback style={{ backgroundColor: "#9b87f5" }} className="text-[10px] text-white">
+            J
+          </AvatarFallback>
+        </Avatar>
       </div>
       
       {/* Messages container with scroll */}
@@ -124,7 +221,7 @@ export function AgentChat({ agent, onBack }: AgentChatProps) {
               <AgentMessage 
                 key={message.id} 
                 message={message} 
-                agentColor={!message.isUser ? agent.avatarColor : undefined}
+                agentColor={!message.isUser ? message.agentColor || agent.avatarColor : undefined}
               />
             ))}
             <div ref={messagesEndRef} />

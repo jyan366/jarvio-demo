@@ -2,6 +2,8 @@
 import React from "react";
 import { Agent } from "./types";
 import { AgentCard } from "./AgentCard";
+import { MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface AgentsListProps {
   agents: Agent[];
@@ -24,13 +26,13 @@ export function AgentsList({ agents, onSelectAgent }: AgentsListProps) {
             <div className="w-12 h-12 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-xl">
               J
             </div>
-            <div>
+            <div className="flex-1">
               <h3 className="font-bold text-lg">Jarvio</h3>
               <p className="text-sm text-muted-foreground">Team Manager</p>
             </div>
           </div>
           <p className="mt-4">
-            I coordinate all your specialized agents to work together seamlessly. Need help deciding which agent to use? Just ask me, and I'll guide you to the right specialist.
+            I coordinate your team of specialized agents and direct your questions to the right expert. Tell me your problems, and I'll identify which specialist is best suited to help you solve them quickly and effectively.
           </p>
         </div>
       </div>

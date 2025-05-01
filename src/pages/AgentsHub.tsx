@@ -8,7 +8,7 @@ import { GroupAgentChat } from "@/components/agents/GroupAgentChat";
 import { Agent } from "@/components/agents/types";
 import { agentsData } from "@/data/agentsData";
 import { Button } from "@/components/ui/button";
-import { Users } from "lucide-react";
+import { Users, MessageSquare } from "lucide-react";
 
 export default function AgentsHub() {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
@@ -43,15 +43,15 @@ export default function AgentsHub() {
                 <div>
                   <h1 className="text-3xl font-bold">Agents Hub</h1>
                   <p className="text-muted-foreground mt-2">
-                    Meet your team of specialized AI agents, managed by Jarvio
+                    Meet your team of specialized AI agents, coordinated by Jarvio
                   </p>
                 </div>
                 <Button 
                   onClick={handleStartGroupChat} 
                   className="bg-[#9b87f5] hover:bg-[#8a70ff]"
                 >
-                  <Users className="h-4 w-4 mr-2" />
-                  Start Group Chat
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Chat with Team
                 </Button>
               </div>
               <AgentsList agents={agentsData} onSelectAgent={handleAgentSelect} />
