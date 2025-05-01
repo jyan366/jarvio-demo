@@ -30,6 +30,7 @@ import TaskWork from "./pages/TaskWork";
 import ProductReviews from "./pages/ProductReviews";
 import AllProductReviews from "./pages/AllProductReviews";
 import KnowledgeBase from "./pages/KnowledgeBase";
+import AgentsHub from "./pages/AgentsHub";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ export default function App() {
               <Route path="/ads-manager" element={<AdsManager />} />
               <Route path="/ads-performance" element={<AdsPerformance />} />
               <Route path="/ai-assistant" element={<AIAssistant />} />
+              <Route path="/agents-hub" element={<AgentsHub />} />
               <Route path="/get-support" element={<GetSupport />} />
               <Route path="/task/:id" element={<TaskWork />} />
               <Route path="/knowledge-base" element={<KnowledgeBase />} />
