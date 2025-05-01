@@ -12,7 +12,7 @@ export function NavigationMenu() {
 
   return (
     <div className="w-full h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
-      <span className="sr-only">Workflow</span>
+      <span className="sr-only">Navigation</span>
       {isSectionVisible("workflow") && (
         <MenuSection items={workflowItems} sectionId="workflow" key={`workflow-${renderKey}`} />
       )}

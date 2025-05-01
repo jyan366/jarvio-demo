@@ -35,7 +35,7 @@ export function NavigationVisibilityProvider({ children }: { children: React.Rea
   const defaultSections = ["workflow", "brand", "support"];
   const defaultItems = [
     "task-manager", "action-studio", "knowledge-base", "agents-hub",
-    "sales-center", "inventory", "listing-hub", "customers", "competitors",
+    "sales-center", "inventory", "listing-hub", "customers", "competitors", "advertising",
     "jarvio-assistant", "financing", "get-support"
   ];
 
@@ -105,7 +105,7 @@ const navigationItems = [
     section: "workflow",
     sectionLabel: "Workflow",
     items: [
-      { id: "task-manager", label: "Task Manager" },
+      { id: "task-manager", label: "Home" },
       { id: "action-studio", label: "Action Studio" },
       { id: "knowledge-base", label: "Knowledge Base" },
       { id: "agents-hub", label: "Agents Hub" },
@@ -120,6 +120,7 @@ const navigationItems = [
       { id: "listing-hub", label: "Listing Hub" },
       { id: "customers", label: "Customers" },
       { id: "competitors", label: "Competitors" },
+      { id: "advertising", label: "Advertising" },
     ]
   },
   {
