@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -203,7 +204,7 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
   };
 
   return (
-    <div className="h-[calc(100vh-12rem)] flex flex-col relative">
+    <div className="h-full flex flex-col relative">
       {/* Header */}
       <div className="py-3 px-4 border-b flex items-center gap-3 bg-white">
         <Button variant="ghost" size="icon" onClick={onBack} className="mr-1">
@@ -236,7 +237,7 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
       
       {/* Messages container with scroll */}
       <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full pb-[84px]">
+        <ScrollArea className="h-full pb-[76px]">
           <div className="p-4 max-w-full">
             {messages.map(message => (
               <AgentMessage 
@@ -251,7 +252,7 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
       </div>
 
       {/* Fixed input at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 border-t bg-white shadow-md">
+      <div className="border-t bg-white shadow-md">
         <form 
           onSubmit={handleSendMessage}
           className="flex gap-2 items-end p-3"

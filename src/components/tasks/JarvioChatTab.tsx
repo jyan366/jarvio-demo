@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -73,8 +74,8 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         </ScrollArea>
       </div>
 
-      {/* Fixed input at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 border-t bg-white shadow-md" style={{ width: 'inherit' }}>
+      {/* Fixed input at bottom with border only, no absolute positioning */}
+      <div className="border-t bg-white shadow-md">
         <form 
           onSubmit={(e) => {
             e.preventDefault();
@@ -115,4 +116,4 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
       </div>
     </div>
   );
-};
+}
