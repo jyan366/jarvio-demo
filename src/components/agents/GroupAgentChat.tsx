@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,7 +17,7 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
     {
       id: "welcome",
       sender: "Jarvio",
-      content: "Welcome to the group chat! I'm Jarvio, your team manager. Tell me about your problem, and I'll identify which specialist agent can help you best.",
+      content: "Welcome to the group chat! I'm Jarvio, your team manager. Tell me about your problem, and I'll identify which specialist agents can help you solve it.",
       timestamp: new Date(),
       isUser: false,
       agentColor: "#9b87f5" // Jarvio purple
@@ -29,13 +28,17 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
   const [problemContext, setProblemContext] = useState<{
     description: string;
     relevantDomains: string[];
-    currentDomainIndex: number;
+    assignedAgents: Agent[];
+    currentRound: number;
     collectedData: Record<string, any>;
+    isSolved: boolean;
   }>({
     description: "",
     relevantDomains: [],
-    currentDomainIndex: 0,
-    collectedData: {}
+    assignedAgents: [],
+    currentRound: 0,
+    collectedData: {},
+    isSolved: false
   });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -72,127 +75,219 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
     setInputValue("");
     setIsLoading(true);
     
-    // Identify problem domains and relevant agents when the problem is initially presented
+    // Handling the first message from user (problem statement)
     if (problemContext.description === "") {
-      const initialProblemAnalysis = analyzeInitialProblem(inputValue);
-      
-      setProblemContext({
-        description: inputValue,
-        relevantDomains: initialProblemAnalysis.relevantDomains,
-        currentDomainIndex: 0,
-        collectedData: {}
-      });
-      
-      // Have Jarvio introduce the problem-solving approach
-      setTimeout(() => {
-        const primaryAgent = agentsData.find(agent => agent.domain === initialProblemAnalysis.relevantDomains[0]);
-        
-        const jarvioResponse: Message = {
-          id: `jarvio-${Date.now()}`,
-          sender: "Jarvio",
-          content: `I think this is a question for ${primaryAgent?.name}, our ${primaryAgent?.domain} specialist. Let me bring them in to help.`,
-          timestamp: new Date(),
-          isUser: false,
-          agentColor: "#9b87f5" // Jarvio purple
-        };
-        
-        setMessages(prev => [...prev, jarvioResponse]);
-        
-        // Primary agent response
-        setTimeout(() => {
-          const primaryAgentResponse = generateAgentResponse(primaryAgent!, inputValue);
-          
-          const agentResponse: Message = {
-            id: `agent-${Date.now()}`,
-            sender: primaryAgent!.name,
-            content: primaryAgentResponse.content,
-            timestamp: new Date(),
-            isUser: false,
-            agentColor: primaryAgent!.avatarColor
-          };
-          
-          setMessages(prev => [...prev, agentResponse]);
-          
-          // Check if we need secondary agent input
-          if (initialProblemAnalysis.relevantDomains.length > 1) {
-            const secondaryDomain = initialProblemAnalysis.relevantDomains[1];
-            const secondaryAgent = agentsData.find(agent => agent.domain === secondaryDomain);
-            
-            // Update collected data with primary agent's findings
-            setProblemContext(prev => ({
-              ...prev,
-              collectedData: {
-                ...prev.collectedData,
-                [primaryAgent!.domain]: primaryAgentResponse.data
-              },
-              currentDomainIndex: 1
-            }));
-            
-            // Secondary agent jumps in with additional insights
-            setTimeout(() => {
-              const secondaryAgentResponse = generateAgentResponse(
-                secondaryAgent!, 
-                inputValue, 
-                { [primaryAgent!.domain]: primaryAgentResponse.data }
-              );
-              
-              const secondAgentResponse: Message = {
-                id: `agent2-${Date.now()}`,
-                sender: secondaryAgent!.name,
-                content: secondaryAgentResponse.content,
-                timestamp: new Date(),
-                isUser: false,
-                agentColor: secondaryAgent!.avatarColor
-              };
-              
-              setMessages(prev => [...prev, secondAgentResponse]);
-              setIsLoading(false);
-            }, 1500);
-          } else {
-            setIsLoading(false);
-          }
-        }, 1000);
-      }, 1000);
+      handleInitialProblem(inputValue);
     } else {
-      // Continuing conversation flow with context
+      // Handling follow-up messages
+      handleFollowUp(inputValue);
+    }
+  };
+
+  // Handle initial problem statement from user
+  const handleInitialProblem = (problem: string) => {
+    // Analyze the problem to determine relevant agents
+    const analysis = analyzeInitialProblem(problem);
+    const relevantAgents = analysis.relevantDomains
+      .map(domain => agentsData.find(agent => agent.domain === domain))
+      .filter(Boolean) as Agent[];
+    
+    // Update problem context
+    setProblemContext({
+      description: problem,
+      relevantDomains: analysis.relevantDomains,
+      assignedAgents: relevantAgents,
+      currentRound: 0,
+      collectedData: {},
+      isSolved: false
+    });
+    
+    setTimeout(() => {
+      // Jarvio introduces the problem and identifies all relevant agents
+      const agentNames = relevantAgents.map(agent => `${agent.name} (${agent.domain})`).join(", ");
+      const domainExplanations = relevantAgents.map(agent => 
+        `• ${agent.name} (${agent.domain}): ${agent.description}`
+      ).join("\n");
+      
+      const jarvioResponse: Message = {
+        id: `jarvio-intro-${Date.now()}`,
+        sender: "Jarvio",
+        content: `I've analyzed your problem, and I'll bring in our specialists to help solve it. Based on your issue, these agents will collaborate on your solution:\n\n${domainExplanations}\n\nI'll coordinate them to address your problem step-by-step.`,
+        timestamp: new Date(),
+        isUser: false,
+        agentColor: "#9b87f5" // Jarvio purple
+      };
+      
+      setMessages(prev => [...prev, jarvioResponse]);
+      
+      // First agent responds
       setTimeout(() => {
-        // Determine which agent should respond to the follow-up
-        const relevantAgent = determineFollowUpAgent(inputValue, problemContext);
+        const primaryAgent = relevantAgents[0];
+        const primaryAgentResponse = generateAgentResponse(primaryAgent, problem);
         
-        const agentResponse: Message = {
+        const agentMessage: Message = {
           id: `agent-${Date.now()}`,
-          sender: relevantAgent.name,
-          content: generateFollowUpResponse(relevantAgent, inputValue, problemContext).content,
+          sender: primaryAgent.name,
+          content: primaryAgentResponse.content,
           timestamp: new Date(),
           isUser: false,
-          agentColor: relevantAgent.avatarColor
+          agentColor: primaryAgent.avatarColor
         };
         
-        setMessages(prev => [...prev, agentResponse]);
+        setMessages(prev => [...prev, agentMessage]);
         
-        // Check if we need to bring in another agent for additional assistance
-        if (Math.random() < 0.4) { // 40% chance of bringing in another agent
-          const availableAgents = agentsData.filter(a => a.domain !== relevantAgent.domain);
-          const supportAgent = availableAgents[Math.floor(Math.random() * availableAgents.length)];
-          
-          setTimeout(() => {
-            const supportResponse: Message = {
-              id: `support-${Date.now()}`,
-              sender: supportAgent.name,
-              content: `Building on what ${relevantAgent.name} said, I can add some perspective from the ${supportAgent.domain.toLowerCase()} side. ${generateSupportingResponse(supportAgent, inputValue, problemContext)}`,
-              timestamp: new Date(),
-              isUser: false,
-              agentColor: supportAgent.avatarColor
-            };
-            
-            setMessages(prev => [...prev, supportResponse]);
-            setIsLoading(false);
-          }, 1200);
+        // Update collected data
+        setProblemContext(prev => ({
+          ...prev,
+          collectedData: {
+            ...prev.collectedData,
+            [primaryAgent.domain]: primaryAgentResponse.data
+          },
+          currentRound: 1
+        }));
+        
+        // If there are other agents to contribute
+        if (relevantAgents.length > 1) {
+          handleAgentChain(relevantAgents, problem, 1, { [primaryAgent.domain]: primaryAgentResponse.data });
         } else {
           setIsLoading(false);
         }
-      }, 1500);
+      }, 1200);
+    }, 1000);
+  };
+
+  // Recursively have each relevant agent contribute to the solution
+  const handleAgentChain = (
+    agents: Agent[], 
+    problem: string, 
+    currentIndex: number,
+    accumulatedData: Record<string, any>
+  ) => {
+    if (currentIndex >= agents.length) {
+      // All agents have contributed, add Jarvio's summary
+      const jarvioSummary: Message = {
+        id: `jarvio-summary-${Date.now()}`,
+        sender: "Jarvio",
+        content: `Now that all specialists have provided their perspectives, is there anything specific about this problem you'd like to explore further? Or would you like me to guide the team toward developing a concrete solution plan?`,
+        timestamp: new Date(),
+        isUser: false,
+        agentColor: "#9b87f5" // Jarvio purple
+      };
+      
+      setMessages(prev => [...prev, jarvioSummary]);
+      setIsLoading(false);
+      return;
     }
+    
+    const currentAgent = agents[currentIndex];
+    
+    setTimeout(() => {
+      const agentResponse = generateAgentResponse(
+        currentAgent, 
+        problem, 
+        accumulatedData
+      );
+      
+      const agentMessage: Message = {
+        id: `agent-${currentIndex}-${Date.now()}`,
+        sender: currentAgent.name,
+        content: agentResponse.content,
+        timestamp: new Date(),
+        isUser: false,
+        agentColor: currentAgent.avatarColor
+      };
+      
+      setMessages(prev => [...prev, agentMessage]);
+      
+      // Update collected data
+      const updatedData = {
+        ...accumulatedData,
+        [currentAgent.domain]: agentResponse.data
+      };
+      
+      setProblemContext(prev => ({
+        ...prev,
+        collectedData: updatedData
+      }));
+      
+      // Proceed to next agent
+      handleAgentChain(agents, problem, currentIndex + 1, updatedData);
+    }, 1500);
+  };
+
+  // Handle follow-up messages from the user
+  const handleFollowUp = (message: string) => {
+    const { assignedAgents, collectedData } = problemContext;
+    
+    // Determine which agent should respond to this follow-up
+    const respondingAgent = determineFollowUpAgent(message, problemContext);
+    
+    setTimeout(() => {
+      // First, have Jarvio direct the question to the relevant agent
+      const jarvioDirection: Message = {
+        id: `jarvio-direction-${Date.now()}`,
+        sender: "Jarvio",
+        content: `I'll have ${respondingAgent.name} from ${respondingAgent.domain} address this question.`,
+        timestamp: new Date(),
+        isUser: false,
+        agentColor: "#9b87f5" // Jarvio purple
+      };
+      
+      setMessages(prev => [...prev, jarvioDirection]);
+      
+      // Then have the agent respond
+      setTimeout(() => {
+        const agentResponse = generateFollowUpResponse(respondingAgent, message, problemContext);
+        
+        const agentMessage: Message = {
+          id: `agent-followup-${Date.now()}`,
+          sender: respondingAgent.name,
+          content: agentResponse.content,
+          timestamp: new Date(),
+          isUser: false,
+          agentColor: respondingAgent.avatarColor
+        };
+        
+        setMessages(prev => [...prev, agentMessage]);
+        
+        // Update collected data
+        setProblemContext(prev => ({
+          ...prev,
+          collectedData: {
+            ...prev.collectedData,
+            [respondingAgent.domain]: {
+              ...prev.collectedData[respondingAgent.domain],
+              ...agentResponse.data
+            }
+          }
+        }));
+        
+        // Check if another agent should add additional insights
+        const hasInsight = Math.random() < 0.7; // 70% chance another agent contributes
+        if (hasInsight && assignedAgents.length > 1) {
+          const otherAgents = assignedAgents.filter(a => a.id !== respondingAgent.id);
+          const contributingAgent = otherAgents[Math.floor(Math.random() * otherAgents.length)];
+          
+          setTimeout(() => {
+            const contribution = generateSupportingResponse(contributingAgent, message, problemContext);
+            
+            const contributionMessage: Message = {
+              id: `agent-contribution-${Date.now()}`,
+              sender: contributingAgent.name,
+              content: `I'd like to add to what ${respondingAgent.name} said. ${contribution}`,
+              timestamp: new Date(),
+              isUser: false,
+              agentColor: contributingAgent.avatarColor
+            };
+            
+            setMessages(prev => [...prev, contributionMessage]);
+            setIsLoading(false);
+          }, 1500);
+        } else {
+          setIsLoading(false);
+        }
+      }, 1200);
+    }, 1000);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -290,16 +385,34 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
       }
     }
     
-    // Generic query analysis for "what should I do today" type questions
-    const isGeneralQuery = 
-      lowerMessage.includes("what should i do") || 
-      lowerMessage.includes("help me with") || 
-      lowerMessage.includes("how to get started");
-      
-    if (isGeneralQuery) {
-      // For general queries, default to Listings + Advertising
-      domainScores["Listings"] += 1;
-      domainScores["Advertising"] += 1;
+    // More sophisticated heuristics for common problem types that span multiple domains
+    const problemPatterns = [
+      {
+        pattern: /sales.*declining|revenue.*drop|conversion.*decreasing/i,
+        domains: ["Analytics", "Advertising", "Listings"]
+      },
+      {
+        pattern: /negative.*reviews|customer.*complaints|feedback.*issue/i,
+        domains: ["Customer Insights", "Listings", "Inventory"]
+      },
+      {
+        pattern: /lost.*buy box|competitor.*taking|market share/i,
+        domains: ["Competitor Insights", "Pricing", "Inventory"]
+      },
+      {
+        pattern: /advertising.*not.*profitable|ads.*losing money|high acos/i,
+        domains: ["Advertising", "Listings", "Analytics"]
+      }
+    ];
+    
+    for (const pattern of problemPatterns) {
+      if (pattern.pattern.test(message)) {
+        for (const domain of pattern.domains) {
+          if (domainScores[domain] !== undefined) {
+            domainScores[domain] += 3; // Significant boost for pattern match
+          }
+        }
+      }
     }
     
     // Sort domains by score and get top scoring domains
@@ -308,9 +421,15 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
       .sort((a, b) => b[1] - a[1])
       .map(([domain, _]) => domain);
     
-    // If no clear matches, default to a reasonable domain
+    // For complex problems with no clear pattern match, include multiple domains
+    if (lowerMessage.length > 100 && scoredDomains.length < 3) {
+      // Complex question but not many domain matches - probably spans multiple areas
+      return { relevantDomains: ["Analytics", "Listings", "Advertising"].slice(0, 3) };
+    }
+    
+    // If no clear matches, default to a reasonable set of domains
     if (scoredDomains.length === 0) {
-      return { relevantDomains: ["Listings"] };
+      return { relevantDomains: ["Listings", "Customer Insights"] };
     }
     
     // Return top domains (up to 3) that have scores
@@ -320,20 +439,21 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
   // Determine which agent should handle a follow-up question  
   const determineFollowUpAgent = (message: string, context: typeof problemContext): Agent => {
     const lowerMessage = message.toLowerCase();
+    const { assignedAgents } = context;
     
     // Check if explicitly mentioning an agent or their domain
-    for (const agent of agentsData) {
+    for (const agent of assignedAgents) {
       if (lowerMessage.includes(agent.name.toLowerCase()) || 
           lowerMessage.includes(agent.domain.toLowerCase())) {
         return agent;
       }
     }
     
-    // Otherwise, do keyword analysis similar to initial problem
+    // Otherwise, do keyword analysis
     const domainScores: Record<string, number> = {};
     
-    for (const domain of context.relevantDomains) {
-      domainScores[domain] = 0;
+    for (const agent of assignedAgents) {
+      domainScores[agent.domain] = 0;
     }
     
     // Add scores based on keyword presence
@@ -346,8 +466,9 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
       "Advertising": ["ad", "ppc", "campaign", "advertising", "sponsor", "keyword"]
     };
     
-    for (const domain in domainKeywords) {
-      if (context.relevantDomains.includes(domain)) {
+    for (const agent of assignedAgents) {
+      const domain = agent.domain;
+      if (domainKeywords[domain]) {
         for (const keyword of domainKeywords[domain]) {
           if (lowerMessage.includes(keyword)) {
             domainScores[domain] += 1;
@@ -356,14 +477,13 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
       }
     }
     
-    // Sort domains by score
-    const topDomain = Object.entries(domainScores)
-      .sort((a, b) => b[1] - a[1])
-      .map(([domain, _]) => domain)[0] || context.relevantDomains[0];
+    // Sort by score
+    const sortedAgents = [...assignedAgents].sort((a, b) => {
+      return (domainScores[b.domain] || 0) - (domainScores[a.domain] || 0);
+    });
     
-    // Find the agent for this domain
-    return agentsData.find(agent => agent.domain === topDomain) || 
-           agentsData.find(agent => agent.domain === context.relevantDomains[0])!;
+    // Return best match or default to first agent
+    return sortedAgents[0] || assignedAgents[0];
   };
 
   // Generate responses for the first agent addressing the problem
@@ -448,42 +568,50 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
       }
     };
     
-    // Base response templates for each domain
-    const responseTemplates = {
-      "Analytics": `Based on your analytics data, I can see some interesting trends. ${previousData["Advertising"] ? "Building on the advertising insights already shared, " : ""}Your conversion rate has improved by 12% this month, and there's a notable uptick in mobile traffic. I've analyzed your performance metrics and found several opportunities for optimization.`,
-      
-      "Inventory": `I've checked your inventory status. ${previousData["Listings"] ? "Now that we've identified your top-performing listings, " : ""}You currently have 5 products that are running low on stock. Based on historical sales data, I recommend restocking them within the next 2 weeks to avoid stockouts and capitalize on current demand.`,
-      
-      "Listings": `I've reviewed your product listings and identified several optimization opportunities. ${previousData["Customer Insights"] ? "Taking into account the customer feedback mentioned earlier, " : ""}Your main product could benefit from more persuasive bullet points and better keyword integration. I've analyzed top-performing listings in your category and found specific areas to improve.`,
-      
-      "Customer Insights": `After analyzing your recent reviews, I notice that customers consistently praise your product quality but mention concerns about shipping time. ${previousData["Competitor Insights"] ? "This aligns with the competitive analysis we saw earlier showing that " : ""}This represents an opportunity to set clearer expectations around delivery times and potentially improve your fulfillment process.`,
-      
-      "Competitor Insights": `I've been monitoring your main competitor. ${previousData["Analytics"] ? "Given the performance trends we observed, " : ""}They've adjusted their pricing strategy last week and are now offering bundle deals. This might impact your sales in the premium segment, but I've identified ways you can differentiate and maintain your market position.`,
-      
-      "Advertising": `Your current ad campaigns are performing well with a 3.2% CTR, but I see opportunities to optimize your targeting. ${previousData["Listings"] ? "With the listing improvements we discussed, " : ""}By refining your audience parameters and keyword strategy, we could potentially reduce your cost per acquisition by 15-20% while maintaining or improving conversion rates.`
-    };
-    
-    // Generate a detailed, data-driven response for the specific domain
-    const baseResponse = responseTemplates[agent.domain as keyof typeof responseTemplates];
-    const detailedFindings = mockData[agent.domain as keyof typeof mockData];
-    
-    // Add specific, actionable steps based on domain
-    let actionSteps = "";
-    
-    if (agent.domain === "Listings") {
-      actionSteps = "\n\nI recommend focusing on these three key improvements:\n1. Enhance your main product image with better lighting and a clean white background\n2. Restructure your bullet points to lead with benefits rather than features\n3. Integrate more relevant keywords naturally throughout your description";
-    } else if (agent.domain === "Advertising") {
-      actionSteps = "\n\nHere are three targeted actions to improve your ad performance:\n1. Pause these 3 underperforming keywords and reallocate budget to your top converters\n2. Implement dayparting to increase bids during your highest-converting hours (6-9pm)\n3. Create mobile-specific ad copy to improve your mobile conversion rate";
-    } else if (agent.domain === "Analytics") {
-      actionSteps = "\n\nBased on these insights, I recommend these action items:\n1. Optimize your mobile checkout flow to capitalize on increased mobile traffic\n2. Expand product bundles for your top 3 performing products\n3. Investigate and improve the user journey for pages with high exit rates";
+    // Create contextual awareness of other agents' contributions
+    let contextualPrefix = "";
+    if (Object.keys(previousData).length > 0) {
+      const domainsWithData = Object.keys(previousData);
+      if (domainsWithData.length > 0) {
+        contextualPrefix = `After reviewing the ${domainsWithData.join(" and ")} data, I can add my perspective from the ${agent.domain} angle. `;
+      }
     }
     
-    // Combine everything into a comprehensive, solution-oriented response
-    const finalResponse = `${baseResponse}${actionSteps} Would you like me to explore any of these recommendations in more detail?`;
+    // Generate domain-specific insights tailored to the problem
+    let domainInsights = "";
+    
+    if (agent.domain === "Analytics") {
+      domainInsights = `Based on your analytics data, I've identified some key trends that relate to your problem. Your conversion rate has ${Math.random() > 0.5 ? "improved by 12%" : "declined by 8%"} this month, and there's a notable ${Math.random() > 0.5 ? "uptick" : "decrease"} in mobile traffic. Looking at your product performance, I can see opportunities to optimize your top sellers.`;
+    } else if (agent.domain === "Inventory") {
+      domainInsights = `I've analyzed your inventory status and found that ${Math.random() > 0.5 ? "5 products are running low on stock" : "8 products are overstocked"}. This could be impacting your ${Object.keys(previousData).includes("Advertising") ? "advertising efficiency" : "overall performance"}. Based on historical sales data and seasonal trends, I recommend adjusting your inventory planning strategy.`;
+    } else if (agent.domain === "Listings") {
+      domainInsights = `After reviewing your product listings, I've identified several optimization opportunities. ${Object.keys(previousData).includes("Customer Insights") ? "Taking into account the customer feedback mentioned earlier, " : ""}Your main listings could benefit from more persuasive bullet points, better keyword integration, and improved image quality.`;
+    } else if (agent.domain === "Customer Insights") {
+      domainInsights = `I've analyzed your recent customer reviews and feedback patterns. Customers consistently ${Math.random() > 0.5 ? "praise your product quality" : "appreciate your fast shipping"} but mention concerns about ${Math.random() > 0.5 ? "sizing accuracy" : "durability"}. This represents an opportunity to improve your product descriptions and set better expectations.`;
+    } else if (agent.domain === "Competitor Insights") {
+      domainInsights = `I've been monitoring your main competitors. ${Object.keys(previousData).includes("Analytics") ? "Given the performance trends we observed, " : ""}They've recently ${Math.random() > 0.5 ? "adjusted their pricing strategy" : "expanded their product selection"}, which might be impacting your market position. I've identified ways you can differentiate and maintain your competitive edge.`;
+    } else if (agent.domain === "Advertising") {
+      domainInsights = `Looking at your advertising campaigns, I see that your ${Math.random() > 0.5 ? "CTR is above industry average" : "ROAS could be improved"}. ${Object.keys(previousData).includes("Listings") ? "With the listing improvements we discussed, " : ""}I've identified specific opportunities to optimize your targeting and keyword strategy to improve performance.`;
+    }
+    
+    // Create concrete, actionable recommendations
+    let recommendations = "\n\nBased on this data, here are my specific recommendations:\n";
+    recommendations += `1. ${agent.domain === "Listings" ? "Enhance your main product images with better lighting and white backgrounds" : agent.domain === "Advertising" ? "Pause underperforming keywords and reallocate budget" : "Focus on your top-performing products and optimize their visibility"}\n`;
+    recommendations += `2. ${agent.domain === "Customer Insights" ? "Address the common customer concerns in your product descriptions" : agent.domain === "Inventory" ? "Adjust restock quantities based on seasonal demand patterns" : "Implement A/B testing to optimize conversion rates"}\n`;
+    recommendations += `3. ${agent.domain === "Analytics" ? "Set up custom alerts for key performance metrics" : agent.domain === "Competitor Insights" ? "Differentiate your offerings based on your unique value proposition" : "Create a more consistent cross-platform customer experience"}`;
+    
+    // Add collaborative element
+    let handoff = "";
+    if (Object.keys(previousData).length < 1) {
+      handoff = `\n\nI think my colleagues can provide additional insights on this problem from their specialized perspectives.`;
+    }
+    
+    // Combine all elements into comprehensive response
+    const finalResponse = `${contextualPrefix}${domainInsights}${recommendations}${handoff}`;
     
     return { 
       content: finalResponse, 
-      data: detailedFindings 
+      data: mockData[agent.domain as keyof typeof mockData] || {}
     };
   };
 
@@ -506,7 +634,7 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
     
     if (isHowQuestion) {
       if (agent.domain === "Listings") {
-        responseContent = "Here's a step-by-step approach to optimize your listings:\n\n1. Start by analyzing your current conversion rates per listing\n2. Identify your highest and lowest performing product pages\n3. Compare the content structure and keyword usage between them\n4. Enhance your product images with better lighting and multiple angles\n5. Rewrite bullet points to focus on benefits first, features second\n\nI've compared your current listings against top performers in your category and found that increasing your image count from 4 to 6 could improve conversion rates by approximately 8-12%.";
+        responseContent = "Here's my step-by-step approach to optimize your listings:\n\n1. Start by analyzing your current conversion rates per listing\n2. Identify your highest and lowest performing product pages\n3. Compare the content structure and keyword usage between them\n4. Enhance your product images with better lighting and multiple angles\n5. Rewrite bullet points to focus on benefits first, features second\n\nI've compared your current listings against top performers in your category and found that increasing your image count from 4 to 6 could improve conversion rates by approximately 8-12%.";
         responseData = {
           conversionImpactByElement: [
             "Images: +8-12% conversion impact",
@@ -515,12 +643,21 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
           ]
         };
       } else if (agent.domain === "Advertising") {
-        responseContent = "To improve your advertising ROI, follow these steps:\n\n1. Conduct a full keyword performance audit (I can help with this)\n2. Identify and pause keywords with high spend but low conversion\n3. Increase bids on your highest-converting keywords by 10-15%\n4. Implement negative keywords for irrelevant search terms\n5. Create product-specific ad groups for more targeted messaging\n\nBased on your account data, implementing these changes could improve your ROAS from 3.8 to approximately 4.5-5.0 within 30 days.";
+        responseContent = "To improve your advertising ROI, follow these steps:\n\n1. Conduct a full keyword performance audit\n2. Identify and pause keywords with high spend but low conversion\n3. Increase bids on your highest-converting keywords by 10-15%\n4. Implement negative keywords for irrelevant search terms\n5. Create product-specific ad groups for more targeted messaging\n\nBased on your account data, implementing these changes could improve your ROAS from 3.8 to approximately 4.5-5.0 within 30 days.";
         responseData = {
           optimizationOpportunities: [
             "Keyword cleanup: potential 12% reduction in wasted ad spend",
             "Bid optimization: potential 8% improvement in ROAS",
             "Ad copy testing: potential 15% improvement in CTR"
+          ]
+        };
+      } else if (agent.domain === "Analytics") {
+        responseContent = "To identify the root cause of this performance issue, follow this analytical approach:\n\n1. Compare year-over-year and month-over-month trends to isolate seasonal factors\n2. Segment your traffic by source to identify which channels are underperforming\n3. Analyze device performance to spot mobile vs. desktop discrepancies\n4. Track conversion path to identify where drop-offs are occurring\n5. Correlate performance changes with any listing or advertising changes\n\nI've already started this analysis and found that your mobile conversion rate has dropped 18% while desktop remains steady, suggesting a potential mobile usability issue.";
+        responseData = {
+          keyMetricsBreakdown: [
+            "Mobile conversion: -18% month-over-month",
+            "Desktop conversion: +2% month-over-month",
+            "Organic traffic quality: -7% engagement rate"
           ]
         };
       }
@@ -543,6 +680,15 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
             "Seasonal trends: +22% category demand increase"
           ]
         };
+      } else if (agent.domain === "Competitor Insights") {
+        responseContent = "Your market share is being affected by several competitor movements:\n\n1. Your main competitor has reduced prices by an average of 7% across their catalog\n2. They've expanded their product selection with 12 new complementary products\n3. They've increased their advertising spend by approximately 30%\n\nThese aggressive moves are designed to capture market share, but their strategy has weaknesses. Their customer ratings have declined slightly, suggesting potential quality issues with their expanded product line, which creates an opportunity for you to emphasize quality in your marketing.";
+        responseData = {
+          competitorWeaknesses: [
+            "Customer satisfaction: -0.3 stars since expansion",
+            "Product quality: Increasing complaints (18% growth)",
+            "Thin inventory: 42% of new products show limited stock"
+          ]
+        };
       }
     } else if (isComparisonQuestion) {
       if (agent.domain === "Competitor Insights") {
@@ -554,34 +700,52 @@ export function GroupAgentChat({ onBack }: GroupAgentChatProps) {
             "Rating comparison: Your avg: 4.6 stars, Competitor avg: 4.2 stars"
           ]
         };
+      } else if (agent.domain === "Listings") {
+        responseContent = "When comparing your listings to top performers in your category:\n\n1. Image count: You average 4.2 images per listing vs. 5.8 for top performers\n2. Bullet points: You average 4.2 bullets vs. 5.1 for top performers\n3. Description length: Your descriptions average 320 words vs. 450 for top performers\n4. Enhanced content: 60% of your listings have A+ content vs. 85% for top performers\n\nThe most significant opportunity is in your visual content. Adding more lifestyle images and infographics could help close the conversion gap between your listings and category leaders.";
+        responseData = {
+          listingGaps: [
+            "Image gap: -1.6 images per listing vs. top performers",
+            "Content gap: -130 words per description vs. top performers",
+            "Enhanced content gap: -25% A+ content coverage vs. top performers"
+          ]
+        };
       }
     }
     
     // Default response if no specific pattern matched
     if (!responseContent) {
-      responseContent = `Based on the ${agent.domain.toLowerCase()} data I've analyzed, I can see several opportunities for improvement. Let me provide you with some specific insights and actionable recommendations that address your question.`;
-      
-      // Add domain-specific insights
       if (agent.domain === "Inventory") {
-        responseContent += "\n\nYour inventory turnover rate for the past 30 days is 4.2, which is slightly below the category average of 5.1. I recommend adjusting your restock quantities for these specific products to improve capital efficiency while maintaining optimal in-stock rates.";
+        responseContent = "Based on your inventory data, I've identified some key insights related to your question. Your inventory turnover rate for the past 30 days is 4.2, which is slightly below the category average of 5.1. There are 5 products that are at risk of stockout in the next 14 days, and 8 products that have excess inventory (over 60 days of stock). By optimizing your restock quantities and timing, we could improve your capital efficiency while ensuring product availability.";
+        responseData = {
+          inventoryHealth: [
+            "Turnover rate: 4.2 (category avg: 5.1)",
+            "At-risk products: 5 SKUs (potential revenue impact: $24,500)",
+            "Excess inventory: 8 SKUs (tied-up capital: $32,800)"
+          ]
+        };
       } else if (agent.domain === "Analytics") {
-        responseContent += "\n\nYour conversion funnel shows a significant drop-off between cart addition and checkout initiation (32% abandonment). This is higher than the category benchmark of 24%. By implementing abandoned cart recovery emails and optimizing your checkout page, we could recover approximately 15-20% of these lost sales.";
+        responseContent = "Looking at your performance data, I see that your conversion funnel shows a significant drop-off between cart addition and checkout initiation (32% abandonment). This is higher than the category benchmark of 24%. Your top-performing products have a 15% higher conversion rate than your catalog average, suggesting an opportunity to optimize the visibility of these items. By implementing targeted improvements to your checkout process and product visibility, we could recover approximately 15-20% of these lost sales.";
+        responseData = {
+          funnelAnalysis: [
+            "Cart abandonment: 32% (benchmark: 24%)",
+            "Product page to cart: 18% conversion (benchmark: 22%)",
+            "Checkout completion: 76% (benchmark: 82%)"
+          ]
+        };
       }
     }
     
-    // Add collaboration suggestion with another relevant agent
-    const otherRelevantAgents = context.relevantDomains
-      .filter(domain => domain !== agent.domain)
-      .map(domain => agentsData.find(a => a.domain === domain))
-      .filter(Boolean) as Agent[];
+    // Add collaboration element referring to other agents
+    const otherRelevantAgents = context.assignedAgents
+      .filter(a => a.domain !== agent.domain);
     
     if (otherRelevantAgents.length > 0) {
       const collaboratingAgent = otherRelevantAgents[0];
-      responseContent += `\n\nI think ${collaboratingAgent.name} might have additional insights on this from a ${collaboratingAgent.domain.toLowerCase()} perspective. Would you like their input as well?`;
+      responseContent += `\n\nThis insight connects with what ${collaboratingAgent.name} from ${collaboratingAgent.domain} could tell you about how this affects their area. Would you like their perspective on this as well?`;
     }
     
     return {
-      content: responseContent,
+      content: responseContent || `Let me analyze that question from a ${agent.domain} perspective and provide you with actionable insights.`,
       data: responseData
     };
   };
