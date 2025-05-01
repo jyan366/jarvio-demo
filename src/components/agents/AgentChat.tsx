@@ -6,6 +6,7 @@ import { Loader2, Send, ChevronLeft } from "lucide-react";
 import { Agent, Message } from "./types";
 import { AgentMessage } from "./AgentMessage";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { agentsData } from "@/data/agentsData";
 
 interface AgentChatProps {
   agent: Agent;
@@ -153,7 +154,7 @@ export function AgentChat({ agent, onBack }: AgentChatProps) {
         for (const keyword of keywords) {
           if (lowerMessage.includes(keyword)) {
             // Find the agent for this domain
-            const agentForDomain = agentsFromData.find(a => a.domain === domain);
+            const agentForDomain = agentsData.find(a => a.domain === domain);
             // Only redirect 25% of the time to not be annoying
             const shouldRedirect = Math.random() < 0.25;
             return { 
@@ -182,9 +183,6 @@ export function AgentChat({ agent, onBack }: AgentChatProps) {
     return domains[agent.domain as keyof typeof domains] || 
       "I understand your question and I'm analyzing the relevant data. Would you like me to provide more specific insights on this topic?";
   };
-
-  // Import agents data from the shared file
-  const agentsFromData = require("@/data/agentsData").agentsData;
 
   return (
     <div className="h-full flex flex-col relative">
