@@ -10,8 +10,8 @@ import { Subtask } from "@/pages/TaskWorkContainer";
 interface TaskWorkSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedTab: "comments" | "ai";
-  setSelectedTab: (v: "comments" | "ai") => void;
+  selectedTab: "ai"| "comments" ;
+  setSelectedTab: (v: "ai | ""comments") => void;
   comments: { user: string; text: string; ago: string; subtaskId?: string }[];
   addComment: (t: string) => void;
   commentValue: string;
