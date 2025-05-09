@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
 import { JarvioChatMessages } from "./JarvioChatMessages";
+import { JarvioFormatMenu } from "./JarvioFormatMenu";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { toast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -57,6 +58,32 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     }
   };
 
+  const handleFormatSelect = (formatText: string) => {
+    // Insert format at cursor position or append to end
+    if (inputRef.current) {
+      const start = inputRef.current.selectionStart || 0;
+      const end = inputRef.current.selectionEnd || 0;
+      
+      const newValue = 
+        inputValue.substring(0, start) + 
+        formatText + 
+        inputValue.substring(end);
+      
+      setInputValue(newValue);
+      
+      // Focus back on the textarea after inserting format
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.selectionStart = start + formatText.length;
+          inputRef.current.selectionEnd = start + formatText.length;
+        }
+      }, 0);
+    } else {
+      setInputValue(inputValue + formatText);
+    }
+  };
+
   return (
     <div className="h-[calc(100vh-12rem)] flex flex-col relative overflow-hidden">
       {/* Messages container with scroll */}
@@ -90,6 +117,9 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           }} 
           className="flex gap-2 items-end p-3"
         >
+          <div className="flex items-center">
+            <JarvioFormatMenu onFormatSelect={handleFormatSelect} />
+          </div>
           <Textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
