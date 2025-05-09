@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -150,6 +149,7 @@
   text-overflow: clip !important;
   overflow: visible !important;
   resize: none !important;
+  box-sizing: content-box !important;
 }
 
 /* Target the specific input styling to force text wrapping */
@@ -189,10 +189,12 @@ textarea.auto-height-input,
   box-sizing: border-box !important;
   padding: 0.5rem !important;
   line-height: 1.5 !important;
+  overflow-y: hidden !important;
 }
 
 .flow-block-name-input:focus {
   min-height: 3.5rem !important;
+  height: auto !important;
 }
 
 /* Enhanced flow block container styles */
@@ -205,6 +207,7 @@ textarea.auto-height-input,
   margin: 0 !important;
   display: block !important;
   min-height: fit-content !important;
+  height: auto !important;
 }
 
 /* Fix for text truncation in flow blocks */
@@ -215,6 +218,7 @@ textarea.auto-height-input,
   width: 100% !important;
   display: block !important;
   height: auto !important;
+  overflow: visible !important;
 }
 
 /* Workflow Builder Styles */
