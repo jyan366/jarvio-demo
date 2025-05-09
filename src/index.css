@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -149,6 +150,28 @@
   text-overflow: clip !important;
   overflow: visible !important;
   resize: none !important;
+  box-sizing: content-box !important;
+}
+
+/* New auto-expand class for inputs that should show all content immediately */
+.auto-expand-input {
+  height: auto !important;
+  min-height: 4rem !important; /* Increased from 3.5rem to 4rem */
+  white-space: pre-wrap !important; 
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  padding: 0.75rem !important; /* Increased padding from 0.5rem to 0.75rem */
+  line-height: 1.5 !important; /* Increased line height slightly */
+  width: 100% !important;
+  max-width: 100% !important;
+  display: block !important;
+  text-overflow: clip !important;
+  overflow: visible !important;
+  resize: none !important;
+  box-sizing: content-box !important;
+  transition: height 0.2s ease !important;
+  margin-bottom: 0.25rem !important; /* Added margin at bottom */
 }
 
 /* Target the specific input styling to force text wrapping */
@@ -181,20 +204,23 @@ textarea.auto-height-input,
   max-width: 100% !important;
   display: block !important;
   height: auto !important;
-  min-height: 2.5rem !important;
+  min-height: 3.5rem !important; /* Increased from 3rem to 3.5rem */
   resize: none !important;
   border: 1px solid transparent !important;
   transition: min-height 0.2s ease !important;
   box-sizing: border-box !important;
-  padding: 0.5rem !important;
-  line-height: 1.5 !important;
+  padding: 0.75rem !important; /* Increased padding from 0.5rem to 0.75rem */
+  line-height: 1.6 !important; /* Increased line height for better spacing */
+  overflow-y: hidden !important;
+  margin-bottom: 0.25rem !important; /* Added bottom margin */
 }
 
 .flow-block-name-input:focus {
-  min-height: 3.5rem !important;
+  min-height: 4.5rem !important; /* Increased from 4rem to 4.5rem */
+  height: auto !important;
 }
 
-/* Flow builder specific container */
+/* Enhanced flow block container styles */
 .flow-block-name-container {
   width: 100% !important;
   overflow-wrap: break-word !important;
@@ -203,6 +229,19 @@ textarea.auto-height-input,
   padding: 0 !important;
   margin: 0 !important;
   display: block !important;
+  min-height: fit-content !important;
+  height: auto !important;
+}
+
+/* Fix for text truncation in flow blocks */
+.flow-block-content {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  width: 100% !important;
+  display: block !important;
+  height: auto !important;
+  overflow: visible !important;
 }
 
 /* Workflow Builder Styles */
