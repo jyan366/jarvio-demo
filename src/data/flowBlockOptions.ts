@@ -21,7 +21,8 @@ export const flowBlockOptions = {
     'AI Summary',
     'Push to Amazon',
     'Send Email',
-    'Human in the Loop'
+    'Human in the Loop',
+    'Agent'
   ]
 };
 

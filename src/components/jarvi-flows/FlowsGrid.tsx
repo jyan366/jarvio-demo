@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,13 +8,14 @@ import { useToast } from '@/components/ui/use-toast';
 // Define the flow types and their properties
 export type TriggerType = 'manual' | 'scheduled' | 'event';
 
-export type FlowBlock = {
+export interface FlowBlock {
   id: string;
   type: 'collect' | 'think' | 'act';
   option: string;
-  name?: string; // Add name field for blocks
-  config?: Record<string, any>;
-};
+  name?: string;
+  agentId?: string;  // Added for agent association
+  agentName?: string; // Added to store agent name
+}
 
 export type Flow = {
   id: string;

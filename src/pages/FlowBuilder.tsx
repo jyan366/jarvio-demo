@@ -41,6 +41,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Flow, FlowBlock, TriggerType } from '@/components/jarvi-flows/FlowsGrid';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { createTask } from '@/lib/supabaseTasks';
+import { agentsData } from '@/data/agentsData';
 
 // Block options based on type
 const blockOptions = {
@@ -92,7 +93,8 @@ const blockOptionDescriptions = {
     'AI Summary': 'Generates a comprehensive report from analysis results',
     'Push to Amazon': 'Updates Amazon listings with optimized content and settings',
     'Send Email': 'Distributes reports or notifications to specified recipients',
-    'Human in the Loop': 'Pauses for manual review and approval before proceeding'
+    'Human in the Loop': 'Pauses for manual review and approval before proceeding',
+    'Agent': 'Assigns a specialized AI agent to perform this step'
   }
 };
 
@@ -120,7 +122,8 @@ const getDescriptiveBlockName = (type: string, option: string): string => {
       'AI Summary': 'Create Comprehensive Action Report',
       'Push to Amazon': 'Update Amazon Product Listings',
       'Send Email': 'Distribute Weekly Performance Report',
-      'Human in the Loop': 'Request Manager Approval for Changes'
+      'Human in the Loop': 'Request Manager Approval for Changes',
+      'Agent': 'Assign Specialized Agent for Task'
     }
   };
 
@@ -670,6 +673,35 @@ export default function FlowBuilder() {
     }
   };
 
+  // Add state for selected agent when Agent option is chosen
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+
+  // Add a function to handle agent selection
+  const handleAgentSelection = (blockId: string, agentId: string) => {
+    const selectedAgent = agentsData.find(agent => agent.id === agentId);
+    
+    if (selectedAgent) {
+      setFlow(prev => ({
+        ...prev,
+        blocks: prev.blocks.map(block => {
+          if (block.id === blockId) {
+            return {
+              ...block,
+              agentId: agentId,
+              agentName: selectedAgent.name,
+              // Update the block name if using default naming
+              name: block.name === getDescriptiveBlockName(block.type, block.option) 
+                ? `Use ${selectedAgent.name} Agent for ${selectedAgent.domain}`
+                : block.name
+            };
+          }
+          return block;
+        })
+      }));
+      setSelectedAgent(agentId);
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -847,6 +879,7 @@ export default function FlowBuilder() {
                 const BlockIcon = blockTypeInfo[block.type].icon;
                 const blockColor = blockTypeInfo[block.type].color;
                 const blockDescription = blockOptionDescriptions[block.type]?.[block.option] || '';
+                const isAgentBlock = block.option === 'Agent';
                 
                 return (
                   <div key={block.id} className="relative">
@@ -868,7 +901,7 @@ export default function FlowBuilder() {
                               placeholder="Describe this specific step"
                               onChange={(e) => updateBlockName(block.id, e.target.value)}
                               className="font-medium flow-block-name-input auto-expand-input"
-                              rows={2} // Increased from 1 to 2 initial rows
+                              rows={2}
                             />
                             <div className="text-xs text-muted-foreground capitalize">Type: {block.type}</div>
                           </div>
@@ -907,6 +940,52 @@ export default function FlowBuilder() {
                                 </SelectGroup>
                               </SelectContent>
                             </Select>
+                          
+                            {/* Add agent selection for Agent option */}
+                            {isAgentBlock && (
+                              <div className="mt-3 space-y-1">
+                                <Label className="text-xs">Select Agent</Label>
+                                <Select
+                                  value={block.agentId || ''}
+                                  onValueChange={(agentId) => handleAgentSelection(block.id, agentId)}
+                                >
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select an agent" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectLabel>Available Agents</SelectLabel>
+                                      {agentsData.map(agent => (
+                                        <SelectItem key={agent.id} value={agent.id}>
+                                          <div className="flex items-center gap-2">
+                                            <div 
+                                              className="w-3 h-3 rounded-full"
+                                              style={{ backgroundColor: agent.avatarColor }}
+                                            ></div>
+                                            <span>{agent.name}</span>
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                                
+                                {block.agentId && (
+                                  <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 rounded-md mt-2 border border-purple-200">
+                                    <div 
+                                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium"
+                                      style={{ backgroundColor: agentsData.find(a => a.id === block.agentId)?.avatarColor || '#9b87f5' }}
+                                    >
+                                      {agentsData.find(a => a.id === block.agentId)?.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium">{agentsData.find(a => a.id === block.agentId)?.name}</p>
+                                      <p className="text-xs text-muted-foreground">{agentsData.find(a => a.id === block.agentId)?.domain} Specialist</p>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                         

@@ -1,13 +1,13 @@
 
 import React from "react";
 import { ToolConfigProps } from "./toolConfigs";
-import { mail } from "lucide-react";
+import { Mail } from "lucide-react";
 
 export function EmailParsingConfig({ toolId }: ToolConfigProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-md border border-blue-100">
-        <mail className="h-5 w-5 text-blue-500 mt-0.5" />
+        <Mail className="h-5 w-5 text-blue-500 mt-0.5" />
         <div>
           <p className="text-sm font-medium text-blue-800">
             Email Parsing Enabled
