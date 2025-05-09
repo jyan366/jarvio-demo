@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Edit, Clock, Zap } from 'lucide-react';
+import { Plus, Play, Edit, Clock, Zap, ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { TypedPrompts } from '@/components/jarvi-flows/TypedPrompts';
+import { GradientBackground } from '@/components/jarvi-flows/GradientBackground';
 
 // Define the flow types and their properties
 type TriggerType = 'manual' | 'scheduled' | 'event';
@@ -132,21 +134,94 @@ export default function JarviFlows() {
   return (
     <MainLayout>
       <div className="space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-1">JarviFlows</h1>
-            <p className="text-muted-foreground">
-              Create and manage automated workflows for your Amazon business
-            </p>
+        {/* Hero Section */}
+        <GradientBackground>
+          <div className="space-y-8">
+            <div className="space-y-4 text-center">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                Your Amazon business has 
+                <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent"> never flowed like this</span>
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Create powerful automations with natural language. 
+                Let AI handle the repetitive tasks so you can focus on growth.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center justify-center">
+              <TypedPrompts />
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button 
+                onClick={handleCreateNewFlow} 
+                size="lg" 
+                className="bg-[#4457ff] hover:bg-[#4457ff]/90"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create New Flow
+              </Button>
+              <Button 
+                onClick={() => navigate('/jarvi-flows/builder')} 
+                variant="outline" 
+                size="lg"
+                className="border-[#4457ff] text-[#4457ff]"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Create with AI
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">
+              {/* Feature cards */}
+              <Card className="bg-white/60 backdrop-blur">
+                <CardHeader>
+                  <CardTitle className="text-base">Collect Data</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically gather information from multiple sources to power your workflows.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/60 backdrop-blur">
+                <CardHeader>
+                  <CardTitle className="text-base">Think & Process</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Use AI to analyze data and generate actionable insights for your business.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/60 backdrop-blur">
+                <CardHeader>
+                  <CardTitle className="text-base">Take Action</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Execute changes across platforms or deliver reports to your team automatically.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-          <Button onClick={handleCreateNewFlow} size="default" className="bg-[#4457ff] hover:bg-[#4457ff]/90">
-            <Plus className="w-4 h-4 mr-2" />
-            Create New Flow
-          </Button>
-        </div>
+        </GradientBackground>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Your Flows</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-semibold">Your Flows</h2>
+            <Button 
+              onClick={handleCreateNewFlow} 
+              variant="outline" 
+              size="sm"
+              className="border-[#4457ff] text-[#4457ff]"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Flow
+            </Button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {flows.map((flow) => {
               const blockCounts = getBlockCounts(flow.blocks);
