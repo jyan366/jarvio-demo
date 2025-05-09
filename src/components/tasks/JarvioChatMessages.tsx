@@ -4,6 +4,7 @@ import { MessageCircle, CheckCircle2 } from "lucide-react";
 import Markdown from "markdown-to-jsx";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
+import { agentsData } from "@/data/agentsData";
 
 interface JarvioChatMessagesProps {
   messages: any[];
@@ -18,6 +19,21 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
   activeSubtaskIdx,
   onGenerateSteps
 }) => {
+  // Function to format message text with styling
+  const formatMessageText = (text: string) => {
+    // Make "Review Information" bold
+    let formattedText = text.replace(/Review Information/g, '**Review Information**');
+    
+    // Make @Clara bold and primary color
+    const claraAgent = agentsData.find(agent => agent.name.toLowerCase() === 'clara');
+    const claraColor = claraAgent?.avatarColor || '#9b87f5'; // Use agent color or default to primary purple
+    
+    // Replace @Clara with styled version (will be handled in markdown rendering)
+    formattedText = formattedText.replace(/@Clara/g, '**<span style="color: ' + claraColor + '">@Clara</span>**');
+    
+    return formattedText;
+  };
+
   if (messages.length === 0 && (!subtasks || subtasks.length === 0)) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
@@ -88,8 +104,15 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
                     forceBlock: true,
                     wrapper: "div",
                     forceWrapper: true,
+                    overrides: {
+                      span: {
+                        component: ({ style, children }) => (
+                          <span style={style}>{children}</span>
+                        )
+                      }
+                    }
                   }}>
-                    {message.text}
+                    {message.text ? formatMessageText(message.text) : ''}
                   </Markdown>
                 )}
               </div>
