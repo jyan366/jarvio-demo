@@ -15,6 +15,7 @@ type AgentSettingsContextType = {
   updateToolConfig: (toolId: string, config: Record<string, any>) => void;
   saveSettings: () => void;
   getToolConfig: (toolId: string) => Record<string, any>;
+  isReady: boolean;
 };
 
 const AgentSettingsContext = createContext<AgentSettingsContextType | undefined>(undefined);
@@ -22,17 +23,25 @@ const AgentSettingsContext = createContext<AgentSettingsContextType | undefined>
 export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<Record<string, AgentSettings>>({});
   const [currentAgentId, setCurrentAgentId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isReady, setIsReady] = useState(false);
 
   // Load saved settings from localStorage on mount
   useEffect(() => {
-    const savedSettings = localStorage.getItem('agentSettings');
-    if (savedSettings) {
-      try {
-        setSettings(JSON.parse(savedSettings));
-      } catch (error) {
-        console.error("Error parsing agent settings:", error);
+    const loadSettings = async () => {
+      setIsLoading(true);
+      const savedSettings = localStorage.getItem('agentSettings');
+      if (savedSettings) {
+        try {
+          setSettings(JSON.parse(savedSettings));
+        } catch (error) {
+          console.error("Error parsing agent settings:", error);
+        }
       }
-    }
+      setIsLoading(false);
+    };
+
+    loadSettings();
   }, []);
 
   // Extract agent ID from URL if on agent profile page
@@ -46,8 +55,15 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [window.location.pathname]);
 
+  // Set isReady when both settings are loaded and agent ID is determined
+  useEffect(() => {
+    if (!isLoading && currentAgentId !== null) {
+      setIsReady(true);
+    }
+  }, [isLoading, currentAgentId]);
+
   const toggleTool = (toolId: string, enabled: boolean) => {
-    if (!currentAgentId) return;
+    if (!currentAgentId || !isReady) return;
 
     setSettings(prev => {
       const currentSettings = prev[currentAgentId] || {
@@ -71,7 +87,7 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const updateToolConfig = (toolId: string, config: Record<string, any>) => {
-    if (!currentAgentId) return;
+    if (!currentAgentId || !isReady) return;
     
     setSettings(prev => {
       const currentSettings = prev[currentAgentId] || {
@@ -99,7 +115,7 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const getToolConfig = (toolId: string): Record<string, any> => {
-    if (!currentAgentId) return {};
+    if (!currentAgentId || !isReady) return {};
     
     const currentSettings = settings[currentAgentId];
     if (!currentSettings) return {};
@@ -109,6 +125,8 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const saveSettings = () => {
+    if (!isReady) return;
+    
     try {
       localStorage.setItem('agentSettings', JSON.stringify(settings));
     } catch (error) {
@@ -122,7 +140,8 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       toggleTool,
       updateToolConfig,
       saveSettings,
-      getToolConfig
+      getToolConfig,
+      isReady
     }}>
       {children}
     </AgentSettingsContext.Provider>

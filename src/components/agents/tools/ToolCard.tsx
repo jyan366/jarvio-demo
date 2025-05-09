@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ToolCardProps {
   toolId: string;
@@ -20,7 +21,7 @@ export function ToolCard({
   category, 
   configComponent 
 }: ToolCardProps) {
-  const { settings, toggleTool } = useAgentSettings();
+  const { settings, toggleTool, isReady } = useAgentSettings();
   const [isExpanded, setIsExpanded] = useState(false);
   
   const agentId = window.location.pathname.split('/').pop() || '';
@@ -37,6 +38,8 @@ export function ToolCard({
   };
 
   const handleToggle = (checked: boolean) => {
+    if (!isReady) return;
+    
     toggleTool(toolId, checked);
     // If turning off, collapse the expanded section
     if (!checked && isExpanded) {
@@ -45,7 +48,7 @@ export function ToolCard({
   };
 
   const toggleExpand = () => {
-    if (!isEnabled) return;
+    if (!isEnabled || !isReady) return;
     setIsExpanded(!isExpanded);
   };
 
@@ -62,12 +65,17 @@ export function ToolCard({
                 </p>
               </div>
               
-              <Switch
-                id={`tool-${toolId}`}
-                checked={isEnabled}
-                onCheckedChange={handleToggle}
-                className="cursor-pointer"
-              />
+              {!isReady ? (
+                <Skeleton className="w-10 h-5 rounded-full" />
+              ) : (
+                <Switch
+                  id={`tool-${toolId}`}
+                  checked={isEnabled}
+                  onCheckedChange={handleToggle}
+                  className="cursor-pointer"
+                  disabled={!isReady}
+                />
+              )}
             </div>
             
             <div className="mt-2 flex items-center">
@@ -75,12 +83,13 @@ export function ToolCard({
                 {category}
               </span>
               
-              {isEnabled && configComponent && (
+              {isReady && isEnabled && configComponent && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className="ml-2 h-7 text-xs"
                   onClick={toggleExpand}
+                  disabled={!isReady}
                 >
                   {isExpanded ? (
                     <>
@@ -100,7 +109,7 @@ export function ToolCard({
         </div>
       </div>
       
-      {isEnabled && isExpanded && configComponent && (
+      {isReady && isEnabled && isExpanded && configComponent && (
         <div className="border-t p-4 bg-gray-50">
           {configComponent}
         </div>
