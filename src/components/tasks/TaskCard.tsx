@@ -206,7 +206,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
             )}
             
             {isFlow && (
-              <Badge variant="blue" className="flex items-center gap-1">
+              <Badge variant="purple" className="flex items-center gap-1">
                 <Workflow className="w-3 h-3" />
                 Flow
               </Badge>
