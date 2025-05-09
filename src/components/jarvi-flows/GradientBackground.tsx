@@ -78,23 +78,23 @@ export function GradientBackground({ children }: { children: React.ReactNode }) 
       className="relative overflow-hidden rounded-xl shadow-lg cursor-default"
       style={{ touchAction: 'none' }} // Prevents touch scrolling issues
     >
-      {/* Base gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-blue-100 to-purple-100 z-0" />
+      {/* Base gradient background - using darker colors */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-blue-200 to-purple-200 z-0" />
       
-      {/* Interactive gradient overlay that follows cursor */}
+      {/* Interactive gradient overlay that follows cursor - increased opacity */}
       <div 
-        className="absolute inset-0 bg-gradient-to-r from-blue-200/10 via-purple-200/20 to-indigo-200/10 z-10 transition-transform duration-1000 ease-out"
+        className="absolute inset-0 bg-gradient-to-r from-blue-300/20 via-purple-300/30 to-indigo-300/20 z-10 transition-transform duration-1000 ease-out"
         style={{
           transform: `translate(${cursorPosition.x * 0.01}px, ${cursorPosition.y * 0.01}px)`,
-          opacity: 0.8
+          opacity: 0.9
         }}
       />
       
-      {/* Ripple effects */}
+      {/* Ripple effects - darker color for better visibility */}
       {ripples.map(ripple => (
         <div
           key={ripple.id}
-          className="absolute rounded-full bg-white z-20 pointer-events-none"
+          className="absolute rounded-full bg-white/70 z-20 pointer-events-none"
           style={{
             left: ripple.x - ripple.size / 2,
             top: ripple.y - ripple.size / 2,
@@ -102,17 +102,19 @@ export function GradientBackground({ children }: { children: React.ReactNode }) 
             height: ripple.size,
             opacity: ripple.opacity,
             transform: `scale(${1 + ripple.size * 0.01})`,
-            transition: 'transform 0.5s ease-out'
+            transition: 'transform 0.5s ease-out',
+            background: 'rgba(255, 255, 255, 0.7)',
+            boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)'
           }}
         />
       ))}
       
-      {/* Enhanced gradient overlays with more distinct patterns */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.5)_0%,rgba(255,255,255,0)_70%)] z-20" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(79,70,229,0.1)_0%,rgba(79,70,229,0)_60%)] z-30" />
+      {/* Enhanced gradient overlays with more distinct patterns - increased intensity */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.6)_0%,rgba(255,255,255,0)_70%)] z-20" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(79,70,229,0.2)_0%,rgba(79,70,229,0)_60%)] z-30" />
       
       {/* Subtle animated gradient shimmer */}
-      <div className="absolute inset-0 opacity-20 z-30">
+      <div className="absolute inset-0 opacity-30 z-30">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-[shimmer_3s_infinite] translate-x-[-100%]"></div>
       </div>
       
