@@ -1,5 +1,4 @@
-
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
@@ -34,6 +33,12 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  
+  // State for format menu
+  const [formatMenuOpen, setFormatMenuOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [slashCommandActive, setSlashCommandActive] = useState(false);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -48,39 +53,84 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
       inputRef.current.focus();
     }
   }, [isLoading]);
-
+  
+  // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Enter key for send message
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (inputValue.trim() && !isLoading && !isTransitioning) {
+      if (inputValue.trim() && !isLoading && !isTransitioning && !formatMenuOpen) {
         onSendMessage();
+      }
+    }
+    
+    // Escape key to close format menu
+    if (e.key === 'Escape' && formatMenuOpen) {
+      setFormatMenuOpen(false);
+      setSearchValue('');
+      setSlashCommandActive(false);
+    }
+  };
+
+  // Handle input change to detect slash command
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    
+    // Check if the last character is a slash and not preceded by any text on the same line
+    const lastNewLineIndex = value.lastIndexOf('\n');
+    const currentLine = value.slice(lastNewLineIndex + 1);
+    
+    if (currentLine === '/' && !slashCommandActive) {
+      setFormatMenuOpen(true);
+      setSlashCommandActive(true);
+      setSearchValue('');
+    } else if (slashCommandActive) {
+      // If slash command is active, update search term (remove the slash)
+      const searchTerm = currentLine.substring(1);
+      setSearchValue(searchTerm);
+      
+      // Close menu if the slash is deleted
+      if (!currentLine.startsWith('/')) {
+        setFormatMenuOpen(false);
+        setSlashCommandActive(false);
       }
     }
   };
 
   const handleFormatSelect = (formatText: string) => {
-    // Insert format at cursor position or append to end
     if (inputRef.current) {
-      const start = inputRef.current.selectionStart || 0;
-      const end = inputRef.current.selectionEnd || 0;
+      const cursorPosition = inputRef.current.selectionStart || 0;
       
-      const newValue = 
-        inputValue.substring(0, start) + 
-        formatText + 
-        inputValue.substring(end);
+      // If slash command is active, replace the slash with the format
+      if (slashCommandActive) {
+        const lastNewLineIndex = inputValue.lastIndexOf('\n', cursorPosition - 1) + 1;
+        const beforeSlash = inputValue.substring(0, lastNewLineIndex);
+        const afterSlash = inputValue.substring(cursorPosition);
+        
+        setInputValue(beforeSlash + formatText + afterSlash);
+      } else {
+        // Otherwise insert format at cursor position or append to end
+        const start = cursorPosition;
+        const end = inputRef.current.selectionEnd || 0;
+        
+        const newValue = 
+          inputValue.substring(0, start) + 
+          formatText + 
+          inputValue.substring(end);
+        
+        setInputValue(newValue);
+      }
       
-      setInputValue(newValue);
+      // Reset states
+      setSlashCommandActive(false);
       
       // Focus back on the textarea after inserting format
       setTimeout(() => {
         if (inputRef.current) {
           inputRef.current.focus();
-          inputRef.current.selectionStart = start + formatText.length;
-          inputRef.current.selectionEnd = start + formatText.length;
         }
       }, 0);
-    } else {
-      setInputValue(inputValue + formatText);
     }
   };
 
@@ -101,7 +151,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         </ScrollArea>
       </div>
 
-      {/* Fixed input at bottom with border only, no absolute positioning */}
+      {/* Input area at bottom */}
       <div className="border-t bg-white shadow-md">
         <form 
           onSubmit={(e) => {
@@ -115,15 +165,23 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
               });
             }
           }} 
-          className="flex gap-2 items-end p-3"
+          className="flex gap-2 items-end p-3 relative"
         >
-          <div className="flex items-center">
-            <JarvioFormatMenu onFormatSelect={handleFormatSelect} />
-          </div>
+          <JarvioFormatMenu
+            open={formatMenuOpen}
+            setOpen={setFormatMenuOpen}
+            onFormatSelect={handleFormatSelect}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            triggerRef={triggerRef}
+          />
+          
+          <div ref={triggerRef} className="hidden" />
+          
           <Textarea
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder={isLoading ? "Jarvio is thinking..." : "Type a message..."}
+            onChange={handleInputChange}
+            placeholder={isLoading ? "Jarvio is thinking..." : "Type / for commands..."}
             className="flex-1 min-h-[36px] max-h-24 resize-none"
             disabled={isLoading || isTransitioning}
             ref={inputRef}
@@ -132,7 +190,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           />
           <Button 
             type="submit" 
-            disabled={!inputValue.trim() || isLoading || isTransitioning}
+            disabled={!inputValue.trim() || isLoading || isTransitioning || formatMenuOpen}
             className="self-end rounded-full"
           >
             {isLoading ? (

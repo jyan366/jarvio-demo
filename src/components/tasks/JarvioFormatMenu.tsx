@@ -1,17 +1,23 @@
 
 import React from "react";
-import { useRef, useState } from "react";
-import { Text } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { Command as LucideCommand, Search } from "lucide-react";
 import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent } from "@/components/ui/popover";
 
 interface JarvioFormatMenuProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
   onFormatSelect: (format: string) => void;
+  searchValue: string;
+  setSearchValue: (value: string) => void;
+  triggerRef: React.RefObject<HTMLDivElement>;
 }
 
 // Flow block options organized by type
@@ -42,76 +48,116 @@ const flowBlockOptions = {
 };
 
 export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({ 
-  onFormatSelect 
+  open,
+  setOpen,
+  onFormatSelect,
+  searchValue,
+  setSearchValue,
+  triggerRef
 }) => {
-  const [open, setOpen] = useState(false);
+  // Filter blocks based on search value
+  const getFilteredBlocks = () => {
+    const allBlocks: { category: string; option: string }[] = [];
+    
+    Object.entries(flowBlockOptions).forEach(([category, options]) => {
+      options.forEach(option => {
+        if (searchValue === '' || option.toLowerCase().includes(searchValue.toLowerCase())) {
+          allBlocks.push({ category, option });
+        }
+      });
+    });
+    
+    return allBlocks;
+  };
+
+  const filteredBlocks = getFilteredBlocks();
   
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-8 p-2 text-muted-foreground hover:bg-muted"
-        >
-          <Text className="h-4 w-4" />
-          <span className="sr-only">Format</span>
-        </Button>
-      </PopoverTrigger>
       <PopoverContent 
         className="w-80 p-0" 
         align="start" 
         side="top"
+        ref={triggerRef}
       >
         <Command>
+          <CommandInput 
+            placeholder="Search blocks..." 
+            value={searchValue}
+            onValueChange={setSearchValue}
+            className="border-none focus:ring-0"
+          />
           <CommandList className="max-h-[400px]">
-            {/* Collect Flow Blocks */}
-            <CommandGroup heading="Collect Flow Blocks">
-              {flowBlockOptions.collect.map((option) => (
-                <CommandItem
-                  key={`collect-${option}`}
-                  onSelect={() => {
-                    onFormatSelect(`**COLLECT: ${option}**\n\n`);
-                    setOpen(false);
-                  }}
-                  className="py-2"
-                >
-                  <span>{option}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {searchValue === '' ? (
+              <>
+                {/* Collect Flow Blocks */}
+                <CommandGroup heading="Collect Flow Blocks">
+                  {flowBlockOptions.collect.map((option) => (
+                    <CommandItem
+                      key={`collect-${option}`}
+                      onSelect={() => {
+                        onFormatSelect(`**COLLECT: ${option}**\n\n`);
+                        setOpen(false);
+                        setSearchValue('');
+                      }}
+                      className="py-2"
+                    >
+                      <span>{option}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
 
-            {/* Think Flow Blocks */}
-            <CommandGroup heading="Think Flow Blocks">
-              {flowBlockOptions.think.map((option) => (
-                <CommandItem
-                  key={`think-${option}`}
-                  onSelect={() => {
-                    onFormatSelect(`**THINK: ${option}**\n\n`);
-                    setOpen(false);
-                  }}
-                  className="py-2"
-                >
-                  <span>{option}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
+                {/* Think Flow Blocks */}
+                <CommandGroup heading="Think Flow Blocks">
+                  {flowBlockOptions.think.map((option) => (
+                    <CommandItem
+                      key={`think-${option}`}
+                      onSelect={() => {
+                        onFormatSelect(`**THINK: ${option}**\n\n`);
+                        setOpen(false);
+                        setSearchValue('');
+                      }}
+                      className="py-2"
+                    >
+                      <span>{option}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
 
-            {/* Act Flow Blocks */}
-            <CommandGroup heading="Act Flow Blocks">
-              {flowBlockOptions.act.map((option) => (
-                <CommandItem
-                  key={`act-${option}`}
-                  onSelect={() => {
-                    onFormatSelect(`**ACT: ${option}**\n\n`);
-                    setOpen(false);
-                  }}
-                  className="py-2"
-                >
-                  <span>{option}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
+                {/* Act Flow Blocks */}
+                <CommandGroup heading="Act Flow Blocks">
+                  {flowBlockOptions.act.map((option) => (
+                    <CommandItem
+                      key={`act-${option}`}
+                      onSelect={() => {
+                        onFormatSelect(`**ACT: ${option}**\n\n`);
+                        setOpen(false);
+                        setSearchValue('');
+                      }}
+                      className="py-2"
+                    >
+                      <span>{option}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </>
+            ) : (
+              <CommandGroup heading="Filtered results">
+                {filteredBlocks.map(({ category, option }) => (
+                  <CommandItem
+                    key={`${category}-${option}`}
+                    onSelect={() => {
+                      onFormatSelect(`**${category.toUpperCase()}: ${option}**\n\n`);
+                      setOpen(false);
+                      setSearchValue('');
+                    }}
+                    className="py-2"
+                  >
+                    <span>{option}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
