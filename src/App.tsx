@@ -13,6 +13,9 @@ import JarviFlows from './pages/JarviFlows';
 import FlowBuilder from './pages/FlowBuilder';
 import KnowledgeBase from './pages/KnowledgeBase';
 import SalesHub from './pages/SalesHub';
+import AgentsHub from './pages/AgentsHub';
+import AdsManager from './pages/AdsManager';
+import AllProductReviews from './pages/AllProductReviews';
 
 function App() {
   return (
@@ -28,6 +31,9 @@ function App() {
           <Route path="/jarvi-flows/builder/:flowId" element={<FlowBuilder />} />
           <Route path="/knowledge-base" element={<KnowledgeBase />} />
           <Route path="/sales-hub" element={<SalesHub />} />
+          <Route path="/agents-hub" element={<AgentsHub />} />
+          <Route path="/ads-manager" element={<AdsManager />} />
+          <Route path="/all-product-reviews" element={<AllProductReviews />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />

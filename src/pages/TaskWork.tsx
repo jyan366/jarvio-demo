@@ -6,5 +6,9 @@ import TaskWorkContainer from "./TaskWorkContainer";
 export default function TaskWork() {
   const { taskId } = useParams<{ taskId: string }>();
   
-  return <TaskWorkContainer />;
+  if (!taskId) {
+    return <div className="flex items-center justify-center min-h-screen">No task ID provided</div>;
+  }
+  
+  return <TaskWorkContainer taskId={taskId} />;
 }
