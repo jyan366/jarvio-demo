@@ -145,35 +145,32 @@ export function useTaskWork() {
         return;
       }
 
-      const subtasksData = steps.map((s) => ({
-        task_id: taskState.id,
-        title: s.title,
-        description: s.description ?? "",
-      }));
+      const createdSteps = await createSubtasks(
+        steps.map((s) => ({
+          task_id: taskState.id,
+          title: s.title,
+          description: s.description ?? "",
+        }))
+      );
 
-      const createdSteps = await createSubtasks(taskState.id, subtasksData);
-
-      // Fix: Check if createdSteps is null or undefined before using it
-      if (createdSteps) {
-        setTaskState((prev) => {
-          if (!prev) return prev;
-          const withNew = [
-            ...prev.subtasks,
-            ...createdSteps.map((s, i) => {
-              return {
-                id: s.id,
-                title: s.title,
-                done: s.completed ?? false,
-                description: s.description ?? steps[i]?.description ?? "",
-                status: s.status ?? "",
-                priority: s.priority ?? "",
-                category: s.category ?? "",
-              };
-            }),
-          ];
-          return { ...prev, subtasks: withNew };
-        });
-      }
+      setTaskState((prev) => {
+        if (!prev) return prev;
+        const withNew = [
+          ...prev.subtasks,
+          ...createdSteps.map((s, i) => {
+            return {
+              id: s.id,
+              title: s.title,
+              done: s.completed ?? false,
+              description: s.description ?? steps[i]?.description ?? "",
+              status: s.status ?? "",
+              priority: s.priority ?? "",
+              category: s.category ?? "",
+            };
+          }),
+        ];
+        return { ...prev, subtasks: withNew };
+      });
 
       toast({
         title: "Steps generated!",
