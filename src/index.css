@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -155,13 +156,13 @@
 /* New auto-expand class for inputs that should show all content immediately */
 .auto-expand-input {
   height: auto !important;
-  min-height: 3.5rem !important; /* Start with a larger height */
+  min-height: 4rem !important; /* Increased from 3.5rem to 4rem */
   white-space: pre-wrap !important; 
   word-break: break-word !important;
   overflow-wrap: break-word !important;
   word-wrap: break-word !important;
-  padding: 0.5rem !important;
-  line-height: 1.4 !important;
+  padding: 0.75rem !important; /* Increased padding from 0.5rem to 0.75rem */
+  line-height: 1.5 !important; /* Increased line height slightly */
   width: 100% !important;
   max-width: 100% !important;
   display: block !important;
@@ -170,6 +171,7 @@
   resize: none !important;
   box-sizing: content-box !important;
   transition: height 0.2s ease !important;
+  margin-bottom: 0.25rem !important; /* Added margin at bottom */
 }
 
 /* Target the specific input styling to force text wrapping */
@@ -202,18 +204,19 @@ textarea.auto-height-input,
   max-width: 100% !important;
   display: block !important;
   height: auto !important;
-  min-height: 3rem !important; /* Increased initial height */
+  min-height: 3.5rem !important; /* Increased from 3rem to 3.5rem */
   resize: none !important;
   border: 1px solid transparent !important;
   transition: min-height 0.2s ease !important;
   box-sizing: border-box !important;
-  padding: 0.5rem !important;
-  line-height: 1.5 !important;
+  padding: 0.75rem !important; /* Increased padding from 0.5rem to 0.75rem */
+  line-height: 1.6 !important; /* Increased line height for better spacing */
   overflow-y: hidden !important;
+  margin-bottom: 0.25rem !important; /* Added bottom margin */
 }
 
 .flow-block-name-input:focus {
-  min-height: 4rem !important;
+  min-height: 4.5rem !important; /* Increased from 4rem to 4.5rem */
   height: auto !important;
 }
 

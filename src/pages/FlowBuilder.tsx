@@ -570,13 +570,17 @@ export default function FlowBuilder() {
 
   // Force adjustment of all textareas when blocks change
   React.useEffect(() => {
-    // Give time for components to render
+    // Initial delay for component rendering
     const timer = setTimeout(() => {
       // Find all textareas with the flow-block-name-input class
       document.querySelectorAll('.flow-block-name-input').forEach((element) => {
-        // Trigger a resize by faking a change event
-        const event = new Event('input', { bubbles: true });
-        element.dispatchEvent(event);
+        // Trigger multiple resize events with increasing delays
+        [0, 100, 300, 600].forEach(delay => {
+          setTimeout(() => {
+            const event = new Event('input', { bubbles: true });
+            element.dispatchEvent(event);
+          }, delay);
+        });
       });
     }, 300);
     
@@ -760,7 +764,7 @@ export default function FlowBuilder() {
                               placeholder="Describe this specific step"
                               onChange={(e) => updateBlockName(block.id, e.target.value)}
                               className="font-medium flow-block-name-input auto-expand-input"
-                              rows={1}
+                              rows={2} // Increased from 1 to 2 initial rows
                             />
                             <div className="text-xs text-muted-foreground capitalize">Type: {block.type}</div>
                           </div>

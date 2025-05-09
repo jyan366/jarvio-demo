@@ -16,7 +16,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       // Reset height to auto to get the correct scrollHeight
       element.style.height = 'auto';
       // Set the height to match the scrollHeight with extra padding to ensure all text is visible
-      element.style.height = `${element.scrollHeight + 12}px`;
+      element.style.height = `${element.scrollHeight + 20}px`;  // Increased padding from 12px to 20px
     };
     
     // Handle onChange to adjust height
@@ -35,7 +35,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         adjustHeight(textarea);
         
         // Multiple adjustment attempts with increasing delays to ensure proper rendering
-        const timeouts = [10, 50, 200, 500].map(delay => 
+        const timeouts = [10, 50, 200, 500, 1000].map(delay => // Added a longer 1000ms timeout
           setTimeout(() => {
             if (textarea) adjustHeight(textarea);
           }, delay)
