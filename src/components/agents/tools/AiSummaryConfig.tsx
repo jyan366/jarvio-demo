@@ -34,10 +34,10 @@ export function AiSummaryConfig({ toolId }: ToolConfigProps) {
         />
         
         <p className="text-xs text-muted-foreground">
-          Use {'{{variables}}'} as placeholders for dynamic content.
+          Use {'{{'} variables {'}}'}  as placeholders for dynamic content.
         </p>
         
-        <Button onClick={handleSave} className="mt-2 bg-purple-600 hover:bg-purple-700">
+        <Button onClick={handleSave} className="mt-2">
           <Save className="h-4 w-4 mr-2" />
           Save Template
         </Button>

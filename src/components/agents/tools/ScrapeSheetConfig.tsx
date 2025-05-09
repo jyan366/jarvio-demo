@@ -30,7 +30,7 @@ export function ScrapeSheetConfig({ toolId }: ToolConfigProps) {
             placeholder="https://docs.google.com/spreadsheets/d/..."
             className="flex-1"
           />
-          <Button onClick={handleSave} className="bg-purple-600 hover:bg-purple-700">
+          <Button onClick={handleSave}>
             Save
           </Button>
         </div>

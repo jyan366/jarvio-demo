@@ -40,7 +40,6 @@ export function UploadSheetConfig({ toolId }: ToolConfigProps) {
         <Button
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
-          className="border-purple-200 hover:bg-purple-50 hover:text-purple-800"
         >
           <Upload className="h-4 w-4 mr-2" />
           Upload
