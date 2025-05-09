@@ -12,6 +12,7 @@ interface FlowsSectionProps {
   onCreateNewFlow: () => void;
   isCreating: boolean;
   isRunningFlow?: boolean;
+  runningFlowId?: string;
 }
 
 export function FlowsSection({ 
@@ -21,7 +22,8 @@ export function FlowsSection({
   onDeleteFlow,
   onCreateNewFlow,
   isCreating,
-  isRunningFlow = false
+  isRunningFlow = false,
+  runningFlowId
 }: FlowsSectionProps) {
   return (
     <div className="space-y-4">
@@ -45,6 +47,7 @@ export function FlowsSection({
         onRunFlow={onRunFlow} 
         onDeleteFlow={onDeleteFlow}
         isRunningFlow={isRunningFlow}
+        runningFlowId={runningFlowId}
       />
     </div>
   );

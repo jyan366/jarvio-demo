@@ -108,11 +108,11 @@ const convertFlowToTask = async (flow: Flow) => {
     const task = await createTask({
       title: `Flow: ${flow.name}`,
       description: flow.description,
-      status: 'In Progress',
+      status: 'In Progress', // Start as In Progress
       priority: 'MEDIUM',
       category: 'FLOW',
       data: { flowId: flow.id, flowTrigger: flow.trigger }
-    });
+    }, subtasks); // Pass subtasks directly to createTask
     
     return task;
   } catch (error) {
@@ -128,6 +128,7 @@ export default function JarviFlows() {
   const [isCreating, setIsCreating] = useState(false);
   const [flowToDelete, setFlowToDelete] = useState<string | null>(null);
   const [isRunningFlow, setIsRunningFlow] = useState(false);
+  const [runningFlowId, setRunningFlowId] = useState<string | null>(null);
   
   // Load flows on component mount
   useEffect(() => {
@@ -144,6 +145,8 @@ export default function JarviFlows() {
   const handleRunFlow = async (flowId: string) => {
     try {
       setIsRunningFlow(true);
+      setRunningFlowId(flowId);
+      
       const flowToRun = flows.find(flow => flow.id === flowId);
       
       if (!flowToRun) {
@@ -151,8 +154,8 @@ export default function JarviFlows() {
       }
       
       toast({
-        title: "Running flow",
-        description: "Creating task from flow..."
+        title: "Starting flow",
+        description: "Creating tasks from flow steps..."
       });
       
       // Convert flow to task and get the task ID
@@ -163,8 +166,8 @@ export default function JarviFlows() {
       }
       
       toast({
-        title: "Flow converted to task",
-        description: "Opening task view..."
+        title: "Flow started successfully",
+        description: "Flow is now running. Opening task view..."
       });
       
       // Navigate to task view with the new task ID
@@ -173,12 +176,14 @@ export default function JarviFlows() {
     } catch (error) {
       console.error('Error running flow:', error);
       toast({
-        title: "Error running flow",
+        title: "Error starting flow",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
-    } finally {
+      
+      // Reset running state on error
       setIsRunningFlow(false);
+      setRunningFlowId(null);
     }
   };
   
@@ -252,6 +257,7 @@ export default function JarviFlows() {
           onCreateNewFlow={handleCreateNewFlow}
           isCreating={isCreating}
           isRunningFlow={isRunningFlow}
+          runningFlowId={runningFlowId}
         />
       </div>
 

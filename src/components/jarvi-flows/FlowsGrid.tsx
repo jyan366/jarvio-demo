@@ -1,8 +1,10 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Play, Edit, Clock, Zap, Trash2, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
 
 // Define the flow types and their properties
 export type TriggerType = 'manual' | 'scheduled' | 'event';
@@ -29,6 +31,7 @@ interface FlowsGridProps {
   onRunFlow: (flowId: string) => void;
   onDeleteFlow?: (flowId: string) => void; // Add delete flow handler
   isRunningFlow?: boolean;
+  runningFlowId?: string; // Add to track which flow is running
 }
 
 // Helper function to get a trigger icon
@@ -75,12 +78,22 @@ const getSignificantBlocks = (blocks: FlowBlock[]) => {
   return result;
 };
 
-export function FlowsGrid({ flows, onEditFlow, onRunFlow, onDeleteFlow, isRunningFlow = false }: FlowsGridProps) {
+export function FlowsGrid({ 
+  flows, 
+  onEditFlow, 
+  onRunFlow, 
+  onDeleteFlow, 
+  isRunningFlow = false,
+  runningFlowId
+}: FlowsGridProps) {
+  const { toast } = useToast();
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       {flows.map((flow) => {
         const blockCounts = getBlockCounts(flow.blocks);
         const significantBlocks = getSignificantBlocks(flow.blocks);
+        const isCurrentFlowRunning = isRunningFlow && runningFlowId === flow.id;
         
         return (
           <Card key={flow.id} className="overflow-hidden shadow-sm hover:shadow transition-shadow">
@@ -157,8 +170,9 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow, onDeleteFlow, isRunnin
                   size="sm"
                   onClick={() => onRunFlow(flow.id)}
                   disabled={isRunningFlow}
+                  className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : ""}
                 >
-                  {isRunningFlow ? (
+                  {isCurrentFlowRunning ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                       Running...
@@ -166,7 +180,7 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow, onDeleteFlow, isRunnin
                   ) : (
                     <>
                       <Play className="h-4 w-4 mr-1" />
-                      Run Now
+                      Start Flow
                     </>
                   )}
                 </Button>

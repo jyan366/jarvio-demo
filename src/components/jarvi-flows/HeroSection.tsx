@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TypedPrompts } from './TypedPrompts';
 import { GradientBackground } from './GradientBackground';
