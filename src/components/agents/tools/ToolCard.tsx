@@ -4,7 +4,6 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
-import { ToolConfig } from "./toolConfigs";
 
 interface ToolCardProps {
   toolId: string;
@@ -37,6 +36,14 @@ export function ToolCard({
     }
   };
 
+  const handleToggle = (checked: boolean) => {
+    toggleTool(toolId, checked);
+    // If turning off, collapse the expanded section
+    if (!checked && isExpanded) {
+      setIsExpanded(false);
+    }
+  };
+
   const toggleExpand = () => {
     if (!isEnabled) return;
     setIsExpanded(!isExpanded);
@@ -58,7 +65,7 @@ export function ToolCard({
               <Switch
                 id={`tool-${toolId}`}
                 checked={isEnabled}
-                onCheckedChange={(checked) => toggleTool(toolId, checked)}
+                onCheckedChange={handleToggle}
               />
             </div>
             

@@ -1,30 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Extended tool config types
-type ToolConfig = {
-  enabled: boolean;
-  config: Record<string, any>;
-};
-
-type ToolsConfig = {
-  uploadSheet?: {
-    fileUploaded?: boolean;
-    fileName?: string;
-  };
-  scrapeSheet?: {
-    sheetUrl?: string;
-  };
-  emailParsing?: {
-    emailAddress?: string;
-  };
-  aiSummary?: {
-    promptTemplate?: string;
-  };
-  sendEmail?: {
-    emailAddress?: string;
-  };
-};
+type ToolsConfig = Record<string, any>;
 
 type AgentSettings = {
   agentId: string;
@@ -50,7 +27,11 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const savedSettings = localStorage.getItem('agentSettings');
     if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+      try {
+        setSettings(JSON.parse(savedSettings));
+      } catch (error) {
+        console.error("Error parsing agent settings:", error);
+      }
     }
   }, []);
 
@@ -99,8 +80,7 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         toolsConfig: {}
       };
       
-      const toolType = toolId.split('-')[0]; // extract 'collect', 'think', 'act'
-      const toolName = toolId.split('-')[1]; // extract the actual tool name
+      const toolName = toolId.split('-')[1]; // extract the actual tool name like 'send-email' -> 'email'
       
       return {
         ...prev,
@@ -129,7 +109,11 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const saveSettings = () => {
-    localStorage.setItem('agentSettings', JSON.stringify(settings));
+    try {
+      localStorage.setItem('agentSettings', JSON.stringify(settings));
+    } catch (error) {
+      console.error("Error saving agent settings:", error);
+    }
   };
 
   return (
