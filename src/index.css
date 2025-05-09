@@ -169,6 +169,28 @@ textarea.auto-height-input,
   overflow-wrap: break-word !important;
 }
 
+/* New specific styles for flow block names */
+.flow-block-name-input {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  display: block !important;
+  height: auto !important;
+}
+
+/* Flow builder specific container */
+.flow-block-name-container {
+  width: 100% !important;
+  overflow-wrap: break-word !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
 /* Workflow Builder Styles */
 .workflow-grid-bg {
   background-image: 

@@ -738,24 +738,14 @@ export default function FlowBuilder() {
                         </div>
                         
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-1">
+                          <div className="space-y-1 flow-block-name-container">
                             <Label className="text-xs">Block Name</Label>
-                            <Input
+                            <Textarea
                               value={block.name || ''}
                               placeholder="Describe this specific step"
                               onChange={(e) => updateBlockName(block.id, e.target.value)}
-                              className="font-medium auto-height-input"
-                              style={{
-                                height: 'auto',
-                                minHeight: '2.5rem',
-                                whiteSpace: 'normal',
-                                wordBreak: 'break-word',
-                                wordWrap: 'break-word',
-                                overflowWrap: 'break-word',
-                                width: '100%',
-                                overflow: 'hidden',
-                                textOverflow: 'initial'
-                              }}
+                              className="font-medium flow-block-name-input auto-height-input min-h-[2.5rem] resize-none"
+                              rows={1}
                             />
                             <div className="text-xs text-muted-foreground capitalize">Type: {block.type}</div>
                           </div>

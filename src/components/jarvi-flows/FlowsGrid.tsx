@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -117,7 +118,7 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow }: FlowsGridProps) {
                     <p className="font-medium text-xs text-gray-500 mb-1">Key steps:</p>
                     <ul className="space-y-0.5 list-disc pl-4">
                       {Object.entries(significantBlocks).map(([type, name]) => (
-                        <li key={type} className="break-words line-clamp-2 whitespace-normal">{name}</li>
+                        <li key={type} className="break-words whitespace-normal overflow-wrap-break-word">{name}</li>
                       ))}
                     </ul>
                   </div>
