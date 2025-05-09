@@ -194,7 +194,7 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
             title: task.title || task.name, 
             task_id: newTask.id 
           }))
-        );
+        ) || [];
       }
 
       const supabaseTasks = await fetchTasks();

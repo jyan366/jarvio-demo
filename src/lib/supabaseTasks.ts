@@ -68,7 +68,8 @@ export const updateTask = async (taskId: string, updates: Partial<TaskData>) => 
 };
 
 // Function to get subtasks for a task or multiple tasks
-export const fetchSubtasks = export const getSubtasks = async (taskId: string | string[]) => {
+// Define as two separate functions with the same implementation
+export const getSubtasks = async (taskId: string | string[]) => {
   try {
     // Implementation for getSubtasks
     console.log("Getting subtasks for:", taskId);
@@ -79,6 +80,9 @@ export const fetchSubtasks = export const getSubtasks = async (taskId: string | 
     return [];
   }
 };
+
+// Alias fetchSubtasks to getSubtasks
+export const fetchSubtasks = getSubtasks;
 
 // Function to create subtasks
 export const createSubtasks = async (taskId: string, subtasks: any[] = []) => {
