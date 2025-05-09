@@ -84,46 +84,57 @@ Return ONLY the JSON object, no other text or formatting.
     const rawContent = data.choices[0].message.content;
     console.log("Raw response from OpenAI:", rawContent);
     
-    // Attempt to parse the JSON directly
+    let flowData;
     try {
-      // This will parse the JSON that we've requested from OpenAI
-      const parsedJson = JSON.parse(rawContent);
+      // Attempt to parse the JSON directly
+      flowData = JSON.parse(rawContent);
       
-      // Further validate the expected structure
-      if (!parsedJson.name || !parsedJson.description || !Array.isArray(parsedJson.blocks)) {
+      // Validate required fields
+      if (!flowData.name || !flowData.description || !Array.isArray(flowData.blocks)) {
         throw new Error("Invalid flow structure. Missing required properties.");
       }
       
-      // Return the validated JSON
-      return new Response(JSON.stringify({ 
-        success: true,
-        generatedFlow: parsedJson
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      // Validate blocks
+      flowData.blocks.forEach(block => {
+        if (!block.type || !["collect", "think", "act"].includes(block.type)) {
+          throw new Error(`Invalid block type: ${block.type}`);
+        }
+        
+        const validOptions = {
+          collect: ["User Text", "Upload Sheet", "All Listing Info", "Get Keywords", "Estimate Sales", 
+                   "Review Information", "Scrape Sheet", "Seller Account Feedback", "Email Parsing"],
+          think: ["Basic AI Analysis", "Listing Analysis", "Insights Generation", "Review Analysis"],
+          act: ["AI Summary", "Push to Amazon", "Send Email", "Human in the Loop"]
+        };
+        
+        if (!block.option || !validOptions[block.type].includes(block.option)) {
+          throw new Error(`Invalid option for ${block.type}: ${block.option}`);
+        }
       });
       
     } catch (parseError) {
-      console.error('Error parsing JSON from OpenAI:', parseError, 'Raw content:', rawContent);
+      console.error('Error parsing or validating JSON from OpenAI:', parseError, 'Raw content:', rawContent);
       
-      // Create a fallback flow in case parsing fails
-      const fallbackFlow = {
-        name: "Fallback Flow",
-        description: "This is a fallback flow created when JSON parsing failed",
+      // Create a default flow based on the user's prompt
+      const flowName = prompt.split(' ').slice(0, 4).join(' ') + "...";
+      flowData = {
+        name: flowName,
+        description: `Automatically generated flow for: ${prompt}`,
         blocks: [
-          { type: "collect", option: "User Text" },
+          { type: "collect", option: "All Listing Info" },
           { type: "think", option: "Basic AI Analysis" },
           { type: "act", option: "AI Summary" }
         ]
       };
-      
-      return new Response(JSON.stringify({ 
-        success: true,
-        generatedFlow: fallbackFlow,
-        warning: "Original AI response couldn't be parsed as JSON. Using fallback flow."
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     }
+
+    return new Response(JSON.stringify({
+      success: true,
+      generatedFlow: flowData
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+    
   } catch (error) {
     console.error('Error in chat function:', error);
     return new Response(JSON.stringify({ 
