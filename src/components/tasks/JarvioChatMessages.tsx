@@ -21,15 +21,17 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
 }) => {
   // Function to format message text with styling
   const formatMessageText = (text: string) => {
-    // Make "Review Information" bold
+    if (!text) return '';
+    
+    // Make "Review Information" bold with stars for markdown
     let formattedText = text.replace(/Review Information/g, '**Review Information**');
     
-    // Make @Clara bold and primary color
-    const claraAgent = agentsData.find(agent => agent.name.toLowerCase() === 'clara');
-    const claraColor = claraAgent?.avatarColor || '#9b87f5'; // Use agent color or default to primary purple
-    
-    // Replace @Clara with styled version (will be handled in markdown rendering)
-    formattedText = formattedText.replace(/@Clara/g, '**<span style="color: ' + claraColor + '">@Clara</span>**');
+    // Process all agent mentions
+    agentsData.forEach(agent => {
+      const pattern = new RegExp(`@${agent.name}`, 'g');
+      const agentColor = agent.avatarColor || '#9b87f5'; // Use agent color or default to primary purple
+      formattedText = formattedText.replace(pattern, `<span style="color:${agentColor};font-weight:bold;">@${agent.name}</span>`);
+    });
     
     return formattedText;
   };
@@ -100,20 +102,14 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
                     <span>Subtask complete! Please mark this subtask as done and select the next one to continue.</span>
                   </div>
                 ) : (
-                  <Markdown options={{
-                    forceBlock: true,
-                    wrapper: "div",
-                    forceWrapper: true,
-                    overrides: {
-                      span: {
-                        component: ({ style, children }) => (
-                          <span style={style}>{children}</span>
-                        )
-                      }
-                    }
-                  }}>
-                    {message.text ? formatMessageText(message.text) : ''}
-                  </Markdown>
+                  <div 
+                    className="markdown-content"
+                    dangerouslySetInnerHTML={{ 
+                      __html: message.isUser 
+                        ? message.text 
+                        : formatMessageText(message.text)
+                    }}
+                  />
                 )}
               </div>
               
