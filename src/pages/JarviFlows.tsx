@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -134,21 +133,15 @@ export default function JarviFlows() {
   return (
     <MainLayout>
       <div className="space-y-8">
-        {/* Hero Section */}
+        {/* Streamlined Hero Section */}
         <GradientBackground>
-          <div className="space-y-8">
-            <div className="space-y-4 text-center">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-                Your Amazon business has 
-                <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent"> never flowed like this</span>
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Create powerful automations with natural language. 
-                Let AI handle the repetitive tasks so you can focus on growth.
-              </p>
-            </div>
+          <div className="flex flex-col items-center justify-center space-y-6 py-6">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-center">
+              Your Amazon business has 
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent"> never flowed like this</span>
+            </h1>
 
-            <div className="flex flex-col items-center justify-center">
+            <div className="w-full max-w-2xl">
               <TypedPrompts />
             </div>
 
@@ -170,40 +163,6 @@ export default function JarviFlows() {
                 <Sparkles className="w-4 h-4 mr-2" />
                 Create with AI
               </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">
-              {/* Feature cards */}
-              <Card className="bg-white/60 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="text-base">Collect Data</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Automatically gather information from multiple sources to power your workflows.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/60 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="text-base">Think & Process</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Use AI to analyze data and generate actionable insights for your business.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/60 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="text-base">Take Action</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Execute changes across platforms or deliver reports to your team automatically.
-                  </p>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </GradientBackground>
