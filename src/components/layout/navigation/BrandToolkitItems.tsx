@@ -1,5 +1,5 @@
 
-import { ShoppingCart, BarChart3, FileText, Users, Target, Megaphone, GitBranch } from 'lucide-react';
+import { ShoppingCart, BarChart3, FileText, Users, Target, Megaphone } from 'lucide-react';
 import { MenuItem } from './types';
 
 export const brandToolkitItems: MenuItem[] = [{
@@ -42,16 +42,6 @@ export const brandToolkitItems: MenuItem[] = [{
   submenu: [
     { label: 'Customer Insights', href: '/customer-insights' },
     { label: 'All Product Reviews', href: '/all-product-reviews' }
-  ]
-}, {
-  icon: GitBranch,
-  label: 'JarviFlows',
-  id: 'jarviflows',
-  href: '/jarvi-flows',
-  status: 'active',
-  submenu: [
-    { label: 'My Flows', href: '/jarvi-flows' },
-    { label: 'Flow Builder', href: '/jarvi-flows/builder' }
   ]
 }, {
   icon: Target,
