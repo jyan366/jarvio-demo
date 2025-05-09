@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -34,24 +35,6 @@ import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
 import { Flow, FlowBlock, TriggerType } from '@/components/jarvi-flows/FlowsGrid';
-
-// Define the flow types and their properties
-type TriggerType = 'manual' | 'scheduled' | 'event';
-
-type FlowBlock = {
-  id: string;
-  type: 'collect' | 'think' | 'act';
-  option: string;
-  config?: Record<string, any>;
-};
-
-type Flow = {
-  id: string;
-  name: string;
-  description: string;
-  trigger: TriggerType;
-  blocks: FlowBlock[];
-};
 
 // Block options based on type
 const blockOptions = {
