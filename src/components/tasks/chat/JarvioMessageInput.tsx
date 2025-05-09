@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
@@ -41,6 +41,16 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
   setMenuType,
   inputRef
 }) => {
+  // State for formatted display of text
+  const [formattedDisplay, setFormattedDisplay] = useState<string>("");
+  
+  // Format text for display
+  useEffect(() => {
+    // Apply bold formatting
+    const formatted = inputValue.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
+    setFormattedDisplay(formatted);
+  }, [inputValue]);
+
   // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Slash key to open blocks menu
@@ -140,16 +150,26 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
         <div ref={triggerRef} className="w-1 h-1" />
       </div>
       
-      <Textarea
-        value={inputValue}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
-        className="flex-1 min-h-[36px] max-h-24 resize-none"
-        disabled={isLoading || isTransitioning}
-        ref={inputRef}
-        rows={1}
-      />
+      <div className="flex-1 relative">
+        {/* Hidden real textarea for input handling */}
+        <Textarea
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
+          className="flex-1 min-h-[36px] max-h-24 resize-none opacity-0 absolute inset-0 z-10"
+          disabled={isLoading || isTransitioning}
+          ref={inputRef}
+          rows={1}
+        />
+        
+        {/* Formatted display div that shows the styled text */}
+        <div 
+          className="flex-1 min-h-[36px] max-h-24 resize-none border border-input bg-background px-3 py-2 text-sm rounded-md overflow-y-auto whitespace-pre-wrap"
+          dangerouslySetInnerHTML={{ __html: formattedDisplay || '<span class="text-muted-foreground">' + (isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents...") + '</span>' }}
+        />
+      </div>
+      
       <Button 
         type="submit" 
         disabled={!inputValue.trim() || isLoading || isTransitioning || formatMenuOpen}
