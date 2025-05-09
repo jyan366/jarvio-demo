@@ -9,6 +9,7 @@ import { agentsData } from "@/data/agentsData";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
 import { useToast } from "@/hooks/use-toast";
 import { ToolsSection } from "@/components/agents/tools/ToolsSection";
+import { AgentSettingsProvider } from "@/hooks/useAgentSettings";
 
 export default function AgentProfile() {
   const { agentId } = useParams<{ agentId: string }>();

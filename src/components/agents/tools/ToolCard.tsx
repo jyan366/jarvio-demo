@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -27,6 +27,14 @@ export function ToolCard({
   const agentId = window.location.pathname.split('/').pop() || '';
   const agentSettings = settings[agentId] || { customTools: [], toolsConfig: {} };
   const isEnabled = agentSettings.customTools.includes(toolId);
+  
+  // React to changes in isReady and isEnabled
+  useEffect(() => {
+    if (isReady && isEnabled && isExpanded) {
+      // Maintain expanded state when settings refresh
+      setIsExpanded(true);
+    }
+  }, [isReady, isEnabled]);
   
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {

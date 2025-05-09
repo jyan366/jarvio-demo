@@ -48,16 +48,33 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => subscription.unsubscribe();
   }, []);
 
-  // Extract agent ID from URL
+  // Extract agent ID from URL immediately when URL changes
   useEffect(() => {
-    const path = window.location.pathname;
-    const match = path.match(/\/agents-hub\/agent\/([^\/]+)/);
-    if (match && match[1]) {
-      setCurrentAgentId(match[1]);
-    } else {
-      setCurrentAgentId(null);
-    }
-  }, [window.location.pathname]);
+    const extractAgentIdFromUrl = () => {
+      const path = window.location.pathname;
+      const match = path.match(/\/agents-hub\/agent\/([^\/]+)/);
+      if (match && match[1]) {
+        setCurrentAgentId(match[1]);
+      } else {
+        setCurrentAgentId(null);
+      }
+    };
+
+    // Extract ID immediately
+    extractAgentIdFromUrl();
+
+    // Set up listener for URL changes
+    const handleLocationChange = () => {
+      extractAgentIdFromUrl();
+    };
+
+    // Listen for popstate events (browser back/forward)
+    window.addEventListener('popstate', handleLocationChange);
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, []);
 
   // Load settings from database when agent ID or user ID changes
   useEffect(() => {
@@ -113,6 +130,7 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   // Set isReady when settings are loaded and agent ID is determined
   useEffect(() => {
     if (!isLoading && currentAgentId !== null) {
+      // Force isReady to true when not loading and we have an agent ID
       setIsReady(true);
     } else {
       setIsReady(false);
@@ -209,7 +227,7 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           .update({
             custom_tools: currentSettings.customTools,
             tools_config: currentSettings.toolsConfig,
-            updated_at: new Date().toISOString() // Fix: Convert Date to ISO string
+            updated_at: new Date().toISOString() // Convert Date to ISO string
           })
           .eq('id', data.id);
           
