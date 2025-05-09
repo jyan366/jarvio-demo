@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { MenuItemType } from "../JarvioMenuTypes";
-import { agentsData } from "@/data/agentsData";
 
 interface JarvioMessageInputProps {
   inputValue: string;
@@ -41,32 +41,15 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
   setMenuType,
   inputRef
 }) => {
-  // Ref for tracking cursor position
-  const displayRef = useRef<HTMLDivElement>(null);
-  const [selectionStart, setSelectionStart] = useState(0);
-  const [selectionEnd, setSelectionEnd] = useState(0);
-  const [hasFocus, setHasFocus] = useState(false);
-
+  // State for formatted display of text
+  const [formattedDisplay, setFormattedDisplay] = useState<string>("");
+  
   // Format text for display
-  const getFormattedText = (text: string) => {
-    if (!text) return '';
-    
-    let formattedText = text;
-    
-    // Process bold text
-    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Process agent mentions
-    agentsData.forEach(agent => {
-      const pattern = new RegExp(`@${agent.name}`, 'g');
-      formattedText = formattedText.replace(
-        pattern, 
-        `<span style="color:${agent.avatarColor || '#9b87f5'};font-weight:bold;">@${agent.name}</span>`
-      );
-    });
-    
-    return formattedText;
-  };
+  useEffect(() => {
+    // Apply bold formatting
+    const formatted = inputValue.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
+    setFormattedDisplay(formatted);
+  }, [inputValue]);
 
   // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -104,16 +87,10 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     }
   };
 
-  // Handle input change to detect commands and update selection position
+  // Handle input change to detect commands
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    
-    // Store current cursor position
-    if (e.target) {
-      setSelectionStart(e.target.selectionStart || 0);
-      setSelectionEnd(e.target.selectionEnd || 0);
-    }
     
     // Check for slash command - triggers anywhere
     if (!commandActive && value.endsWith('/')) {
@@ -154,52 +131,6 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     }
   };
 
-  // Apply formatting and focus to input after click on formatted area
-  const handleDisplayClick = (e: React.MouseEvent) => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      setHasFocus(true);
-      
-      // Attempt to set cursor position based on click position
-      try {
-        const selection = window.getSelection();
-        if (selection && selection.rangeCount > 0 && displayRef.current) {
-          const range = selection.getRangeAt(0);
-          const textNode = range.startContainer;
-          
-          if (textNode.nodeType === Node.TEXT_NODE && textNode.parentNode === displayRef.current) {
-            const offset = range.startOffset;
-            if (inputRef.current) {
-              inputRef.current.setSelectionRange(offset, offset);
-              setSelectionStart(offset);
-              setSelectionEnd(offset);
-            }
-          }
-        }
-      } catch (err) {
-        // Fallback if selection API fails
-        if (inputRef.current) {
-          inputRef.current.setSelectionRange(inputValue.length, inputValue.length);
-        }
-      }
-    }
-  };
-  
-  const handleFocus = () => {
-    setHasFocus(true);
-  };
-  
-  const handleBlur = () => {
-    setHasFocus(false);
-  };
-
-  // Set cursor position
-  useEffect(() => {
-    if (inputRef.current && hasFocus) {
-      inputRef.current.setSelectionRange(selectionStart, selectionEnd);
-    }
-  }, [selectionStart, selectionEnd, hasFocus, inputValue]);
-
   return (
     <form 
       onSubmit={(e) => {
@@ -219,41 +150,35 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
         <div ref={triggerRef} className="w-1 h-1" />
       </div>
       
-      <div className="flex-1 relative min-h-[40px]">
+      <div className="flex-1 relative">
+        {/* Real textarea for input handling - now fully transparent but still interactive */}
         <Textarea
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
-          className="absolute inset-0 resize-none text-sm"
+          className="flex-1 min-h-[36px] max-h-24 resize-none absolute inset-0 z-20 opacity-0"
           disabled={isLoading || isTransitioning}
           ref={inputRef}
           rows={1}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          style={{ 
-            caretColor: 'black', 
-            minHeight: '40px',
-            color: 'transparent',
-            backgroundColor: 'transparent',
-            height: displayRef.current?.offsetHeight || 'auto'
-          }}
+          style={{ caretColor: 'transparent' }} // Hide the cursor in the invisible textarea
         />
-        <div
-          ref={displayRef}
-          className="flex-1 min-h-[40px] overflow-auto p-2 border rounded-md bg-background text-sm"
-          onClick={handleDisplayClick}
-          style={{ 
-            whiteSpace: 'pre-wrap', 
-            wordBreak: 'break-word',
-            minHeight: '40px',
-            resize: 'none'
-          }}
+        
+        {/* Formatted display div that shows the styled text */}
+        <div 
+          className="flex-1 min-h-[36px] max-h-24 resize-none border border-input bg-background px-3 py-2 text-sm rounded-md overflow-y-auto whitespace-pre-wrap pointer-events-none"
           dangerouslySetInnerHTML={{ 
-            __html: getFormattedText(inputValue) || 
-            `<span class="text-muted-foreground">${isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}</span>`
+            __html: formattedDisplay || 
+              '<span class="text-muted-foreground">' + 
+              (isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents...") + 
+              '</span>' 
           }}
         />
+        
+        {/* Add a blinking cursor effect at the end of the text */}
+        {!isLoading && !isTransitioning && 
+          <div className="absolute right-3 top-2 h-4 w-0.5 bg-black animate-blink"></div>
+        }
       </div>
       
       <Button 

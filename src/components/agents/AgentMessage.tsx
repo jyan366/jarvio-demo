@@ -2,7 +2,6 @@
 import React from "react";
 import { Message } from "./types";
 import { cn } from "@/lib/utils";
-import { agentsData } from "@/data/agentsData";
 
 interface AgentMessageProps {
   message: Message;
@@ -10,33 +9,13 @@ interface AgentMessageProps {
 }
 
 export function AgentMessage({ message, agentColor }: AgentMessageProps) {
-  // Function to format message text with styling
-  const formatMessageText = (text: string) => {
-    if (!text) return text;
-    
-    // Convert markdown-style bold (**text**) to HTML bold
-    let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Process all agent mentions
-    agentsData.forEach(agent => {
-      const pattern = new RegExp(`@${agent.name}`, 'g');
-      const mentionColor = agent.avatarColor || '#9b87f5'; // Use agent color or default to primary purple
-      formattedText = formattedText.replace(
-        pattern, 
-        `<span style="color:${mentionColor};font-weight:bold;">@${agent.name}</span>`
-      );
-    });
-    
-    return formattedText;
-  };
-
   return (
     <div className={cn(
       "flex mb-4",
       message.isUser ? "justify-end" : "justify-start"
     )}>
       <div className={cn(
-        "max-w-[70%] rounded-lg p-3", 
+        "max-w-[70%] rounded-lg p-3", // Changed from max-w-[80%] to max-w-[70%]
         message.isUser 
           ? "bg-primary text-primary-foreground" 
           : "bg-muted"
@@ -52,12 +31,7 @@ export function AgentMessage({ message, agentColor }: AgentMessageProps) {
             <span className="text-xs font-semibold">{message.sender}</span>
           </div>
         )}
-        <div 
-          className="text-sm whitespace-pre-wrap break-words"
-          dangerouslySetInnerHTML={{ 
-            __html: formatMessageText(message.content) 
-          }}
-        />
+        <div className="text-sm whitespace-pre-wrap break-words">{message.content}</div>
         <div className="text-[10px] opacity-70 text-right mt-1">
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
