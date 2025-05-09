@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
 import { InsightsFeed } from '@/components/action-studio/InsightsFeed';
-import { PlusCircle, Play, Package } from 'lucide-react';
+import { PlusCircle, Play } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -17,8 +18,6 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 import { ProcessBuilder } from '@/components/ads/ProcessBuilder';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SavedProcesses } from '@/components/action-studio/SavedProcesses';
 import { BestSellersRestockProcess } from '@/components/inventory/BestSellersRestockProcess';
 
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
@@ -92,55 +91,33 @@ export default function ActionStudio() {
           </Card>
         )}
 
-        <Tabs defaultValue="tasks" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="tasks">Tasks & Insights</TabsTrigger>
-            <TabsTrigger value="processes">Saved Processes</TabsTrigger>
-          </TabsList>
+        <div className="space-y-6">
+          <SuggestedTasksSection />
 
-          <TabsContent value="tasks">
-            <SuggestedTasksSection />
-
-            <div className="flex flex-col space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg sm:text-xl font-semibold">Insights Feed</h2>
-                <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as InsightCategory)}>
-                  <SelectTrigger className="w-[140px] sm:w-[180px]">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="All">All</SelectItem>
-                      <SelectItem value="Sales">Sales</SelectItem>
-                      <SelectItem value="Inventory">Inventory</SelectItem>
-                      <SelectItem value="Listings">Listings</SelectItem>
-                      <SelectItem value="Customers">Customers</SelectItem>
-                      <SelectItem value="Competitors">Competitors</SelectItem>
-                      <SelectItem value="Advertising">Advertising</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <InsightsFeed selectedCategory={selectedCategory} />
+          <div className="flex flex-col space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg sm:text-xl font-semibold">Insights Feed</h2>
+              <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as InsightCategory)}>
+                <SelectTrigger className="w-[140px] sm:w-[180px]">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="All">All</SelectItem>
+                    <SelectItem value="Sales">Sales</SelectItem>
+                    <SelectItem value="Inventory">Inventory</SelectItem>
+                    <SelectItem value="Listings">Listings</SelectItem>
+                    <SelectItem value="Customers">Customers</SelectItem>
+                    <SelectItem value="Competitors">Competitors</SelectItem>
+                    <SelectItem value="Advertising">Advertising</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
-          </TabsContent>
 
-          <TabsContent value="processes">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg sm:text-xl font-semibold">Saved Processes</h2>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setIsProcessBuilderOpen(true)}
-              >
-                <PlusCircle className="w-4 h-4 mr-2" />
-                New Process
-              </Button>
-            </div>
-            <SavedProcesses onCreateNew={() => setIsProcessBuilderOpen(true)} />
-          </TabsContent>
-        </Tabs>
+            <InsightsFeed selectedCategory={selectedCategory} />
+          </div>
+        </div>
       </div>
 
       <CreateTaskFlow 
