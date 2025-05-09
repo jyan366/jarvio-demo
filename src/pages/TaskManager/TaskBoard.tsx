@@ -10,7 +10,7 @@ import { suggestedTasks } from '@/components/action-studio/SuggestedTasksSection
 import { TaskPreviewDialog } from '@/components/tasks/TaskPreviewDialog';
 import { InsightsDialog } from '@/components/insights/InsightsDialog';
 import { InsightDetailDialog } from '@/components/insights/InsightDetailDialog';
-import { fetchTasks, fetchSubtasks, createTask, createSubtasks, initializeSampleTasks, addSampleSubtasksToTask } from '@/lib/supabaseTasks';
+import { fetchTasks, fetchSubtasks, createTask, createSubtasks, initializeSampleTasks, addSampleSubtasksToTask, addSampleTask } from '@/lib/supabaseTasks';
 import { initialTasks, insightsData } from './constants';
 import { mapInsightToTask } from './helpers';
 import type { Task } from './types';
@@ -269,6 +269,27 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
         title: "Error Creating Task", 
         description: String(e),
         variant: "destructive" 
+      });
+    }
+  };
+
+  const createSampleTask = async () => {
+    try {
+      const newTask = await addSampleTask();
+      if (newTask) {
+        await addSampleSubtasksToTask(newTask.id, []); // Adding empty array as second argument
+        fetchTasks();
+        toast({
+          title: "Sample task created",
+          description: "A sample task has been created for demonstration purposes.",
+        });
+      }
+    } catch (error) {
+      console.error("Error creating sample task:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create sample task.",
+        variant: "destructive",
       });
     }
   };
