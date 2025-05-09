@@ -40,7 +40,7 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
 
     // Convert markdown-style bold (**text**) to HTML bold
     formattedText = formattedText.replace(
-      /\*\*(.*?)\*\*/g, 
+      /\*\*([\s\S]*?)\*\*/g, 
       '<strong>$1</strong>'
     );
     
@@ -117,7 +117,7 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
                     className="markdown-content"
                     dangerouslySetInnerHTML={{ 
                       __html: message.isUser 
-                        ? message.text 
+                        ? message.text.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>')
                         : formatMessageText(message.text)
                     }}
                   />
