@@ -41,6 +41,8 @@ Keep in mind:
 4. If a capability seems missing, use "Human in the Loop" for act blocks or "User Text" for collect blocks
     `;
 
+    console.log("Sending request to OpenAI with prompt:", prompt);
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -58,20 +60,37 @@ Keep in mind:
       }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("OpenAI API error:", response.status, errorText);
+      throw new Error(`OpenAI API returned ${response.status}: ${errorText}`);
+    }
+
     const data = await response.json();
-    const generatedText = data.choices[0].message.content;
     
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error("Unexpected OpenAI response format:", JSON.stringify(data));
+      throw new Error("Invalid response format from OpenAI API");
+    }
+    
+    const generatedText = data.choices[0].message.content;
     console.log("Raw response from OpenAI:", generatedText);
     
-    // Try parsing the JSON to validate it before sending
+    // Validate that the response is proper JSON before sending it back
+    let parsedJson;
     try {
-      JSON.parse(generatedText);
+      parsedJson = JSON.parse(generatedText);
+      
+      // Further validate the expected structure
+      if (!parsedJson.name || !parsedJson.description || !Array.isArray(parsedJson.blocks)) {
+        throw new Error("Invalid flow structure. Missing required properties.");
+      }
       
       return new Response(JSON.stringify({ generatedText }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     } catch (parseError) {
-      console.error('Error parsing JSON from OpenAI:', parseError);
+      console.error('Error parsing JSON from OpenAI:', parseError, 'Raw content:', generatedText);
       return new Response(JSON.stringify({ 
         error: "Invalid JSON received from AI", 
         rawResponse: generatedText 

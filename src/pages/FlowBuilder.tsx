@@ -26,7 +26,8 @@ import {
   Save, 
   ArrowLeft,
   WandSparkles,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
@@ -166,6 +167,7 @@ export default function FlowBuilder() {
   });
   const [showAIPrompt, setShowAIPrompt] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const aiPromptForm = useForm<AIPromptFormValues>({
     defaultValues: {
@@ -221,6 +223,8 @@ export default function FlowBuilder() {
   // Generate flow from AI prompt
   const generateFlowFromPrompt = async (data: AIPromptFormValues) => {
     setIsGenerating(true);
+    setAiError(null);
+    
     try {
       const response = await supabase.functions.invoke("chat", {
         body: {
@@ -241,20 +245,22 @@ export default function FlowBuilder() {
         throw new Error(`Response Error: ${response.data.error}`);
       }
 
-      // Parse generated JSON from text response
+      // Get generated JSON from response
       const generatedText = response.data?.generatedText || "";
       console.log("Generated text:", generatedText);
-
+      
       let parsedFlow;
       let errorDetails = "";
 
-      // First, try parsing the raw text as JSON
+      // STEP 1: Try direct JSON parsing
       try {
         parsedFlow = JSON.parse(generatedText);
+        console.log("Direct JSON parsed successfully:", parsedFlow);
       } catch (directParseError) {
         errorDetails += "Direct JSON parse failed. ";
+        console.error("Direct JSON parsing failed:", directParseError);
         
-        // If that fails, try to extract JSON from markdown
+        // STEP 2: Try to extract JSON from markdown code blocks
         try {
           // Match JSON inside code blocks or just plain JSON
           const jsonRegex = /```(?:json)?\s*({[\s\S]*?})\s*```|({[\s\S]*})/;
@@ -265,16 +271,29 @@ export default function FlowBuilder() {
           }
           
           const jsonStr = match[1] || match[2];
+          console.log("Extracted JSON string:", jsonStr);
+          
           parsedFlow = JSON.parse(jsonStr);
+          console.log("Extracted JSON parsed successfully:", parsedFlow);
         } catch (extractError) {
-          // If both methods fail, try a more aggressive extraction
+          // STEP 3: Try a more aggressive extraction approach
           errorDetails += "Code block extraction failed. ";
+          console.error("JSON extraction failed:", extractError);
           
           try {
-            // Try to identify anything that looks like JSON object
+            // Try to identify anything that looks like a JSON object
             const objectMatch = generatedText.match(/{[^]*}/);
             if (objectMatch) {
-              parsedFlow = JSON.parse(objectMatch[0]);
+              const potentialJson = objectMatch[0];
+              console.log("Potential JSON found with aggressive extraction:", potentialJson);
+              
+              try {
+                parsedFlow = JSON.parse(potentialJson);
+                console.log("Aggressively extracted JSON parsed successfully:", parsedFlow);
+              } catch (finalParseError) {
+                console.error("Final parse attempt failed:", finalParseError);
+                throw new Error("All JSON parsing methods failed");
+              }
             } else {
               throw new Error("No JSON-like structure found");
             }
@@ -282,6 +301,11 @@ export default function FlowBuilder() {
             throw new Error(`Failed to parse JSON: ${errorDetails} ${lastAttemptError.message}`);
           }
         }
+      }
+
+      // If we reach here, we have a parsedFlow object
+      if (!parsedFlow) {
+        throw new Error("Failed to parse any valid JSON");
       }
 
       // Validate the flow structure
@@ -293,7 +317,12 @@ export default function FlowBuilder() {
       const newBlocks: FlowBlock[] = parsedFlow.blocks.map((block: any) => {
         // Validate block type
         if (!block.type || !['collect', 'think', 'act'].includes(block.type)) {
-          throw new Error(`Invalid block type: ${block.type}`);
+          console.warn(`Invalid block type: ${block.type}, using 'collect' as fallback`);
+          return {
+            id: uuidv4(),
+            type: 'collect',
+            option: blockOptions['collect'][0]
+          };
         }
         
         // Validate block option
@@ -330,6 +359,7 @@ export default function FlowBuilder() {
       setShowAIPrompt(false);
     } catch (error) {
       console.error("Error generating flow:", error);
+      setAiError(error instanceof Error ? error.message : "Unknown error occurred");
       toast({
         title: "Error generating flow",
         description: error instanceof Error ? error.message : "Unknown error occurred",
@@ -337,13 +367,16 @@ export default function FlowBuilder() {
       });
     } finally {
       setIsGenerating(false);
-      aiPromptForm.reset();
     }
   };
 
   // Save flow
   const saveFlow = () => {
     console.log('Flow saved:', flow);
+    toast({
+      title: "Flow saved successfully",
+      description: `${flow.name} has been saved.`
+    });
     navigate('/jarvi-flows');
   };
 
@@ -405,14 +438,32 @@ export default function FlowBuilder() {
                       className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
                       disabled={isGenerating}
                     >
-                      <WandSparkles className="h-4 w-4 mr-2" />
-                      {isGenerating ? "Generating..." : "Generate Flow"}
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <WandSparkles className="h-4 w-4 mr-2" />
+                          Generate Flow
+                        </>
+                      )}
                     </Button>
                     
-                    <div className="text-xs text-muted-foreground flex items-center mt-2 sm:mt-0">
-                      <AlertCircle className="h-3 w-3 mr-1" />
-                      Example: "Create a flow to check inventory weekly and send restock alerts"
-                    </div>
+                    {aiError && (
+                      <div className="text-xs text-red-600 flex items-center">
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        {aiError}
+                      </div>
+                    )}
+                    
+                    {!aiError && (
+                      <div className="text-xs text-muted-foreground flex items-center mt-2 sm:mt-0">
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        Example: "Create a flow to check inventory weekly and send restock alerts"
+                      </div>
+                    )}
                   </div>
                 </form>
               </Form>
