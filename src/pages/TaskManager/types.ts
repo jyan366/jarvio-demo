@@ -15,5 +15,5 @@ export interface Task {
   data?: {
     flowId?: string;
     flowTrigger?: string;
-  };
+  } | any; // Allow for more flexible data type to accommodate Supabase's Json type
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -162,7 +161,7 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
             })),
             comments: [],
             products: [],
-            // Make sure we include the data field if it exists
+            // Ensure we're properly handling the data object
             data: t.data || {},
           });
         }
@@ -229,6 +228,8 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
           })),
           comments: [],
           products: [],
+          // Ensure we're properly handling the data object
+          data: t.data || {},
         });
       }
       setTasksByStatus(byStatus);
@@ -257,7 +258,8 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
                   }),
                   subtasks: subtasks.map(st => ({ id: st.id, title: st.title, done: st.completed })),
                   comments: [],
-                  products: []
+                  products: [],
+                  data: newTask.data || {} // Ensure data is properly handled
                 });
                 setIsPreviewOpen(true);
               }}
