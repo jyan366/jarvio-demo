@@ -8,6 +8,8 @@ import { Agent } from "@/components/agents/types";
 import { agentsData } from "@/data/agentsData";
 import { Button } from "@/components/ui/button";
 import { Users, MessageSquare } from "lucide-react";
+import { AgentSettingsProvider } from "@/hooks/useAgentSettings";
+import { AgentSettings } from "@/components/agents/AgentSettings";
 
 export default function AgentsHub() {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
@@ -29,35 +31,38 @@ export default function AgentsHub() {
   };
   
   return (
-    <MainLayout>
-      <div className="h-full flex flex-col">
-        <div className="flex-1 overflow-hidden">
-          {selectedAgent ? (
-            <AgentChat agent={selectedAgent} onBack={handleBackToAgents} />
-          ) : showGroupChat ? (
-            <GroupAgentChat onBack={handleBackToAgents} />
-          ) : (
-            <>
-              <div className="mb-6 flex justify-between items-center">
-                <div>
-                  <h1 className="text-3xl font-bold">Agents Hub</h1>
-                  <p className="text-muted-foreground mt-2">
-                    Meet your team of specialized AI agents, coordinated by Jarvio
-                  </p>
+    <AgentSettingsProvider>
+      <MainLayout>
+        <div className="h-full flex flex-col">
+          <div className="flex-1 overflow-hidden">
+            {selectedAgent ? (
+              <AgentChat agent={selectedAgent} onBack={handleBackToAgents} />
+            ) : showGroupChat ? (
+              <GroupAgentChat onBack={handleBackToAgents} />
+            ) : (
+              <>
+                <div className="mb-6 flex justify-between items-center">
+                  <div>
+                    <h1 className="text-3xl font-bold">Agents Hub</h1>
+                    <p className="text-muted-foreground mt-2">
+                      Meet your team of specialized AI agents, coordinated by Jarvio
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={handleStartGroupChat} 
+                    className="bg-[#9b87f5] hover:bg-[#8a70ff]"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Chat with Team
+                  </Button>
                 </div>
-                <Button 
-                  onClick={handleStartGroupChat} 
-                  className="bg-[#9b87f5] hover:bg-[#8a70ff]"
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Chat with Team
-                </Button>
-              </div>
-              <AgentsList agents={agentsData} onSelectAgent={handleAgentSelect} />
-            </>
-          )}
+                <AgentsList agents={agentsData} onSelectAgent={handleAgentSelect} />
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </MainLayout>
+        <AgentSettings />
+      </MainLayout>
+    </AgentSettingsProvider>
   );
 }

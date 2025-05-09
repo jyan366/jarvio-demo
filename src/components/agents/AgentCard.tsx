@@ -2,8 +2,9 @@
 import React from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Settings } from "lucide-react";
 import { Agent } from "./types";
+import { useAgentSettings } from "@/hooks/useAgentSettings";
 
 interface AgentCardProps {
   agent: Agent;
@@ -11,6 +12,8 @@ interface AgentCardProps {
 }
 
 export function AgentCard({ agent, onSelect }: AgentCardProps) {
+  const { openAgentSettings } = useAgentSettings();
+  
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
       <div className="h-2" style={{ backgroundColor: agent.avatarColor }} />
@@ -28,6 +31,18 @@ export function AgentCard({ agent, onSelect }: AgentCardProps) {
               <p className="text-sm text-muted-foreground">{agent.domain} Specialist</p>
             </div>
           </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8 w-8 p-0" 
+            onClick={(e) => {
+              e.stopPropagation();
+              openAgentSettings(agent);
+            }}
+          >
+            <Settings className="h-4 w-4" />
+            <span className="sr-only">Settings</span>
+          </Button>
         </div>
         
         <div className="space-y-3">
