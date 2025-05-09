@@ -9,19 +9,7 @@ import { Agent } from "@/components/agents/types";
 import { agentsData } from "@/data/agentsData";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
 import { useToast } from "@/hooks/use-toast";
-import { flowBlockOptions } from "@/data/flowBlockOptions";
-
-// Sample tools that the agent can use
-const tools = [
-  { id: 'tool1', name: 'Inventory API', description: 'Access real-time inventory data', type: 'collect', option: 'All Listing Info' },
-  { id: 'tool2', name: 'Sales Forecasting', description: 'ML-powered sales prediction', type: 'think', option: 'Basic AI Analysis' },
-  { id: 'tool3', name: 'Order Management', description: 'Create and track purchase orders', type: 'act', option: 'Push to Amazon' },
-  { id: 'tool4', name: 'Supplier Database', description: 'Access supplier information and contacts', type: 'collect', option: 'Scrape Sheet' },
-  { id: 'tool5', name: 'Review Analysis', description: 'Analyze customer reviews for insights', type: 'think', option: 'Review Analysis' },
-  { id: 'tool6', name: 'Email Notifications', description: 'Send automated email notifications', type: 'act', option: 'Send Email' },
-  { id: 'tool7', name: 'Keyword Research', description: 'Find high-performing keywords', type: 'collect', option: 'Get Keywords' },
-  { id: 'tool8', name: 'Sales Estimation', description: 'Estimate potential sales', type: 'collect', option: 'Estimate Sales' },
-];
+import { flowBlockOptions, BlockCategory } from "@/data/flowBlockOptions";
 
 export default function AgentProfile() {
   const { agentId } = useParams<{ agentId: string }>();
@@ -69,13 +57,6 @@ export default function AgentProfile() {
     });
   };
 
-  // Group tools by type
-  const groupedTools = {
-    collect: tools.filter(tool => tool.type === 'collect'),
-    think: tools.filter(tool => tool.type === 'think'),
-    act: tools.filter(tool => tool.type === 'act')
-  };
-
   return (
     <MainLayout>
       <div className="container py-6">
@@ -115,64 +96,79 @@ export default function AgentProfile() {
             {/* Collect Tools Section */}
             <div className="mb-8">
               <h3 className="font-medium text-md mb-4 pb-2 border-b">Collect Tools</h3>
-              {groupedTools.collect.map(tool => (
-                <div key={tool.id} className="flex items-center justify-between py-3 border-b last:border-0">
-                  <div>
-                    <h4 className="font-medium">{tool.name}</h4>
-                    <p className="text-sm text-muted-foreground">{tool.description}</p>
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full mt-2 inline-block">
-                      {tool.option}
-                    </span>
+              {Object.entries(flowBlockOptions).filter(([category]) => category === 'collect')[0][1].map(toolOption => {
+                const toolId = `collect-${toolOption.toLowerCase().replace(/\s+/g, '-')}`;
+                return (
+                  <div key={toolId} className="flex items-center justify-between py-3 border-b last:border-0">
+                    <div>
+                      <h4 className="font-medium">{toolOption}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Access and collect data from various sources
+                      </p>
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full mt-2 inline-block">
+                        {toolOption}
+                      </span>
+                    </div>
+                    <Switch 
+                      id={`tool-${toolId}`}
+                      checked={agentSettings.customTools.includes(toolId)}
+                      onCheckedChange={(checked) => toggleTool(toolId, checked)}
+                    />
                   </div>
-                  <Switch 
-                    id={`tool-${tool.id}`}
-                    checked={agentSettings.customTools.includes(tool.id)}
-                    onCheckedChange={(checked) => toggleTool(tool.id, checked)}
-                  />
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             {/* Think Tools Section */}
             <div className="mb-8">
               <h3 className="font-medium text-md mb-4 pb-2 border-b">Think Tools</h3>
-              {groupedTools.think.map(tool => (
-                <div key={tool.id} className="flex items-center justify-between py-3 border-b last:border-0">
-                  <div>
-                    <h4 className="font-medium">{tool.name}</h4>
-                    <p className="text-sm text-muted-foreground">{tool.description}</p>
-                    <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full mt-2 inline-block">
-                      {tool.option}
-                    </span>
+              {Object.entries(flowBlockOptions).filter(([category]) => category === 'think')[0][1].map(toolOption => {
+                const toolId = `think-${toolOption.toLowerCase().replace(/\s+/g, '-')}`;
+                return (
+                  <div key={toolId} className="flex items-center justify-between py-3 border-b last:border-0">
+                    <div>
+                      <h4 className="font-medium">{toolOption}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Process and analyze information intelligently
+                      </p>
+                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full mt-2 inline-block">
+                        {toolOption}
+                      </span>
+                    </div>
+                    <Switch 
+                      id={`tool-${toolId}`}
+                      checked={agentSettings.customTools.includes(toolId)}
+                      onCheckedChange={(checked) => toggleTool(toolId, checked)}
+                    />
                   </div>
-                  <Switch 
-                    id={`tool-${tool.id}`}
-                    checked={agentSettings.customTools.includes(tool.id)}
-                    onCheckedChange={(checked) => toggleTool(tool.id, checked)}
-                  />
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             {/* Act Tools Section */}
             <div>
               <h3 className="font-medium text-md mb-4 pb-2 border-b">Act Tools</h3>
-              {groupedTools.act.map(tool => (
-                <div key={tool.id} className="flex items-center justify-between py-3 border-b last:border-0">
-                  <div>
-                    <h4 className="font-medium">{tool.name}</h4>
-                    <p className="text-sm text-muted-foreground">{tool.description}</p>
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full mt-2 inline-block">
-                      {tool.option}
-                    </span>
+              {Object.entries(flowBlockOptions).filter(([category]) => category === 'act')[0][1].map(toolOption => {
+                const toolId = `act-${toolOption.toLowerCase().replace(/\s+/g, '-')}`;
+                return (
+                  <div key={toolId} className="flex items-center justify-between py-3 border-b last:border-0">
+                    <div>
+                      <h4 className="font-medium">{toolOption}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Take actions based on insights and analysis
+                      </p>
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full mt-2 inline-block">
+                        {toolOption}
+                      </span>
+                    </div>
+                    <Switch 
+                      id={`tool-${toolId}`}
+                      checked={agentSettings.customTools.includes(toolId)}
+                      onCheckedChange={(checked) => toggleTool(toolId, checked)}
+                    />
                   </div>
-                  <Switch 
-                    id={`tool-${tool.id}`}
-                    checked={agentSettings.customTools.includes(tool.id)}
-                    onCheckedChange={(checked) => toggleTool(tool.id, checked)}
-                  />
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
