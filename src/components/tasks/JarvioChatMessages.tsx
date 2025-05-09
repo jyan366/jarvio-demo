@@ -1,5 +1,7 @@
+
 import React from "react";
 import { MessageCircle, CheckCircle2 } from "lucide-react";
+import Markdown from "markdown-to-jsx";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
 import { agentsData } from "@/data/agentsData";
@@ -21,28 +23,16 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
   const formatMessageText = (text: string) => {
     if (!text) return '';
     
-    // Replace markdown-style bold (**text**) to HTML bold
-    let formattedText = text.replace(
-      /\*\*(.*?)\*\*/g, 
-      '<strong>$1</strong>'
-    );
-    
-    // Make "Review Information" bold
-    formattedText = formattedText.replace(
-      /Review Information/g, 
-      '<strong>Review Information</strong>'
-    );
+    // Make "Review Information" bold with stars for markdown
+    let formattedText = text.replace(/Review Information/g, '**Review Information**');
     
     // Process all agent mentions
     agentsData.forEach(agent => {
       const pattern = new RegExp(`@${agent.name}`, 'g');
       const agentColor = agent.avatarColor || '#9b87f5'; // Use agent color or default to primary purple
-      formattedText = formattedText.replace(
-        pattern, 
-        `<span style="color:${agentColor};font-weight:bold;">@${agent.name}</span>`
-      );
+      formattedText = formattedText.replace(pattern, `<span style="color:${agentColor};font-weight:bold;">@${agent.name}</span>`);
     });
-
+    
     return formattedText;
   };
 
@@ -111,12 +101,14 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
                     <CheckCircle2 className="h-5 w-5 mr-2 text-green-500" />
                     <span>Subtask complete! Please mark this subtask as done and select the next one to continue.</span>
                   </div>
-                ) : message.isUser ? (
-                  <div>{message.text}</div>
                 ) : (
                   <div 
                     className="markdown-content"
-                    dangerouslySetInnerHTML={{ __html: formatMessageText(message.text) }}
+                    dangerouslySetInnerHTML={{ 
+                      __html: message.isUser 
+                        ? message.text 
+                        : formatMessageText(message.text)
+                    }}
                   />
                 )}
               </div>

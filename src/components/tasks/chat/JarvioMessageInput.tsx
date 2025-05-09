@@ -43,16 +43,26 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
 }) => {
   // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Slash key to open blocks menu - allow anywhere
+    // Slash key to open blocks menu
     if (e.key === '/' && !formatMenuOpen && !commandActive) {
-      setFormatMenuOpen(true);
-      setCommandActive("slash");
-      setSearchValue('');
-      setMenuType("blocks");
+      // Only activate if at the start of a line
+      const cursorPosition = inputRef.current?.selectionStart || 0;
+      const textBeforeCursor = inputValue.substring(0, cursorPosition);
+      const lastNewLineIndex = textBeforeCursor.lastIndexOf('\n');
+      const currentLineText = textBeforeCursor.substring(lastNewLineIndex + 1);
+      
+      if (currentLineText === '') {
+        e.preventDefault(); // Prevent typing the slash
+        setFormatMenuOpen(true);
+        setCommandActive("slash");
+        setSearchValue('');
+        setMenuType("blocks");
+      }
     }
     
-    // @ key to open agents menu - allow anywhere
+    // @ key to open agents menu
     if (e.key === '@' && !formatMenuOpen && !commandActive) {
+      e.preventDefault(); // Prevent typing the @
       setFormatMenuOpen(true);
       setCommandActive("at");
       setSearchValue('');
@@ -80,33 +90,35 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     const value = e.target.value;
     setInputValue(value);
     
-    // Check for slash command - triggers anywhere in text
-    if (!commandActive && value !== inputValue && value.includes('/')) {
-      const lastChar = value[value.length - 1];
-      if (lastChar === '/') {
+    // Check for slash command
+    if (!commandActive && value.endsWith('/')) {
+      // Check if the slash is at the start of a line
+      const lastNewLineIndex = value.lastIndexOf('\n', value.length - 2);
+      const currentLine = value.substring(lastNewLineIndex + 1);
+      
+      if (currentLine === '/') {
         setFormatMenuOpen(true);
         setCommandActive("slash");
         setSearchValue('');
         setMenuType("blocks");
       }
     } 
-    // Check for at command - triggers anywhere in text
-    else if (!commandActive && value !== inputValue && value.includes('@')) {
-      const lastChar = value[value.length - 1];
-      if (lastChar === '@') {
-        setFormatMenuOpen(true);
-        setCommandActive("at");
-        setSearchValue('');
-        setMenuType("agents");
-      }
+    // Check for at command
+    else if (!commandActive && value.endsWith('@')) {
+      setFormatMenuOpen(true);
+      setCommandActive("at");
+      setSearchValue('');
+      setMenuType("agents");
     } 
     // If command is active, update search term
     else if (commandActive === "slash") {
-      const lastSlashIndex = value.lastIndexOf('/');
-      if (lastSlashIndex !== -1 && lastSlashIndex < value.length - 1) {
-        const searchTerm = value.substring(lastSlashIndex + 1);
+      const lastNewLineIndex = value.lastIndexOf('\n');
+      const currentLine = value.substring(lastNewLineIndex + 1);
+      
+      if (currentLine.startsWith('/')) {
+        const searchTerm = currentLine.substring(1);
         setSearchValue(searchTerm);
-      } else if (lastSlashIndex === -1) {
+      } else {
         // Close menu if the slash is deleted
         setFormatMenuOpen(false);
         setCommandActive(null);
@@ -114,10 +126,10 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     }
     else if (commandActive === "at") {
       const atIndex = value.lastIndexOf('@');
-      if (atIndex !== -1 && atIndex < value.length - 1) {
+      if (atIndex !== -1) {
         const searchTerm = value.substring(atIndex + 1);
         setSearchValue(searchTerm);
-      } else if (atIndex === -1) {
+      } else {
         // Close menu if the @ is deleted
         setFormatMenuOpen(false);
         setCommandActive(null);
