@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { ChevronLeft, Edit, Save } from "lucide-react";
+import { ChevronLeft, Edit, Save, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +29,7 @@ const categoryOptions = [
   "KEYWORDS",
   "INVENTORY",
   "PRICING",
+  "FLOW",
 ];
 
 export const TaskWorkHeader: React.FC<TaskWorkHeaderProps> = ({
@@ -61,6 +62,8 @@ export const TaskWorkHeader: React.FC<TaskWorkHeaderProps> = ({
     onDescriptionChange(draftDesc);
     setIsEditingDesc(false);
   };
+
+  const isFlow = category === 'FLOW';
 
   return (
     <div className="mb-2 w-full">
@@ -102,7 +105,7 @@ export const TaskWorkHeader: React.FC<TaskWorkHeaderProps> = ({
             </div>
           ) : (
             <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-              {title}
+              {isFlow && title.startsWith("Flow:") ? title : title}
               <Button
                 variant="ghost"
                 size="icon"

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -5,11 +6,9 @@ import { TaskWorkSidebar } from "@/components/tasks/TaskWorkSidebar";
 import { SubtaskDialog } from "@/components/tasks/SubtaskDialog";
 import { CollapseNavButton } from "@/components/tasks/CollapseNavButton";
 import { useTaskWork } from "@/hooks/useTaskWork";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Circle } from "lucide-react";
+import { Workflow } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 export interface Subtask {
   id: string;
@@ -54,6 +53,10 @@ export interface TaskWorkType {
   subtasks: Subtask[];
   comments: { user: string; text: string; ago: string; subtaskId?: string }[];
   insights?: TaskInsight[];
+  data?: {
+    flowId?: string;
+    flowTrigger?: string;
+  };
 }
 
 interface TaskWorkContainerProps {
@@ -87,47 +90,6 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
     handleCloseSubtask,
     subtaskData,
   } = useTaskWork(taskId);
-
-  const handleConvertToProcess = async () => {
-    if (!taskState) return;
-
-    try {
-      const processData = {
-        name: taskState.title,
-        steps: taskState.subtasks.map(st => ({
-          id: st.id,
-          content: st.title,
-          completed: false
-        })),
-        schedule: 'monthly',
-        autoRun: false
-      };
-
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          category: 'PROCESS',
-          data: processData
-        })
-        .eq('id', taskState.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Task converted to process",
-        description: "You can now find this in the Saved Processes section",
-      });
-
-      navigate('/action-studio');
-    } catch (err) {
-      console.error('Error converting to process:', err);
-      toast({
-        title: "Error",
-        description: "Failed to convert task to process",
-        variant: "destructive"
-      });
-    }
-  };
 
   if (loading)
     return (
@@ -171,6 +133,9 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
         )
       : [];
 
+  // Check if this task is a flow
+  const isFlow = taskState.category === 'FLOW' || (taskState.data && taskState.data.flowId);
+
   return (
     <MainLayout>
       <div className="w-full h-full max-w-none flex flex-row gap-0 bg-background">
@@ -181,15 +146,12 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
               />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleConvertToProcess}
-                className="ml-auto"
-              >
-                <Circle className="w-4 h-4 mr-2" />
-                Convert to Process
-              </Button>
+              {isFlow && (
+                <div className="ml-auto flex items-center text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md">
+                  <Workflow className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">Flow</span>
+                </div>
+              )}
             </div>
             <TaskWorkMain
               task={taskState}
