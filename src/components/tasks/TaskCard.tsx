@@ -5,19 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, Trash2, PencilLine, Workflow } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from 'react-router-dom';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-
 interface TaskCardProps {
   task: {
     id: string;
@@ -40,20 +30,17 @@ interface TaskCardProps {
   onReject?: () => void;
   isSuggested?: boolean;
 }
-
 const statusColors = {
   'Not Started': 'bg-[#EFEFFD] text-[#6271F3] font-medium',
   'In Progress': 'bg-[#FFF1D6] text-[#EEAF57] font-medium',
   'Done': 'bg-[#D9F2E5] text-[#27B36B] font-medium'
 };
-
 const priorityColors = {
   'CRITICAL': 'bg-purple-100 text-purple-800 border-purple-200',
   'HIGH': 'bg-[#FEF2E3] text-[#FFA833] font-medium',
   'MEDIUM': 'bg-yellow-50 text-yellow-700',
   'LOW': 'bg-blue-50 text-blue-700'
 };
-
 const categoryIcons = {
   'LISTINGS': 'PencilLine',
   'SUPPORT': 'MessageSquare',
@@ -61,25 +48,31 @@ const categoryIcons = {
   'KEYWORDS': 'PencilLine',
   'INVENTORY': 'PencilLine',
   'PRICING': 'PencilLine',
-  'FLOW': 'Workflow',
+  'FLOW': 'Workflow'
 };
-
 const categoryColors = {
   'LISTINGS': 'bg-[#FDF6ED] text-[#EEAF57]',
-  'SUPPORT': 'bg-[#F0F4FF] text-[#6271F3]',  
+  'SUPPORT': 'bg-[#F0F4FF] text-[#6271F3]',
   'REVIEWS': 'bg-[#F0F9F5] text-[#27B36B]',
   'KEYWORDS': 'bg-[#FDF6ED] text-[#EEAF57]',
   'INVENTORY': 'bg-[#F0F4FF] text-[#6271F3]',
   'PRICING': 'bg-[#FDF6ED] text-[#EEAF57]',
   'FLOW': 'bg-blue-100 text-blue-700',
-  'PROCESS': 'bg-amber-100 text-amber-700',
+  'PROCESS': 'bg-amber-100 text-amber-700'
 };
-
-export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggested = false }: TaskCardProps) {
+export function TaskCard({
+  task,
+  onClick,
+  cardBg,
+  onAccept,
+  onReject,
+  isSuggested = false
+}: TaskCardProps) {
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -87,7 +80,6 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
       onClick();
     }
   };
-
   const handleWorkOnClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -102,7 +94,6 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
       });
     }
   };
-
   const handleAccept = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -110,7 +101,6 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
       onAccept();
     }
   };
-
   const handleReject = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -118,7 +108,6 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
       onReject();
     }
   };
-
   const renderCategoryIcon = () => {
     switch (task.category) {
       case 'REVIEWS':
@@ -137,79 +126,57 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
         return <PencilLine className="w-3 h-3 mr-1 opacity-75" />;
     }
   };
-
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setShowDeleteDialog(true);
   };
-
   const handleDeleteConfirm = async () => {
     try {
-      const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', task.id);
-
+      const {
+        error
+      } = await supabase.from('tasks').delete().eq('id', task.id);
       if (error) throw error;
-
       toast({
         title: "Task Deleted",
-        description: "The task has been successfully deleted.",
+        description: "The task has been successfully deleted."
       });
 
       // Close the dialog
       setShowDeleteDialog(false);
-      
+
       // Refresh the task list
       window.location.reload();
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete the task. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
 
   // Check if this task is a flow
-  const isFlow = task.category === 'FLOW' || (task.data && task.data.flowId);
-  
+  const isFlow = task.category === 'FLOW' || task.data && task.data.flowId;
+
   // Check if this task is from insight
   const isFromInsight = task.fromInsight;
-
-  return (
-    <div className="relative" onClick={(e) => e.stopPropagation()}>
-      <Card 
-        className={cn(
-          "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl",
-          cardBg ? "" : "bg-white",
-          isFlow && "border-2 border-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.2)]",
-          isFromInsight && !isFlow && "border-l-4 border-l-blue-500"
-        )}
-        style={cardBg ? { background: 'white' } : {}}
-        onClick={handleCardClick}
-      >
+  return <div className="relative" onClick={e => e.stopPropagation()}>
+      <Card className={cn("p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl", cardBg ? "" : "bg-white", isFlow && "border-2 border-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.2)]", isFromInsight && !isFlow && "border-l-4 border-l-blue-500")} style={cardBg ? {
+      background: 'white'
+    } : {}} onClick={handleCardClick}>
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2 mb-2">
-            <span className={cn("rounded-md px-2 py-1 flex items-center text-xs font-medium", 
-              categoryColors[task.category as keyof typeof categoryColors] || 'bg-[#FDF6ED] text-[#EEAF57]')}>
+            <span className={cn("rounded-md px-2 py-1 flex items-center text-xs font-medium", categoryColors[task.category as keyof typeof categoryColors] || 'bg-[#FDF6ED] text-[#EEAF57]')}>
               {renderCategoryIcon()}
               {task.category}
             </span>
             
-            {isFromInsight && (
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+            {isFromInsight && <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
                 From Insight
-              </Badge>
-            )}
+              </Badge>}
             
-            {isFlow && (
-              <Badge variant="purple" className="flex items-center gap-1">
-                <Workflow className="w-3 h-3" />
-                Flow
-              </Badge>
-            )}
+            {isFlow}
           </div>
         </div>
         
@@ -232,56 +199,27 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
             <span className="inline-block">📅</span>
             <span>{task.date}</span>
           </div>
-          {isSuggested ? (
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 hover:bg-green-100 text-green-600 hover:text-green-700"
-                onClick={handleAccept}
-              >
+          {isSuggested ? <div className="flex gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-green-100 text-green-600 hover:text-green-700" onClick={handleAccept}>
                 <Check className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700"
-                onClick={handleReject}
-              >
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700" onClick={handleReject}>
                 <X className="h-4 w-4" />
               </Button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Button 
-                onClick={handleWorkOnClick}
-                size="sm"
-                variant={isFlow ? "default" : "outline"}
-                className={cn(
-                  "text-xs px-2 py-1 h-7 rounded font-medium transition",
-                  isFlow 
-                    ? "bg-blue-500 text-white hover:bg-blue-600 border-0" 
-                    : "bg-primary/10 text-primary hover:bg-primary/20 border-0"
-                )}
-              >
+            </div> : <div className="flex items-center gap-2">
+              <Button onClick={handleWorkOnClick} size="sm" variant={isFlow ? "default" : "outline"} className={cn("text-xs px-2 py-1 h-7 rounded font-medium transition", isFlow ? "bg-blue-500 text-white hover:bg-blue-600 border-0" : "bg-primary/10 text-primary hover:bg-primary/20 border-0")}>
                 <ExternalLink className="h-3.5 w-3.5 mr-1" />
                 {isFlow ? "Run Flow" : "Work on"}
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 hover:bg-red-100 text-red-600 hover:text-red-700"
-                onClick={handleDelete}
-              >
+              <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-red-100 text-red-600 hover:text-red-700" onClick={handleDelete}>
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
-            </div>
-          )}
+            </div>}
         </div>
       </Card>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+        <AlertDialogContent onClick={e => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Task</AlertDialogTitle>
             <AlertDialogDescription>
@@ -289,11 +227,10 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={e => e.stopPropagation()}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+    </div>;
 }
