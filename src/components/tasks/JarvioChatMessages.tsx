@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MessageCircle, CheckCircle2 } from "lucide-react";
 import { Subtask } from "@/pages/TaskWorkContainer";
@@ -22,8 +21,14 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
   const formatMessageText = (text: string) => {
     if (!text) return '';
     
-    // Make "Review Information" bold
+    // Replace markdown-style bold (**text**) to HTML bold
     let formattedText = text.replace(
+      /\*\*(.*?)\*\*/g, 
+      '<strong>$1</strong>'
+    );
+    
+    // Make "Review Information" bold
+    formattedText = formattedText.replace(
       /Review Information/g, 
       '<strong>Review Information</strong>'
     );
@@ -38,12 +43,6 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
       );
     });
 
-    // Convert markdown-style bold (**text**) to HTML bold
-    formattedText = formattedText.replace(
-      /\*\*(.*?)\*\*/g, 
-      '<strong>$1</strong>'
-    );
-    
     return formattedText;
   };
 
@@ -112,14 +111,12 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
                     <CheckCircle2 className="h-5 w-5 mr-2 text-green-500" />
                     <span>Subtask complete! Please mark this subtask as done and select the next one to continue.</span>
                   </div>
+                ) : message.isUser ? (
+                  <div>{message.text}</div>
                 ) : (
                   <div 
                     className="markdown-content"
-                    dangerouslySetInnerHTML={{ 
-                      __html: message.isUser 
-                        ? message.text 
-                        : formatMessageText(message.text)
-                    }}
+                    dangerouslySetInnerHTML={{ __html: formatMessageText(message.text) }}
                   />
                 )}
               </div>
