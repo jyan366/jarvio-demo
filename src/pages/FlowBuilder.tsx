@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -5,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Select, 
   SelectContent, 
@@ -869,4 +871,208 @@ export default function FlowBuilder() {
                   variant="outline" 
                   size="sm" 
                   onClick={() => addBlock('think')}
-                  className="border-purple-300 text-purple-700 hover:bg-purple-5
+                  className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+                >
+                  <Brain className="h-4 w-4 mr-1" />
+                  Think
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => addBlock('act')}
+                  className="border-green-300 text-green-700 hover:bg-green-50 hover:text-green-800"
+                >
+                  <Zap className="h-4 w-4 mr-1" />
+                  Act
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => addBlock('agent')}
+                  className="border-[#9b87f5] text-[#7356f1] hover:bg-[#9b87f5]/10 hover:text-[#6243e0]"
+                >
+                  <User className="h-4 w-4 mr-1" />
+                  Agent
+                </Button>
+              </div>
+            </div>
+
+            {/* Block list */}
+            <div className="space-y-4">
+              {flow.blocks.map((block, index) => {
+                const BlockIcon = blockTypeInfo[block.type].icon;
+                const blockColor = blockTypeInfo[block.type].color;
+                const blockDescription = blockOptionDescriptions[block.type]?.[block.option];
+                
+                return (
+                  <div 
+                    key={block.id} 
+                    className="group border rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between items-start p-4">
+                      <div className="flex items-start space-x-3">
+                        <div className={`${blockColor} p-2 rounded-md mt-1`}>
+                          <BlockIcon className="h-4 w-4 text-white" />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div>
+                            <Label 
+                              htmlFor={`block-name-${block.id}`} 
+                              className="text-sm text-muted-foreground"
+                            >
+                              Block Name
+                            </Label>
+                            <Textarea
+                              id={`block-name-${block.id}`}
+                              className="flow-block-name-input leading-tight p-1 text-base font-medium border-0 focus:ring-0 focus:border-0 resize-none overflow-hidden"
+                              value={block.name || ""}
+                              onChange={(e) => updateBlockName(block.id, e.target.value)}
+                              rows={1}
+                              placeholder="Give this block a descriptive name"
+                            />
+                          </div>
+
+                          <div>
+                            <Label 
+                              htmlFor={`block-option-${block.id}`}
+                              className="text-sm text-muted-foreground"
+                            >
+                              Block Type: {block.type.charAt(0).toUpperCase() + block.type.slice(1)}
+                            </Label>
+                            <div className="flex items-center gap-2">
+                              <Select 
+                                value={block.option} 
+                                onValueChange={(value) => updateBlockOption(block.id, value)}
+                              >
+                                <SelectTrigger id={`block-option-${block.id}`} className="w-full">
+                                  <SelectValue placeholder="Select option" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {flowBlockOptions[block.type].map((option) => (
+                                    <SelectItem key={option} value={option}>
+                                      {option}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              
+                              {block.type === 'act' && block.option === 'Agent' && (
+                                <Select
+                                  value={block.agentId || ''}
+                                  onValueChange={(value) => handleAgentSelection(block.id, value)}
+                                >
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select agent" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {agentsData.map((agent) => (
+                                      <SelectItem key={agent.id} value={agent.id}>
+                                        {agent.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                              
+                              {block.type === 'agent' && (
+                                <Select
+                                  value={block.agentId || ''}
+                                  onValueChange={(value) => handleAgentSelection(block.id, value)}
+                                >
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select agent" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {agentsData.map((agent) => (
+                                      <SelectItem key={agent.id} value={agent.id}>
+                                        {agent.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {blockDescription && (
+                            <p className="text-xs text-muted-foreground mt-1">{blockDescription}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                disabled={index === 0}
+                                onClick={() => moveBlockUp(index)}
+                              >
+                                <MoveUp className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Move up</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                disabled={index === flow.blocks.length - 1}
+                                onClick={() => moveBlockDown(index)}
+                              >
+                                <MoveDown className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Move down</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                                onClick={() => removeBlock(block.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Remove</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </div>
+                    
+                    {index < flow.blocks.length - 1 && (
+                      <div className="flex justify-center my-1">
+                        <ArrowDown className="h-4 w-4 text-gray-300" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              
+              {flow.blocks.length === 0 && (
+                <div className="border border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900">
+                  <div className="text-muted-foreground text-center">
+                    <p>No blocks added yet</p>
+                    <p className="text-sm mt-1">Click one of the buttons above to add your first block</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </MainLayout>
+  );
+}
