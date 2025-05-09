@@ -32,7 +32,7 @@ export default function AgentProfile() {
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Agent not found</h2>
-            <Button onClick={() => navigate("/agents-hub")}>
+            <Button onClick={() => navigate("/agents-hub")} className="bg-[#9b87f5] hover:bg-[#8a70ff]">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Agents Hub
             </Button>
@@ -54,7 +54,7 @@ export default function AgentProfile() {
     <MainLayout>
       <div className="container py-6">
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="outline" onClick={() => navigate("/agents-hub")}>
+          <Button variant="outline" onClick={() => navigate("/agents-hub")} className="border-[#9b87f5] hover:bg-[#e5deff] hover:text-[#8a70ff]">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
@@ -84,8 +84,8 @@ export default function AgentProfile() {
           <ToolsSection />
 
           <div className="mt-8 flex justify-end">
-            <Button onClick={handleSave} className="gap-2">
-              <Save className="h-4 w-4" />
+            <Button onClick={handleSave} className="bg-[#9b87f5] hover:bg-[#8a70ff]">
+              <Save className="h-4 w-4 mr-2" />
               Save Changes
             </Button>
           </div>
