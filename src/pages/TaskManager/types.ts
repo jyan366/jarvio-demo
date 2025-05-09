@@ -12,4 +12,8 @@ export interface Task {
   date: string;
   commentsCount?: number;
   created_at?: string;
+  data?: {
+    flowId?: string;
+    flowTrigger?: string;
+  };
 }
