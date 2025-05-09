@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 
 type ToolsConfig = Record<string, any>;
 
@@ -25,26 +26,29 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentAgentId, setCurrentAgentId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReady, setIsReady] = useState(false);
+  const [userId, setUserId] = useState<string>('00000000-0000-0000-0000-000000000000'); // Default to demo user
 
-  // Load saved settings from localStorage on mount
+  // Ensure we have a user ID
   useEffect(() => {
-    const loadSettings = async () => {
-      setIsLoading(true);
-      const savedSettings = localStorage.getItem('agentSettings');
-      if (savedSettings) {
-        try {
-          setSettings(JSON.parse(savedSettings));
-        } catch (error) {
-          console.error("Error parsing agent settings:", error);
-        }
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUserId(session.user.id);
       }
-      setIsLoading(false);
     };
 
-    loadSettings();
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUserId(session?.user?.id || '00000000-0000-0000-0000-000000000000');
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  // Extract agent ID from URL if on agent profile page
+  // Extract agent ID from URL
   useEffect(() => {
     const path = window.location.pathname;
     const match = path.match(/\/agents-hub\/agent\/([^\/]+)/);
@@ -55,10 +59,56 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [window.location.pathname]);
 
-  // Set isReady when both settings are loaded and agent ID is determined
+  // Load settings from database when agent ID or user ID changes
+  useEffect(() => {
+    const loadSettings = async () => {
+      if (!currentAgentId) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      
+      try {
+        // Get settings for all agents for this user
+        const { data, error } = await supabase
+          .from('agent_settings')
+          .select('agent_id, custom_tools, tools_config')
+          .eq('user_id', userId);
+        
+        if (error) {
+          console.error("Error loading agent settings:", error);
+          setIsLoading(false);
+          return;
+        }
+
+        // Convert array of records to Record<agentId, AgentSettings>
+        const settingsMap: Record<string, AgentSettings> = {};
+        data.forEach(record => {
+          settingsMap[record.agent_id] = {
+            agentId: record.agent_id,
+            customTools: record.custom_tools || [],
+            toolsConfig: record.tools_config || {}
+          };
+        });
+        
+        setSettings(settingsMap);
+      } catch (error) {
+        console.error("Error in loadSettings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, [currentAgentId, userId]);
+
+  // Set isReady when settings are loaded and agent ID is determined
   useEffect(() => {
     if (!isLoading && currentAgentId !== null) {
       setIsReady(true);
+    } else {
+      setIsReady(false);
     }
   }, [isLoading, currentAgentId]);
 
@@ -124,11 +174,55 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     return currentSettings.toolsConfig[toolName] || {};
   };
 
-  const saveSettings = () => {
-    if (!isReady) return;
+  const saveSettings = async () => {
+    if (!isReady || !currentAgentId) return;
     
     try {
-      localStorage.setItem('agentSettings', JSON.stringify(settings));
+      const currentSettings = settings[currentAgentId];
+      if (!currentSettings) return;
+      
+      // Check if settings already exist for this agent
+      const { data, error: fetchError } = await supabase
+        .from('agent_settings')
+        .select('id')
+        .eq('agent_id', currentAgentId)
+        .eq('user_id', userId)
+        .single();
+      
+      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+        console.error("Error checking agent settings:", fetchError);
+        return;
+      }
+      
+      if (data?.id) {
+        // Update existing settings
+        const { error } = await supabase
+          .from('agent_settings')
+          .update({
+            custom_tools: currentSettings.customTools,
+            tools_config: currentSettings.toolsConfig,
+            updated_at: new Date()
+          })
+          .eq('id', data.id);
+          
+        if (error) {
+          console.error("Error updating agent settings:", error);
+        }
+      } else {
+        // Insert new settings
+        const { error } = await supabase
+          .from('agent_settings')
+          .insert({
+            agent_id: currentAgentId,
+            user_id: userId,
+            custom_tools: currentSettings.customTools,
+            tools_config: currentSettings.toolsConfig
+          });
+          
+        if (error) {
+          console.error("Error inserting agent settings:", error);
+        }
+      }
     } catch (error) {
       console.error("Error saving agent settings:", error);
     }
