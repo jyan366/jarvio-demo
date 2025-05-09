@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { JarvioFormatMenu } from "./JarvioFormatMenu";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { toast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { MenuItemType } from "./JarvioMenuTypes";
 
 interface JarvioChatTabProps {
   messages: any[];
@@ -40,7 +40,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   const [searchValue, setSearchValue] = useState("");
   const [commandActive, setCommandActive] = useState<"slash" | "at" | null>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
-  const [menuType, setMenuType] = useState<"blocks" | "agents">("blocks");
+  const [menuType, setMenuType] = useState<MenuItemType>("blocks");
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
