@@ -29,7 +29,8 @@ export function MenuItems({ items, sectionId }: MenuItemsProps) {
     }));
   };
 
-  const renderStatusIndicator = (status?: 'active' | 'coming-soon', sectionId: string) => {
+  // Fixed the parameter order - sectionId is now first (required) followed by status (optional)
+  const renderStatusIndicator = (sectionId: string, status?: 'active' | 'coming-soon') => {
     // Only show status indicators for Brand Toolkit section
     if (!status || sectionId !== 'brand') return null;
     
@@ -68,7 +69,7 @@ export function MenuItems({ items, sectionId }: MenuItemsProps) {
                   <item.icon className="w-4 h-4 shrink-0" />
                   <span className="ml-2 truncate group-data-[collapsible=icon]:hidden">{item.label}</span>
                 </div>
-                {renderStatusIndicator(item.status, sectionId)}
+                {renderStatusIndicator(sectionId, item.status)}
                 <ChevronRight className={cn(
                   "w-4 h-4 ml-2 transition-transform duration-200 group-data-[collapsible=icon]:hidden",
                   expandedMenus[item.label] ? "rotate-90" : "rotate-0"
@@ -112,7 +113,7 @@ export function MenuItems({ items, sectionId }: MenuItemsProps) {
                 item.id === 'task-manager' && "text-[#4457ff]"
               )} />
               <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-              {renderStatusIndicator(item.status, sectionId)}
+              {renderStatusIndicator(sectionId, item.status)}
             </Link>
           </SidebarMenuButton>
         )}
