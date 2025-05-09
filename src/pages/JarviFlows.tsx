@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Edit, Clock, Zap, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { Plus, Play, Edit, Clock, Zap, Sparkles, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { TypedPrompts } from '@/components/jarvi-flows/TypedPrompts';
 import { GradientBackground } from '@/components/jarvi-flows/GradientBackground';
@@ -177,7 +176,7 @@ export default function JarviFlows() {
               <TypedPrompts onSubmit={handleAIPromptSubmit} />
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex items-center justify-center">
               <Button 
                 onClick={handleCreateNewFlow} 
                 size="lg" 
@@ -186,25 +185,6 @@ export default function JarviFlows() {
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create New Flow
-              </Button>
-              <Button 
-                onClick={() => navigate('/jarvi-flows/builder')} 
-                variant="outline" 
-                size="lg"
-                className="border-[#4457ff] text-[#4457ff]"
-                disabled={isCreating}
-              >
-                {isCreating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Create with AI
-                  </>
-                )}
               </Button>
             </div>
           </div>
