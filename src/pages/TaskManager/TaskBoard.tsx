@@ -113,6 +113,7 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
           console.log("No tasks found, initializing sample data...");
           supabaseTasks = await initializeSampleTasks();
 
+          // Add sample subtasks to each task
           for (const task of supabaseTasks) {
             await addSampleSubtasksToTask(task.id, task.title);
           }
@@ -175,7 +176,7 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
       setLoading(false);
     }
     load();
-  }, []);
+  }, [toast]);
 
   const createTaskFromInsight = async (insight: any, suggestedTasks?: any[]) => {
     try {

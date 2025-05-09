@@ -230,7 +230,7 @@ export default function TaskWorkContainer() {
           subtask={dialogSubtask}
           onUpdate={(field, value) => {
             if (subtaskDialogIdx !== null) {
-              handleUpdateSubtask(field, value);
+              handleUpdateSubtask(field as any, value);
             }
           }}
           onToggleComplete={() => {

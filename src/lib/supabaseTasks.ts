@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export interface SupabaseTask {
@@ -55,6 +56,9 @@ export async function fetchTasks(): Promise<SupabaseTask[]> {
     return [];
   }
 }
+
+// Get subtasks is an alias for fetchSubtasks for backward compatibility
+export const getSubtasks = fetchSubtasks;
 
 // Fetch all subtasks for a list of task ids
 export async function fetchSubtasks(taskIds: string[]): Promise<SupabaseSubtask[]> {

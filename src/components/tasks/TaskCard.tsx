@@ -84,7 +84,16 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
   const handleWorkOnClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    navigate(`/task/${task.id}`);
+    // Make sure we have a valid task ID
+    if (task && task.id) {
+      navigate(`/task/${task.id}`);
+    } else {
+      toast({
+        title: "Error",
+        description: "Could not open task: missing task ID",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleAccept = (e: React.MouseEvent) => {
