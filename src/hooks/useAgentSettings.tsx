@@ -1,17 +1,43 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Agent } from '@/components/agents/types';
+
+// Extended tool config types
+type ToolConfig = {
+  enabled: boolean;
+  config: Record<string, any>;
+};
+
+type ToolsConfig = {
+  uploadSheet?: {
+    fileUploaded?: boolean;
+    fileName?: string;
+  };
+  scrapeSheet?: {
+    sheetUrl?: string;
+  };
+  emailParsing?: {
+    emailAddress?: string;
+  };
+  aiSummary?: {
+    promptTemplate?: string;
+  };
+  sendEmail?: {
+    emailAddress?: string;
+  };
+};
 
 type AgentSettings = {
   agentId: string;
-  enabledFlows: string[];
   customTools: string[];
+  toolsConfig: ToolsConfig;
 };
 
 type AgentSettingsContextType = {
   settings: Record<string, AgentSettings>;
   toggleTool: (toolId: string, enabled: boolean) => void;
+  updateToolConfig: (toolId: string, config: Record<string, any>) => void;
   saveSettings: () => void;
+  getToolConfig: (toolId: string) => Record<string, any>;
 };
 
 const AgentSettingsContext = createContext<AgentSettingsContextType | undefined>(undefined);
@@ -45,8 +71,8 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setSettings(prev => {
       const currentSettings = prev[currentAgentId] || {
         agentId: currentAgentId,
-        enabledFlows: [],
-        customTools: []
+        customTools: [],
+        toolsConfig: {}
       };
 
       const customTools = enabled 
@@ -63,6 +89,45 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  const updateToolConfig = (toolId: string, config: Record<string, any>) => {
+    if (!currentAgentId) return;
+    
+    setSettings(prev => {
+      const currentSettings = prev[currentAgentId] || {
+        agentId: currentAgentId,
+        customTools: [],
+        toolsConfig: {}
+      };
+      
+      const toolType = toolId.split('-')[0]; // extract 'collect', 'think', 'act'
+      const toolName = toolId.split('-')[1]; // extract the actual tool name
+      
+      return {
+        ...prev,
+        [currentAgentId]: {
+          ...currentSettings,
+          toolsConfig: {
+            ...currentSettings.toolsConfig,
+            [toolName]: {
+              ...(currentSettings.toolsConfig[toolName] || {}),
+              ...config
+            }
+          }
+        }
+      };
+    });
+  };
+
+  const getToolConfig = (toolId: string): Record<string, any> => {
+    if (!currentAgentId) return {};
+    
+    const currentSettings = settings[currentAgentId];
+    if (!currentSettings) return {};
+    
+    const toolName = toolId.split('-')[1]; // extract the actual tool name
+    return currentSettings.toolsConfig[toolName] || {};
+  };
+
   const saveSettings = () => {
     localStorage.setItem('agentSettings', JSON.stringify(settings));
   };
@@ -71,7 +136,9 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     <AgentSettingsContext.Provider value={{
       settings,
       toggleTool,
-      saveSettings
+      updateToolConfig,
+      saveSettings,
+      getToolConfig
     }}>
       {children}
     </AgentSettingsContext.Provider>
