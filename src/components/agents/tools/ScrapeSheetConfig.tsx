@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
 import { ToolConfigProps } from "./toolConfigs";
-import { link } from "lucide-react";
+import { Link } from "lucide-react";
 
 export function ScrapeSheetConfig({ toolId }: ToolConfigProps) {
   const { getToolConfig, updateToolConfig } = useAgentSettings();
@@ -35,7 +35,7 @@ export function ScrapeSheetConfig({ toolId }: ToolConfigProps) {
           </Button>
         </div>
         <div className="flex items-center gap-2 mt-1">
-          <link className="h-4 w-4 text-muted-foreground" />
+          <Link className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">
             Must be a publicly accessible Google Sheet
           </span>

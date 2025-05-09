@@ -4,7 +4,7 @@ import { ToolConfigProps } from "./toolConfigs";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
-import { save } from "lucide-react";
+import { Save } from "lucide-react";
 
 export function AiSummaryConfig({ toolId }: ToolConfigProps) {
   const { getToolConfig, updateToolConfig } = useAgentSettings();
@@ -38,7 +38,7 @@ export function AiSummaryConfig({ toolId }: ToolConfigProps) {
         </p>
         
         <Button onClick={handleSave} className="mt-2">
-          <save className="h-4 w-4 mr-2" />
+          <Save className="h-4 w-4 mr-2" />
           Save Template
         </Button>
       </div>
