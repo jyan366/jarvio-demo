@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask } from "@/lib/supabaseTasks";
@@ -19,7 +20,7 @@ type SubtaskDataMap = {
   [subtaskId: string]: SubtaskData;
 };
 
-export function useTaskWork() {
+export function useTaskWork(taskId: string) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
