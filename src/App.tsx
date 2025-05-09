@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from "@/components/ui/toaster";
+import { AgentSettingsProvider } from '@/hooks/useAgentSettings';
 
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
@@ -48,7 +49,11 @@ function App() {
           <Route path="/knowledge-base" element={<KnowledgeBase />} />
           <Route path="/sales-hub" element={<SalesHub />} />
           <Route path="/agents-hub" element={<AgentsHub />} />
-          <Route path="/agents-hub/agent/:agentId" element={<AgentProfile />} />
+          <Route path="/agents-hub/agent/:agentId" element={
+            <AgentSettingsProvider>
+              <AgentProfile />
+            </AgentSettingsProvider>
+          } />
           <Route path="/ads-manager" element={<AdsManager />} />
           <Route path="/all-product-reviews" element={<AllProductReviews />} />
           
