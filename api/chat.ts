@@ -23,7 +23,7 @@ serve(async (req) => {
 You are an AI assistant specialized in helping Amazon sellers create workflow automation.
 Your task is to generate a flow based on the user's description.
 
-IMPORTANT: You must ALWAYS respond with valid JSON only. No explanations, no markdown formatting.
+IMPORTANT: You must ALWAYS respond with valid JSON only. Do not include any explanations, backticks, or markdown formatting.
 The JSON should have this structure:
 {
   "name": "Short descriptive name for the flow",
@@ -54,6 +54,7 @@ Keep in mind:
           { role: 'user', content: prompt }
         ],
         temperature: 0.7,
+        response_format: { type: "json_object" }, // Force JSON response format
       }),
     });
 
@@ -62,9 +63,23 @@ Keep in mind:
     
     console.log("Raw response from OpenAI:", generatedText);
     
-    return new Response(JSON.stringify({ generatedText }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    // Try parsing the JSON to validate it before sending
+    try {
+      JSON.parse(generatedText);
+      
+      return new Response(JSON.stringify({ generatedText }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (parseError) {
+      console.error('Error parsing JSON from OpenAI:', parseError);
+      return new Response(JSON.stringify({ 
+        error: "Invalid JSON received from AI", 
+        rawResponse: generatedText 
+      }), {
+        status: 422,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
   } catch (error) {
     console.error('Error in chat function:', error);
     return new Response(JSON.stringify({ error: error.message }), {

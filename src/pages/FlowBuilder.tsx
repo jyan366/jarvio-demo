@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -24,7 +25,8 @@ import {
   Trash2, 
   Save, 
   ArrowLeft,
-  WandSparkles
+  WandSparkles,
+  AlertCircle
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
@@ -226,91 +228,106 @@ export default function FlowBuilder() {
           The flow should include appropriate blocks from these available options:
           ${JSON.stringify(allBlockOptions)}. 
           
-          A flow typically has 3-5 blocks, usually starting with collect blocks, followed by think blocks, and ending with act blocks.
-          
-          Respond ONLY with valid JSON in this format:
-          {
-            "name": "Flow Name",
-            "description": "Flow description",
-            "blocks": [
-              {"type": "collect|think|act", "option": "exact option name from the list"},
-              ...more blocks
-            ]
-          }
-          
-          If a block is needed but doesn't exist in the options, suggest "Human in the Loop" for act blocks or "User Text" for collect blocks.`
+          A flow typically has 3-5 blocks, usually starting with collect blocks, followed by think blocks, and ending with act blocks.`
         }
       });
 
-      if (response.error) throw new Error(response.error.message);
+      // Check for API errors first
+      if (response.error) {
+        throw new Error(`API Error: ${response.error.message}`);
+      }
+      
+      if (response.data?.error) {
+        throw new Error(`Response Error: ${response.data.error}`);
+      }
 
       // Parse generated JSON from text response
       const generatedText = response.data?.generatedText || "";
       console.log("Generated text:", generatedText);
 
-      // Try to parse the JSON directly
+      let parsedFlow;
+      let errorDetails = "";
+
+      // First, try parsing the raw text as JSON
       try {
-        const generatedFlow = JSON.parse(generatedText);
+        parsedFlow = JSON.parse(generatedText);
+      } catch (directParseError) {
+        errorDetails += "Direct JSON parse failed. ";
         
-        // Create flow blocks from AI response
-        const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => ({
+        // If that fails, try to extract JSON from markdown
+        try {
+          // Match JSON inside code blocks or just plain JSON
+          const jsonRegex = /```(?:json)?\s*({[\s\S]*?})\s*```|({[\s\S]*})/;
+          const match = generatedText.match(jsonRegex);
+          
+          if (!match) {
+            throw new Error("Could not find any JSON structure in response");
+          }
+          
+          const jsonStr = match[1] || match[2];
+          parsedFlow = JSON.parse(jsonStr);
+        } catch (extractError) {
+          // If both methods fail, try a more aggressive extraction
+          errorDetails += "Code block extraction failed. ";
+          
+          try {
+            // Try to identify anything that looks like JSON object
+            const objectMatch = generatedText.match(/{[^]*}/);
+            if (objectMatch) {
+              parsedFlow = JSON.parse(objectMatch[0]);
+            } else {
+              throw new Error("No JSON-like structure found");
+            }
+          } catch (lastAttemptError) {
+            throw new Error(`Failed to parse JSON: ${errorDetails} ${lastAttemptError.message}`);
+          }
+        }
+      }
+
+      // Validate the flow structure
+      if (!parsedFlow || !parsedFlow.blocks || !Array.isArray(parsedFlow.blocks)) {
+        throw new Error("Invalid flow structure: missing blocks array");
+      }
+
+      // Create flow blocks from AI response
+      const newBlocks: FlowBlock[] = parsedFlow.blocks.map((block: any) => {
+        // Validate block type
+        if (!block.type || !['collect', 'think', 'act'].includes(block.type)) {
+          throw new Error(`Invalid block type: ${block.type}`);
+        }
+        
+        // Validate block option
+        if (!block.option || !blockOptions[block.type].includes(block.option)) {
+          console.warn(`Using fallback option for invalid option: ${block.option}`);
+          // Use the first available option as fallback
+          return {
+            id: uuidv4(),
+            type: block.type,
+            option: blockOptions[block.type][0]
+          };
+        }
+        
+        return {
           id: uuidv4(),
           type: block.type,
           option: block.option
-        }));
-        
-        // Update flow with AI-generated content
-        setFlow(prev => ({
-          ...prev,
-          name: generatedFlow.name || prev.name,
-          description: generatedFlow.description || prev.description,
-          blocks: newBlocks
-        }));
-        
-        toast({
-          title: "Flow created successfully",
-          description: `${newBlocks.length} blocks have been added to your flow.`
-        });
-        
-        setShowAIPrompt(false);
-      } catch (jsonError) {
-        // If direct parsing fails, try to extract JSON from markdown code blocks
-        const jsonRegex = /```(?:json)?\s*({[\s\S]*?})\s*```|({[\s\S]*})/;
-        const match = generatedText.match(jsonRegex);
-        
-        if (match) {
-          const jsonStr = match[1] || match[2];
-          try {
-            const generatedFlow = JSON.parse(jsonStr);
-            
-            // Create flow blocks from AI response
-            const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => ({
-              id: uuidv4(),
-              type: block.type,
-              option: block.option
-            }));
-            
-            // Update flow with AI-generated content
-            setFlow(prev => ({
-              ...prev,
-              name: generatedFlow.name || prev.name,
-              description: generatedFlow.description || prev.description,
-              blocks: newBlocks
-            }));
-            
-            toast({
-              title: "Flow created successfully",
-              description: `${newBlocks.length} blocks have been added to your flow.`
-            });
-            
-            setShowAIPrompt(false);
-          } catch (nestedJsonError) {
-            throw new Error("Could not parse JSON from AI response: " + nestedJsonError.message);
-          }
-        } else {
-          throw new Error("Could not extract JSON from AI response");
-        }
-      }
+        };
+      });
+      
+      // Update flow with AI-generated content
+      setFlow(prev => ({
+        ...prev,
+        name: parsedFlow.name || "New Flow",
+        description: parsedFlow.description || "Flow created from AI prompt",
+        blocks: newBlocks
+      }));
+      
+      toast({
+        title: "Flow created successfully",
+        description: `${newBlocks.length} blocks have been added to your flow.`
+      });
+      
+      setShowAIPrompt(false);
     } catch (error) {
       console.error("Error generating flow:", error);
       toast({
@@ -382,14 +399,21 @@ export default function FlowBuilder() {
                       </FormItem>
                     )}
                   />
-                  <Button 
-                    type="submit" 
-                    className="bg-purple-600 hover:bg-purple-700"
-                    disabled={isGenerating}
-                  >
-                    <WandSparkles className="h-4 w-4 mr-2" />
-                    {isGenerating ? "Generating..." : "Generate Flow"}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row items-center gap-2">
+                    <Button 
+                      type="submit" 
+                      className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
+                      disabled={isGenerating}
+                    >
+                      <WandSparkles className="h-4 w-4 mr-2" />
+                      {isGenerating ? "Generating..." : "Generate Flow"}
+                    </Button>
+                    
+                    <div className="text-xs text-muted-foreground flex items-center mt-2 sm:mt-0">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      Example: "Create a flow to check inventory weekly and send restock alerts"
+                    </div>
+                  </div>
                 </form>
               </Form>
             </CardContent>
