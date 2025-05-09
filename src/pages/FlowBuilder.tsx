@@ -30,7 +30,8 @@ import {
   Loader2,
   MoveUp,
   MoveDown,
-  GripVertical
+  GripVertical,
+  HelpCircle
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +39,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
 import { Flow, FlowBlock, TriggerType } from '@/components/jarvi-flows/FlowsGrid';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Block options based on type
 const blockOptions = {
@@ -66,35 +68,62 @@ const blockOptions = {
   ]
 };
 
-// Helper functions to generate descriptive names based on block type and option
+// Option descriptions to provide context for each block type
+const blockOptionDescriptions = {
+  collect: {
+    'User Text': 'Allows users to provide specific instructions or data via direct text input',
+    'Upload Sheet': 'Handles importing product data from spreadsheets like Excel or CSV',
+    'All Listing Info': 'Gathers comprehensive data from all active Amazon listings',
+    'Get Keywords': 'Retrieves relevant keywords for product listings based on category and competition',
+    'Estimate Sales': 'Collects sales projection data based on historical performance',
+    'Review Information': 'Gathers customer reviews and feedback for specified products',
+    'Scrape Sheet': 'Extracts and processes data from structured spreadsheets',
+    'Seller Account Feedback': 'Collects seller performance metrics and customer feedback',
+    'Email Parsing': 'Extracts relevant data from business emails and notifications'
+  },
+  think: {
+    'Basic AI Analysis': 'Processes collected data to identify patterns and insights',
+    'Listing Analysis': 'Evaluates product listings for optimization opportunities',
+    'Insights Generation': 'Creates actionable business intelligence from analyzed data',
+    'Review Analysis': 'Analyzes customer feedback to identify trends and sentiment'
+  },
+  act: {
+    'AI Summary': 'Generates a comprehensive report from analysis results',
+    'Push to Amazon': 'Updates Amazon listings with optimized content and settings',
+    'Send Email': 'Distributes reports or notifications to specified recipients',
+    'Human in the Loop': 'Pauses for manual review and approval before proceeding'
+  }
+};
+
+// Helper functions to generate specific, contextual names based on block type and option
 const getDescriptiveBlockName = (type: string, option: string): string => {
-  const nameMap: Record<string, Record<string, string>> = {
+  const contextualNaming: Record<string, Record<string, string>> = {
     collect: {
-      'User Text': 'Collect User Input',
-      'Upload Sheet': 'Import Data Spreadsheet',
-      'All Listing Info': 'Gather Product Listings',
-      'Get Keywords': 'Extract Relevant Keywords',
-      'Estimate Sales': 'Calculate Sales Projections',
-      'Review Information': 'Collect Customer Reviews',
-      'Scrape Sheet': 'Extract Spreadsheet Data',
-      'Seller Account Feedback': 'Gather Seller Feedback',
-      'Email Parsing': 'Process Email Communications'
+      'User Text': 'Collect Product Details from User',
+      'Upload Sheet': 'Import Product Data Spreadsheet',
+      'All Listing Info': 'Fetch Complete Amazon Listing Data',
+      'Get Keywords': 'Research High-Converting Keywords',
+      'Estimate Sales': 'Generate Product Sales Forecast',
+      'Review Information': 'Gather Customer Product Reviews',
+      'Scrape Sheet': 'Extract Data from Inventory Sheet',
+      'Seller Account Feedback': 'Collect Seller Performance Metrics',
+      'Email Parsing': 'Extract Data from Supplier Emails'
     },
     think: {
-      'Basic AI Analysis': 'Analyze Data Patterns',
-      'Listing Analysis': 'Evaluate Product Listings',
-      'Insights Generation': 'Generate Strategic Insights',
-      'Review Analysis': 'Process Customer Feedback'
+      'Basic AI Analysis': 'Analyze Market Positioning Data',
+      'Listing Analysis': 'Identify Listing Optimization Opportunities',
+      'Insights Generation': 'Generate Strategic Marketing Insights',
+      'Review Analysis': 'Process Customer Feedback Trends'
     },
     act: {
-      'AI Summary': 'Generate Executive Summary',
-      'Push to Amazon': 'Update Amazon Listings',
-      'Send Email': 'Distribute Email Report',
-      'Human in the Loop': 'Request Manual Approval'
+      'AI Summary': 'Create Comprehensive Action Report',
+      'Push to Amazon': 'Update Amazon Product Listings',
+      'Send Email': 'Distribute Weekly Performance Report',
+      'Human in the Loop': 'Request Manager Approval for Changes'
     }
   };
 
-  return nameMap[type]?.[option] || `${type.charAt(0).toUpperCase() + type.slice(1)} ${option}`;
+  return contextualNaming[type]?.[option] || `${type.charAt(0).toUpperCase() + type.slice(1)} ${option}`;
 };
 
 // All block options combined for AI reference
@@ -111,11 +140,11 @@ const predefinedFlows: Flow[] = [
     description: 'Automates the process of launching new product listings with optimized content and keyword strategy',
     trigger: 'manual',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'Upload Sheet' },
-      { id: 'c2', type: 'collect', option: 'Get Keywords' },
-      { id: 't1', type: 'think', option: 'Listing Analysis' },
-      { id: 'a1', type: 'act', option: 'Push to Amazon' },
-      { id: 'a2', type: 'act', option: 'Send Email' }
+      { id: 'c1', type: 'collect', option: 'Upload Sheet', name: 'Import Product Specifications Sheet' },
+      { id: 'c2', type: 'collect', option: 'Get Keywords', name: 'Research Competitive Keywords for Category' },
+      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Create Optimized Product Description' },
+      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Publish New Listings to Amazon' },
+      { id: 'a2', type: 'act', option: 'Send Email', name: 'Notify Team of Successful Launch' }
     ]
   },
   {
@@ -124,11 +153,11 @@ const predefinedFlows: Flow[] = [
     description: 'Analyzes sales velocity and inventory levels to create timely restock recommendations',
     trigger: 'scheduled',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info' },
-      { id: 'c2', type: 'collect', option: 'Estimate Sales' },
-      { id: 't1', type: 'think', option: 'Basic AI Analysis' },
-      { id: 'a1', type: 'act', option: 'AI Summary' },
-      { id: 'a2', type: 'act', option: 'Send Email' }
+      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Retrieve Current Inventory Levels' },
+      { id: 'c2', type: 'collect', option: 'Estimate Sales', name: 'Calculate 30-Day Sales Projections' },
+      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Determine Optimal Restock Quantities' },
+      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Inventory Restock Report' },
+      { id: 'a2', type: 'act', option: 'Send Email', name: 'Send Restock Alert to Supply Chain Team' }
     ]
   },
   {
@@ -137,11 +166,11 @@ const predefinedFlows: Flow[] = [
     description: 'Aggregates and analyzes customer reviews and feedback across all products',
     trigger: 'scheduled',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'Review Information' },
-      { id: 'c2', type: 'collect', option: 'Seller Account Feedback' },
-      { id: 't1', type: 'think', option: 'Review Analysis' },
-      { id: 'a1', type: 'act', option: 'AI Summary' },
-      { id: 'a2', type: 'act', option: 'Human in the Loop' }
+      { id: 'c1', type: 'collect', option: 'Review Information', name: 'Gather Last 30 Days of Product Reviews' },
+      { id: 'c2', type: 'collect', option: 'Seller Account Feedback', name: 'Collect Seller Rating Metrics' },
+      { id: 't1', type: 'think', option: 'Review Analysis', name: 'Identify Common Customer Pain Points' },
+      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Actionable Feedback Report' },
+      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Request Product Manager Review' }
     ]
   },
   {
@@ -150,11 +179,11 @@ const predefinedFlows: Flow[] = [
     description: 'Performs deep analysis of listing performance and suggests optimizations every quarter',
     trigger: 'scheduled',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info' },
-      { id: 'c2', type: 'collect', option: 'Review Information' },
-      { id: 't1', type: 'think', option: 'Insights Generation' },
-      { id: 'a1', type: 'act', option: 'Push to Amazon' },
-      { id: 'a2', type: 'act', option: 'Human in the Loop' }
+      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Extract Quarterly Performance Data' },
+      { id: 'c2', type: 'collect', option: 'Review Information', name: 'Gather Quarterly Customer Feedback' },
+      { id: 't1', type: 'think', option: 'Insights Generation', name: 'Create Listing Enhancement Strategy' },
+      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Apply Optimizations to Key Listings' },
+      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Get Marketing Approval for Changes' }
     ]
   }
 ];
@@ -695,6 +724,7 @@ export default function FlowBuilder() {
               {flow.blocks.map((block, index) => {
                 const BlockIcon = blockTypeInfo[block.type].icon;
                 const blockColor = blockTypeInfo[block.type].color;
+                const blockDescription = blockOptionDescriptions[block.type]?.[block.option] || '';
                 
                 return (
                   <div key={block.id} className="relative">
@@ -713,7 +743,7 @@ export default function FlowBuilder() {
                             <Label className="text-xs">Block Name</Label>
                             <Input
                               value={block.name || ''}
-                              placeholder={`${block.type} Step`}
+                              placeholder="Describe this specific step"
                               onChange={(e) => updateBlockName(block.id, e.target.value)}
                               className="font-medium"
                             />
@@ -721,7 +751,21 @@ export default function FlowBuilder() {
                           </div>
                           
                           <div className="space-y-1">
-                            <Label className="text-xs">Block Action</Label>
+                            <div className="flex items-center gap-2">
+                              <Label className="text-xs">Block Action</Label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-5 w-5">
+                                      <HelpCircle className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="start" className="max-w-xs">
+                                    <p className="text-xs">{blockDescription}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
                             <Select 
                               value={block.option}
                               onValueChange={(option) => updateBlockOption(block.id, option)}
