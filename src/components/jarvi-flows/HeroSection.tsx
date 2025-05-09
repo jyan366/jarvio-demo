@@ -17,12 +17,12 @@ export function HeroSection({ onAIPromptSubmit }: HeroSectionProps) {
             <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent"> never flowed like this</span>
           </h1>
           
-          <p className="text-gray-700 text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-gray-700 text-base mb-8 max-w-2xl mx-auto">
             Create powerful automation flows with AI that streamline your Amazon operations
           </p>
         </div>
 
-        <div className="w-full max-w-2xl transition-all duration-500 hover:scale-[1.02]">
+        <div className="w-full max-w-2xl transition-all duration-500 hover:scale-[1.01]">
           <TypedPrompts onSubmit={onAIPromptSubmit} />
         </div>
       </div>

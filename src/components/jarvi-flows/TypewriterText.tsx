@@ -12,9 +12,9 @@ interface TypewriterTextProps {
 
 export function TypewriterText({
   texts,
-  typingSpeed = 80,
-  deletingSpeed = 50,
-  pauseDuration = 1500,
+  typingSpeed = 40, // Faster typing speed (was 80)
+  deletingSpeed = 30, // Faster deleting (was 50)
+  pauseDuration = 1200, // Slightly shorter pause (was 1500)
   className = ""
 }: TypewriterTextProps) {
   const [displayText, setDisplayText] = useState('');

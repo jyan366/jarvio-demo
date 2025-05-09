@@ -6,13 +6,18 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { TypewriterText } from './TypewriterText';
 
-// Example prompt suggestions for the typewriter effect
+// More comprehensive Amazon-specific prompt suggestions
 const EXAMPLE_PROMPTS = [
-  "Create a weekly product review analysis flow...",
-  "Build a flow that monitors inventory levels...",
-  "Design a flow to analyze customer feedback...",
-  "Make a flow that generates listing optimizations...",
-  "Create a restock alert system for low inventory...",
+  "Create a flow that monitors competitor pricing and alerts me...",
+  "Build a weekly inventory rebalancing system across warehouses...",
+  "Design a flow that analyzes negative reviews for product defects...",
+  "Create a brand protection system to monitor unauthorized sellers...",
+  "Build a flow to generate A+ content suggestions based on trends...",
+  "Design an automated PPC campaign optimization strategy...", 
+  "Create a flow to track Buy Box ownership percentage by ASIN...",
+  "Build a flow that combines sales velocity with inventory levels...",
+  "Generate monthly performance reports for each product category...",
+  "Set up auto-responders for common customer service queries..."
 ];
 
 export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void }) {
@@ -49,11 +54,11 @@ export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void
             onChange={(e) => setPrompt(e.target.value)}
             placeholder=""
             className={`
-              text-lg sm:text-xl 
+              text-base
               bg-white bg-opacity-95 
               shadow-md
               backdrop-blur 
-              px-4 py-6 
+              px-4 py-5 
               rounded-lg 
               w-full h-14 
               border-2 
@@ -71,9 +76,9 @@ export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void
             <div className="absolute left-4 top-0 h-full flex items-center pointer-events-none text-gray-400">
               <TypewriterText 
                 texts={EXAMPLE_PROMPTS}
-                typingSpeed={60}
+                typingSpeed={40}
                 deletingSpeed={30}
-                className="text-lg sm:text-xl"
+                className="text-base"
               />
             </div>
           )}
