@@ -116,9 +116,7 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
                   <div 
                     className="markdown-content text-base"
                     dangerouslySetInnerHTML={{ 
-                      __html: message.isUser 
-                        ? formatMessageText(message.text)
-                        : formatMessageText(message.text)
+                      __html: formatMessageText(message.text)
                     }}
                   />
                 )}

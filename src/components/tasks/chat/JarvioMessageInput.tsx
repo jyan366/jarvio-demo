@@ -169,6 +169,8 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     }
   }, [selectionStart, selectionEnd, isFocused]);
 
+  const placeholderText = isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents...";
+
   return (
     <form 
       onSubmit={(e) => {
@@ -189,14 +191,14 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
       </div>
       
       <div className="flex-1 relative min-h-[42px] max-h-24">
-        {/* Actual interactive textarea - set to normal opacity but matching background */}
+        {/* Actual interactive textarea - set to transparent but maintaining interaction */}
         <Textarea
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
+          placeholder={placeholderText}
           className="absolute inset-0 resize-none bg-transparent border-0 z-10 text-base"
           style={{ 
             color: 'transparent', 
@@ -220,11 +222,15 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
             minHeight: '42px',
             pointerEvents: 'none'
           }}
-          dangerouslySetInnerHTML={{ 
-            __html: getFormattedText(inputValue) || 
-            `<span class="text-muted-foreground">${isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}</span>`
-          }}
-        />
+        >
+          {inputValue ? (
+            <div dangerouslySetInnerHTML={{ __html: getFormattedText(inputValue) }} />
+          ) : (
+            <span className="text-muted-foreground pointer-events-none select-none">
+              {placeholderText}
+            </span>
+          )}
+        </div>
       </div>
       
       <Button 

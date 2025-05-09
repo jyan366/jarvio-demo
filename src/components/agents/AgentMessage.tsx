@@ -12,7 +12,7 @@ interface AgentMessageProps {
 export function AgentMessage({ message, agentColor }: AgentMessageProps) {
   // Function to format message text with styling
   const formatMessageText = (text: string) => {
-    if (!text) return text;
+    if (!text) return '';
     
     // Convert markdown-style bold (**text**) to HTML bold
     let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
