@@ -151,23 +151,34 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
       </div>
       
       <div className="flex-1 relative">
-        {/* Hidden real textarea for input handling */}
+        {/* Real textarea for input handling - now fully transparent but still interactive */}
         <Textarea
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
-          className="flex-1 min-h-[36px] max-h-24 resize-none opacity-0 absolute inset-0 z-10"
+          className="flex-1 min-h-[36px] max-h-24 resize-none absolute inset-0 z-20 opacity-0"
           disabled={isLoading || isTransitioning}
           ref={inputRef}
           rows={1}
+          style={{ caretColor: 'transparent' }} // Hide the cursor in the invisible textarea
         />
         
         {/* Formatted display div that shows the styled text */}
         <div 
-          className="flex-1 min-h-[36px] max-h-24 resize-none border border-input bg-background px-3 py-2 text-sm rounded-md overflow-y-auto whitespace-pre-wrap"
-          dangerouslySetInnerHTML={{ __html: formattedDisplay || '<span class="text-muted-foreground">' + (isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents...") + '</span>' }}
+          className="flex-1 min-h-[36px] max-h-24 resize-none border border-input bg-background px-3 py-2 text-sm rounded-md overflow-y-auto whitespace-pre-wrap pointer-events-none"
+          dangerouslySetInnerHTML={{ 
+            __html: formattedDisplay || 
+              '<span class="text-muted-foreground">' + 
+              (isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents...") + 
+              '</span>' 
+          }}
         />
+        
+        {/* Add a blinking cursor effect at the end of the text */}
+        {!isLoading && !isTransitioning && 
+          <div className="absolute right-3 top-2 h-4 w-0.5 bg-black animate-blink"></div>
+        }
       </div>
       
       <Button 
