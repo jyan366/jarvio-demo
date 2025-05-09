@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask } from "@/lib/supabaseTasks";
@@ -30,7 +29,7 @@ export function useTaskWork(taskId: string) {
   const [focusedSubtaskIdx, setFocusedSubtaskIdx] = useState<number | null>(null);
   const [subtaskDialogIdx, setSubtaskDialogIdx] = useState<number | null>(null);
   const [subtaskComments, setSubtaskComments] = useState<{ [subtaskId: string]: { user: string, text: string, ago: string }[] }>({});
-  const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
+  const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("ai");
   const [commentValue, setCommentValue] = useState("");
   const [subtaskData, setSubtaskData] = useState<SubtaskDataMap>({});
 

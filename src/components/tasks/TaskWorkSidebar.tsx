@@ -82,23 +82,23 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         <div className="flex p-4 border-b">
           <button
             className={`${
-              selectedTab === "comments"
-                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
-                : "text-gray-400 border-b-2 border-transparent"
-            } px-2 py-1 mr-3 text-base transition`}
-            onClick={() => setSelectedTab("comments")}
-          >
-            Comments
-          </button>
-          <button
-            className={`${
               selectedTab === "ai"
                 ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
                 : "text-gray-400 border-b-2 border-transparent"
-            } px-2 py-1 text-base transition`}
+            } px-2 py-1 mr-3 text-base transition`}
             onClick={() => setSelectedTab("ai")}
           >
             AI Assistant
+          </button>
+          <button
+            className={`${
+              selectedTab === "comments"
+                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
+                : "text-gray-400 border-b-2 border-transparent"
+            } px-2 py-1 text-base transition`}
+            onClick={() => setSelectedTab("comments")}
+          >
+            Comments
           </button>
         </div>
 
