@@ -3,6 +3,7 @@ import {
   CheckSquare,
   Sparkles,
   Book,
+  GitBranch,
 } from "lucide-react";
 
 import { MenuItem } from "./types";
@@ -13,20 +14,23 @@ export const workflowItems: MenuItem[] = [
     label: "Home",
     href: "/task-manager",
     id: "task-manager",
-    status: "active",
   },
   {
     icon: Sparkles,
     label: "Action Studio",
     href: "/action-studio",
     id: "action-studio",
-    status: "active",
+  },
+  {
+    icon: GitBranch,
+    label: "Flows",
+    href: "/jarvi-flows",
+    id: "jarvi-flows",
   },
   {
     icon: Book,
     label: "Knowledge Base",
     href: "/knowledge-base",
-    id: "knowledge-base", 
-    status: "active",
+    id: "knowledge-base",
   },
 ];
