@@ -24,9 +24,14 @@ import {
   Zap, 
   Trash2, 
   Save, 
-  ArrowLeft 
+  ArrowLeft,
+  WandSparkles
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { useToast } from '@/hooks/use-toast';
+import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { supabase } from '@/integrations/supabase/client';
 
 // Define the flow types and their properties
 type TriggerType = 'manual' | 'scheduled' | 'event';
@@ -71,6 +76,12 @@ const blockOptions = {
     'Send Email',
     'Human in the Loop'
   ]
+};
+
+// All block options combined for AI reference
+const allBlockOptions = {
+  ...blockOptions,
+  blockTypes: ['collect', 'think', 'act']
 };
 
 // Predefined flows for testing/editing
@@ -136,15 +147,29 @@ const blockTypeInfo = {
   act: { icon: Zap, color: 'bg-green-500' }
 };
 
+// Simple form type for AI prompt
+type AIPromptFormValues = {
+  prompt: string;
+};
+
 export default function FlowBuilder() {
   const { flowId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [flow, setFlow] = useState<Flow>({
     id: '',
     name: '',
     description: '',
     trigger: 'manual',
     blocks: []
+  });
+  const [showAIPrompt, setShowAIPrompt] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const aiPromptForm = useForm<AIPromptFormValues>({
+    defaultValues: {
+      prompt: ''
+    }
   });
 
   // Load existing flow if editing
@@ -192,6 +217,77 @@ export default function FlowBuilder() {
     }));
   };
 
+  // Generate flow from AI prompt
+  const generateFlowFromPrompt = async (data: AIPromptFormValues) => {
+    setIsGenerating(true);
+    try {
+      const response = await supabase.functions.invoke("chat", {
+        body: {
+          prompt: `Create a flow for an Amazon seller based on this description: "${data.prompt}". 
+          The flow should include appropriate blocks from these available options:
+          ${JSON.stringify(allBlockOptions)}. 
+          
+          A flow typically has 3-5 blocks, usually starting with collect blocks, followed by think blocks, and ending with act blocks.
+          
+          Respond ONLY with valid JSON in this format:
+          {
+            "name": "Flow Name",
+            "description": "Flow description",
+            "blocks": [
+              {"type": "collect|think|act", "option": "exact option name from the list"},
+              ...more blocks
+            ]
+          }
+          
+          If a block is needed but doesn't exist in the options, suggest "Human in the Loop" for act blocks or "User Text" for collect blocks.`
+        }
+      });
+
+      if (response.error) throw new Error(response.error.message);
+
+      // Parse generated JSON from text response
+      const generatedText = response.data?.generatedText || "";
+      const jsonMatch = generatedText.match(/({[\s\S]*})/);
+      
+      if (!jsonMatch) throw new Error("Could not extract valid JSON from AI response");
+      
+      const generatedFlow = JSON.parse(jsonMatch[0]);
+      
+      // Create flow blocks from AI response
+      const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => ({
+        id: uuidv4(),
+        type: block.type,
+        option: block.option
+      }));
+      
+      // Update flow with AI-generated content
+      setFlow(prev => ({
+        ...prev,
+        name: generatedFlow.name || prev.name,
+        description: generatedFlow.description || prev.description,
+        blocks: newBlocks
+      }));
+      
+      toast({
+        title: "Flow created successfully",
+        description: `${newBlocks.length} blocks have been added to your flow.`
+      });
+      
+      setShowAIPrompt(false);
+      
+    } catch (error) {
+      console.error("Error generating flow:", error);
+      toast({
+        title: "Error generating flow",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+      aiPromptForm.reset();
+    }
+  };
+
   // Save flow
   const saveFlow = () => {
     console.log('Flow saved:', flow);
@@ -210,14 +306,59 @@ export default function FlowBuilder() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Flows
           </Button>
-          <Button 
-            onClick={saveFlow}
-            className="bg-[#4457ff] hover:bg-[#4457ff]/90"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save Flow
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowAIPrompt(!showAIPrompt)}
+              className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+            >
+              <WandSparkles className="h-4 w-4 mr-2" />
+              {showAIPrompt ? "Hide AI Builder" : "Create with AI"}
+            </Button>
+            <Button 
+              onClick={saveFlow}
+              className="bg-[#4457ff] hover:bg-[#4457ff]/90"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save Flow
+            </Button>
+          </div>
         </div>
+        
+        {showAIPrompt && (
+          <Card className="border-2 border-purple-200 bg-purple-50/50">
+            <CardContent className="pt-6">
+              <Form {...aiPromptForm}>
+                <form onSubmit={aiPromptForm.handleSubmit(generateFlowFromPrompt)} className="space-y-4">
+                  <FormField
+                    control={aiPromptForm.control}
+                    name="prompt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-md font-medium">Describe your flow</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="E.g.: Create a flow that analyzes customer reviews weekly, identifies common issues, and sends a summary email to the team."
+                            className="min-h-[100px]"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="bg-purple-600 hover:bg-purple-700"
+                    disabled={isGenerating}
+                  >
+                    <WandSparkles className="h-4 w-4 mr-2" />
+                    {isGenerating ? "Generating..." : "Generate Flow"}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
         
         <div className="space-y-6">
           <div className="space-y-4">

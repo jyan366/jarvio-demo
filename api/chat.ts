@@ -18,6 +18,29 @@ serve(async (req) => {
   try {
     const { prompt } = await req.json();
 
+    // AI system instructions for generating flow blocks
+    const systemPrompt = `
+You are an AI assistant specialized in helping Amazon sellers create workflow automation.
+Your task is to generate a flow based on the user's description.
+
+IMPORTANT: You must ALWAYS respond with valid JSON only. No explanations, no markdown, just JSON.
+The JSON should have this structure:
+{
+  "name": "Short descriptive name for the flow",
+  "description": "One sentence description of what this flow accomplishes",
+  "blocks": [
+    {"type": "collect|think|act", "option": "exact option name from available options"},
+    ...more blocks
+  ]
+}
+
+Keep in mind:
+1. Flows typically have 3-5 blocks
+2. Flows usually start with collect blocks, followed by think blocks, and end with act blocks
+3. ONLY use the exact option names provided to you
+4. If a capability seems missing, use "Human in the Loop" for act blocks or "User Text" for collect blocks
+    `;
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -27,9 +50,10 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are a helpful assistant that provides concise and accurate responses.' },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
         ],
+        temperature: 0.7,
       }),
     });
 
