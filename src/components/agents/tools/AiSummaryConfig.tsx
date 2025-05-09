@@ -4,7 +4,7 @@ import { ToolConfigProps } from "./toolConfigs";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
-import { save, edit } from "lucide-react";
+import { Save, Edit } from "lucide-react";
 
 export function AiSummaryConfig({ toolId }: ToolConfigProps) {
   const { getToolConfig, updateToolConfig } = useAgentSettings();
@@ -26,7 +26,7 @@ export function AiSummaryConfig({ toolId }: ToolConfigProps) {
       
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <edit className="h-4 w-4" />
+          <Edit className="h-4 w-4" />
           <span>Summary Template</span>
         </div>
         
@@ -39,11 +39,11 @@ export function AiSummaryConfig({ toolId }: ToolConfigProps) {
         />
         
         <p className="text-xs text-muted-foreground">
-          Use {{variables}} as placeholders for dynamic content. The agent will replace these with relevant information.
+          Use {"{{variables}}"} as placeholders for dynamic content. The agent will replace these with relevant information.
         </p>
         
         <Button onClick={handleSave} className="mt-2">
-          <save className="h-4 w-4 mr-2" />
+          <Save className="h-4 w-4 mr-2" />
           Save Template
         </Button>
       </div>
