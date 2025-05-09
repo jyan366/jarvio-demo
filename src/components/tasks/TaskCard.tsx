@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, Trash2, PencilLine } from "lucide-react";
+import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, Trash2, PencilLine, Workflow } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from 'react-router-dom';
 import {
@@ -29,6 +30,10 @@ interface TaskCardProps {
     commentsCount?: number;
     date: string;
     fromInsight?: boolean;
+    data?: {
+      flowId?: string;
+      flowTrigger?: string;
+    };
   };
   onClick?: () => void;
   cardBg?: string;
@@ -57,6 +62,7 @@ const categoryIcons = {
   'KEYWORDS': 'PencilLine',
   'INVENTORY': 'PencilLine',
   'PRICING': 'PencilLine',
+  'FLOW': 'Workflow',
 };
 
 const categoryColors = {
@@ -66,6 +72,8 @@ const categoryColors = {
   'KEYWORDS': 'bg-[#FDF6ED] text-[#EEAF57]',
   'INVENTORY': 'bg-[#F0F4FF] text-[#6271F3]',
   'PRICING': 'bg-[#FDF6ED] text-[#EEAF57]',
+  'FLOW': 'bg-blue-100 text-blue-700',
+  'PROCESS': 'bg-amber-100 text-amber-700',
 };
 
 export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggested = false }: TaskCardProps) {
@@ -122,6 +130,10 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
         return <TrendingDown className="w-3 h-3 mr-1 opacity-75" />;
       case 'LISTINGS':
         return <Flag className="w-3 h-3 mr-1 opacity-75" />;
+      case 'FLOW':
+        return <Workflow className="w-3 h-3 mr-1 opacity-75" />;
+      case 'PROCESS':
+        return <Workflow className="w-3 h-3 mr-1 opacity-75" />;
       default:
         return <PencilLine className="w-3 h-3 mr-1 opacity-75" />;
     }
@@ -161,13 +173,17 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
     }
   };
 
+  // Check if this task is a flow
+  const isFlow = task.category === 'FLOW' || (task.data && task.data.flowId);
+
   return (
     <div className="relative" onClick={(e) => e.stopPropagation()}>
       <Card 
         className={cn(
           "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl border-0 relative",
           cardBg ? "" : "bg-white",
-          task.fromInsight && "border-l-4 border-l-blue-500"
+          isFlow && "bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-l-blue-500",
+          task.fromInsight && !isFlow && "border-l-4 border-l-blue-500"
         )}
         style={cardBg ? { background: 'white' } : {}}
         onClick={handleCardClick}
@@ -185,11 +201,18 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
                 From Insight
               </Badge>
             )}
+            
+            {isFlow && (
+              <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200 text-xs flex items-center gap-1">
+                <Workflow className="w-3 h-3" />
+                Flow
+              </Badge>
+            )}
           </div>
         </div>
         
-        <h3 className="font-semibold text-base mb-1 leading-snug flex gap-1">
-          {task.title}
+        <h3 className={cn("font-semibold text-base mb-1 leading-snug flex gap-1", isFlow && "text-blue-800")}>
+          {isFlow && task.title.startsWith("Flow:") ? task.title : task.title}
         </h3>
         <p className="text-sm text-gray-500 leading-snug line-clamp-2 mb-3">{task.description}</p>
         
@@ -231,11 +254,16 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
               <Button 
                 onClick={handleWorkOnClick}
                 size="sm"
-                variant="outline"
-                className="text-xs px-2 py-1 h-7 rounded bg-primary/10 text-primary hover:bg-primary/20 font-medium transition border-0"
+                variant={isFlow ? "default" : "outline"}
+                className={cn(
+                  "text-xs px-2 py-1 h-7 rounded font-medium transition",
+                  isFlow 
+                    ? "bg-blue-600 text-white hover:bg-blue-700 border-0" 
+                    : "bg-primary/10 text-primary hover:bg-primary/20 border-0"
+                )}
               >
                 <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                Work on
+                {isFlow ? "Run Flow" : "Work on"}
               </Button>
               <Button
                 variant="ghost"

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -161,6 +162,8 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
             })),
             comments: [],
             products: [],
+            // Make sure we include the data field if it exists
+            data: t.data || {},
           });
         }
 
