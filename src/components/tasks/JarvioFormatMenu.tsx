@@ -81,6 +81,33 @@ const formatBlocks = [
   },
 ];
 
+// Flow block options organized by type
+const flowBlockOptions = {
+  collect: [
+    'User Text',
+    'Upload Sheet',
+    'All Listing Info',
+    'Get Keywords',
+    'Estimate Sales',
+    'Review Information',
+    'Scrape Sheet',
+    'Seller Account Feedback',
+    'Email Parsing'
+  ],
+  think: [
+    'Basic AI Analysis',
+    'Listing Analysis',
+    'Insights Generation',
+    'Review Analysis'
+  ],
+  act: [
+    'AI Summary',
+    'Push to Amazon',
+    'Send Email',
+    'Human in the Loop'
+  ]
+};
+
 export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({ 
   onFormatSelect 
 }) => {
@@ -104,7 +131,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
         side="top"
       >
         <Command>
-          <CommandList>
+          <CommandList className="max-h-[400px]">
             <CommandGroup heading="Basic blocks">
               {formatBlocks.map((format) => (
                 <CommandItem
@@ -124,6 +151,54 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                       {format.shortcut}
                     </span>
                   )}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+
+            {/* Collect Flow Blocks */}
+            <CommandGroup heading="Collect Flow Blocks">
+              {flowBlockOptions.collect.map((option) => (
+                <CommandItem
+                  key={`collect-${option}`}
+                  onSelect={() => {
+                    onFormatSelect(`**COLLECT: ${option}**\n\n`);
+                    setOpen(false);
+                  }}
+                  className="py-2"
+                >
+                  <span>{option}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+
+            {/* Think Flow Blocks */}
+            <CommandGroup heading="Think Flow Blocks">
+              {flowBlockOptions.think.map((option) => (
+                <CommandItem
+                  key={`think-${option}`}
+                  onSelect={() => {
+                    onFormatSelect(`**THINK: ${option}**\n\n`);
+                    setOpen(false);
+                  }}
+                  className="py-2"
+                >
+                  <span>{option}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+
+            {/* Act Flow Blocks */}
+            <CommandGroup heading="Act Flow Blocks">
+              {flowBlockOptions.act.map((option) => (
+                <CommandItem
+                  key={`act-${option}`}
+                  onSelect={() => {
+                    onFormatSelect(`**ACT: ${option}**\n\n`);
+                    setOpen(false);
+                  }}
+                  className="py-2"
+                >
+                  <span>{option}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
