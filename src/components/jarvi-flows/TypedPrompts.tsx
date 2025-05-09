@@ -50,7 +50,7 @@ export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void
             placeholder=""
             className={`
               text-lg sm:text-xl 
-              bg-white bg-opacity-80 
+              bg-white bg-opacity-95 
               shadow-md
               backdrop-blur 
               px-4 py-6 
@@ -82,20 +82,19 @@ export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void
           type="submit"
           className={`
             bg-[#4457ff] hover:bg-[#4457ff]/90 
-            h-14 px-4
+            h-14 w-14
+            flex items-center justify-center
             shadow-md hover:shadow-lg
             transition-all duration-300
             ${isFocused ? 'bg-[#3446ee]' : ''}
           `}
           disabled={isSubmitting || prompt.trim() === ""}
+          aria-label="Create with AI"
         >
           {isSubmitting ? (
             <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
-            <>
-              <Sparkles className="w-5 h-5 mr-2" />
-              Create with AI
-            </>
+            <Sparkles className="w-5 h-5" />
           )}
         </Button>
       </form>

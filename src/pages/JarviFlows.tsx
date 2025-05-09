@@ -163,7 +163,7 @@ export default function JarviFlows() {
   
   return (
     <MainLayout>
-      <div className="space-y-8">
+      <div className="space-y-12">
         {/* Enhanced Hero Section */}
         <GradientBackground>
           <div className="flex flex-col items-center justify-center space-y-8 py-10">
@@ -180,18 +180,6 @@ export default function JarviFlows() {
 
             <div className="w-full max-w-2xl transition-all duration-500 hover:scale-[1.02]">
               <TypedPrompts onSubmit={handleAIPromptSubmit} />
-            </div>
-
-            <div className="pt-2">
-              <Button 
-                onClick={handleCreateNewFlow} 
-                size="lg" 
-                className="bg-[#4457ff] hover:bg-[#4457ff]/90 shadow-md hover:shadow-lg transition-all duration-300"
-                disabled={isCreating}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Flow Manually
-              </Button>
             </div>
           </div>
         </GradientBackground>
