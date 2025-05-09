@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Cog } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ export function NavigationVisibilityProvider({ children }: { children: React.Rea
   // Default navigation settings
   const defaultSections = ["workflow", "brand", "support"];
   const defaultItems = [
-    "task-manager", "action-studio", "knowledge-base", "agents-hub",
+    "task-manager", "action-studio", "jarvi-flows", "knowledge-base", "agents-hub",
     "sales-center", "inventory", "listing-hub", "customers", "competitors", "advertising",
     "jarvio-assistant", "financing", "get-support"
   ];
@@ -106,6 +107,7 @@ const navigationItems = [
     items: [
       { id: "task-manager", label: "Home" },
       { id: "action-studio", label: "Action Studio" },
+      { id: "jarvi-flows", label: "Flows" },
       { id: "knowledge-base", label: "Knowledge Base" },
     ]
   },
