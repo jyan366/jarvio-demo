@@ -8,6 +8,7 @@ interface FlowsSectionProps {
   flows: Flow[];
   onEditFlow: (flowId: string) => void;
   onRunFlow: (flowId: string) => void;
+  onDeleteFlow: (flowId: string) => void; // Add delete flow handler
   onCreateNewFlow: () => void;
   isCreating: boolean;
 }
@@ -16,6 +17,7 @@ export function FlowsSection({
   flows, 
   onEditFlow, 
   onRunFlow, 
+  onDeleteFlow,
   onCreateNewFlow,
   isCreating
 }: FlowsSectionProps) {
@@ -39,6 +41,7 @@ export function FlowsSection({
         flows={flows} 
         onEditFlow={onEditFlow} 
         onRunFlow={onRunFlow} 
+        onDeleteFlow={onDeleteFlow}
       />
     </div>
   );

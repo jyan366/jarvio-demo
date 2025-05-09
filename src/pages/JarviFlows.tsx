@@ -6,6 +6,16 @@ import { useToast } from '@/hooks/use-toast';
 import { HeroSection } from '@/components/jarvi-flows/HeroSection';
 import { FlowsSection } from '@/components/jarvi-flows/FlowsSection';
 import { Flow } from '@/components/jarvi-flows/FlowsGrid';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Predefined flows as fallbacks
 const predefinedFlows: Flow[] = [
@@ -76,12 +86,22 @@ const loadSavedFlows = (): Flow[] => {
   return predefinedFlows; // Default to predefined flows if none are saved
 };
 
+// Save flows to localStorage
+const saveFlowsToStorage = (flows: Flow[]): void => {
+  try {
+    localStorage.setItem('jarviFlows', JSON.stringify(flows));
+  } catch (error) {
+    console.error("Error saving flows:", error);
+  }
+};
+
 export default function JarviFlows() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [flows, setFlows] = useState<Flow[]>([]);
   const [isCreating, setIsCreating] = useState(false);
-
+  const [flowToDelete, setFlowToDelete] = useState<string | null>(null);
+  
   // Load flows on component mount
   useEffect(() => {
     const savedFlows = loadSavedFlows();
@@ -101,6 +121,28 @@ export default function JarviFlows() {
       description: "The flow is now running. Results will be available soon."
     });
     // In a real implementation, this would trigger the flow execution
+  };
+  
+  // Function to handle deleting a flow
+  const handleDeleteFlow = (flowId: string) => {
+    setFlowToDelete(flowId);
+  };
+  
+  // Function to confirm deletion of a flow
+  const confirmDeleteFlow = () => {
+    if (flowToDelete) {
+      const flowName = flows.find(f => f.id === flowToDelete)?.name || "Flow";
+      const updatedFlows = flows.filter(flow => flow.id !== flowToDelete);
+      setFlows(updatedFlows);
+      saveFlowsToStorage(updatedFlows);
+      
+      toast({
+        title: "Flow deleted",
+        description: `${flowName} has been removed.`
+      });
+      
+      setFlowToDelete(null);
+    }
   };
   
   // Function to create a new flow
@@ -147,10 +189,33 @@ export default function JarviFlows() {
           flows={flows}
           onEditFlow={handleEditFlow}
           onRunFlow={handleRunFlow}
+          onDeleteFlow={handleDeleteFlow}
           onCreateNewFlow={handleCreateNewFlow}
           isCreating={isCreating}
         />
       </div>
+
+      {/* Confirmation dialog for deleting flows */}
+      <AlertDialog open={!!flowToDelete} onOpenChange={(open) => !open && setFlowToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the flow
+              and all of its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteFlow}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 }

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Play, Edit, Clock, Zap } from 'lucide-react';
+import { Play, Edit, Clock, Zap, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Define the flow types and their properties
@@ -28,6 +28,7 @@ interface FlowsGridProps {
   flows: Flow[];
   onEditFlow: (flowId: string) => void;
   onRunFlow: (flowId: string) => void;
+  onDeleteFlow?: (flowId: string) => void; // Add delete flow handler
 }
 
 // Helper function to get a trigger icon
@@ -74,7 +75,7 @@ const getSignificantBlocks = (blocks: FlowBlock[]) => {
   return result;
 };
 
-export function FlowsGrid({ flows, onEditFlow, onRunFlow }: FlowsGridProps) {
+export function FlowsGrid({ flows, onEditFlow, onRunFlow, onDeleteFlow }: FlowsGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       {flows.map((flow) => {
@@ -126,14 +127,28 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow }: FlowsGridProps) {
               </div>
             </CardContent>
             <CardFooter className="flex justify-between pt-2 border-t">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => onEditFlow(flow.id)}
-              >
-                <Edit className="h-4 w-4 mr-1" />
-                Edit Flow
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => onEditFlow(flow.id)}
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+                
+                {onDeleteFlow && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    onClick={() => onDeleteFlow(flow.id)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                )}
+              </div>
               
               {flow.trigger === 'manual' && (
                 <Button 
