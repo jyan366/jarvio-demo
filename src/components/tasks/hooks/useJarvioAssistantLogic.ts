@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -34,7 +33,25 @@ export function useJarvioAssistantLogic(
   onSubtaskSelect: (idx: number) => void
 ) {
   // State management
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Add initial welcome message
+    if (subtasks && subtasks.length > 0) {
+      return [{
+        id: crypto.randomUUID(),
+        isUser: false,
+        text: `Hello! I'm Jarvio, your AI assistant. I'm here to help you with "${taskTitle}". How can I help you with the current subtask: "${subtasks[currentSubtaskIndex]?.title || 'this task'}"?`,
+        timestamp: new Date(),
+        subtaskIdx: currentSubtaskIndex
+      }];
+    }
+    return [{
+      id: crypto.randomUUID(),
+      isUser: false,
+      text: `Hello! I'm Jarvio, your AI assistant. I'm here to help you with "${taskTitle}". How can I help you?`,
+      timestamp: new Date()
+    }];
+  });
+  
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [autoRunMode, setAutoRunMode] = useState(false);

@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Bot, Send, ChevronDown } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import Markdown from 'markdown-to-jsx';
@@ -101,7 +101,9 @@ const knowledgeBase: KnowledgeCategory[] = [
 ];
 
 export default function AIAssistant() {
-  const [messages, setMessages] = React.useState<Message[]>([]);
+  const [messages, setMessages] = React.useState<Message[]>(() => [
+    { role: 'assistant', content: "Hello! I'm Jarvio, your AI assistant. How can I help you with your Amazon brand management today?" }
+  ]);
   const [input, setInput] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -204,7 +206,7 @@ export default function AIAssistant() {
             className="flex-1 p-4 space-y-4 overflow-y-auto scrollbar scrollbar-thumb-purple-400 scrollbar-track-purple-50 scrollbar-thumb-rounded scrollbar-track-rounded"
             style={{ minHeight: 0 }}
           >
-            {messages.length === 0 && (
+            {messages.length === 1 && messages[0].role === 'assistant' && (
               <div className="space-y-3">
                 {knowledgeBase.map((category) => (
                   <Collapsible key={category.title}>
