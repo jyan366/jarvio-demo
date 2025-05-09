@@ -568,6 +568,21 @@ export default function FlowBuilder() {
     }
   };
 
+  // Force adjustment of all textareas when blocks change
+  React.useEffect(() => {
+    // Give time for components to render
+    const timer = setTimeout(() => {
+      // Find all textareas with the flow-block-name-input class
+      document.querySelectorAll('.flow-block-name-input').forEach((element) => {
+        // Trigger a resize by faking a change event
+        const event = new Event('input', { bubbles: true });
+        element.dispatchEvent(event);
+      });
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [flow.blocks]);
+  
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -744,7 +759,7 @@ export default function FlowBuilder() {
                               value={block.name || ''}
                               placeholder="Describe this specific step"
                               onChange={(e) => updateBlockName(block.id, e.target.value)}
-                              className="font-medium flow-block-name-input auto-height-input"
+                              className="font-medium flow-block-name-input auto-expand-input"
                               rows={1}
                             />
                             <div className="text-xs text-muted-foreground capitalize">Type: {block.type}</div>
