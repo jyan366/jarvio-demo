@@ -20,6 +20,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
   menuType
 }) => {
   const handleBlockSelect = (item: string) => {
+    // Ensure we're calling onFormatSelect with the correct item
     onFormatSelect(item);
     setOpen(false);
   };

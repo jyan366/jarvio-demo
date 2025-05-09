@@ -39,6 +39,7 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
   menuType,
   setMenuType
 }) => {
+  // Make sure we're creating and exporting this ref
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Handle keyboard events
