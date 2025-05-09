@@ -82,7 +82,7 @@ export async function fetchSubtasks(taskIds: string[]): Promise<SupabaseSubtask[
 }
 
 // Create task, returns created task
-export async function createTask(task: Partial<SupabaseTask> & { title: string }) {
+export async function createTask(task: Partial<SupabaseTask> & { title: string }, subtasks?: { title: string; description?: string }[]) {
   try {
     await ensureAuthForDemo();
     
@@ -99,6 +99,22 @@ export async function createTask(task: Partial<SupabaseTask> & { title: string }
       console.error("Error creating task:", error);
       throw new Error(`Failed to create task: ${error.message}`);
     }
+    
+    // If subtasks were provided, create them
+    if (subtasks && subtasks.length > 0 && data) {
+      try {
+        const subtasksWithTaskId = subtasks.map(st => ({
+          ...st,
+          task_id: data.id
+        }));
+        
+        await createSubtasks(subtasksWithTaskId);
+      } catch (subtaskError) {
+        console.error("Error creating subtasks for new task:", subtaskError);
+        // We don't throw here since the task was created successfully
+      }
+    }
+    
     return data;
   } catch (error) {
     console.error("Error in createTask:", error);

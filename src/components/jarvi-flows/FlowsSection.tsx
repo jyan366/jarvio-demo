@@ -8,9 +8,10 @@ interface FlowsSectionProps {
   flows: Flow[];
   onEditFlow: (flowId: string) => void;
   onRunFlow: (flowId: string) => void;
-  onDeleteFlow: (flowId: string) => void; // Add delete flow handler
+  onDeleteFlow: (flowId: string) => void;
   onCreateNewFlow: () => void;
   isCreating: boolean;
+  isRunningFlow?: boolean;
 }
 
 export function FlowsSection({ 
@@ -19,7 +20,8 @@ export function FlowsSection({
   onRunFlow, 
   onDeleteFlow,
   onCreateNewFlow,
-  isCreating
+  isCreating,
+  isRunningFlow = false
 }: FlowsSectionProps) {
   return (
     <div className="space-y-4">
@@ -42,6 +44,7 @@ export function FlowsSection({
         onEditFlow={onEditFlow} 
         onRunFlow={onRunFlow} 
         onDeleteFlow={onDeleteFlow}
+        isRunningFlow={isRunningFlow}
       />
     </div>
   );

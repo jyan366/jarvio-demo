@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { createTask } from '@/lib/supabaseTasks';
 
 // Predefined flows as fallbacks
 const predefinedFlows: Flow[] = [
@@ -95,12 +95,39 @@ const saveFlowsToStorage = (flows: Flow[]): void => {
   }
 };
 
+// Function to convert a flow to a task
+const convertFlowToTask = async (flow: Flow) => {
+  try {
+    // Create subtasks from flow blocks
+    const subtasks = flow.blocks.map(block => ({
+      title: block.name || `${block.type}: ${block.option}`,
+      description: `Flow step: ${block.option}`
+    }));
+    
+    // Create the main task with subtasks
+    const task = await createTask({
+      title: `Flow: ${flow.name}`,
+      description: flow.description,
+      status: 'In Progress',
+      priority: 'MEDIUM',
+      category: 'FLOW',
+      data: { flowId: flow.id, flowTrigger: flow.trigger }
+    });
+    
+    return task;
+  } catch (error) {
+    console.error('Error converting flow to task:', error);
+    throw error;
+  }
+};
+
 export default function JarviFlows() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [flows, setFlows] = useState<Flow[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [flowToDelete, setFlowToDelete] = useState<string | null>(null);
+  const [isRunningFlow, setIsRunningFlow] = useState(false);
   
   // Load flows on component mount
   useEffect(() => {
@@ -114,13 +141,45 @@ export default function JarviFlows() {
   };
   
   // Function to handle running a flow
-  const handleRunFlow = (flowId: string) => {
-    console.log(`Running flow: ${flowId}`);
-    toast({
-      title: "Flow Running",
-      description: "The flow is now running. Results will be available soon."
-    });
-    // In a real implementation, this would trigger the flow execution
+  const handleRunFlow = async (flowId: string) => {
+    try {
+      setIsRunningFlow(true);
+      const flowToRun = flows.find(flow => flow.id === flowId);
+      
+      if (!flowToRun) {
+        throw new Error('Flow not found');
+      }
+      
+      toast({
+        title: "Running flow",
+        description: "Creating task from flow..."
+      });
+      
+      // Convert flow to task and get the task ID
+      const task = await convertFlowToTask(flowToRun);
+      
+      if (!task) {
+        throw new Error('Failed to create task from flow');
+      }
+      
+      toast({
+        title: "Flow converted to task",
+        description: "Opening task view..."
+      });
+      
+      // Navigate to task view with the new task ID
+      navigate(`/task/${task.id}`);
+      
+    } catch (error) {
+      console.error('Error running flow:', error);
+      toast({
+        title: "Error running flow",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRunningFlow(false);
+    }
   };
   
   // Function to handle deleting a flow
@@ -192,6 +251,7 @@ export default function JarviFlows() {
           onDeleteFlow={handleDeleteFlow}
           onCreateNewFlow={handleCreateNewFlow}
           isCreating={isCreating}
+          isRunningFlow={isRunningFlow}
         />
       </div>
 

@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Play, Edit, Clock, Zap, Trash2 } from 'lucide-react';
+import { Play, Edit, Clock, Zap, Trash2, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Define the flow types and their properties
@@ -29,6 +28,7 @@ interface FlowsGridProps {
   onEditFlow: (flowId: string) => void;
   onRunFlow: (flowId: string) => void;
   onDeleteFlow?: (flowId: string) => void; // Add delete flow handler
+  isRunningFlow?: boolean;
 }
 
 // Helper function to get a trigger icon
@@ -75,7 +75,7 @@ const getSignificantBlocks = (blocks: FlowBlock[]) => {
   return result;
 };
 
-export function FlowsGrid({ flows, onEditFlow, onRunFlow, onDeleteFlow }: FlowsGridProps) {
+export function FlowsGrid({ flows, onEditFlow, onRunFlow, onDeleteFlow, isRunningFlow = false }: FlowsGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       {flows.map((flow) => {
@@ -132,6 +132,7 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow, onDeleteFlow }: FlowsG
                   variant="outline" 
                   size="sm"
                   onClick={() => onEditFlow(flow.id)}
+                  disabled={isRunningFlow}
                 >
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
@@ -143,6 +144,7 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow, onDeleteFlow }: FlowsG
                     size="sm"
                     className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                     onClick={() => onDeleteFlow(flow.id)}
+                    disabled={isRunningFlow}
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
                     Delete
@@ -154,9 +156,19 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow, onDeleteFlow }: FlowsG
                 <Button 
                   size="sm"
                   onClick={() => onRunFlow(flow.id)}
+                  disabled={isRunningFlow}
                 >
-                  <Play className="h-4 w-4 mr-1" />
-                  Run Now
+                  {isRunningFlow ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      Running...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4 mr-1" />
+                      Run Now
+                    </>
+                  )}
                 </Button>
               )}
             </CardFooter>
