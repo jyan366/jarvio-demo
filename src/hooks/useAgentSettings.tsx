@@ -10,7 +10,6 @@ type AgentSettings = {
 
 type AgentSettingsContextType = {
   settings: Record<string, AgentSettings>;
-  toggleFlow: (flowId: string, enabled: boolean) => void;
   toggleTool: (toolId: string, enabled: boolean) => void;
   saveSettings: () => void;
 };
@@ -39,30 +38,6 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       setCurrentAgentId(null);
     }
   }, [window.location.pathname]);
-
-  const toggleFlow = (flowId: string, enabled: boolean) => {
-    if (!currentAgentId) return;
-
-    setSettings(prev => {
-      const currentSettings = prev[currentAgentId] || {
-        agentId: currentAgentId,
-        enabledFlows: [],
-        customTools: []
-      };
-
-      const enabledFlows = enabled 
-        ? [...currentSettings.enabledFlows, flowId]
-        : currentSettings.enabledFlows.filter(id => id !== flowId);
-
-      return {
-        ...prev,
-        [currentAgentId]: {
-          ...currentSettings,
-          enabledFlows
-        }
-      };
-    });
-  };
 
   const toggleTool = (toolId: string, enabled: boolean) => {
     if (!currentAgentId) return;
@@ -95,7 +70,6 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <AgentSettingsContext.Provider value={{
       settings,
-      toggleFlow,
       toggleTool,
       saveSettings
     }}>
