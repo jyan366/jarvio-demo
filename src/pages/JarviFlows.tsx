@@ -131,33 +131,33 @@ export default function JarviFlows() {
   
   return (
     <MainLayout>
-      <div className="space-y-6 md:space-y-8">
+      <div className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">JarviFlows</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
+            <h1 className="text-3xl font-bold tracking-tight mb-1">JarviFlows</h1>
+            <p className="text-muted-foreground">
               Create and manage automated workflows for your Amazon business
             </p>
           </div>
-          <Button onClick={handleCreateNewFlow} className="bg-[#4457ff] hover:bg-[#4457ff]/90">
+          <Button onClick={handleCreateNewFlow} size="default" className="bg-[#4457ff] hover:bg-[#4457ff]/90">
             <Plus className="w-4 h-4 mr-2" />
             Create New Flow
           </Button>
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-lg md:text-xl font-semibold">Your Flows</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          <h2 className="text-xl font-semibold">Your Flows</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {flows.map((flow) => {
               const blockCounts = getBlockCounts(flow.blocks);
               
               return (
-                <Card key={flow.id} className="overflow-hidden">
-                  <CardHeader className="pb-3">
+                <Card key={flow.id} className="overflow-hidden shadow-sm hover:shadow transition-shadow">
+                  <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle>{flow.name}</CardTitle>
-                        <CardDescription className="mt-1">{flow.description}</CardDescription>
+                        <CardTitle className="text-lg font-semibold">{flow.name}</CardTitle>
+                        <CardDescription className="mt-1 line-clamp-2">{flow.description}</CardDescription>
                       </div>
                       <div className="flex items-center space-x-1 rounded-md bg-secondary p-1 text-secondary-foreground">
                         {getTriggerIcon(flow.trigger)}
@@ -165,23 +165,23 @@ export default function JarviFlows() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pb-2">
                     <div className="flex space-x-4 text-sm">
                       <div className="flex items-center">
-                        <div className="rounded-full w-3 h-3 bg-blue-500 mr-1" />
+                        <div className="rounded-full w-2.5 h-2.5 bg-blue-500 mr-1.5" />
                         <span>{blockCounts.collect} Collect</span>
                       </div>
                       <div className="flex items-center">
-                        <div className="rounded-full w-3 h-3 bg-purple-500 mr-1" />
+                        <div className="rounded-full w-2.5 h-2.5 bg-purple-500 mr-1.5" />
                         <span>{blockCounts.think} Think</span>
                       </div>
                       <div className="flex items-center">
-                        <div className="rounded-full w-3 h-3 bg-green-500 mr-1" />
+                        <div className="rounded-full w-2.5 h-2.5 bg-green-500 mr-1.5" />
                         <span>{blockCounts.act} Act</span>
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex justify-between pt-3 border-t">
+                  <CardFooter className="flex justify-between pt-2 border-t">
                     <Button 
                       variant="outline" 
                       size="sm"
