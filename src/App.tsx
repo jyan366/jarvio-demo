@@ -11,6 +11,8 @@ import TaskWork from './pages/TaskWork';
 import ActionStudio from './pages/ActionStudio';
 import JarviFlows from './pages/JarviFlows';
 import FlowBuilder from './pages/FlowBuilder';
+import KnowledgeBase from './pages/KnowledgeBase';
+import SalesHub from './pages/SalesHub';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
           <Route path="/jarvi-flows" element={<JarviFlows />} />
           <Route path="/jarvi-flows/builder" element={<FlowBuilder />} />
           <Route path="/jarvi-flows/builder/:flowId" element={<FlowBuilder />} />
+          <Route path="/knowledge-base" element={<KnowledgeBase />} />
+          <Route path="/sales-hub" element={<SalesHub />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />

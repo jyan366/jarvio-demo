@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask } from "@/lib/supabaseTasks";
@@ -144,6 +145,9 @@ export function useTaskWork() {
         setIsGenerating(false);
         return;
       }
+
+      // Import the createSubtasks function from supabaseTasks
+      const { createSubtasks } = await import('@/lib/supabaseTasks');
 
       const createdSteps = await createSubtasks(
         steps.map((s) => ({
