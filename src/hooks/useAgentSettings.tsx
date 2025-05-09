@@ -85,10 +85,15 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         // Convert array of records to Record<agentId, AgentSettings>
         const settingsMap: Record<string, AgentSettings> = {};
         data.forEach(record => {
+          // Fix type conversion issue - ensure toolsConfig is an object
+          const toolsConfig = (typeof record.tools_config === 'object' && record.tools_config !== null) 
+            ? record.tools_config as ToolsConfig 
+            : {};
+            
           settingsMap[record.agent_id] = {
             agentId: record.agent_id,
             customTools: record.custom_tools || [],
-            toolsConfig: record.tools_config || {}
+            toolsConfig: toolsConfig
           };
         });
         
@@ -201,7 +206,7 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           .update({
             custom_tools: currentSettings.customTools,
             tools_config: currentSettings.toolsConfig,
-            updated_at: new Date()
+            updated_at: new Date().toISOString() // Fix: Convert Date to ISO string
           })
           .eq('id', data.id);
           
