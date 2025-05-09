@@ -30,7 +30,8 @@ import {
   MoveUp,
   MoveDown,
   GripVertical,
-  HelpCircle
+  HelpCircle,
+  Play
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
@@ -39,6 +40,7 @@ import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
 import { Flow, FlowBlock, TriggerType } from '@/components/jarvi-flows/FlowsGrid';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { createTask } from '@/lib/supabaseTasks';
 
 // Block options based on type
 const blockOptions = {
@@ -214,6 +216,7 @@ export default function FlowBuilder() {
   const [showAIPrompt, setShowAIPrompt] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [isRunningFlow, setIsRunningFlow] = useState(false);
 
   const aiPromptForm = useForm<AIPromptFormValues>({
     defaultValues: {
@@ -587,6 +590,86 @@ export default function FlowBuilder() {
     return () => clearTimeout(timer);
   }, [flow.blocks]);
   
+  // Add a new function to start the flow
+  const handleStartFlow = async () => {
+    try {
+      // Validate flow before starting
+      if (!flow.name.trim()) {
+        toast({
+          title: "Validation Error",
+          description: "Please provide a name for your flow",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (flow.blocks.length === 0) {
+        toast({
+          title: "Validation Error",
+          description: "Please add at least one block to your flow",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setIsRunningFlow(true);
+      toast({
+        title: "Starting flow",
+        description: "Creating tasks from flow steps..."
+      });
+
+      // Save the flow first
+      const allFlows = loadSavedFlows();
+      const existingFlowIndex = allFlows.findIndex(f => f.id === flow.id);
+      
+      if (existingFlowIndex >= 0) {
+        allFlows[existingFlowIndex] = {...flow};
+      } else {
+        allFlows.push({...flow});
+      }
+      
+      saveAllFlows(allFlows);
+      
+      // Create subtasks from flow blocks
+      const subtasks = flow.blocks.map(block => ({
+        title: block.name || `${block.type}: ${block.option}`,
+        description: `Flow step: ${block.option}`
+      }));
+      
+      // Create the main task with subtasks
+      const task = await createTask({
+        title: `Flow: ${flow.name}`,
+        description: flow.description,
+        status: 'In Progress', // Start as In Progress
+        priority: 'MEDIUM',
+        category: 'FLOW',
+        data: { flowId: flow.id, flowTrigger: flow.trigger }
+      }, subtasks);
+      
+      if (!task) {
+        throw new Error('Failed to create task from flow');
+      }
+      
+      toast({
+        title: "Flow started successfully",
+        description: "Flow is now running. Opening task view..."
+      });
+      
+      // Navigate to task view with the new task ID
+      navigate(`/task/${task.id}`);
+      
+    } catch (error) {
+      console.error('Error running flow:', error);
+      toast({
+        title: "Error starting flow",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRunningFlow(false);
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -608,6 +691,27 @@ export default function FlowBuilder() {
               <WandSparkles className="h-4 w-4 mr-2" />
               {showAIPrompt ? "Hide AI Builder" : "Create with AI"}
             </Button>
+            
+            {flow.trigger === 'manual' && (
+              <Button 
+                onClick={handleStartFlow}
+                className="bg-green-600 hover:bg-green-700 text-white"
+                disabled={isRunningFlow || flow.blocks.length === 0}
+              >
+                {isRunningFlow ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Running...
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Flow
+                  </>
+                )}
+              </Button>
+            )}
+            
             <Button 
               onClick={saveFlow}
               className="bg-[#4457ff] hover:bg-[#4457ff]/90"
