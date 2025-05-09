@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -215,7 +214,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
         </div>
         
         <h3 className="font-semibold text-base mb-1 leading-snug flex gap-1">
-          {isFlow && task.title.startsWith("Flow:") ? task.title : task.title}
+          {task.title}
         </h3>
         <p className="text-sm text-gray-500 leading-snug line-clamp-2 mb-3">{task.description}</p>
         
