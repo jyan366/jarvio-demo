@@ -10,8 +10,8 @@ import { Subtask } from "@/pages/TaskWorkContainer";
 interface TaskWorkSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedTab: "ai"| "comments" ;
-  setSelectedTab: (v: "ai | ""comments") => void;
+  selectedTab: "ai" | "comments";
+  setSelectedTab: (v: "ai" | "comments") => void;
   comments: { user: string; text: string; ago: string; subtaskId?: string }[];
   addComment: (t: string) => void;
   commentValue: string;
@@ -82,16 +82,6 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         <div className="flex p-4 border-b">
           <button
             className={`${
-              selectedTab === "comments"
-                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
-                : "text-gray-400 border-b-2 border-transparent"
-            } px-2 py-1 text-base transition`}
-            onClick={() => setSelectedTab("comments")}
-          >
-            Comments
-          </button>
-          <button
-            className={`${
               selectedTab === "ai"
                 ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
                 : "text-gray-400 border-b-2 border-transparent"
@@ -100,7 +90,16 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           >
             AI Assistant
           </button>
-
+          <button
+            className={`${
+              selectedTab === "comments"
+                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
+                : "text-gray-400 border-b-2 border-transparent"
+            } px-2 py-1 text-base transition`}
+            onClick={() => setSelectedTab("comments")}
+          >
+            Comments
+          </button>
         </div>
 
         <div className="flex flex-col flex-1 min-h-0">
