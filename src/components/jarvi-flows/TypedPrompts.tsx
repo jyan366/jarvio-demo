@@ -1,16 +1,24 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Loader2 } from 'lucide-react';
+import { TypewriterText } from './TypewriterText';
 
-// Example prompt suggestions
-const PROMPT_PLACEHOLDER = "E.g.: Create a weekly product review analysis flow...";
+// Example prompt suggestions for the typewriter effect
+const EXAMPLE_PROMPTS = [
+  "Create a weekly product review analysis flow...",
+  "Build a flow that monitors inventory levels...",
+  "Design a flow to analyze customer feedback...",
+  "Make a flow that generates listing optimizations...",
+  "Create a restock alert system for low inventory...",
+];
 
 export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void }) {
   const [prompt, setPrompt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,15 +47,46 @@ export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder={PROMPT_PLACEHOLDER}
-            className="text-lg sm:text-xl bg-white bg-opacity-[0.15] backdrop-blur px-4 py-6 rounded-lg w-full h-14 border-2 border-blue-100"
+            placeholder=""
+            className={`
+              text-lg sm:text-xl 
+              bg-white bg-opacity-80 
+              shadow-md
+              backdrop-blur 
+              px-4 py-6 
+              rounded-lg 
+              w-full h-14 
+              border-2 
+              transition-all duration-300
+              ${isFocused ? 'border-blue-300 shadow-lg shadow-blue-100/50' : 'border-blue-100'}
+            `}
             autoComplete="off"
             disabled={isSubmitting}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           />
+          
+          {/* Placeholder with typewriter effect (only show when input is empty) */}
+          {!prompt && !isSubmitting && (
+            <div className="absolute left-4 top-0 h-full flex items-center pointer-events-none text-gray-400">
+              <TypewriterText 
+                texts={EXAMPLE_PROMPTS}
+                typingSpeed={60}
+                deletingSpeed={30}
+                className="text-lg sm:text-xl"
+              />
+            </div>
+          )}
         </div>
         <Button 
           type="submit"
-          className="bg-[#4457ff] hover:bg-[#4457ff]/90 h-14 px-4"
+          className={`
+            bg-[#4457ff] hover:bg-[#4457ff]/90 
+            h-14 px-4
+            shadow-md hover:shadow-lg
+            transition-all duration-300
+            ${isFocused ? 'bg-[#3446ee]' : ''}
+          `}
           disabled={isSubmitting || prompt.trim() === ""}
         >
           {isSubmitting ? (
