@@ -134,6 +134,16 @@
   border-radius: 4px;
 }
 
+/* New shimmer animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Flow Builder Input Field Styles */
 .auto-height-input {
   height: auto !important;
