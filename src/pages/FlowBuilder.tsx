@@ -568,25 +568,6 @@ export default function FlowBuilder() {
     }
   };
 
-  // Force adjustment of all textareas when blocks change
-  React.useEffect(() => {
-    // Initial delay for component rendering
-    const timer = setTimeout(() => {
-      // Find all textareas with the flow-block-name-input class
-      document.querySelectorAll('.flow-block-name-input').forEach((element) => {
-        // Trigger multiple resize events with increasing delays
-        [0, 100, 300, 600].forEach(delay => {
-          setTimeout(() => {
-            const event = new Event('input', { bubbles: true });
-            element.dispatchEvent(event);
-          }, delay);
-        });
-      });
-    }, 300);
-    
-    return () => clearTimeout(timer);
-  }, [flow.blocks]);
-  
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -751,8 +732,8 @@ export default function FlowBuilder() {
                     )}
                     
                     <Card className="border-l-4" style={{ borderLeftColor: `var(--${blockColor.replace('bg-', '')})` }}>
-                      <CardContent className="flex items-start p-4">
-                        <div className={`${blockColor} rounded-full p-2 mr-4 flex-shrink-0 self-start mt-1`}>
+                      <CardContent className="flex items-center p-4">
+                        <div className={`${blockColor} rounded-full p-2 mr-4 flex-shrink-0`}>
                           <BlockIcon className="h-5 w-5 text-white" />
                         </div>
                         
@@ -763,8 +744,8 @@ export default function FlowBuilder() {
                               value={block.name || ''}
                               placeholder="Describe this specific step"
                               onChange={(e) => updateBlockName(block.id, e.target.value)}
-                              className="font-medium flow-block-name-input auto-expand-input"
-                              rows={2} // Increased from 1 to 2 initial rows
+                              className="font-medium flow-block-name-input auto-height-input min-h-[2.5rem] resize-none"
+                              rows={1}
                             />
                             <div className="text-xs text-muted-foreground capitalize">Type: {block.type}</div>
                           </div>
@@ -806,7 +787,7 @@ export default function FlowBuilder() {
                           </div>
                         </div>
                         
-                        <div className="flex flex-col gap-1 ml-2 self-start">
+                        <div className="flex flex-col gap-1 ml-2">
                           <Button
                             variant="ghost"
                             size="icon"
@@ -831,7 +812,7 @@ export default function FlowBuilder() {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => removeBlock(block.id)}
-                          className="ml-1 self-start"
+                          className="ml-1"
                         >
                           <Trash2 className="h-5 w-5 text-muted-foreground hover:text-destructive" />
                         </Button>
