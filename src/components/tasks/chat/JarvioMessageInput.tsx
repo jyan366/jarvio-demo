@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
@@ -41,30 +41,18 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
   setMenuType,
   inputRef
 }) => {
-  // State for formatted display of text
-  const [formattedDisplay, setFormattedDisplay] = useState<string>("");
-  
-  // Format text for display
-  useEffect(() => {
-    // Apply bold formatting
-    const formatted = inputValue.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
-    setFormattedDisplay(formatted);
-  }, [inputValue]);
-
   // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Slash key to open blocks menu
+    // Slash key to open blocks menu - allow anywhere
     if (e.key === '/' && !formatMenuOpen && !commandActive) {
-      e.preventDefault(); // Prevent typing the slash
       setFormatMenuOpen(true);
       setCommandActive("slash");
       setSearchValue('');
       setMenuType("blocks");
     }
     
-    // @ key to open agents menu
+    // @ key to open agents menu - allow anywhere
     if (e.key === '@' && !formatMenuOpen && !commandActive) {
-      e.preventDefault(); // Prevent typing the @
       setFormatMenuOpen(true);
       setCommandActive("at");
       setSearchValue('');
@@ -92,19 +80,25 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     const value = e.target.value;
     setInputValue(value);
     
-    // Check for slash command - triggers anywhere
-    if (!commandActive && value.endsWith('/')) {
-      setFormatMenuOpen(true);
-      setCommandActive("slash");
-      setSearchValue('');
-      setMenuType("blocks");
+    // Check for slash command - triggers anywhere in text
+    if (!commandActive && value !== inputValue && value.includes('/')) {
+      const lastChar = value[value.length - 1];
+      if (lastChar === '/') {
+        setFormatMenuOpen(true);
+        setCommandActive("slash");
+        setSearchValue('');
+        setMenuType("blocks");
+      }
     } 
-    // Check for at command - triggers anywhere
-    else if (!commandActive && value.endsWith('@')) {
-      setFormatMenuOpen(true);
-      setCommandActive("at");
-      setSearchValue('');
-      setMenuType("agents");
+    // Check for at command - triggers anywhere in text
+    else if (!commandActive && value !== inputValue && value.includes('@')) {
+      const lastChar = value[value.length - 1];
+      if (lastChar === '@') {
+        setFormatMenuOpen(true);
+        setCommandActive("at");
+        setSearchValue('');
+        setMenuType("agents");
+      }
     } 
     // If command is active, update search term
     else if (commandActive === "slash") {
@@ -150,37 +144,16 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
         <div ref={triggerRef} className="w-1 h-1" />
       </div>
       
-      <div className="flex-1 relative">
-        {/* Real textarea for input handling - now fully transparent but still interactive */}
-        <Textarea
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
-          className="flex-1 min-h-[36px] max-h-24 resize-none absolute inset-0 z-20 opacity-0"
-          disabled={isLoading || isTransitioning}
-          ref={inputRef}
-          rows={1}
-          style={{ caretColor: 'transparent' }} // Hide the cursor in the invisible textarea
-        />
-        
-        {/* Formatted display div that shows the styled text */}
-        <div 
-          className="flex-1 min-h-[36px] max-h-24 resize-none border border-input bg-background px-3 py-2 text-sm rounded-md overflow-y-auto whitespace-pre-wrap pointer-events-none"
-          dangerouslySetInnerHTML={{ 
-            __html: formattedDisplay || 
-              '<span class="text-muted-foreground">' + 
-              (isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents...") + 
-              '</span>' 
-          }}
-        />
-        
-        {/* Add a blinking cursor effect at the end of the text */}
-        {!isLoading && !isTransitioning && 
-          <div className="absolute right-3 top-2 h-4 w-0.5 bg-black animate-blink"></div>
-        }
-      </div>
-      
+      <Textarea
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
+        className="flex-1 min-h-[36px] max-h-24 resize-none"
+        disabled={isLoading || isTransitioning}
+        ref={inputRef}
+        rows={1}
+      />
       <Button 
         type="submit" 
         disabled={!inputValue.trim() || isLoading || isTransitioning || formatMenuOpen}
