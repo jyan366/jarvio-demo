@@ -32,11 +32,6 @@ export const BlocksMenuItems: React.FC<BlocksMenuItemsProps> = ({ searchValue, o
 
   const filteredBlocks = getFilteredBlocks();
 
-  // Clear handler to ensure proper functionality
-  const handleBlockSelect = (option: string) => {
-    onSelect(option);
-  };
-
   if (filteredBlocks) {
     return (
       <CommandGroup heading="Filtered results">
@@ -44,7 +39,7 @@ export const BlocksMenuItems: React.FC<BlocksMenuItemsProps> = ({ searchValue, o
           filteredBlocks.map(({ category, option }) => (
             <CommandItem
               key={`${category}-${option}`}
-              onSelect={() => handleBlockSelect(option)}
+              onSelect={() => onSelect(option)}
               className="py-2 cursor-pointer"
             >
               <span>{option}</span>
@@ -67,7 +62,7 @@ export const BlocksMenuItems: React.FC<BlocksMenuItemsProps> = ({ searchValue, o
           {options.map((option) => (
             <CommandItem
               key={`${category}-${option}`}
-              onSelect={() => handleBlockSelect(option)}
+              onSelect={() => onSelect(option)}
               className="py-2 cursor-pointer"
             >
               <span>{option}</span>

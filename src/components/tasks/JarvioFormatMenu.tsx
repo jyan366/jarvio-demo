@@ -19,12 +19,13 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
   triggerRef,
   menuType
 }) => {
-  const handleBlockSelect = (item: string) => {
-    // Ensure we're calling onFormatSelect with the correct item
-    onFormatSelect(item);
+  // Simple handler for block selection
+  const handleBlockSelect = (text: string) => {
+    onFormatSelect(text);
     setOpen(false);
   };
   
+  // Simple handler for agent selection
   const handleAgentSelect = (agentName: string) => {
     onFormatSelect(`@${agentName}`);
     setOpen(false);

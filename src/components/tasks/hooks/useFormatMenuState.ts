@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { MenuItemType } from "../JarvioMenuTypes";
 
@@ -9,7 +10,7 @@ export function useFormatMenuState() {
   const triggerRef = useRef<HTMLDivElement>(null);
   const [menuType, setMenuType] = useState<MenuItemType>("blocks");
   
-  // Function to handle format selection and insert into textarea
+  // Simple function to handle format selection and insert into textarea
   const handleFormatSelect = (
     formatText: string, 
     inputValue: string, 
@@ -18,78 +19,82 @@ export function useFormatMenuState() {
   ) => {
     if (!inputRef.current) return;
     
-    // Get current cursor position
-    const cursorPosition = inputRef.current.selectionStart || 0;
+    const textarea = inputRef.current;
+    const cursorPosition = textarea.selectionStart || 0;
     
-    // Insert the formatted text (with bold formatting for blocks)
-    let formattedText = formatText;
+    // Format the text based on menu type
+    let textToInsert = formatText;
     if (menuType === "blocks") {
-      formattedText = `**${formatText}**`;
+      textToInsert = `**${formatText}**`;
     }
     
-    // If slash command is active, replace the slash + search term with the format
+    let newValue = "";
+    let newCursorPosition = 0;
+    
+    // Logic for handling slash command replacement
     if (commandActive === "slash") {
-      const lastNewLineIndex = inputValue.lastIndexOf('\n') + 1;
-      const slashIndex = inputValue.indexOf('/', lastNewLineIndex);
+      // Find the last newline before cursor
+      const lastNewline = inputValue.lastIndexOf('\n', cursorPosition - 1) + 1;
       
-      if (slashIndex !== -1) {
-        const beforeSlash = inputValue.substring(0, slashIndex);
-        const afterSlashCommand = inputValue.substring(slashIndex + 1 + searchValue.length);
-        
-        // Create the new value with the format inserted
-        const newValue = beforeSlash + formattedText + " " + afterSlashCommand;
-        setInputValue(newValue);
-        
-        // Set cursor position after the inserted format
-        setTimeout(() => {
-          if (inputRef.current) {
-            const newCursorPosition = beforeSlash.length + formattedText.length + 1; // +1 for the space
-            inputRef.current.focus();
-            inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
-          }
-        }, 0);
-      }
-    } 
-    // If at command is active, replace the @ + search term with the format
-    else if (commandActive === "at") {
-      const atIndex = inputValue.lastIndexOf('@');
+      // Find the position of the slash that started this command
+      const slashPosition = inputValue.indexOf('/', lastNewline);
       
-      if (atIndex !== -1) {
-        const beforeAt = inputValue.substring(0, atIndex);
-        const afterAtCommand = inputValue.substring(atIndex + 1 + searchValue.length);
+      if (slashPosition !== -1 && slashPosition < cursorPosition) {
+        // Replace everything from the slash to the cursor with the formatted text
+        const beforeSlash = inputValue.substring(0, slashPosition);
+        const afterCursor = inputValue.substring(cursorPosition);
         
-        // Create the new value with the format inserted
-        const newValue = beforeAt + formattedText + " " + afterAtCommand;
-        setInputValue(newValue);
+        newValue = beforeSlash + textToInsert + " " + afterCursor;
+        newCursorPosition = beforeSlash.length + textToInsert.length + 1; // +1 for the space
+      } else {
+        // Fallback - just insert at cursor
+        const beforeCursor = inputValue.substring(0, cursorPosition);
+        const afterCursor = inputValue.substring(cursorPosition);
         
-        // Set cursor position after the inserted format
-        setTimeout(() => {
-          if (inputRef.current) {
-            const newCursorPosition = beforeAt.length + formattedText.length + 1; // +1 for the space
-            inputRef.current.focus();
-            inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
-          }
-        }, 0);
+        newValue = beforeCursor + textToInsert + " " + afterCursor;
+        newCursorPosition = cursorPosition + textToInsert.length + 1;
       }
     }
-    // Otherwise insert format at cursor position
+    // Logic for handling @ command replacement
+    else if (commandActive === "at") {
+      // Find the position of the @ that started this command
+      const atPosition = inputValue.lastIndexOf('@', cursorPosition);
+      
+      if (atPosition !== -1 && atPosition < cursorPosition) {
+        // Replace everything from the @ to the cursor with the formatted text
+        const beforeAt = inputValue.substring(0, atPosition);
+        const afterCursor = inputValue.substring(cursorPosition);
+        
+        newValue = beforeAt + textToInsert + " " + afterCursor;
+        newCursorPosition = beforeAt.length + textToInsert.length + 1; // +1 for the space
+      } else {
+        // Fallback - just insert at cursor
+        const beforeCursor = inputValue.substring(0, cursorPosition);
+        const afterCursor = inputValue.substring(cursorPosition);
+        
+        newValue = beforeCursor + textToInsert + " " + afterCursor;
+        newCursorPosition = cursorPosition + textToInsert.length + 1;
+      }
+    }
+    // Normal insertion at cursor position
     else {
       const beforeCursor = inputValue.substring(0, cursorPosition);
       const afterCursor = inputValue.substring(cursorPosition);
       
-      // Create the new value with the format inserted at cursor
-      const newValue = beforeCursor + formattedText + " " + afterCursor;
-      setInputValue(newValue);
-      
-      // Set cursor position after the inserted format
-      setTimeout(() => {
-        if (inputRef.current) {
-          const newCursorPosition = cursorPosition + formattedText.length + 1; // +1 for the space
-          inputRef.current.focus();
-          inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
-        }
-      }, 0);
+      newValue = beforeCursor + textToInsert + " " + afterCursor;
+      newCursorPosition = cursorPosition + textToInsert.length + 1;
     }
+    
+    // Update the textarea value
+    setInputValue(newValue);
+    
+    // Set cursor position after the inserted text
+    setTimeout(() => {
+      if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+      }
+    }, 0);
     
     // Reset states
     setFormatMenuOpen(false);

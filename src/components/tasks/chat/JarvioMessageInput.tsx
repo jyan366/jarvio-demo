@@ -1,5 +1,5 @@
 
-import React, { useRef } from "react";
+import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
@@ -21,6 +21,7 @@ interface JarvioMessageInputProps {
   triggerRef: React.RefObject<HTMLDivElement>;
   menuType: MenuItemType;
   setMenuType: (type: MenuItemType) => void;
+  inputRef: React.RefObject<HTMLTextAreaElement>;
 }
 
 export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
@@ -37,11 +38,9 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
   setCommandActive,
   triggerRef,
   menuType,
-  setMenuType
+  setMenuType,
+  inputRef
 }) => {
-  // Make sure we're creating and exporting this ref
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-
   // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Slash key to open blocks menu

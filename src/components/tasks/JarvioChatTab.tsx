@@ -50,7 +50,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     }
   }, [isLoading]);
 
-  // Function to handle format selection with access to current state
+  // Format selection handler
   const onFormatSelect = (formatText: string) => {
     handleFormatSelect(formatText, inputValue, setInputValue, inputRef);
   };
@@ -93,6 +93,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           triggerRef={triggerRef}
           menuType={menuType}
           setMenuType={setMenuType}
+          inputRef={inputRef}
         />
       </div>
     </div>
