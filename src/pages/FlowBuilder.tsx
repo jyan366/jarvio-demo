@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -225,6 +226,7 @@ export default function FlowBuilder() {
     setAiError(null);
     
     try {
+      console.log("Sending prompt to AI:", data.prompt);
       const response = await supabase.functions.invoke("chat", {
         body: {
           prompt: `Create a flow for an Amazon seller based on this description: "${data.prompt}". 
@@ -246,15 +248,39 @@ export default function FlowBuilder() {
         throw new Error("No data returned from API");
       }
 
+      // Check for backend success status
       if (response.data.success === false) {
         throw new Error(`Response Error: ${response.data.error}`);
       }
 
-      // Get the generated flow from the response
-      const generatedFlow = response.data.generatedFlow;
+      // Handle multiple possible response formats
+      let generatedFlow;
       
-      if (!generatedFlow) {
-        throw new Error("No flow data in the response");
+      if (response.data.generatedFlow) {
+        // If we're getting the expected format with generatedFlow
+        console.log("Found generatedFlow in response:", response.data.generatedFlow);
+        generatedFlow = response.data.generatedFlow;
+      } else if (response.data.text) {
+        // If we're getting a text response, try to parse it as JSON
+        console.log("Found text in response, attempting to parse as JSON:", response.data.text);
+        try {
+          // This might be JSON wrapped in markdown or just plain JSON
+          const textContent = response.data.text;
+          // Try to extract JSON if it's wrapped in markdown code blocks
+          const jsonMatch = textContent.match(/```(?:json)?([\s\S]*?)```/) || 
+                            textContent.match(/{[\s\S]*}/);
+                            
+          const jsonContent = jsonMatch ? jsonMatch[1] || jsonMatch[0] : textContent;
+          generatedFlow = JSON.parse(jsonContent.trim());
+          console.log("Successfully parsed JSON from text:", generatedFlow);
+        } catch (jsonError) {
+          console.error("Failed to parse JSON from text:", jsonError);
+          throw new Error("Could not parse flow data from the AI response");
+        }
+      } else {
+        // No recognized format found
+        console.error("Unrecognized response format:", response.data);
+        throw new Error("Unexpected response format from the API");
       }
       
       // Show warning if we're using a fallback flow
@@ -267,7 +293,7 @@ export default function FlowBuilder() {
         });
       }
       
-      console.log("Generated flow:", generatedFlow);
+      console.log("Final generated flow:", generatedFlow);
       
       // Validate the flow structure
       if (!generatedFlow.name || !generatedFlow.description || !Array.isArray(generatedFlow.blocks)) {
