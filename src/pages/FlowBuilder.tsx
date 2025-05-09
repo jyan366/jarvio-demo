@@ -257,6 +257,16 @@ export default function FlowBuilder() {
         throw new Error("No flow data in the response");
       }
       
+      // Show warning if we're using a fallback flow
+      if (response.data.warning) {
+        console.warn(response.data.warning);
+        toast({
+          title: "Warning",
+          description: response.data.warning,
+          variant: "warning"
+        });
+      }
+      
       console.log("Generated flow:", generatedFlow);
       
       // Validate the flow structure

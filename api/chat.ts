@@ -45,7 +45,7 @@ ONLY USE options from this exact list for each block type:
 - think: ["Basic AI Analysis", "Listing Analysis", "Insights Generation", "Review Analysis"]
 - act: ["AI Summary", "Push to Amazon", "Send Email", "Human in the Loop"]
 
-Do not add any extra text, comments, explanations, or formatting. Return ONLY the JSON object.
+Return ONLY the JSON object, no other text or formatting.
 `;
 
     console.log("Sending request to OpenAI with prompt:", prompt);
@@ -80,34 +80,47 @@ Do not add any extra text, comments, explanations, or formatting. Return ONLY th
       throw new Error("Invalid response format from OpenAI API");
     }
     
-    const generatedText = data.choices[0].message.content;
-    console.log("Raw response from OpenAI:", generatedText);
+    // Extract content from the response
+    const rawContent = data.choices[0].message.content;
+    console.log("Raw response from OpenAI:", rawContent);
     
-    // Validate that the response is proper JSON before sending it back
+    // Attempt to parse the JSON directly
     try {
-      // Attempt to parse the JSON to validate it
-      const parsedJson = JSON.parse(generatedText);
+      // This will parse the JSON that we've requested from OpenAI
+      const parsedJson = JSON.parse(rawContent);
       
       // Further validate the expected structure
       if (!parsedJson.name || !parsedJson.description || !Array.isArray(parsedJson.blocks)) {
         throw new Error("Invalid flow structure. Missing required properties.");
       }
       
-      // If we get here, we have valid JSON with the expected structure
+      // Return the validated JSON
       return new Response(JSON.stringify({ 
         success: true,
         generatedFlow: parsedJson
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+      
     } catch (parseError) {
-      console.error('Error parsing JSON from OpenAI:', parseError, 'Raw content:', generatedText);
+      console.error('Error parsing JSON from OpenAI:', parseError, 'Raw content:', rawContent);
+      
+      // Create a fallback flow in case parsing fails
+      const fallbackFlow = {
+        name: "Fallback Flow",
+        description: "This is a fallback flow created when JSON parsing failed",
+        blocks: [
+          { type: "collect", option: "User Text" },
+          { type: "think", option: "Basic AI Analysis" },
+          { type: "act", option: "AI Summary" }
+        ]
+      };
+      
       return new Response(JSON.stringify({ 
-        success: false,
-        error: "Invalid JSON received from AI", 
-        rawResponse: generatedText 
+        success: true,
+        generatedFlow: fallbackFlow,
+        warning: "Original AI response couldn't be parsed as JSON. Using fallback flow."
       }), {
-        status: 422,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
