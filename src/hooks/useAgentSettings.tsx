@@ -48,31 +48,46 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => subscription.unsubscribe();
   }, []);
 
-  // Extract agent ID from URL immediately when URL changes
+  // Extract agent ID from URL immediately when component mounts and when URL changes
   useEffect(() => {
     const extractAgentIdFromUrl = () => {
       const path = window.location.pathname;
+      console.log("Current path:", path);
       const match = path.match(/\/agents-hub\/agent\/([^\/]+)/);
       if (match && match[1]) {
-        setCurrentAgentId(match[1]);
+        const newAgentId = match[1];
+        console.log("Extracted agent ID:", newAgentId);
+        setCurrentAgentId(newAgentId);
       } else {
+        console.log("No agent ID found in URL");
         setCurrentAgentId(null);
       }
     };
 
-    // Extract ID immediately
+    // Extract ID immediately on mount
     extractAgentIdFromUrl();
 
     // Set up listener for URL changes
     const handleLocationChange = () => {
+      console.log("Location changed, extracting agent ID");
       extractAgentIdFromUrl();
     };
 
     // Listen for popstate events (browser back/forward)
     window.addEventListener('popstate', handleLocationChange);
+    
+    // For React Router navigation (doesn't trigger popstate)
+    const originalPushState = history.pushState;
+    history.pushState = function(...args) {
+      const result = originalPushState.apply(this, args);
+      handleLocationChange();
+      return result;
+    };
 
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
+      // Restore original pushState
+      history.pushState = originalPushState;
     };
   }, []);
 
@@ -80,10 +95,12 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const loadSettings = async () => {
       if (!currentAgentId) {
+        console.log("No agent ID available, not loading settings");
         setIsLoading(false);
         return;
       }
 
+      console.log("Loading settings for agent ID:", currentAgentId);
       setIsLoading(true);
       
       try {
@@ -99,6 +116,8 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           return;
         }
 
+        console.log("Settings data loaded:", data);
+        
         // Convert array of records to Record<agentId, AgentSettings>
         const settingsMap: Record<string, AgentSettings> = {};
         data.forEach(record => {
@@ -117,6 +136,7 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         });
         
         setSettings(settingsMap);
+        console.log("Settings loaded and processed:", settingsMap);
       } catch (error) {
         console.error("Error in loadSettings:", error);
       } finally {
@@ -130,9 +150,11 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   // Set isReady when settings are loaded and agent ID is determined
   useEffect(() => {
     if (!isLoading && currentAgentId !== null) {
+      console.log("Settings are ready for agent:", currentAgentId);
       // Force isReady to true when not loading and we have an agent ID
       setIsReady(true);
     } else {
+      console.log("Settings are not ready:", { isLoading, currentAgentId });
       setIsReady(false);
     }
   }, [isLoading, currentAgentId]);
@@ -253,6 +275,21 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error saving agent settings:", error);
     }
   };
+
+  // Create default settings if none exist for current agent
+  useEffect(() => {
+    if (currentAgentId && !settings[currentAgentId] && !isLoading) {
+      console.log("Creating default settings for agent:", currentAgentId);
+      setSettings(prev => ({
+        ...prev,
+        [currentAgentId]: {
+          agentId: currentAgentId,
+          customTools: [],
+          toolsConfig: {}
+        }
+      }));
+    }
+  }, [currentAgentId, settings, isLoading]);
 
   return (
     <AgentSettingsContext.Provider value={{

@@ -9,12 +9,11 @@ import { agentsData } from "@/data/agentsData";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
 import { useToast } from "@/hooks/use-toast";
 import { ToolsSection } from "@/components/agents/tools/ToolsSection";
-import { AgentSettingsProvider } from "@/hooks/useAgentSettings";
 
 export default function AgentProfile() {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
-  const { saveSettings } = useAgentSettings();
+  const { saveSettings, isReady } = useAgentSettings();
   const { toast } = useToast();
   
   const [agent, setAgent] = useState<Agent | undefined>(undefined);
@@ -26,6 +25,10 @@ export default function AgentProfile() {
       setAgent(foundAgent);
     }
   }, [agentId]);
+
+  useEffect(() => {
+    console.log("AgentProfile - isReady status:", isReady);
+  }, [isReady]);
 
   if (!agent) {
     return (

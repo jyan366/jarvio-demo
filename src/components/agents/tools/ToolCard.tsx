@@ -21,7 +21,7 @@ export function ToolCard({
   category, 
   configComponent 
 }: ToolCardProps) {
-  const { settings, toggleTool, isReady } = useAgentSettings();
+  const { settings, toggleTool, isReady, getToolConfig } = useAgentSettings();
   const [isExpanded, setIsExpanded] = useState(false);
   
   const agentId = window.location.pathname.split('/').pop() || '';
@@ -34,7 +34,9 @@ export function ToolCard({
       // Maintain expanded state when settings refresh
       setIsExpanded(true);
     }
-  }, [isReady, isEnabled]);
+    
+    console.log(`ToolCard - ${toolId} - isReady: ${isReady}, isEnabled: ${isEnabled}`);
+  }, [isReady, isEnabled, toolId]);
   
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
