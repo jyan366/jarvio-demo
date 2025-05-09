@@ -134,6 +134,14 @@
   border-radius: 4px;
 }
 
+/* Flow Builder Input Field Styles */
+.auto-height-input {
+  height: auto !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
 /* Workflow Builder Styles */
 .workflow-grid-bg {
   background-image: 

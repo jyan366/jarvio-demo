@@ -49,10 +49,19 @@ ONLY USE options from this exact list for each block type:
 - think: ["Basic AI Analysis", "Listing Analysis", "Insights Generation", "Review Analysis"]
 - act: ["AI Summary", "Push to Amazon", "Send Email", "Human in the Loop"]
 
-IMPORTANT: The "name" field for each block MUST be clear and descriptive of what that specific step does. For example:
-- "Gather Product Listings" (not just "Collect Data")
-- "Analyze Customer Reviews" (not just "Think Step")
-- "Update Amazon Descriptions" (not just "Act Step")
+IMPORTANT BLOCK NAMING GUIDELINES:
+1. Make block names HIGHLY SPECIFIC and context-rich (what data/content is being handled)
+2. Include both ACTION and SUBJECT in each name (e.g., "Extract Top-Performing Keywords from Category")
+3. Avoid generic names like "Collect Data" or duplicating what's already in the option
+4. Use clear, concise language that explains the exact purpose and outcome
+5. Consider that names may display across multiple lines in the UI
+6. Maximum length: 60-70 characters (about 8-10 words)
+
+Examples of GOOD block names:
+- "Extract Seasonal Keywords for Winter Products" (not just "Get Keywords")
+- "Analyze Competitor Listing Quality Scores" (not just "Listing Analysis")
+- "Generate Bullet Point Recommendations for Baby Products" (not just "Generate Content")
+- "Send Weekly Performance Report to Marketing Team" (not just "Send Email")
 
 Return ONLY the JSON object, no other text or formatting.
 `;
@@ -130,6 +139,11 @@ Return ONLY the JSON object, no other text or formatting.
           };
           block.name = `${actionPrefix[block.type]} ${block.option}`;
         }
+        
+        // Ensure block names aren't too long for display
+        if (block.name && block.name.length > 80) {
+          block.name = block.name.substring(0, 77) + "...";
+        }
       });
       
     } catch (parseError) {
@@ -141,9 +155,9 @@ Return ONLY the JSON object, no other text or formatting.
         name: flowName,
         description: `Automatically generated flow for: ${prompt}`,
         blocks: [
-          { type: "collect", option: "All Listing Info", name: "Collect Product Data" },
-          { type: "think", option: "Basic AI Analysis", name: "Analyze Product Information" },
-          { type: "act", option: "AI Summary", name: "Generate Optimization Report" }
+          { type: "collect", option: "All Listing Info", name: "Collect Product Data for Analysis" },
+          { type: "think", option: "Basic AI Analysis", name: "Process Product Information and Identify Patterns" },
+          { type: "act", option: "AI Summary", name: "Generate Comprehensive Optimization Report" }
         ]
       };
     }
