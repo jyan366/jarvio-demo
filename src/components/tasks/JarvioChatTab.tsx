@@ -33,12 +33,12 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const triggerRef = useRef<HTMLDivElement>(null);
   
   // State for format menu
   const [formatMenuOpen, setFormatMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [slashCommandActive, setSlashCommandActive] = useState(false);
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -56,6 +56,22 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   
   // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Slash key to open menu if not already active
+    if (e.key === '/' && !formatMenuOpen && !slashCommandActive) {
+      // Only activate if at the start of a line
+      const cursorPosition = inputRef.current?.selectionStart || 0;
+      const textBeforeCursor = inputValue.substring(0, cursorPosition);
+      const lastNewLineIndex = textBeforeCursor.lastIndexOf('\n');
+      const currentLineText = textBeforeCursor.substring(lastNewLineIndex + 1);
+      
+      if (currentLineText === '') {
+        e.preventDefault(); // Prevent typing the slash
+        setFormatMenuOpen(true);
+        setSlashCommandActive(true);
+        setSearchValue('');
+      }
+    }
+    
     // Enter key for send message
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -77,21 +93,27 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     const value = e.target.value;
     setInputValue(value);
     
-    // Check if the last character is a slash and not preceded by any text on the same line
-    const lastNewLineIndex = value.lastIndexOf('\n');
-    const currentLine = value.slice(lastNewLineIndex + 1);
-    
-    if (currentLine === '/' && !slashCommandActive) {
-      setFormatMenuOpen(true);
-      setSlashCommandActive(true);
-      setSearchValue('');
+    // Check for slash command
+    if (!slashCommandActive && value.endsWith('/')) {
+      // Check if the slash is at the start of a line
+      const lastNewLineIndex = value.lastIndexOf('\n', value.length - 2);
+      const currentLine = value.substring(lastNewLineIndex + 1);
+      
+      if (currentLine === '/') {
+        setFormatMenuOpen(true);
+        setSlashCommandActive(true);
+        setSearchValue('');
+      }
     } else if (slashCommandActive) {
       // If slash command is active, update search term (remove the slash)
-      const searchTerm = currentLine.substring(1);
-      setSearchValue(searchTerm);
+      const lastNewLineIndex = value.lastIndexOf('\n');
+      const currentLine = value.substring(lastNewLineIndex + 1);
       
-      // Close menu if the slash is deleted
-      if (!currentLine.startsWith('/')) {
+      if (currentLine.startsWith('/')) {
+        const searchTerm = currentLine.substring(1);
+        setSearchValue(searchTerm);
+      } else {
+        // Close menu if the slash is deleted
         setFormatMenuOpen(false);
         setSlashCommandActive(false);
       }
@@ -100,37 +122,48 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
 
   const handleFormatSelect = (formatText: string) => {
     if (inputRef.current) {
-      const cursorPosition = inputRef.current.selectionStart || 0;
-      
       // If slash command is active, replace the slash with the format
       if (slashCommandActive) {
-        const lastNewLineIndex = inputValue.lastIndexOf('\n', cursorPosition - 1) + 1;
-        const beforeSlash = inputValue.substring(0, lastNewLineIndex);
-        const afterSlash = inputValue.substring(cursorPosition);
+        const lastNewLineIndex = inputValue.lastIndexOf('\n') + 1;
+        const slashIndex = inputValue.indexOf('/', lastNewLineIndex);
         
-        setInputValue(beforeSlash + formatText + afterSlash);
+        if (slashIndex !== -1) {
+          const beforeSlash = inputValue.substring(0, slashIndex);
+          const afterSlashCommand = inputValue.substring(slashIndex + 1 + searchValue.length);
+          
+          setInputValue(beforeSlash + formatText + afterSlashCommand);
+          
+          // Set cursor position after the inserted format
+          setTimeout(() => {
+            if (inputRef.current) {
+              const newCursorPosition = beforeSlash.length + formatText.length;
+              inputRef.current.focus();
+              inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+            }
+          }, 0);
+        }
       } else {
-        // Otherwise insert format at cursor position or append to end
-        const start = cursorPosition;
-        const end = inputRef.current.selectionEnd || 0;
+        // Otherwise insert format at cursor position
+        const cursorPosition = inputRef.current.selectionStart || 0;
+        const beforeCursor = inputValue.substring(0, cursorPosition);
+        const afterCursor = inputValue.substring(cursorPosition);
         
-        const newValue = 
-          inputValue.substring(0, start) + 
-          formatText + 
-          inputValue.substring(end);
+        setInputValue(beforeCursor + formatText + afterCursor);
         
-        setInputValue(newValue);
+        // Set cursor position after the inserted format
+        setTimeout(() => {
+          if (inputRef.current) {
+            const newCursorPosition = cursorPosition + formatText.length;
+            inputRef.current.focus();
+            inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+          }
+        }, 0);
       }
       
       // Reset states
+      setFormatMenuOpen(false);
       setSlashCommandActive(false);
-      
-      // Focus back on the textarea after inserting format
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      }, 0);
+      setSearchValue('');
     }
   };
 
@@ -167,6 +200,7 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           }} 
           className="flex gap-2 items-end p-3 relative"
         >
+          {/* Format menu popover */}
           <JarvioFormatMenu
             open={formatMenuOpen}
             setOpen={setFormatMenuOpen}
@@ -176,16 +210,16 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
             triggerRef={triggerRef}
           />
           
-          <div ref={triggerRef} className="hidden" />
+          <div ref={triggerRef} className="absolute bottom-full mb-2" />
           
           <Textarea
             value={inputValue}
             onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
             placeholder={isLoading ? "Jarvio is thinking..." : "Type / for commands..."}
             className="flex-1 min-h-[36px] max-h-24 resize-none"
             disabled={isLoading || isTransitioning}
             ref={inputRef}
-            onKeyDown={handleKeyDown}
             rows={1}
           />
           <Button 

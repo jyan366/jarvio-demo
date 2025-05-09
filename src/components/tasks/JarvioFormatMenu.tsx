@@ -1,6 +1,5 @@
 
 import React from "react";
-import { useRef, useState, useEffect } from "react";
 import { Command as LucideCommand, Search } from "lucide-react";
 import { 
   Command,
@@ -78,16 +77,21 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
         className="w-80 p-0" 
         align="start" 
         side="top"
-        ref={triggerRef}
+        sideOffset={5}
+        alignOffset={0}
+        avoidCollisions={true}
+        sticky="always"
+        anchor={triggerRef.current || undefined}
       >
-        <Command>
+        <Command className="max-h-[400px] overflow-hidden">
           <CommandInput 
             placeholder="Search blocks..." 
             value={searchValue}
             onValueChange={setSearchValue}
             className="border-none focus:ring-0"
+            autoFocus
           />
-          <CommandList className="max-h-[400px]">
+          <CommandList>
             {searchValue === '' ? (
               <>
                 {/* Collect Flow Blocks */}
@@ -98,7 +102,6 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                       onSelect={() => {
                         onFormatSelect(`**COLLECT: ${option}**\n\n`);
                         setOpen(false);
-                        setSearchValue('');
                       }}
                       className="py-2"
                     >
@@ -115,7 +118,6 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                       onSelect={() => {
                         onFormatSelect(`**THINK: ${option}**\n\n`);
                         setOpen(false);
-                        setSearchValue('');
                       }}
                       className="py-2"
                     >
@@ -132,7 +134,6 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                       onSelect={() => {
                         onFormatSelect(`**ACT: ${option}**\n\n`);
                         setOpen(false);
-                        setSearchValue('');
                       }}
                       className="py-2"
                     >
@@ -143,19 +144,24 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
               </>
             ) : (
               <CommandGroup heading="Filtered results">
-                {filteredBlocks.map(({ category, option }) => (
-                  <CommandItem
-                    key={`${category}-${option}`}
-                    onSelect={() => {
-                      onFormatSelect(`**${category.toUpperCase()}: ${option}**\n\n`);
-                      setOpen(false);
-                      setSearchValue('');
-                    }}
-                    className="py-2"
-                  >
-                    <span>{option}</span>
-                  </CommandItem>
-                ))}
+                {filteredBlocks.length > 0 ? (
+                  filteredBlocks.map(({ category, option }) => (
+                    <CommandItem
+                      key={`${category}-${option}`}
+                      onSelect={() => {
+                        onFormatSelect(`**${category.toUpperCase()}: ${option}**\n\n`);
+                        setOpen(false);
+                      }}
+                      className="py-2"
+                    >
+                      <span>{option}</span>
+                    </CommandItem>
+                  ))
+                ) : (
+                  <div className="py-6 text-center text-sm text-gray-500">
+                    No blocks found
+                  </div>
+                )}
               </CommandGroup>
             )}
           </CommandList>
@@ -164,3 +170,4 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
     </Popover>
   );
 };
+
