@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -157,6 +156,7 @@ type AIPromptFormValues = {
 export default function FlowBuilder() {
   const { flowId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [flow, setFlow] = useState<Flow>({
     id: '',
@@ -174,6 +174,21 @@ export default function FlowBuilder() {
       prompt: ''
     }
   });
+
+  // Check for prompt in URL params on initial load
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const promptParam = params.get('prompt');
+    
+    if (promptParam) {
+      // If a prompt is provided, auto-generate flow
+      aiPromptForm.setValue('prompt', promptParam);
+      generateFlowFromPrompt({ prompt: promptParam });
+      
+      // Clean up URL to prevent re-generating on refresh
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.search]);
 
   // Load existing flow if editing
   useEffect(() => {

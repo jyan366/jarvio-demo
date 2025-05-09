@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Edit, Clock, Zap, ArrowRight, Sparkles } from 'lucide-react';
+import { Plus, Play, Edit, Clock, Zap, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { TypedPrompts } from '@/components/jarvi-flows/TypedPrompts';
 import { GradientBackground } from '@/components/jarvi-flows/GradientBackground';
+import { useToast } from '@/hooks/use-toast';
 
 // Define the flow types and their properties
 type TriggerType = 'manual' | 'scheduled' | 'event';
@@ -112,7 +114,9 @@ const getBlockCounts = (blocks: FlowBlock[]) => {
 
 export default function JarviFlows() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [flows] = useState<Flow[]>(predefinedFlows);
+  const [isCreating, setIsCreating] = useState(false);
   
   // Function to handle editing a flow
   const handleEditFlow = (flowId: string) => {
@@ -130,6 +134,34 @@ export default function JarviFlows() {
     navigate('/jarvi-flows/builder');
   };
   
+  // Function to handle AI prompt submission
+  const handleAIPromptSubmit = async (prompt: string) => {
+    try {
+      setIsCreating(true);
+      
+      // Display a toast notification
+      toast({
+        title: "Creating your flow",
+        description: "Please wait while we generate your custom flow..."
+      });
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Navigate to the builder page with the prompt
+      navigate(`/jarvi-flows/builder?prompt=${encodeURIComponent(prompt)}`);
+    } catch (error) {
+      console.error("Error creating flow:", error);
+      toast({
+        title: "Error creating flow",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+  
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -142,7 +174,7 @@ export default function JarviFlows() {
             </h1>
 
             <div className="w-full max-w-2xl">
-              <TypedPrompts />
+              <TypedPrompts onSubmit={handleAIPromptSubmit} />
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -150,6 +182,7 @@ export default function JarviFlows() {
                 onClick={handleCreateNewFlow} 
                 size="lg" 
                 className="bg-[#4457ff] hover:bg-[#4457ff]/90"
+                disabled={isCreating}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create New Flow
@@ -159,9 +192,19 @@ export default function JarviFlows() {
                 variant="outline" 
                 size="lg"
                 className="border-[#4457ff] text-[#4457ff]"
+                disabled={isCreating}
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Create with AI
+                {isCreating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Create with AI
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -176,6 +219,7 @@ export default function JarviFlows() {
               variant="outline" 
               size="sm"
               className="border-[#4457ff] text-[#4457ff]"
+              disabled={isCreating}
             >
               <Plus className="w-4 h-4 mr-2" />
               New Flow

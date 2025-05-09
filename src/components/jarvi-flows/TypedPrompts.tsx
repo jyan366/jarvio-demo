@@ -1,77 +1,39 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { useNavigate } from 'react-router-dom';
 
-// Enhanced prompt suggestions focused on Amazon business
-const PROMPTS = [
-  "Create a flow for weekly product review analysis...",
-  "Build an automated inventory restock process...",
-  "Set up a competitor price monitoring workflow...",
-  "Design a customer feedback analysis system...",
-  "Generate a monthly sales performance report..."
-];
+// Example prompt suggestions
+const PROMPT_PLACEHOLDER = "E.g.: Create a weekly product review analysis flow...";
 
-// Duration settings (in milliseconds)
-const TYPING_SPEED = 35;  // Time per character
-const DELETION_SPEED = 15; // Time per character when deleting
-const PAUSE_DURATION = 1500; // Time to pause after typing
+export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void }) {
+  const [prompt, setPrompt] = useState("");
+  const navigate = useNavigate();
 
-export function TypedPrompts() {
-  const [currentText, setCurrentText] = useState("");
-  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
-  const [isTyping, setIsTyping] = useState(true);
-  const [cursorVisible, setCursorVisible] = useState(true);
-
-  // Cursor blinking effect
-  useEffect(() => {
-    const cursorInterval = setInterval(() => {
-      setCursorVisible(prev => !prev);
-    }, 500);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (prompt.trim() === "") return;
     
-    return () => clearInterval(cursorInterval);
-  }, []);
-
-  // Typing and deletion effect
-  useEffect(() => {
-    const currentPrompt = PROMPTS[currentPromptIndex];
-    
-    if (isTyping) {
-      // Still typing the current prompt
-      if (currentText.length < currentPrompt.length) {
-        const timeout = setTimeout(() => {
-          setCurrentText(currentPrompt.slice(0, currentText.length + 1));
-        }, TYPING_SPEED);
-        return () => clearTimeout(timeout);
-      } 
-      // Finished typing, pause before deletion
-      else {
-        const timeout = setTimeout(() => {
-          setIsTyping(false);
-        }, PAUSE_DURATION);
-        return () => clearTimeout(timeout);
-      }
+    if (onSubmit) {
+      onSubmit(prompt);
     } else {
-      // Still deleting
-      if (currentText.length > 0) {
-        const timeout = setTimeout(() => {
-          setCurrentText(currentText.slice(0, -1));
-        }, DELETION_SPEED);
-        return () => clearTimeout(timeout);
-      } 
-      // Finished deleting, move to next prompt
-      else {
-        setCurrentPromptIndex((currentPromptIndex + 1) % PROMPTS.length);
-        setIsTyping(true);
-        return undefined;
-      }
+      // Default behavior - navigate to builder with the prompt
+      navigate(`/jarvi-flows/builder?prompt=${encodeURIComponent(prompt)}`);
     }
-  }, [currentText, currentPromptIndex, isTyping]);
+  };
 
   return (
-    <div className="relative h-14 flex items-center">
-      <div className="text-lg sm:text-xl bg-white bg-opacity-[0.15] backdrop-blur px-4 py-3 rounded-lg w-full max-w-3xl">
-        <span className="text-gray-800">{currentText}</span>
-        <span className={`ml-0.5 inline-block h-5 w-0.5 ${cursorVisible ? 'bg-gray-800' : 'bg-transparent'} transition-colors`}></span>
-      </div>
+    <div className="relative">
+      <form onSubmit={handleSubmit} className="w-full">
+        <Input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder={PROMPT_PLACEHOLDER}
+          className="text-lg sm:text-xl bg-white bg-opacity-[0.15] backdrop-blur px-4 py-6 rounded-lg w-full max-w-3xl h-14 border-2 border-blue-100"
+          autoComplete="off"
+        />
+      </form>
     </div>
   );
 }
