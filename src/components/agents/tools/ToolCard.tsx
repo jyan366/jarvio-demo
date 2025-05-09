@@ -71,7 +71,7 @@ export function ToolCard({
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="ml-2 h-7 text-xs"
+                  className="ml-2 h-7 text-xs text-purple-700 hover:bg-purple-50 hover:text-purple-800"
                   onClick={toggleExpand}
                 >
                   {isExpanded ? (

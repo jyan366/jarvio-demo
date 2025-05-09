@@ -36,7 +36,7 @@ export function SendEmailConfig({ toolId }: ToolConfigProps) {
             placeholder="your-email@example.com"
             className="flex-1"
           />
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} className="bg-purple-600 hover:bg-purple-700">
             <Save className="h-4 w-4 mr-2" />
             Save
           </Button>
