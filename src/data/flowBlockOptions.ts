@@ -23,6 +23,9 @@ export const flowBlockOptions = {
     'Send Email',
     'Human in the Loop',
     'Agent'
+  ],
+  agent: [
+    'Agent'
   ]
 };
 

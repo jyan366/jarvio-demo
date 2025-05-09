@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { 
   Select, 
   SelectContent, 
@@ -43,34 +42,7 @@ import { Flow, FlowBlock, TriggerType } from '@/components/jarvi-flows/FlowsGrid
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { createTask } from '@/lib/supabaseTasks';
 import { agentsData } from '@/data/agentsData';
-
-// Block options based on type
-const blockOptions = {
-  collect: [
-    'User Text',
-    'Upload Sheet',
-    'All Listing Info',
-    'Get Keywords',
-    'Estimate Sales',
-    'Review Information',
-    'Scrape Sheet',
-    'Seller Account Feedback',
-    'Email Parsing'
-  ],
-  think: [
-    'Basic AI Analysis',
-    'Listing Analysis',
-    'Insights Generation',
-    'Review Analysis'
-  ],
-  act: [
-    'AI Summary',
-    'Push to Amazon',
-    'Send Email',
-    'Human in the Loop',
-    'Agent'
-  ]
-};
+import { flowBlockOptions } from '@/data/flowBlockOptions';
 
 // Option descriptions to provide context for each block type
 const blockOptionDescriptions = {
@@ -97,6 +69,9 @@ const blockOptionDescriptions = {
     'Send Email': 'Distributes reports or notifications to specified recipients',
     'Human in the Loop': 'Pauses for manual review and approval before proceeding',
     'Agent': 'Assigns a specialized AI agent to perform this step'
+  },
+  agent: {
+    'Agent': 'Assigns a specialized AI agent to perform a specific task'
   }
 };
 
@@ -126,6 +101,9 @@ const getDescriptiveBlockName = (type: string, option: string): string => {
       'Send Email': 'Distribute Weekly Performance Report',
       'Human in the Loop': 'Request Manager Approval for Changes',
       'Agent': 'Assign Specialized Agent for Task'
+    },
+    agent: {
+      'Agent': 'Use AI Agent for Specialized Task'
     }
   };
 
@@ -134,8 +112,8 @@ const getDescriptiveBlockName = (type: string, option: string): string => {
 
 // All block options combined for AI reference
 const allBlockOptions = {
-  ...blockOptions,
-  blockTypes: ['collect', 'think', 'act']
+  ...flowBlockOptions,
+  blockTypes: ['collect', 'think', 'act', 'agent']
 };
 
 // Predefined flows for testing/editing
@@ -199,7 +177,7 @@ const blockTypeInfo = {
   collect: { icon: Database, color: 'bg-blue-500' },
   think: { icon: Brain, color: 'bg-purple-500' },
   act: { icon: Zap, color: 'bg-green-500' },
-  agent: { icon: User, color: 'bg-[#9b87f5]' } // Added agent block type with User icon
+  agent: { icon: User, color: 'bg-[#9b87f5]' }
 };
 
 // Simple form type for AI prompt
@@ -293,8 +271,8 @@ export default function FlowBuilder() {
   }, [flowId]);
 
   // Add a new block of the specified type
-  const addBlock = (type: 'collect' | 'think' | 'act') => {
-    const option = blockOptions[type][0];
+  const addBlock = (type: 'collect' | 'think' | 'act' | 'agent') => {
+    const option = type === 'agent' ? 'Agent' : flowBlockOptions[type][0];
     const newBlock: FlowBlock = {
       id: uuidv4(),
       type: type,
@@ -460,10 +438,10 @@ export default function FlowBuilder() {
       // Create flow blocks from AI response
       const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => {
         // Validate block type
-        if (!block.type || !['collect', 'think', 'act'].includes(block.type)) {
+        if (!block.type || !['collect', 'think', 'act', 'agent'].includes(block.type)) {
           console.warn(`Invalid block type: ${block.type}, using 'collect' as fallback`);
           const fallbackType = 'collect';
-          const fallbackOption = blockOptions[fallbackType][0];
+          const fallbackOption = flowBlockOptions[fallbackType][0];
           return {
             id: uuidv4(),
             type: fallbackType,
@@ -473,10 +451,10 @@ export default function FlowBuilder() {
         }
         
         // Validate block option
-        if (!block.option || !blockOptions[block.type].includes(block.option)) {
+        if (!block.option || !flowBlockOptions[block.type]?.includes(block.option)) {
           console.warn(`Using fallback option for invalid option: ${block.option}`);
           // Use the first available option as fallback
-          const fallbackOption = blockOptions[block.type][0];
+          const fallbackOption = flowBlockOptions[block.type][0];
           return {
             id: uuidv4(),
             type: block.type,
@@ -806,7 +784,7 @@ export default function FlowBuilder() {
                     
                     {!aiError && (
                       <div className="text-xs text-muted-foreground flex items-center mt-2 sm:mt-0">
-                        <AlertCircle className="h-3 w-3 mr-1" />
+                        <HelpCircle className="h-3 w-3 mr-1" />
                         Example: "Create a flow to check inventory weekly and send restock alerts"
                       </div>
                     )}
@@ -874,11 +852,21 @@ export default function FlowBuilder() {
           </div>
           
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Flow Blocks</h2>
-            
-            {/* Block list */}
-            <div className="space-y-4">
-              {flow.blocks.map((block, index) => {
-                const BlockIcon = blockTypeInfo[block.type].icon;
-                const blockColor = blockTypeInfo[block.type].color;
-                const blockDescription = blockOptionDescriptions[block.type]?.[block.option
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Flow Blocks</h2>
+              
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => addBlock('collect')}
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
+                >
+                  <Database className="h-4 w-4 mr-1" />
+                  Collect
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => addBlock('think')}
+                  className="border-purple-300 text-purple-700 hover:bg-purple-5
