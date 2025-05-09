@@ -13,7 +13,7 @@ export type ToolConfig = {
   
   // Email Parsing config
   emailParsing?: boolean;
-  emailAddress?: string;
+  parsingEmailAddress?: string; // Renamed from emailAddress to avoid conflict
   
   // AI Summary config
   promptTemplate?: string;
