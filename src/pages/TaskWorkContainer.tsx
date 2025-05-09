@@ -1,3 +1,4 @@
+
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -56,7 +57,11 @@ export interface TaskWorkType {
   insights?: TaskInsight[];
 }
 
-export default function TaskWorkContainer() {
+interface TaskWorkContainerProps {
+  taskId: string;
+}
+
+export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const {
