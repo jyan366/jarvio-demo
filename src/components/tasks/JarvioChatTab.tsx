@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -131,12 +132,12 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           const beforeSlash = inputValue.substring(0, slashIndex);
           const afterSlashCommand = inputValue.substring(slashIndex + 1 + searchValue.length);
           
-          setInputValue(beforeSlash + formatText + afterSlashCommand);
+          setInputValue(beforeSlash + formatText + " " + afterSlashCommand);
           
           // Set cursor position after the inserted format
           setTimeout(() => {
             if (inputRef.current) {
-              const newCursorPosition = beforeSlash.length + formatText.length;
+              const newCursorPosition = beforeSlash.length + formatText.length + 1; // +1 for the space
               inputRef.current.focus();
               inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
             }
@@ -148,12 +149,12 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         const beforeCursor = inputValue.substring(0, cursorPosition);
         const afterCursor = inputValue.substring(cursorPosition);
         
-        setInputValue(beforeCursor + formatText + afterCursor);
+        setInputValue(beforeCursor + formatText + " " + afterCursor);
         
         // Set cursor position after the inserted format
         setTimeout(() => {
           if (inputRef.current) {
-            const newCursorPosition = cursorPosition + formatText.length;
+            const newCursorPosition = cursorPosition + formatText.length + 1; // +1 for the space
             inputRef.current.focus();
             inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
           }

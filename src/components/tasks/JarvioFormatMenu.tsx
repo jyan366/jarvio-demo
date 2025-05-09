@@ -101,7 +101,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                     <CommandItem
                       key={`collect-${option}`}
                       onSelect={() => {
-                        onFormatSelect(`**COLLECT: ${option}**\n\n`);
+                        onFormatSelect(`**${option}**`);
                         setOpen(false);
                       }}
                       className="py-2"
@@ -117,7 +117,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                     <CommandItem
                       key={`think-${option}`}
                       onSelect={() => {
-                        onFormatSelect(`**THINK: ${option}**\n\n`);
+                        onFormatSelect(`**${option}**`);
                         setOpen(false);
                       }}
                       className="py-2"
@@ -133,7 +133,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                     <CommandItem
                       key={`act-${option}`}
                       onSelect={() => {
-                        onFormatSelect(`**ACT: ${option}**\n\n`);
+                        onFormatSelect(`**${option}**`);
                         setOpen(false);
                       }}
                       className="py-2"
@@ -150,7 +150,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                     <CommandItem
                       key={`${category}-${option}`}
                       onSelect={() => {
-                        onFormatSelect(`**${category.toUpperCase()}: ${option}**\n\n`);
+                        onFormatSelect(`**${option}**`);
                         setOpen(false);
                       }}
                       className="py-2"
