@@ -42,9 +42,11 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
   setMenuType,
   inputRef
 }) => {
-  // Ref for tracking cursor position
+  // Ref for tracking cursor position and text selection
   const displayRef = useRef<HTMLDivElement>(null);
   const [selectionStart, setSelectionStart] = useState(0);
+  const [selectionEnd, setSelectionEnd] = useState(0);
+  const [isFocused, setIsFocused] = useState(false);
 
   // Format text for display
   const getFormattedText = (text: string) => {
@@ -69,6 +71,12 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
 
   // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Store selection range on any key activity
+    if (inputRef.current) {
+      setSelectionStart(inputRef.current.selectionStart || 0);
+      setSelectionEnd(inputRef.current.selectionEnd || 0);
+    }
+
     // Slash key to open blocks menu
     if (e.key === '/' && !formatMenuOpen && !commandActive) {
       e.preventDefault(); // Prevent typing the slash
@@ -108,9 +116,10 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     const value = e.target.value;
     setInputValue(value);
     
-    // Store current cursor position
+    // Store current cursor position and selection
     if (e.target) {
       setSelectionStart(e.target.selectionStart || 0);
+      setSelectionEnd(e.target.selectionEnd || 0);
     }
     
     // Check for slash command - triggers anywhere
@@ -152,28 +161,13 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     }
   };
 
-  // Apply formatting and focus to input after click on formatted area
-  const handleDisplayClick = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  // Set cursor position
+  // Set cursor position and focus
   useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && isFocused) {
       inputRef.current.selectionStart = selectionStart;
-      inputRef.current.selectionEnd = selectionStart;
+      inputRef.current.selectionEnd = selectionEnd;
     }
-  }, [selectionStart, inputValue]);
-
-  // Make textarea match display div height
-  useEffect(() => {
-    if (displayRef.current && inputRef.current) {
-      const height = displayRef.current.offsetHeight;
-      inputRef.current.style.height = `${height}px`;
-    }
-  }, [inputValue]);
+  }, [selectionStart, selectionEnd, isFocused]);
 
   return (
     <form 
@@ -194,44 +188,43 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
         <div ref={triggerRef} className="w-1 h-1" />
       </div>
       
-      <div className="flex-1 relative min-h-[36px] max-h-24">
+      <div className="flex-1 relative min-h-[42px] max-h-24">
+        {/* Actual interactive textarea - set to normal opacity but matching background */}
         <Textarea
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
-          className="absolute inset-0 resize-none opacity-0"
+          className="absolute inset-0 resize-none bg-transparent border-0 z-10 text-base"
+          style={{ 
+            color: 'transparent', 
+            caretColor: '#000', 
+            height: displayRef.current?.scrollHeight + 'px',
+            fontFamily: 'inherit',
+            minHeight: '42px'
+          }}
           disabled={isLoading || isTransitioning}
           ref={inputRef}
           rows={1}
-          style={{ caretColor: 'transparent' }}
         />
+        
+        {/* Visual representation of formatted text */}
         <div
           ref={displayRef}
-          className="flex-1 min-h-[36px] max-h-24 overflow-auto p-2 border rounded-md bg-background"
-          onClick={handleDisplayClick}
+          className={`flex-1 min-h-[42px] max-h-24 overflow-auto p-2 border rounded-md bg-background text-base ${isFocused ? 'border-primary' : 'border-input'}`}
           style={{ 
             whiteSpace: 'pre-wrap', 
             wordBreak: 'break-word',
-            minHeight: '36px',
-            resize: 'none'
+            minHeight: '42px',
+            pointerEvents: 'none'
           }}
           dangerouslySetInnerHTML={{ 
             __html: getFormattedText(inputValue) || 
             `<span class="text-muted-foreground">${isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}</span>`
           }}
         />
-        {/* Blinking cursor at position */}
-        {!isLoading && !isTransitioning && inputRef.current === document.activeElement && (
-          <div 
-            className="absolute w-0.5 h-4 bg-primary animate-pulse" 
-            style={{ 
-              display: 'none', // Hide the cursor as it's causing positioning issues
-              left: '0px', 
-              top: '0px'
-            }} 
-          />
-        )}
       </div>
       
       <Button 
