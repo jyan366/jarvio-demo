@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -151,11 +152,18 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
     }
   };
 
+  // Function to handle format selection and insert into textarea
   const handleFormatSelect = (formatText: string) => {
     if (!inputRef.current) return;
     
-    // Get current input value and cursor position
+    // Get current cursor position
     const cursorPosition = inputRef.current.selectionStart || 0;
+    
+    // Insert the formatted text (with bold formatting for blocks)
+    let formattedText = formatText;
+    if (menuType === "blocks") {
+      formattedText = `**${formatText}**`;
+    }
     
     // If slash command is active, replace the slash + search term with the format
     if (commandActive === "slash") {
@@ -167,13 +175,13 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         const afterSlashCommand = inputValue.substring(slashIndex + 1 + searchValue.length);
         
         // Create the new value with the format inserted
-        const newValue = beforeSlash + formatText + " " + afterSlashCommand;
+        const newValue = beforeSlash + formattedText + " " + afterSlashCommand;
         setInputValue(newValue);
         
         // Set cursor position after the inserted format
         setTimeout(() => {
           if (inputRef.current) {
-            const newCursorPosition = beforeSlash.length + formatText.length + 1; // +1 for the space
+            const newCursorPosition = beforeSlash.length + formattedText.length + 1; // +1 for the space
             inputRef.current.focus();
             inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
           }
@@ -189,13 +197,13 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
         const afterAtCommand = inputValue.substring(atIndex + 1 + searchValue.length);
         
         // Create the new value with the format inserted
-        const newValue = beforeAt + formatText + " " + afterAtCommand;
+        const newValue = beforeAt + formattedText + " " + afterAtCommand;
         setInputValue(newValue);
         
         // Set cursor position after the inserted format
         setTimeout(() => {
           if (inputRef.current) {
-            const newCursorPosition = beforeAt.length + formatText.length + 1; // +1 for the space
+            const newCursorPosition = beforeAt.length + formattedText.length + 1; // +1 for the space
             inputRef.current.focus();
             inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
           }
@@ -208,13 +216,13 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
       const afterCursor = inputValue.substring(cursorPosition);
       
       // Create the new value with the format inserted at cursor
-      const newValue = beforeCursor + formatText + " " + afterCursor;
+      const newValue = beforeCursor + formattedText + " " + afterCursor;
       setInputValue(newValue);
       
       // Set cursor position after the inserted format
       setTimeout(() => {
         if (inputRef.current) {
-          const newCursorPosition = cursorPosition + formatText.length + 1; // +1 for the space
+          const newCursorPosition = cursorPosition + formattedText.length + 1; // +1 for the space
           inputRef.current.focus();
           inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
         }

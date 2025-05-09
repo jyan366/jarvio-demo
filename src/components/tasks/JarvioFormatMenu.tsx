@@ -82,9 +82,9 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
   const filteredItems = getFilteredItems();
   
   const handleItemSelect = (item: string, type: "blocks" | "agents") => {
-    // Format text based on type
+    // Format text based on type and insert it at cursor
     if (type === "blocks") {
-      onFormatSelect(`**${item}**`);
+      onFormatSelect(item);
     } else {
       onFormatSelect(`@${item}`);
     }
