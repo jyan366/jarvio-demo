@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -182,7 +181,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
         className={cn(
           "p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl border-0 relative",
           cardBg ? "" : "bg-white",
-          isFlow && "bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-l-blue-500",
+          isFlow && "bg-gradient-to-r from-purple-50 to-indigo-50 border-l-4 border-l-purple-500 shadow-[0_0_15px_rgba(139,92,246,0.3)]",
           task.fromInsight && !isFlow && "border-l-4 border-l-blue-500"
         )}
         style={cardBg ? { background: 'white' } : {}}
@@ -203,7 +202,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
             )}
             
             {isFlow && (
-              <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200 text-xs flex items-center gap-1">
+              <Badge variant="purple" className="flex items-center gap-1">
                 <Workflow className="w-3 h-3" />
                 Flow
               </Badge>
@@ -211,7 +210,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
           </div>
         </div>
         
-        <h3 className={cn("font-semibold text-base mb-1 leading-snug flex gap-1", isFlow && "text-blue-800")}>
+        <h3 className={cn("font-semibold text-base mb-1 leading-snug flex gap-1", isFlow && "text-purple-800")}>
           {isFlow && task.title.startsWith("Flow:") ? task.title : task.title}
         </h3>
         <p className="text-sm text-gray-500 leading-snug line-clamp-2 mb-3">{task.description}</p>
@@ -258,7 +257,7 @@ export function TaskCard({ task, onClick, cardBg, onAccept, onReject, isSuggeste
                 className={cn(
                   "text-xs px-2 py-1 h-7 rounded font-medium transition",
                   isFlow 
-                    ? "bg-blue-600 text-white hover:bg-blue-700 border-0" 
+                    ? "bg-purple-600 text-white hover:bg-purple-700 border-0" 
                     : "bg-primary/10 text-primary hover:bg-primary/20 border-0"
                 )}
               >
