@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
+import { ToolConfig } from "./toolConfigs";
 
 interface ToolCardProps {
   toolId: string;
@@ -70,7 +71,7 @@ export function ToolCard({
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="ml-2 h-7 text-xs hover:text-[#8a70ff]"
+                  className="ml-2 h-7 text-xs"
                   onClick={toggleExpand}
                 >
                   {isExpanded ? (

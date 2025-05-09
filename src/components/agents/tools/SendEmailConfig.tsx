@@ -4,7 +4,7 @@ import { ToolConfigProps } from "./toolConfigs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
-import { Send, Save } from "lucide-react";
+import { send, save } from "lucide-react";
 
 export function SendEmailConfig({ toolId }: ToolConfigProps) {
   const { getToolConfig, updateToolConfig } = useAgentSettings();
@@ -24,7 +24,7 @@ export function SendEmailConfig({ toolId }: ToolConfigProps) {
       
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Send className="h-4 w-4" />
+          <send className="h-4 w-4" />
           <span>Default Recipient</span>
         </div>
         
@@ -36,8 +36,8 @@ export function SendEmailConfig({ toolId }: ToolConfigProps) {
             placeholder="your-email@example.com"
             className="flex-1"
           />
-          <Button onClick={handleSave} className="bg-[#9b87f5] hover:bg-[#8a70ff]">
-            <Save className="h-4 w-4 mr-2" />
+          <Button onClick={handleSave}>
+            <save className="h-4 w-4 mr-2" />
             Save
           </Button>
         </div>

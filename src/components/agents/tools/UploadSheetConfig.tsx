@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
 import { ToolConfigProps } from "./toolConfigs";
-import { Upload } from "lucide-react";
+import { upload } from "lucide-react";
 
 export function UploadSheetConfig({ toolId }: ToolConfigProps) {
   const { getToolConfig, updateToolConfig } = useAgentSettings();
@@ -40,9 +40,8 @@ export function UploadSheetConfig({ toolId }: ToolConfigProps) {
         <Button
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
-          className="hover:bg-[#e5deff] hover:text-[#8a70ff] border-[#9b87f5]"
         >
-          <Upload className="h-4 w-4 mr-2" />
+          <upload className="h-4 w-4 mr-2" />
           Upload
         </Button>
       </div>

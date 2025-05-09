@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
 import { ToolConfigProps } from "./toolConfigs";
-import { Link } from "lucide-react";
+import { link } from "lucide-react";
 
 export function ScrapeSheetConfig({ toolId }: ToolConfigProps) {
   const { getToolConfig, updateToolConfig } = useAgentSettings();
@@ -30,12 +30,12 @@ export function ScrapeSheetConfig({ toolId }: ToolConfigProps) {
             placeholder="https://docs.google.com/spreadsheets/d/..."
             className="flex-1"
           />
-          <Button onClick={handleSave} className="bg-[#9b87f5] hover:bg-[#8a70ff]">
+          <Button onClick={handleSave}>
             Save
           </Button>
         </div>
         <div className="flex items-center gap-2 mt-1">
-          <Link className="h-4 w-4 text-muted-foreground" />
+          <link className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">
             Must be a publicly accessible Google Sheet
           </span>

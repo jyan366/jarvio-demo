@@ -4,7 +4,7 @@ import { ToolConfigProps } from "./toolConfigs";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
-import { Save } from "lucide-react";
+import { save } from "lucide-react";
 
 export function AiSummaryConfig({ toolId }: ToolConfigProps) {
   const { getToolConfig, updateToolConfig } = useAgentSettings();
@@ -37,8 +37,8 @@ export function AiSummaryConfig({ toolId }: ToolConfigProps) {
           Use {'{{'} variables {'}}'}  as placeholders for dynamic content.
         </p>
         
-        <Button onClick={handleSave} className="mt-2 bg-[#9b87f5] hover:bg-[#8a70ff]">
-          <Save className="h-4 w-4 mr-2" />
+        <Button onClick={handleSave} className="mt-2">
+          <save className="h-4 w-4 mr-2" />
           Save Template
         </Button>
       </div>
