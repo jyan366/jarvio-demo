@@ -1,7 +1,6 @@
 
 import React from "react";
 import { MessageCircle, CheckCircle2 } from "lucide-react";
-import Markdown from "markdown-to-jsx";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
 import { agentsData } from "@/data/agentsData";
@@ -23,15 +22,27 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
   const formatMessageText = (text: string) => {
     if (!text) return '';
     
-    // Make "Review Information" bold with stars for markdown
-    let formattedText = text.replace(/Review Information/g, '**Review Information**');
+    // Make "Review Information" bold
+    let formattedText = text.replace(
+      /Review Information/g, 
+      '<strong>Review Information</strong>'
+    );
     
     // Process all agent mentions
     agentsData.forEach(agent => {
       const pattern = new RegExp(`@${agent.name}`, 'g');
       const agentColor = agent.avatarColor || '#9b87f5'; // Use agent color or default to primary purple
-      formattedText = formattedText.replace(pattern, `<span style="color:${agentColor};font-weight:bold;">@${agent.name}</span>`);
+      formattedText = formattedText.replace(
+        pattern, 
+        `<span style="color:${agentColor};font-weight:bold;">@${agent.name}</span>`
+      );
     });
+
+    // Convert markdown-style bold (**text**) to HTML bold
+    formattedText = formattedText.replace(
+      /\*\*(.*?)\*\*/g, 
+      '<strong>$1</strong>'
+    );
     
     return formattedText;
   };

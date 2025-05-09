@@ -10,7 +10,7 @@ export function useFormatMenuState() {
   const triggerRef = useRef<HTMLDivElement>(null);
   const [menuType, setMenuType] = useState<MenuItemType>("blocks");
   
-  // Simple function to handle format selection and insert into textarea
+  // Function to handle format selection and insert into textarea
   const handleFormatSelect = (
     formatText: string, 
     inputValue: string, 
@@ -33,13 +33,10 @@ export function useFormatMenuState() {
     
     // Logic for handling slash command replacement
     if (commandActive === "slash") {
-      // Find the last newline before cursor
-      const lastNewline = inputValue.lastIndexOf('\n', cursorPosition - 1) + 1;
+      // Find the position of the last slash
+      const slashPosition = inputValue.lastIndexOf('/');
       
-      // Find the position of the slash that started this command
-      const slashPosition = inputValue.indexOf('/', lastNewline);
-      
-      if (slashPosition !== -1 && slashPosition < cursorPosition) {
+      if (slashPosition !== -1) {
         // Replace everything from the slash to the cursor with the formatted text
         const beforeSlash = inputValue.substring(0, slashPosition);
         const afterCursor = inputValue.substring(cursorPosition);
@@ -58,9 +55,9 @@ export function useFormatMenuState() {
     // Logic for handling @ command replacement
     else if (commandActive === "at") {
       // Find the position of the @ that started this command
-      const atPosition = inputValue.lastIndexOf('@', cursorPosition);
+      const atPosition = inputValue.lastIndexOf('@');
       
-      if (atPosition !== -1 && atPosition < cursorPosition) {
+      if (atPosition !== -1) {
         // Replace everything from the @ to the cursor with the formatted text
         const beforeAt = inputValue.substring(0, atPosition);
         const afterCursor = inputValue.substring(cursorPosition);
