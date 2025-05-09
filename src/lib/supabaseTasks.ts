@@ -9,6 +9,7 @@ interface TaskData {
   category?: string;
   source?: string;
   data?: Record<string, any>;
+  insight_id?: string; // Add this field to fix the error
 }
 
 interface SubtaskData {

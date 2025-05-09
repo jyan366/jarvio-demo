@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -113,6 +114,7 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
           console.log("No tasks found, initializing sample data...");
           supabaseTasks = await initializeSampleTasks();
 
+          // Fix: Pass the correct parameters to addSampleSubtasksToTask
           for (const task of supabaseTasks) {
             await addSampleSubtasksToTask(task.id, task.title);
           }
