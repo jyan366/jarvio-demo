@@ -39,8 +39,9 @@ export function ToolCard({
 
   const handleToggle = (checked: boolean) => {
     if (!isReady) return;
-    
+    console.log("Toggle triggered:", checked, toolId);
     toggleTool(toolId, checked);
+    
     // If turning off, collapse the expanded section
     if (!checked && isExpanded) {
       setIsExpanded(false);

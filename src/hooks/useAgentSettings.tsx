@@ -86,14 +86,16 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         const settingsMap: Record<string, AgentSettings> = {};
         data.forEach(record => {
           // Fix type conversion issue - ensure toolsConfig is an object
-          const toolsConfig = (typeof record.tools_config === 'object' && record.tools_config !== null) 
-            ? record.tools_config as ToolsConfig 
-            : {};
+          let parsedToolsConfig: ToolsConfig = {};
+          
+          if (record.tools_config && typeof record.tools_config === 'object') {
+            parsedToolsConfig = record.tools_config as ToolsConfig;
+          }
             
           settingsMap[record.agent_id] = {
             agentId: record.agent_id,
             customTools: record.custom_tools || [],
-            toolsConfig: toolsConfig
+            toolsConfig: parsedToolsConfig
           };
         });
         
@@ -119,7 +121,8 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const toggleTool = (toolId: string, enabled: boolean) => {
     if (!currentAgentId || !isReady) return;
-
+    console.log(`Toggle tool ${toolId} to ${enabled}`);
+    
     setSettings(prev => {
       const currentSettings = prev[currentAgentId] || {
         agentId: currentAgentId,
