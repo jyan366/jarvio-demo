@@ -745,12 +745,16 @@ export default function FlowBuilder() {
                               value={block.name || ''}
                               placeholder="Describe this specific step"
                               onChange={(e) => updateBlockName(block.id, e.target.value)}
-                              className="font-medium min-h-[2.5rem] whitespace-normal overflow-visible"
+                              className="font-medium auto-height-input break-words whitespace-normal"
                               style={{
                                 height: 'auto',
                                 minHeight: '2.5rem',
-                                paddingTop: '0.375rem',
-                                paddingBottom: '0.375rem'
+                                paddingTop: '0.5rem',
+                                paddingBottom: '0.5rem',
+                                lineHeight: '1.3',
+                                width: '100%',
+                                overflowWrap: 'break-word',
+                                wordBreak: 'break-word'
                               }}
                             />
                             <div className="text-xs text-muted-foreground capitalize">Type: {block.type}</div>
