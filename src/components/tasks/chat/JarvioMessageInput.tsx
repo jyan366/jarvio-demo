@@ -1,10 +1,11 @@
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { MenuItemType } from "../JarvioMenuTypes";
+import { agentsData } from "@/data/agentsData";
 
 interface JarvioMessageInputProps {
   inputValue: string;
@@ -41,6 +42,31 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
   setMenuType,
   inputRef
 }) => {
+  // Ref for tracking cursor position
+  const displayRef = useRef<HTMLDivElement>(null);
+  const [selectionStart, setSelectionStart] = useState(0);
+
+  // Format text for display
+  const getFormattedText = (text: string) => {
+    if (!text) return '';
+    
+    let formattedText = text;
+    
+    // Process bold text
+    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Process agent mentions
+    agentsData.forEach(agent => {
+      const pattern = new RegExp(`@${agent.name}`, 'g');
+      formattedText = formattedText.replace(
+        pattern, 
+        `<span style="color:${agent.avatarColor || '#9b87f5'};font-weight:bold;">@${agent.name}</span>`
+      );
+    });
+    
+    return formattedText;
+  };
+
   // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Slash key to open blocks menu
@@ -77,10 +103,15 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     }
   };
 
-  // Handle input change to detect commands
+  // Handle input change to detect commands and update selection position
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setInputValue(value);
+    
+    // Store current cursor position
+    if (e.target) {
+      setSelectionStart(e.target.selectionStart || 0);
+    }
     
     // Check for slash command - triggers anywhere
     if (!commandActive && value.endsWith('/')) {
@@ -121,6 +152,29 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     }
   };
 
+  // Apply formatting and focus to input after click on formatted area
+  const handleDisplayClick = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  // Set cursor position
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.selectionStart = selectionStart;
+      inputRef.current.selectionEnd = selectionStart;
+    }
+  }, [selectionStart, inputValue]);
+
+  // Make textarea match display div height
+  useEffect(() => {
+    if (displayRef.current && inputRef.current) {
+      const height = displayRef.current.offsetHeight;
+      inputRef.current.style.height = `${height}px`;
+    }
+  }, [inputValue]);
+
   return (
     <form 
       onSubmit={(e) => {
@@ -140,16 +194,46 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
         <div ref={triggerRef} className="w-1 h-1" />
       </div>
       
-      <Textarea
-        value={inputValue}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
-        className="flex-1 min-h-[36px] max-h-24 resize-none"
-        disabled={isLoading || isTransitioning}
-        ref={inputRef}
-        rows={1}
-      />
+      <div className="flex-1 relative min-h-[36px] max-h-24">
+        <Textarea
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
+          className="absolute inset-0 resize-none opacity-0"
+          disabled={isLoading || isTransitioning}
+          ref={inputRef}
+          rows={1}
+          style={{ caretColor: 'transparent' }}
+        />
+        <div
+          ref={displayRef}
+          className="flex-1 min-h-[36px] max-h-24 overflow-auto p-2 border rounded-md bg-background"
+          onClick={handleDisplayClick}
+          style={{ 
+            whiteSpace: 'pre-wrap', 
+            wordBreak: 'break-word',
+            minHeight: '36px',
+            resize: 'none'
+          }}
+          dangerouslySetInnerHTML={{ 
+            __html: getFormattedText(inputValue) || 
+            `<span class="text-muted-foreground">${isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}</span>`
+          }}
+        />
+        {/* Blinking cursor at position */}
+        {!isLoading && !isTransitioning && inputRef.current === document.activeElement && (
+          <div 
+            className="absolute w-0.5 h-4 bg-primary animate-pulse" 
+            style={{ 
+              display: 'none', // Hide the cursor as it's causing positioning issues
+              left: '0px', 
+              top: '0px'
+            }} 
+          />
+        )}
+      </div>
+      
       <Button 
         type="submit" 
         disabled={!inputValue.trim() || isLoading || isTransitioning || formatMenuOpen}
