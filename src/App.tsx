@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from './components/theme-provider';
-import { Toaster } from "@/components/ui/toaster"
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { Toaster } from "@/components/ui/toaster";
 
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
