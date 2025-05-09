@@ -152,71 +152,79 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
   };
 
   const handleFormatSelect = (formatText: string) => {
-    if (inputRef.current) {
-      // If slash command is active, replace the slash with the format
-      if (commandActive === "slash") {
-        const lastNewLineIndex = inputValue.lastIndexOf('\n') + 1;
-        const slashIndex = inputValue.indexOf('/', lastNewLineIndex);
+    if (!inputRef.current) return;
+    
+    // Get current input value and cursor position
+    const cursorPosition = inputRef.current.selectionStart || 0;
+    
+    // If slash command is active, replace the slash + search term with the format
+    if (commandActive === "slash") {
+      const lastNewLineIndex = inputValue.lastIndexOf('\n') + 1;
+      const slashIndex = inputValue.indexOf('/', lastNewLineIndex);
+      
+      if (slashIndex !== -1) {
+        const beforeSlash = inputValue.substring(0, slashIndex);
+        const afterSlashCommand = inputValue.substring(slashIndex + 1 + searchValue.length);
         
-        if (slashIndex !== -1) {
-          const beforeSlash = inputValue.substring(0, slashIndex);
-          const afterSlashCommand = inputValue.substring(slashIndex + 1 + searchValue.length);
-          
-          setInputValue(beforeSlash + formatText + " " + afterSlashCommand);
-          
-          // Set cursor position after the inserted format
-          setTimeout(() => {
-            if (inputRef.current) {
-              const newCursorPosition = beforeSlash.length + formatText.length + 1; // +1 for the space
-              inputRef.current.focus();
-              inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
-            }
-          }, 0);
-        }
-      } 
-      // If at command is active, replace the @ with the format
-      else if (commandActive === "at") {
-        const atIndex = inputValue.lastIndexOf('@');
-        
-        if (atIndex !== -1) {
-          const beforeAt = inputValue.substring(0, atIndex);
-          const afterAtCommand = inputValue.substring(atIndex + 1 + searchValue.length);
-          
-          setInputValue(beforeAt + formatText + " " + afterAtCommand);
-          
-          // Set cursor position after the inserted format
-          setTimeout(() => {
-            if (inputRef.current) {
-              const newCursorPosition = beforeAt.length + formatText.length + 1; // +1 for the space
-              inputRef.current.focus();
-              inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
-            }
-          }, 0);
-        }
-      }
-      // Otherwise insert format at cursor position
-      else {
-        const cursorPosition = inputRef.current.selectionStart || 0;
-        const beforeCursor = inputValue.substring(0, cursorPosition);
-        const afterCursor = inputValue.substring(cursorPosition);
-        
-        setInputValue(beforeCursor + formatText + " " + afterCursor);
+        // Create the new value with the format inserted
+        const newValue = beforeSlash + formatText + " " + afterSlashCommand;
+        setInputValue(newValue);
         
         // Set cursor position after the inserted format
         setTimeout(() => {
           if (inputRef.current) {
-            const newCursorPosition = cursorPosition + formatText.length + 1; // +1 for the space
+            const newCursorPosition = beforeSlash.length + formatText.length + 1; // +1 for the space
             inputRef.current.focus();
             inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
           }
         }, 0);
       }
+    } 
+    // If at command is active, replace the @ + search term with the format
+    else if (commandActive === "at") {
+      const atIndex = inputValue.lastIndexOf('@');
       
-      // Reset states
-      setFormatMenuOpen(false);
-      setCommandActive(null);
-      setSearchValue('');
+      if (atIndex !== -1) {
+        const beforeAt = inputValue.substring(0, atIndex);
+        const afterAtCommand = inputValue.substring(atIndex + 1 + searchValue.length);
+        
+        // Create the new value with the format inserted
+        const newValue = beforeAt + formatText + " " + afterAtCommand;
+        setInputValue(newValue);
+        
+        // Set cursor position after the inserted format
+        setTimeout(() => {
+          if (inputRef.current) {
+            const newCursorPosition = beforeAt.length + formatText.length + 1; // +1 for the space
+            inputRef.current.focus();
+            inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+          }
+        }, 0);
+      }
     }
+    // Otherwise insert format at cursor position
+    else {
+      const beforeCursor = inputValue.substring(0, cursorPosition);
+      const afterCursor = inputValue.substring(cursorPosition);
+      
+      // Create the new value with the format inserted at cursor
+      const newValue = beforeCursor + formatText + " " + afterCursor;
+      setInputValue(newValue);
+      
+      // Set cursor position after the inserted format
+      setTimeout(() => {
+        if (inputRef.current) {
+          const newCursorPosition = cursorPosition + formatText.length + 1; // +1 for the space
+          inputRef.current.focus();
+          inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+        }
+      }, 0);
+    }
+    
+    // Reset states
+    setFormatMenuOpen(false);
+    setCommandActive(null);
+    setSearchValue('');
   };
 
   return (
