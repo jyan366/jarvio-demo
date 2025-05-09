@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-// Sample prompt suggestions
+// Enhanced prompt suggestions focused on Amazon business
 const PROMPTS = [
   "Create a flow for weekly product review analysis...",
   "Build an automated inventory restock process...",
