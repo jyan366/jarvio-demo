@@ -11,12 +11,12 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     // Create a local ref if no ref is provided
     const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
     
-    // Function to adjust height based on content
+    // Enhanced function to adjust height based on content
     const adjustHeight = (element: HTMLTextAreaElement) => {
       // Reset height to auto to get the correct scrollHeight
       element.style.height = 'auto';
-      // Set the height to match the scroll height
-      element.style.height = `${element.scrollHeight}px`;
+      // Set the height to match the scroll height with a small buffer
+      element.style.height = `${element.scrollHeight + 2}px`;
     };
     
     // Handle onChange to adjust height
@@ -27,11 +27,12 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       adjustHeight(e.target);
     };
     
-    // Set initial height after mounting
+    // Set initial height after mounting and whenever value changes
     React.useEffect(() => {
       const textarea = ref ? (ref as React.RefObject<HTMLTextAreaElement>).current : textareaRef.current;
       if (textarea) {
-        adjustHeight(textarea);
+        // Small delay to ensure content is fully rendered
+        setTimeout(() => adjustHeight(textarea), 0);
       }
     }, [props.value, ref]);
     

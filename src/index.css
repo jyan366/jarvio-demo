@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -170,7 +169,7 @@ textarea.auto-height-input,
   overflow-wrap: break-word !important;
 }
 
-/* New specific styles for flow block names */
+/* Enhanced specific styles for flow block names */
 .flow-block-name-input {
   white-space: pre-wrap !important;
   word-break: break-word !important;
@@ -182,7 +181,17 @@ textarea.auto-height-input,
   max-width: 100% !important;
   display: block !important;
   height: auto !important;
+  min-height: 2.5rem !important;
   resize: none !important;
+  border: 1px solid transparent !important;
+  transition: min-height 0.2s ease !important;
+  box-sizing: border-box !important;
+  padding: 0.5rem !important;
+  line-height: 1.5 !important;
+}
+
+.flow-block-name-input:focus {
+  min-height: 3.5rem !important;
 }
 
 /* Flow builder specific container */
@@ -191,6 +200,9 @@ textarea.auto-height-input,
   overflow-wrap: break-word !important;
   overflow: visible !important;
   white-space: normal !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: block !important;
 }
 
 /* Workflow Builder Styles */
