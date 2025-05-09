@@ -189,7 +189,11 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
       
       if (suggestedTasks && suggestedTasks.length > 0) {
         subtasks = await createSubtasks(
-          suggestedTasks.map((task: any) => ({ task_id: newTask.id, title: task.name }))
+          newTask.id, 
+          suggestedTasks.map((task: any) => ({ 
+            title: task.title || task.name, 
+            task_id: newTask.id 
+          }))
         );
       }
 

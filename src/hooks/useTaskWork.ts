@@ -1,196 +1,247 @@
-import { ref, computed } from 'vue';
+
+import { useState, useEffect } from 'react';
 import { TaskData, SubtaskData } from '@/lib/supabaseTasks';
 import {
   getTask,
-  updateTask as updateTaskInSupabase,
-  getSubtasks as getSubtasksFromSupabase,
-  createSubtasks as createSubtasksInSupabase,
-  updateSubtask as updateSubtaskInSupabase,
-  deleteSubtask as deleteSubtaskInSupabase,
-  deleteTask as deleteTaskInSupabase,
+  updateTask,
+  getSubtasks,
+  createSubtasks,
+  updateSubtask,
+  deleteSubtask,
+  deleteTask,
 } from '@/lib/supabaseTasks';
 import { useToast } from "@/hooks/use-toast";
 
-// Reactive references
-const task = ref<TaskData | null>(null);
-const subtasks = ref<SubtaskData[]>([]);
-const loading = ref<boolean>(false);
-const error = ref<string | null>(null);
-const toastMessage = ref<string | null>(null);
-
-// Computed properties
-const completedSubtasksCount = computed(() => {
-  return subtasks.value.filter(subtask => subtask.status === 'completed').length;
-});
-
-const totalSubtasksCount = computed(() => {
-  return subtasks.value.length;
-});
-
-const progressPercentage = computed(() => {
-  if (totalSubtasksCount.value === 0) return 0;
-  return (completedSubtasksCount.value / totalSubtasksCount.value) * 100;
-});
-
-// Function to fetch task and subtasks
-const fetchTask = async (taskId: string) => {
-  try {
-    loading.value = true;
-    error.value = null;
-    task.value = await getTask(taskId);
-    if (task.value) {
-      await fetchSubtasks(taskId);
-    } else {
-      error.value = "Task not found.";
-    }
-  } catch (e) {
-    error.value = "Failed to load task.";
-    console.error("Error fetching task:", e);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Function to fetch subtasks
-const fetchSubtasks = async (taskId: string) => {
-  try {
-    loading.value = true;
-    error.value = null;
-    subtasks.value = await getSubtasksFromSupabase(taskId) || [];
-  } catch (e) {
-    error.value = "Failed to load subtasks.";
-    console.error("Error fetching subtasks:", e);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Function to update task
-const updateTask = async (taskId: string, updates: Partial<TaskData>) => {
-  try {
-    loading.value = true;
-    error.value = null;
-    const updatedTask = await updateTaskInSupabase(taskId, updates);
-    if (updatedTask) {
-      task.value = updatedTask;
-      toastMessage.value = "Task updated successfully.";
-    } else {
-      error.value = "Failed to update task.";
-    }
-  } catch (e) {
-    error.value = "Failed to update task.";
-    console.error("Error updating task:", e);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Function to create subtasks
-// Fix for error TS2554: Expected 2 arguments, but got 1
-const createSteps = async (taskId: string) => {
-  try {
-    loading.value = true;
-    const createdSteps = await createSubtasksInSupabase(taskId, []); // Adding empty array as second argument
-    
-    // Fix for error TS18047: 'createdSteps' is possibly 'null'
-    if (createdSteps) {
-      subtasks.value = createdSteps; // Use createdSteps only if not null
-    }
-    
-    // Fix for error TS2339: Property 'map' does not exist on type 'never'
-    if (Array.isArray(subtasks.value)) {
-      return subtasks.value;
-    }
-    return [];
-  } catch (error) {
-    console.error("Error creating steps:", error);
-    error.value = "Failed to create subtasks.";
-    return [];
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Function to update subtask
-const updateSubtask = async (subtaskId: string, updates: Partial<SubtaskData>) => {
-  try {
-    loading.value = true;
-    error.value = null;
-    const updatedSubtask = await updateSubtaskInSupabase(subtaskId, updates);
-    if (updatedSubtask) {
-      // Optimistically update the subtask in the local array
-      subtasks.value = subtasks.value.map(st => st.id === subtaskId ? { ...st, ...updates } : st);
-      toastMessage.value = "Subtask updated successfully.";
-    } else {
-      error.value = "Failed to update subtask.";
-    }
-  } catch (e) {
-    error.value = "Failed to update subtask.";
-    console.error("Error updating subtask:", e);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Function to delete subtask
-const deleteSubtask = async (subtaskId: string) => {
-  try {
-    loading.value = true;
-    error.value = null;
-    const success = await deleteSubtaskInSupabase(subtaskId);
-    if (success) {
-      // Optimistically remove the subtask from the local array
-      subtasks.value = subtasks.value.filter(st => st.id !== subtaskId);
-      toastMessage.value = "Subtask deleted successfully.";
-    } else {
-      error.value = "Failed to delete subtask.";
-    }
-  } catch (e) {
-    error.value = "Failed to delete subtask.";
-    console.error("Error deleting subtask:", e);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Function to delete task
-const deleteTask = async (taskId: string) => {
-  try {
-    loading.value = true;
-    error.value = null;
-    const success = await deleteTaskInSupabase(taskId);
-    if (success) {
-      toastMessage.value = "Task deleted successfully.";
-    } else {
-      error.value = "Failed to delete task.";
-    }
-    return success; // Return success status
-  } catch (e) {
-    error.value = "Failed to delete task.";
-    console.error("Error deleting task:", e);
-    return false; // Return failure status
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Function to clear toast message
-const clearToastMessage = () => {
-  toastMessage.value = null;
-};
-
-// Expose the state and actions
 export const useTaskWork = () => {
+  // State variables
+  const [task, setTask] = useState<TaskData | null>(null);
+  const [subtasks, setSubtasks] = useState<SubtaskData[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [focusedSubtaskIdx, setFocusedSubtaskIdx] = useState<number | null>(null);
+  const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("comments");
+  const [commentValue, setCommentValue] = useState<string>("");
+  const [taskState, setTaskState] = useState<any>(null);
+  const [subtaskDialogIdx, setSubtaskDialogIdx] = useState<number | null>(null);
+  const [subtaskData, setSubtaskData] = useState<any>({});
+
   const { toast } = useToast();
 
-  // Watch toastMessage and show toast when it changes
-  if (toastMessage.value) {
-    toast({
-      title: "Task Operation",
-      description: toastMessage.value,
+  // Computed properties
+  const completedSubtasksCount = subtasks.filter(subtask => subtask.completed).length;
+  const totalSubtasksCount = subtasks.length;
+  const progressPercentage = totalSubtasksCount === 0 ? 0 : (completedSubtasksCount / totalSubtasksCount) * 100;
+
+  // Function to fetch task and subtasks
+  const fetchTask = async (taskId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const taskData = await getTask(taskId);
+      if (taskData) {
+        setTask(taskData);
+        setTaskState(taskData);
+        await fetchSubtasks(taskId);
+      } else {
+        setError("Task not found.");
+      }
+    } catch (e) {
+      setError("Failed to load task.");
+      console.error("Error fetching task:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to fetch subtasks
+  const fetchSubtasks = async (taskId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const subtasksData = await getSubtasks(taskId);
+      setSubtasks(subtasksData || []);
+    } catch (e) {
+      setError("Failed to load subtasks.");
+      console.error("Error fetching subtasks:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to update task
+  const handleUpdateTask = async (field: keyof TaskData, value: any) => {
+    if (!task) return;
+    
+    try {
+      const updates: Partial<TaskData> = { [field]: value };
+      const updatedTask = await updateTask(task.id!, updates);
+      
+      if (updatedTask) {
+        setTask(updatedTask);
+        setTaskState(updatedTask);
+        setToastMessage("Task updated successfully.");
+      } else {
+        setError("Failed to update task.");
+      }
+    } catch (e) {
+      setError("Failed to update task.");
+      console.error("Error updating task:", e);
+    }
+  };
+
+  // Function to create subtasks
+  const handleGenerateSteps = async () => {
+    if (!task) return;
+    
+    try {
+      setIsGenerating(true);
+      const createdSteps = await createSubtasks(task.id!, []);
+      
+      if (createdSteps) {
+        setSubtasks(createdSteps);
+      }
+      
+      return Array.isArray(createdSteps) ? createdSteps : [];
+    } catch (error) {
+      console.error("Error creating steps:", error);
+      setError("Failed to create subtasks.");
+      return [];
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Function to toggle subtask completion
+  const handleToggleSubtask = async (index: number) => {
+    if (!task) return;
+    
+    const subtask = subtasks[index];
+    if (!subtask) return;
+    
+    const newCompleted = !subtask.completed;
+    
+    try {
+      const updatedSubtask = await updateSubtask(subtask.id, { completed: newCompleted });
+      if (updatedSubtask) {
+        const newSubtasks = [...subtasks];
+        newSubtasks[index] = { ...newSubtasks[index], completed: newCompleted };
+        setSubtasks(newSubtasks);
+      }
+    } catch (e) {
+      console.error("Error toggling subtask:", e);
+    }
+  };
+
+  // Function to add a subtask
+  const handleAddSubtask = async (title: string) => {
+    if (!task) return;
+    
+    try {
+      const newSubtask = {
+        title,
+        task_id: task.id!,
+        completed: false,
+        order: subtasks.length + 1
+      };
+      
+      const result = await createSubtasks(task.id!, [newSubtask]);
+      
+      if (result && Array.isArray(result) && result.length > 0) {
+        setSubtasks([...subtasks, ...result]);
+      }
+    } catch (e) {
+      console.error("Error adding subtask:", e);
+    }
+  };
+
+  // Function to remove a subtask
+  const handleRemoveSubtask = async (index: number) => {
+    const subtask = subtasks[index];
+    if (!subtask) return;
+    
+    try {
+      const success = await deleteSubtask(subtask.id);
+      if (success) {
+        const newSubtasks = subtasks.filter((_, i) => i !== index);
+        setSubtasks(newSubtasks);
+      }
+    } catch (e) {
+      console.error("Error removing subtask:", e);
+    }
+  };
+
+  // Function to focus on a subtask
+  const handleFocusSubtask = (index: number) => {
+    setFocusedSubtaskIdx(index);
+  };
+
+  // Function to update a subtask
+  const handleUpdateSubtask = async (field: keyof SubtaskData, value: any) => {
+    if (focusedSubtaskIdx === null || !subtasks[focusedSubtaskIdx]) return;
+    
+    const subtask = subtasks[focusedSubtaskIdx];
+    
+    try {
+      const updates: Partial<SubtaskData> = { [field]: value };
+      const updatedSubtask = await updateSubtask(subtask.id, updates);
+      
+      if (updatedSubtask) {
+        const newSubtasks = [...subtasks];
+        newSubtasks[focusedSubtaskIdx] = { ...newSubtasks[focusedSubtaskIdx], [field]: value };
+        setSubtasks(newSubtasks);
+      }
+    } catch (e) {
+      console.error("Error updating subtask:", e);
+    }
+  };
+
+  // Function to open subtask dialog
+  const handleOpenSubtask = (index: number) => {
+    setSubtaskDialogIdx(index);
+  };
+
+  // Function to close subtask dialog
+  const handleCloseSubtask = () => {
+    setSubtaskDialogIdx(null);
+  };
+
+  // Function to add a comment
+  const handleAddComment = (text: string) => {
+    if (!task) return;
+    
+    const newComment = {
+      user: "User",
+      text,
+      ago: "Just now",
+      subtaskId: focusedSubtaskIdx !== null && subtasks[focusedSubtaskIdx] ? subtasks[focusedSubtaskIdx].id : undefined
+    };
+    
+    setTaskState({
+      ...taskState,
+      comments: [...(taskState.comments || []), newComment]
     });
-    clearToastMessage();
-  }
+    
+    setCommentValue("");
+  };
+
+  // Show toast message when it changes
+  useEffect(() => {
+    if (toastMessage) {
+      toast({
+        title: "Task Operation",
+        description: toastMessage,
+      });
+      clearToastMessage();
+    }
+  }, [toastMessage, toast]);
+
+  // Function to clear toast message
+  const clearToastMessage = () => {
+    setToastMessage(null);
+  };
 
   return {
     task,
@@ -200,7 +251,7 @@ export const useTaskWork = () => {
     fetchTask,
     fetchSubtasks,
     updateTask,
-    createSteps,
+    createSteps: handleGenerateSteps,
     updateSubtask,
     deleteSubtask,
     deleteTask,
@@ -208,5 +259,27 @@ export const useTaskWork = () => {
     totalSubtasksCount,
     progressPercentage,
     clearToastMessage,
+    // Additional properties for TaskWorkContainer
+    taskState,
+    sidebarOpen,
+    setSidebarOpen,
+    isGenerating,
+    focusedSubtaskIdx,
+    selectedTab,
+    setSelectedTab,
+    commentValue,
+    setCommentValue,
+    handleUpdateTask,
+    handleToggleSubtask,
+    handleAddSubtask,
+    handleRemoveSubtask,
+    handleGenerateSteps,
+    handleFocusSubtask,
+    handleUpdateSubtask,
+    handleOpenSubtask,
+    handleAddComment,
+    subtaskDialogIdx,
+    handleCloseSubtask,
+    subtaskData
   };
 };
