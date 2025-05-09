@@ -23,8 +23,9 @@ serve(async (req) => {
 You are an AI assistant specialized in helping Amazon sellers create workflow automation.
 Your task is to generate a flow based on the user's description.
 
-IMPORTANT: You must ALWAYS respond with valid JSON only. Do not include any explanations, backticks, or markdown formatting.
-The JSON should have this structure:
+IMPORTANT RULES:
+1. Your response MUST be ONLY a valid JSON object with NO explanations or extra text.
+2. JSON structure must follow this exact format:
 {
   "name": "Short descriptive name for the flow",
   "description": "One sentence description of what this flow accomplishes",
@@ -34,12 +35,18 @@ The JSON should have this structure:
   ]
 }
 
-Keep in mind:
-1. Flows typically have 3-5 blocks
-2. Flows usually start with collect blocks, followed by think blocks, and end with act blocks
-3. ONLY use the exact option names provided to you
-4. If a capability seems missing, use "Human in the Loop" for act blocks or "User Text" for collect blocks
-    `;
+The flow typically has 3-5 blocks that should:
+- Start with collect blocks (to gather information)
+- Follow with think blocks (to process information)
+- End with act blocks (to take actions based on processed information)
+
+ONLY USE options from this exact list for each block type:
+- collect: ["User Text", "Upload Sheet", "All Listing Info", "Get Keywords", "Estimate Sales", "Review Information", "Scrape Sheet", "Seller Account Feedback", "Email Parsing"]
+- think: ["Basic AI Analysis", "Listing Analysis", "Insights Generation", "Review Analysis"]
+- act: ["AI Summary", "Push to Amazon", "Send Email", "Human in the Loop"]
+
+Do not add any extra text, comments, explanations, or formatting. Return ONLY the JSON object.
+`;
 
     console.log("Sending request to OpenAI with prompt:", prompt);
     
@@ -77,21 +84,26 @@ Keep in mind:
     console.log("Raw response from OpenAI:", generatedText);
     
     // Validate that the response is proper JSON before sending it back
-    let parsedJson;
     try {
-      parsedJson = JSON.parse(generatedText);
+      // Attempt to parse the JSON to validate it
+      const parsedJson = JSON.parse(generatedText);
       
       // Further validate the expected structure
       if (!parsedJson.name || !parsedJson.description || !Array.isArray(parsedJson.blocks)) {
         throw new Error("Invalid flow structure. Missing required properties.");
       }
       
-      return new Response(JSON.stringify({ generatedText }), {
+      // If we get here, we have valid JSON with the expected structure
+      return new Response(JSON.stringify({ 
+        success: true,
+        generatedFlow: parsedJson
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     } catch (parseError) {
       console.error('Error parsing JSON from OpenAI:', parseError, 'Raw content:', generatedText);
       return new Response(JSON.stringify({ 
+        success: false,
         error: "Invalid JSON received from AI", 
         rawResponse: generatedText 
       }), {
@@ -101,7 +113,10 @@ Keep in mind:
     }
   } catch (error) {
     console.error('Error in chat function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      success: false,
+      error: error.message 
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

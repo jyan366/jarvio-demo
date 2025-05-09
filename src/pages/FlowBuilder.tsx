@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -236,85 +235,37 @@ export default function FlowBuilder() {
         }
       });
 
+      console.log("Raw API response:", response);
+
       // Check for API errors first
       if (response.error) {
         throw new Error(`API Error: ${response.error.message}`);
       }
       
-      if (response.data?.error) {
+      if (!response.data) {
+        throw new Error("No data returned from API");
+      }
+
+      if (response.data.success === false) {
         throw new Error(`Response Error: ${response.data.error}`);
       }
 
-      // Get generated JSON from response
-      const generatedText = response.data?.generatedText || "";
-      console.log("Generated text:", generatedText);
+      // Get the generated flow from the response
+      const generatedFlow = response.data.generatedFlow;
       
-      let parsedFlow;
-      let errorDetails = "";
-
-      // STEP 1: Try direct JSON parsing
-      try {
-        parsedFlow = JSON.parse(generatedText);
-        console.log("Direct JSON parsed successfully:", parsedFlow);
-      } catch (directParseError) {
-        errorDetails += "Direct JSON parse failed. ";
-        console.error("Direct JSON parsing failed:", directParseError);
-        
-        // STEP 2: Try to extract JSON from markdown code blocks
-        try {
-          // Match JSON inside code blocks or just plain JSON
-          const jsonRegex = /```(?:json)?\s*({[\s\S]*?})\s*```|({[\s\S]*})/;
-          const match = generatedText.match(jsonRegex);
-          
-          if (!match) {
-            throw new Error("Could not find any JSON structure in response");
-          }
-          
-          const jsonStr = match[1] || match[2];
-          console.log("Extracted JSON string:", jsonStr);
-          
-          parsedFlow = JSON.parse(jsonStr);
-          console.log("Extracted JSON parsed successfully:", parsedFlow);
-        } catch (extractError) {
-          // STEP 3: Try a more aggressive extraction approach
-          errorDetails += "Code block extraction failed. ";
-          console.error("JSON extraction failed:", extractError);
-          
-          try {
-            // Try to identify anything that looks like a JSON object
-            const objectMatch = generatedText.match(/{[^]*}/);
-            if (objectMatch) {
-              const potentialJson = objectMatch[0];
-              console.log("Potential JSON found with aggressive extraction:", potentialJson);
-              
-              try {
-                parsedFlow = JSON.parse(potentialJson);
-                console.log("Aggressively extracted JSON parsed successfully:", parsedFlow);
-              } catch (finalParseError) {
-                console.error("Final parse attempt failed:", finalParseError);
-                throw new Error("All JSON parsing methods failed");
-              }
-            } else {
-              throw new Error("No JSON-like structure found");
-            }
-          } catch (lastAttemptError) {
-            throw new Error(`Failed to parse JSON: ${errorDetails} ${lastAttemptError.message}`);
-          }
-        }
+      if (!generatedFlow) {
+        throw new Error("No flow data in the response");
       }
-
-      // If we reach here, we have a parsedFlow object
-      if (!parsedFlow) {
-        throw new Error("Failed to parse any valid JSON");
-      }
-
+      
+      console.log("Generated flow:", generatedFlow);
+      
       // Validate the flow structure
-      if (!parsedFlow || !parsedFlow.blocks || !Array.isArray(parsedFlow.blocks)) {
-        throw new Error("Invalid flow structure: missing blocks array");
+      if (!generatedFlow.name || !generatedFlow.description || !Array.isArray(generatedFlow.blocks)) {
+        throw new Error("Invalid flow structure: missing required properties");
       }
 
       // Create flow blocks from AI response
-      const newBlocks: FlowBlock[] = parsedFlow.blocks.map((block: any) => {
+      const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => {
         // Validate block type
         if (!block.type || !['collect', 'think', 'act'].includes(block.type)) {
           console.warn(`Invalid block type: ${block.type}, using 'collect' as fallback`);
@@ -346,8 +297,8 @@ export default function FlowBuilder() {
       // Update flow with AI-generated content
       setFlow(prev => ({
         ...prev,
-        name: parsedFlow.name || "New Flow",
-        description: parsedFlow.description || "Flow created from AI prompt",
+        name: generatedFlow.name || "New Flow",
+        description: generatedFlow.description || "Flow created from AI prompt",
         blocks: newBlocks
       }));
       
