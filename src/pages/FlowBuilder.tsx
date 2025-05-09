@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -247,34 +246,71 @@ export default function FlowBuilder() {
 
       // Parse generated JSON from text response
       const generatedText = response.data?.generatedText || "";
-      const jsonMatch = generatedText.match(/({[\s\S]*})/);
-      
-      if (!jsonMatch) throw new Error("Could not extract valid JSON from AI response");
-      
-      const generatedFlow = JSON.parse(jsonMatch[0]);
-      
-      // Create flow blocks from AI response
-      const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => ({
-        id: uuidv4(),
-        type: block.type,
-        option: block.option
-      }));
-      
-      // Update flow with AI-generated content
-      setFlow(prev => ({
-        ...prev,
-        name: generatedFlow.name || prev.name,
-        description: generatedFlow.description || prev.description,
-        blocks: newBlocks
-      }));
-      
-      toast({
-        title: "Flow created successfully",
-        description: `${newBlocks.length} blocks have been added to your flow.`
-      });
-      
-      setShowAIPrompt(false);
-      
+      console.log("Generated text:", generatedText);
+
+      // Try to parse the JSON directly
+      try {
+        const generatedFlow = JSON.parse(generatedText);
+        
+        // Create flow blocks from AI response
+        const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => ({
+          id: uuidv4(),
+          type: block.type,
+          option: block.option
+        }));
+        
+        // Update flow with AI-generated content
+        setFlow(prev => ({
+          ...prev,
+          name: generatedFlow.name || prev.name,
+          description: generatedFlow.description || prev.description,
+          blocks: newBlocks
+        }));
+        
+        toast({
+          title: "Flow created successfully",
+          description: `${newBlocks.length} blocks have been added to your flow.`
+        });
+        
+        setShowAIPrompt(false);
+      } catch (jsonError) {
+        // If direct parsing fails, try to extract JSON from markdown code blocks
+        const jsonRegex = /```(?:json)?\s*({[\s\S]*?})\s*```|({[\s\S]*})/;
+        const match = generatedText.match(jsonRegex);
+        
+        if (match) {
+          const jsonStr = match[1] || match[2];
+          try {
+            const generatedFlow = JSON.parse(jsonStr);
+            
+            // Create flow blocks from AI response
+            const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => ({
+              id: uuidv4(),
+              type: block.type,
+              option: block.option
+            }));
+            
+            // Update flow with AI-generated content
+            setFlow(prev => ({
+              ...prev,
+              name: generatedFlow.name || prev.name,
+              description: generatedFlow.description || prev.description,
+              blocks: newBlocks
+            }));
+            
+            toast({
+              title: "Flow created successfully",
+              description: `${newBlocks.length} blocks have been added to your flow.`
+            });
+            
+            setShowAIPrompt(false);
+          } catch (nestedJsonError) {
+            throw new Error("Could not parse JSON from AI response: " + nestedJsonError.message);
+          }
+        } else {
+          throw new Error("Could not extract JSON from AI response");
+        }
+      }
     } catch (error) {
       console.error("Error generating flow:", error);
       toast({

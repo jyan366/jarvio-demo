@@ -23,7 +23,7 @@ serve(async (req) => {
 You are an AI assistant specialized in helping Amazon sellers create workflow automation.
 Your task is to generate a flow based on the user's description.
 
-IMPORTANT: You must ALWAYS respond with valid JSON only. No explanations, no markdown, just JSON.
+IMPORTANT: You must ALWAYS respond with valid JSON only. No explanations, no markdown formatting.
 The JSON should have this structure:
 {
   "name": "Short descriptive name for the flow",
@@ -59,7 +59,9 @@ Keep in mind:
 
     const data = await response.json();
     const generatedText = data.choices[0].message.content;
-
+    
+    console.log("Raw response from OpenAI:", generatedText);
+    
     return new Response(JSON.stringify({ generatedText }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
