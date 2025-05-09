@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -7,7 +7,7 @@ import { HeroSection } from '@/components/jarvi-flows/HeroSection';
 import { FlowsSection } from '@/components/jarvi-flows/FlowsSection';
 import { Flow } from '@/components/jarvi-flows/FlowsGrid';
 
-// Predefined flows
+// Predefined flows as fallbacks
 const predefinedFlows: Flow[] = [
   {
     id: 'listing-launch',
@@ -63,11 +63,30 @@ const predefinedFlows: Flow[] = [
   }
 ];
 
+// Load flows from localStorage or use predefined ones
+const loadSavedFlows = (): Flow[] => {
+  const savedFlowsString = localStorage.getItem('jarviFlows');
+  if (savedFlowsString) {
+    try {
+      return JSON.parse(savedFlowsString);
+    } catch (error) {
+      console.error("Error parsing saved flows:", error);
+    }
+  }
+  return predefinedFlows; // Default to predefined flows if none are saved
+};
+
 export default function JarviFlows() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [flows] = useState<Flow[]>(predefinedFlows);
+  const [flows, setFlows] = useState<Flow[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+
+  // Load flows on component mount
+  useEffect(() => {
+    const savedFlows = loadSavedFlows();
+    setFlows(savedFlows);
+  }, []);
   
   // Function to handle editing a flow
   const handleEditFlow = (flowId: string) => {
@@ -77,6 +96,10 @@ export default function JarviFlows() {
   // Function to handle running a flow
   const handleRunFlow = (flowId: string) => {
     console.log(`Running flow: ${flowId}`);
+    toast({
+      title: "Flow Running",
+      description: "The flow is now running. Results will be available soon."
+    });
     // In a real implementation, this would trigger the flow execution
   };
   

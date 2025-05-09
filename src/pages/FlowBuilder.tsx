@@ -33,6 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
+import { Flow, FlowBlock, TriggerType } from '@/components/jarvi-flows/FlowsGrid';
 
 // Define the flow types and their properties
 type TriggerType = 'manual' | 'scheduled' | 'event';
@@ -175,6 +176,24 @@ export default function FlowBuilder() {
     }
   });
 
+  // Load all saved flows from localStorage
+  const loadSavedFlows = (): Flow[] => {
+    const savedFlowsString = localStorage.getItem('jarviFlows');
+    if (savedFlowsString) {
+      try {
+        return JSON.parse(savedFlowsString);
+      } catch (error) {
+        console.error("Error parsing saved flows:", error);
+      }
+    }
+    return predefinedFlows; // Default to predefined flows if none are saved
+  };
+
+  // Save all flows to localStorage
+  const saveAllFlows = (flows: Flow[]) => {
+    localStorage.setItem('jarviFlows', JSON.stringify(flows));
+  };
+
   // Check for prompt in URL params on initial load
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -193,9 +212,25 @@ export default function FlowBuilder() {
   // Load existing flow if editing
   useEffect(() => {
     if (flowId) {
-      const existingFlow = predefinedFlows.find(f => f.id === flowId);
+      // Get flows from localStorage
+      const allFlows = loadSavedFlows();
+      const existingFlow = allFlows.find(f => f.id === flowId);
+      
       if (existingFlow) {
         setFlow({...existingFlow});
+      } else {
+        // Fallback to predefined flows if not found in localStorage
+        const predefinedFlow = predefinedFlows.find(f => f.id === flowId);
+        if (predefinedFlow) {
+          setFlow({...predefinedFlow});
+        } else {
+          toast({
+            title: "Flow not found",
+            description: "The requested flow could not be found",
+            variant: "destructive"
+          });
+          navigate('/jarvi-flows');
+        }
       }
     } else {
       // New flow - initialize with a default ID
@@ -374,12 +409,59 @@ export default function FlowBuilder() {
 
   // Save flow
   const saveFlow = () => {
-    console.log('Flow saved:', flow);
-    toast({
-      title: "Flow saved successfully",
-      description: `${flow.name} has been saved.`
-    });
-    navigate('/jarvi-flows');
+    // Input validation
+    if (!flow.name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please provide a name for your flow",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (flow.blocks.length === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please add at least one block to your flow",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Get all current flows
+      const allFlows = loadSavedFlows();
+      
+      // Find the index of the current flow if it exists
+      const existingFlowIndex = allFlows.findIndex(f => f.id === flow.id);
+      
+      if (existingFlowIndex >= 0) {
+        // Update existing flow
+        allFlows[existingFlowIndex] = {...flow};
+      } else {
+        // Add new flow
+        allFlows.push({...flow});
+      }
+      
+      // Save all flows back to localStorage
+      saveAllFlows(allFlows);
+      
+      console.log('Flow saved:', flow);
+      
+      toast({
+        title: "Flow saved successfully",
+        description: `${flow.name} has been saved.`
+      });
+      
+      navigate('/jarvi-flows');
+    } catch (error) {
+      console.error("Error saving flow:", error);
+      toast({
+        title: "Error saving flow",
+        description: "An unexpected error occurred while saving your flow.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
