@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -255,16 +254,6 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
             `<span class="text-muted-foreground">${isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}</span>`
           }}
         />
-        {hasFocus && (
-          <div 
-            className="absolute w-0.5 h-4 bg-primary animate-pulse"
-            style={{ 
-              left: '0px', 
-              top: '0px',
-              display: 'none'  // Hide cursor as it causes positioning issues
-            }} 
-          />
-        )}
       </div>
       
       <Button 
