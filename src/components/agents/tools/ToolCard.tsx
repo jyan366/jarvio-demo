@@ -66,6 +66,7 @@ export function ToolCard({
                 id={`tool-${toolId}`}
                 checked={isEnabled}
                 onCheckedChange={handleToggle}
+                className="cursor-pointer"
               />
             </div>
             
