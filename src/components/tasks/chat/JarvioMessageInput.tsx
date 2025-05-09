@@ -45,6 +45,8 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
   // Ref for tracking cursor position
   const displayRef = useRef<HTMLDivElement>(null);
   const [selectionStart, setSelectionStart] = useState(0);
+  const [selectionEnd, setSelectionEnd] = useState(0);
+  const [hasFocus, setHasFocus] = useState(false);
 
   // Format text for display
   const getFormattedText = (text: string) => {
@@ -111,6 +113,7 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     // Store current cursor position
     if (e.target) {
       setSelectionStart(e.target.selectionStart || 0);
+      setSelectionEnd(e.target.selectionEnd || 0);
     }
     
     // Check for slash command - triggers anywhere
@@ -153,27 +156,50 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
   };
 
   // Apply formatting and focus to input after click on formatted area
-  const handleDisplayClick = () => {
+  const handleDisplayClick = (e: React.MouseEvent) => {
     if (inputRef.current) {
       inputRef.current.focus();
+      setHasFocus(true);
+      
+      // Attempt to set cursor position based on click position
+      try {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0 && displayRef.current) {
+          const range = selection.getRangeAt(0);
+          const textNode = range.startContainer;
+          
+          if (textNode.nodeType === Node.TEXT_NODE && textNode.parentNode === displayRef.current) {
+            const offset = range.startOffset;
+            if (inputRef.current) {
+              inputRef.current.setSelectionRange(offset, offset);
+              setSelectionStart(offset);
+              setSelectionEnd(offset);
+            }
+          }
+        }
+      } catch (err) {
+        // Fallback if selection API fails
+        if (inputRef.current) {
+          inputRef.current.setSelectionRange(inputValue.length, inputValue.length);
+        }
+      }
     }
+  };
+  
+  const handleFocus = () => {
+    setHasFocus(true);
+  };
+  
+  const handleBlur = () => {
+    setHasFocus(false);
   };
 
   // Set cursor position
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.selectionStart = selectionStart;
-      inputRef.current.selectionEnd = selectionStart;
+    if (inputRef.current && hasFocus) {
+      inputRef.current.setSelectionRange(selectionStart, selectionEnd);
     }
-  }, [selectionStart, inputValue]);
-
-  // Make textarea match display div height
-  useEffect(() => {
-    if (displayRef.current && inputRef.current) {
-      const height = displayRef.current.offsetHeight;
-      inputRef.current.style.height = `${height}px`;
-    }
-  }, [inputValue]);
+  }, [selectionStart, selectionEnd, hasFocus, inputValue]);
 
   return (
     <form 
@@ -194,26 +220,34 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
         <div ref={triggerRef} className="w-1 h-1" />
       </div>
       
-      <div className="flex-1 relative min-h-[36px] max-h-24">
+      <div className="flex-1 relative min-h-[40px]">
         <Textarea
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}
-          className="absolute inset-0 resize-none opacity-0"
+          className="absolute inset-0 resize-none text-sm"
           disabled={isLoading || isTransitioning}
           ref={inputRef}
           rows={1}
-          style={{ caretColor: 'transparent' }}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          style={{ 
+            caretColor: 'black', 
+            minHeight: '40px',
+            color: 'transparent',
+            backgroundColor: 'transparent',
+            height: displayRef.current?.offsetHeight || 'auto'
+          }}
         />
         <div
           ref={displayRef}
-          className="flex-1 min-h-[36px] max-h-24 overflow-auto p-2 border rounded-md bg-background"
+          className="flex-1 min-h-[40px] overflow-auto p-2 border rounded-md bg-background text-sm"
           onClick={handleDisplayClick}
           style={{ 
             whiteSpace: 'pre-wrap', 
             wordBreak: 'break-word',
-            minHeight: '36px',
+            minHeight: '40px',
             resize: 'none'
           }}
           dangerouslySetInnerHTML={{ 
@@ -221,14 +255,13 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
             `<span class="text-muted-foreground">${isLoading ? "Jarvio is thinking..." : "Type / for blocks, @ for agents..."}</span>`
           }}
         />
-        {/* Blinking cursor at position */}
-        {!isLoading && !isTransitioning && inputRef.current === document.activeElement && (
+        {hasFocus && (
           <div 
-            className="absolute w-0.5 h-4 bg-primary animate-pulse" 
+            className="absolute w-0.5 h-4 bg-primary animate-pulse"
             style={{ 
-              display: 'none', // Hide the cursor as it's causing positioning issues
               left: '0px', 
-              top: '0px'
+              top: '0px',
+              display: 'none'  // Hide cursor as it causes positioning issues
             }} 
           />
         )}
