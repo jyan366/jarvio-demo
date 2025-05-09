@@ -81,6 +81,16 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
 
   const filteredItems = getFilteredItems();
   
+  const handleItemSelect = (item: string, type: "blocks" | "agents") => {
+    // Format text based on type
+    if (type === "blocks") {
+      onFormatSelect(`**${item}**`);
+    } else {
+      onFormatSelect(`@${item}`);
+    }
+    setOpen(false);
+  };
+  
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -111,10 +121,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                     {flowBlockOptions.collect.map((option) => (
                       <CommandItem
                         key={`collect-${option}`}
-                        onSelect={() => {
-                          onFormatSelect(`**${option}**`);
-                          setOpen(false);
-                        }}
+                        onSelect={() => handleItemSelect(option, "blocks")}
                         className="py-2"
                       >
                         <span>{option}</span>
@@ -127,10 +134,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                     {flowBlockOptions.think.map((option) => (
                       <CommandItem
                         key={`think-${option}`}
-                        onSelect={() => {
-                          onFormatSelect(`**${option}**`);
-                          setOpen(false);
-                        }}
+                        onSelect={() => handleItemSelect(option, "blocks")}
                         className="py-2"
                       >
                         <span>{option}</span>
@@ -143,10 +147,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                     {flowBlockOptions.act.map((option) => (
                       <CommandItem
                         key={`act-${option}`}
-                        onSelect={() => {
-                          onFormatSelect(`**${option}**`);
-                          setOpen(false);
-                        }}
+                        onSelect={() => handleItemSelect(option, "blocks")}
                         className="py-2"
                       >
                         <span>{option}</span>
@@ -160,10 +161,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                     (filteredItems as { category: string, option: string }[]).map(({ category, option }) => (
                       <CommandItem
                         key={`${category}-${option}`}
-                        onSelect={() => {
-                          onFormatSelect(`**${option}**`);
-                          setOpen(false);
-                        }}
+                        onSelect={() => handleItemSelect(option, "blocks")}
                         className="py-2"
                       >
                         <span>{option}</span>
@@ -183,10 +181,7 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
                   (filteredItems as typeof agentsData).map((agent) => (
                     <CommandItem
                       key={agent.id}
-                      onSelect={() => {
-                        onFormatSelect(`@${agent.name}`);
-                        setOpen(false);
-                      }}
+                      onSelect={() => handleItemSelect(agent.name, "agents")}
                       className="py-2"
                     >
                       <div className="flex items-center gap-2">
