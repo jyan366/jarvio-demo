@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -63,6 +64,37 @@ const blockOptions = {
     'Send Email',
     'Human in the Loop'
   ]
+};
+
+// Helper functions to generate descriptive names based on block type and option
+const getDescriptiveBlockName = (type: string, option: string): string => {
+  const nameMap: Record<string, Record<string, string>> = {
+    collect: {
+      'User Text': 'Collect User Input',
+      'Upload Sheet': 'Import Data Spreadsheet',
+      'All Listing Info': 'Gather Product Listings',
+      'Get Keywords': 'Extract Relevant Keywords',
+      'Estimate Sales': 'Calculate Sales Projections',
+      'Review Information': 'Collect Customer Reviews',
+      'Scrape Sheet': 'Extract Spreadsheet Data',
+      'Seller Account Feedback': 'Gather Seller Feedback',
+      'Email Parsing': 'Process Email Communications'
+    },
+    think: {
+      'Basic AI Analysis': 'Analyze Data Patterns',
+      'Listing Analysis': 'Evaluate Product Listings',
+      'Insights Generation': 'Generate Strategic Insights',
+      'Review Analysis': 'Process Customer Feedback'
+    },
+    act: {
+      'AI Summary': 'Generate Executive Summary',
+      'Push to Amazon': 'Update Amazon Listings',
+      'Send Email': 'Distribute Email Report',
+      'Human in the Loop': 'Request Manual Approval'
+    }
+  };
+
+  return nameMap[type]?.[option] || `${type.charAt(0).toUpperCase() + type.slice(1)} ${option}`;
 };
 
 // All block options combined for AI reference
@@ -225,11 +257,12 @@ export default function FlowBuilder() {
 
   // Add a new block of the specified type
   const addBlock = (type: 'collect' | 'think' | 'act') => {
+    const option = blockOptions[type][0];
     const newBlock: FlowBlock = {
       id: uuidv4(),
       type: type,
-      option: blockOptions[type][0],
-      name: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Step` // Add default name
+      option: option,
+      name: getDescriptiveBlockName(type, option)
     };
     
     setFlow(prev => ({
@@ -274,9 +307,24 @@ export default function FlowBuilder() {
   const updateBlockOption = (blockId: string, option: string) => {
     setFlow(prev => ({
       ...prev,
-      blocks: prev.blocks.map(block => 
-        block.id === blockId ? { ...block, option } : block
-      )
+      blocks: prev.blocks.map(block => {
+        if (block.id === blockId) {
+          // Update both option and generate a descriptive name if one doesn't already exist
+          const updatedBlock = { ...block, option };
+          
+          // Only auto-update the name if it wasn't customized or is empty
+          const currentName = block.name || '';
+          const defaultName = getDescriptiveBlockName(block.type, block.option);
+          
+          // If current name matches the old default or is empty, generate a new one
+          if (!currentName || currentName === defaultName) {
+            updatedBlock.name = getDescriptiveBlockName(block.type, option);
+          }
+          
+          return updatedBlock;
+        }
+        return block;
+      })
     }));
   };
 
@@ -303,7 +351,9 @@ export default function FlowBuilder() {
           The flow should include appropriate blocks from these available options:
           ${JSON.stringify(allBlockOptions)}. 
           
-          A flow typically has 3-5 blocks, usually starting with collect blocks, followed by think blocks, and ending with act blocks.`
+          A flow typically has 3-5 blocks, usually starting with collect blocks, followed by think blocks, and ending with act blocks.
+          
+          Important: Provide descriptive names for each block that clearly explain what each step does.`
         }
       });
 
@@ -375,10 +425,13 @@ export default function FlowBuilder() {
         // Validate block type
         if (!block.type || !['collect', 'think', 'act'].includes(block.type)) {
           console.warn(`Invalid block type: ${block.type}, using 'collect' as fallback`);
+          const fallbackType = 'collect';
+          const fallbackOption = blockOptions[fallbackType][0];
           return {
             id: uuidv4(),
-            type: 'collect',
-            option: blockOptions['collect'][0]
+            type: fallbackType,
+            option: fallbackOption,
+            name: block.name || getDescriptiveBlockName(fallbackType, fallbackOption)
           };
         }
         
@@ -386,17 +439,20 @@ export default function FlowBuilder() {
         if (!block.option || !blockOptions[block.type].includes(block.option)) {
           console.warn(`Using fallback option for invalid option: ${block.option}`);
           // Use the first available option as fallback
+          const fallbackOption = blockOptions[block.type][0];
           return {
             id: uuidv4(),
             type: block.type,
-            option: blockOptions[block.type][0]
+            option: fallbackOption,
+            name: block.name || getDescriptiveBlockName(block.type, fallbackOption)
           };
         }
         
         return {
           id: uuidv4(),
           type: block.type,
-          option: block.option
+          option: block.option,
+          name: block.name || getDescriptiveBlockName(block.type, block.option)
         };
       });
       
@@ -473,7 +529,7 @@ export default function FlowBuilder() {
         description: `${flow.name} has been saved.`
       });
       
-      // Removed navigation to /jarvi-flows so user stays on the page
+      // We're not navigating away after saving - just stay on this page
     } catch (error) {
       console.error("Error saving flow:", error);
       toast({

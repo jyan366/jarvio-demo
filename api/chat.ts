@@ -30,7 +30,11 @@ IMPORTANT RULES:
   "name": "Short descriptive name for the flow",
   "description": "One sentence description of what this flow accomplishes",
   "blocks": [
-    {"type": "collect|think|act", "option": "exact option name from available options"},
+    {
+      "type": "collect|think|act", 
+      "option": "exact option name from available options",
+      "name": "Clear descriptive name for what this specific block does"
+    },
     ...more blocks
   ]
 }
@@ -44,6 +48,11 @@ ONLY USE options from this exact list for each block type:
 - collect: ["User Text", "Upload Sheet", "All Listing Info", "Get Keywords", "Estimate Sales", "Review Information", "Scrape Sheet", "Seller Account Feedback", "Email Parsing"]
 - think: ["Basic AI Analysis", "Listing Analysis", "Insights Generation", "Review Analysis"]
 - act: ["AI Summary", "Push to Amazon", "Send Email", "Human in the Loop"]
+
+IMPORTANT: The "name" field for each block MUST be clear and descriptive of what that specific step does. For example:
+- "Gather Product Listings" (not just "Collect Data")
+- "Analyze Customer Reviews" (not just "Think Step")
+- "Update Amazon Descriptions" (not just "Act Step")
 
 Return ONLY the JSON object, no other text or formatting.
 `;
@@ -110,6 +119,17 @@ Return ONLY the JSON object, no other text or formatting.
         if (!block.option || !validOptions[block.type].includes(block.option)) {
           throw new Error(`Invalid option for ${block.type}: ${block.option}`);
         }
+        
+        // Ensure each block has a descriptive name
+        if (!block.name) {
+          // Generate a fallback descriptive name based on type and option
+          const actionPrefix = {
+            collect: "Gather",
+            think: "Analyze",
+            act: "Execute"
+          };
+          block.name = `${actionPrefix[block.type]} ${block.option}`;
+        }
       });
       
     } catch (parseError) {
@@ -121,9 +141,9 @@ Return ONLY the JSON object, no other text or formatting.
         name: flowName,
         description: `Automatically generated flow for: ${prompt}`,
         blocks: [
-          { type: "collect", option: "All Listing Info" },
-          { type: "think", option: "Basic AI Analysis" },
-          { type: "act", option: "AI Summary" }
+          { type: "collect", option: "All Listing Info", name: "Collect Product Data" },
+          { type: "think", option: "Basic AI Analysis", name: "Analyze Product Information" },
+          { type: "act", option: "AI Summary", name: "Generate Optimization Report" }
         ]
       };
     }

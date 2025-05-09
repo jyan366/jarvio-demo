@@ -12,7 +12,7 @@ export type FlowBlock = {
   id: string;
   type: 'collect' | 'think' | 'act';
   option: string;
-  name?: string; // Add optional name field for blocks
+  name?: string; // Add name field for blocks
   config?: Record<string, any>;
 };
 
@@ -59,11 +59,27 @@ const getBlockCounts = (blocks: FlowBlock[]) => {
   return counts;
 };
 
+// Get the most significant blocks to display (one of each type if possible)
+const getSignificantBlocks = (blocks: FlowBlock[]) => {
+  const result: Record<string, string> = {};
+  
+  // Try to get one of each type
+  for (const type of ['collect', 'think', 'act']) {
+    const blockOfType = blocks.find(b => b.type === type);
+    if (blockOfType) {
+      result[type] = blockOfType.name || blockOfType.option || `${type} step`;
+    }
+  }
+  
+  return result;
+};
+
 export function FlowsGrid({ flows, onEditFlow, onRunFlow }: FlowsGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       {flows.map((flow) => {
         const blockCounts = getBlockCounts(flow.blocks);
+        const significantBlocks = getSignificantBlocks(flow.blocks);
         
         return (
           <Card key={flow.id} className="overflow-hidden shadow-sm hover:shadow transition-shadow">
@@ -80,19 +96,33 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow }: FlowsGridProps) {
               </div>
             </CardHeader>
             <CardContent className="pb-2">
-              <div className="flex space-x-4 text-sm">
-                <div className="flex items-center">
-                  <div className="rounded-full w-2.5 h-2.5 bg-blue-500 mr-1.5" />
-                  <span>{blockCounts.collect} Collect</span>
+              <div className="space-y-2">
+                <div className="flex space-x-4 text-sm">
+                  <div className="flex items-center">
+                    <div className="rounded-full w-2.5 h-2.5 bg-blue-500 mr-1.5" />
+                    <span>{blockCounts.collect} Collect</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="rounded-full w-2.5 h-2.5 bg-purple-500 mr-1.5" />
+                    <span>{blockCounts.think} Think</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="rounded-full w-2.5 h-2.5 bg-green-500 mr-1.5" />
+                    <span>{blockCounts.act} Act</span>
+                  </div>
                 </div>
-                <div className="flex items-center">
-                  <div className="rounded-full w-2.5 h-2.5 bg-purple-500 mr-1.5" />
-                  <span>{blockCounts.think} Think</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="rounded-full w-2.5 h-2.5 bg-green-500 mr-1.5" />
-                  <span>{blockCounts.act} Act</span>
-                </div>
+                
+                {/* Show key steps with names (if available) */}
+                {Object.keys(significantBlocks).length > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    <p className="font-medium text-xs text-gray-500 mb-1">Key steps:</p>
+                    <ul className="space-y-0.5 list-disc pl-4">
+                      {Object.entries(significantBlocks).map(([type, name]) => (
+                        <li key={type}>{name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex justify-between pt-2 border-t">
