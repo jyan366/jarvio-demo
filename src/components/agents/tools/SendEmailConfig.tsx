@@ -1,82 +1,137 @@
 
 import React, { useState } from "react";
-import { ToolConfigProps } from "./toolConfigs";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
-import { Textarea } from "@/components/ui/textarea";
-import { Send, Save } from "lucide-react";
+import { ToolConfigProps } from "./toolConfigs";
 
 export function SendEmailConfig({ toolId }: ToolConfigProps) {
   const { getToolConfig, updateToolConfig } = useAgentSettings();
   const config = getToolConfig(toolId);
   
+  const [emailAddress, setEmailAddress] = useState(config.emailAddress || "");
   const [emailRecipients, setEmailRecipients] = useState(config.emailRecipients || "");
   const [emailSubject, setEmailSubject] = useState(config.emailSubject || "");
   const [emailTemplate, setEmailTemplate] = useState(config.emailTemplate || "");
-  
+
   const handleSave = () => {
     updateToolConfig(toolId, {
+      emailAddress,
       emailRecipients,
       emailSubject,
       emailTemplate
     });
   };
   
-  const handleSendTest = () => {
-    // Test email functionality
+  const insertVariable = (variable: string) => {
+    const textArea = document.getElementById("email-template") as HTMLTextAreaElement;
+    if (!textArea) return;
+    
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+    const text = textArea.value;
+    const before = text.substring(0, start);
+    const after = text.substring(end);
+    
+    setEmailTemplate(before + `{${variable}}` + after);
+    textArea.focus();
+    
+    // Set cursor position after the inserted variable
+    setTimeout(() => {
+      textArea.selectionStart = textArea.selectionEnd = start + variable.length + 2;
+    }, 0);
   };
-  
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Send className="h-5 w-5 text-purple-600" />
-        <h3 className="font-medium">Email Configuration</h3>
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="from-email">From Email Address</Label>
+        <Input
+          id="from-email"
+          placeholder="your-email@example.com"
+          value={emailAddress}
+          onChange={(e) => setEmailAddress(e.target.value)}
+        />
       </div>
       
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Recipients</label>
-          <Input 
-            value={emailRecipients}
-            onChange={(e) => setEmailRecipients(e.target.value)}
-            placeholder="email@example.com, otheremail@example.com"
-          />
-          <p className="text-xs text-muted-foreground mt-1">Separate multiple emails with commas</p>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium mb-1">Subject Line</label>
-          <Input 
-            value={emailSubject}
-            onChange={(e) => setEmailSubject(e.target.value)}
-            placeholder="Enter email subject"
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium mb-1">Email Template</label>
-          <Textarea 
-            value={emailTemplate}
-            onChange={(e) => setEmailTemplate(e.target.value)}
-            rows={6}
-            className="mb-1"
-            placeholder="Enter your email template. Use {{variables}} for dynamic content."
-          />
-          <p className="text-xs text-muted-foreground">Use &#123;&#123;variables&#125;&#125; as placeholders for dynamic content</p>
-        </div>
-        
-        <div className="flex justify-end gap-2">
-          <Button onClick={handleSendTest} variant="outline" className="gap-1">
-            <Send className="h-4 w-4" />
-            Test Email
-          </Button>
-          <Button onClick={handleSave} className="gap-1 bg-purple-600 hover:bg-purple-700">
-            <Save className="h-4 w-4" />
-            Save Configuration
-          </Button>
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="to-email">Recipient(s)</Label>
+        <Input
+          id="to-email"
+          placeholder="recipient1@example.com, recipient2@example.com"
+          value={emailRecipients}
+          onChange={(e) => setEmailRecipients(e.target.value)}
+        />
+        <p className="text-xs text-muted-foreground">Separate multiple recipients with commas</p>
       </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="email-subject">Subject Line</Label>
+        <Input
+          id="email-subject" 
+          placeholder="Weekly Sales Report"
+          value={emailSubject}
+          onChange={(e) => setEmailSubject(e.target.value)}
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <Label htmlFor="email-template">Email Template</Label>
+          <div className="flex flex-wrap gap-1">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => insertVariable("product_name")} 
+              type="button"
+            >
+              &#123;product_name&#125;
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => insertVariable("sales_data")} 
+              type="button"
+            >
+              &#123;sales_data&#125;
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => insertVariable("date")} 
+              type="button"
+            >
+              &#123;date&#125;
+            </Button>
+          </div>
+        </div>
+        <Textarea
+          id="email-template"
+          placeholder="Hello Team,
+
+Here is the weekly sales report for {product_name}. 
+
+{sales_data}
+
+Report generated on {date}.
+
+Best regards,
+Your name"
+          rows={8}
+          value={emailTemplate}
+          onChange={(e) => setEmailTemplate(e.target.value)}
+          className="font-mono text-sm"
+        />
+        <p className="text-xs text-muted-foreground">
+          Use variables like {"{product_name}"}, {"{sales_data}"}, and {"{date}"} that will be replaced with actual data
+        </p>
+      </div>
+      
+      <Button type="button" onClick={handleSave} className="w-full">
+        Save Email Configuration
+      </Button>
     </div>
   );
 }

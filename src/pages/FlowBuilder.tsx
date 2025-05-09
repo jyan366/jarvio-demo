@@ -272,7 +272,7 @@ export default function FlowBuilder() {
   }, [flowId]);
 
   // Add a new block of the specified type
-  const addBlock = (type: BlockCategory) => {
+  const addBlock = (type: 'collect' | 'think' | 'act' | 'agent') => {
     const option = type === 'agent' ? 'Agent' : flowBlockOptions[type][0];
     const newBlock: FlowBlock = {
       id: uuidv4(),
@@ -856,7 +856,7 @@ export default function FlowBuilder() {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Flow Blocks</h2>
               
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -896,7 +896,7 @@ export default function FlowBuilder() {
               </div>
             </div>
 
-            {/* Block list */}
+            {/* Block list - Updated layout */}
             <div className="space-y-4">
               {flow.blocks.map((block, index) => {
                 const BlockIcon = blockTypeInfo[block.type].icon;
@@ -908,20 +908,15 @@ export default function FlowBuilder() {
                     key={block.id} 
                     className="group border rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <div className="flex justify-between items-start p-4">
-                      <div className="flex items-start space-x-3">
-                        <div className={`${blockColor} p-2 rounded-md mt-1`}>
-                          <BlockIcon className="h-4 w-4 text-white" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div>
-                            <Label 
-                              htmlFor={`block-name-${block.id}`} 
-                              className="text-sm text-muted-foreground"
-                            >
-                              Block Name
-                            </Label>
+                    <div className="p-4">
+                      {/* Header with icon, block name and controls */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`${blockColor} p-2 rounded-md flex-shrink-0`}>
+                            <BlockIcon className="h-4 w-4 text-white" />
+                          </div>
+                          
+                          <div className="flex-grow min-w-0">
                             <Textarea
                               id={`block-name-${block.id}`}
                               className="flow-block-name-input leading-tight p-1 text-base font-medium border-0 focus:ring-0 focus:border-0 resize-none overflow-hidden"
@@ -931,126 +926,129 @@ export default function FlowBuilder() {
                               placeholder="Give this block a descriptive name"
                             />
                           </div>
-
-                          <div>
-                            <Label 
-                              htmlFor={`block-option-${block.id}`}
-                              className="text-sm text-muted-foreground"
-                            >
-                              Block Type: {block.type.charAt(0).toUpperCase() + block.type.slice(1)}
-                            </Label>
-                            <div className="flex items-center gap-2">
-                              <Select 
-                                value={block.option} 
-                                onValueChange={(value) => updateBlockOption(block.id, value)}
-                              >
-                                <SelectTrigger id={`block-option-${block.id}`} className="w-full">
-                                  <SelectValue placeholder="Select option" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {flowBlockOptions[block.type].map((option) => (
-                                    <SelectItem key={option} value={option}>
-                                      {option}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              
-                              {block.type === 'act' && block.option === 'Agent' && (
-                                <Select
-                                  value={block.agentId || ''}
-                                  onValueChange={(value) => handleAgentSelection(block.id, value)}
+                        </div>
+                        
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={index === 0}
+                                  onClick={() => moveBlockUp(index)}
                                 >
-                                  <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select agent" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {agentsData.map((agent) => (
-                                      <SelectItem key={agent.id} value={agent.id}>
-                                        {agent.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              )}
-                              
-                              {block.type === 'agent' && (
-                                <Select
-                                  value={block.agentId || ''}
-                                  onValueChange={(value) => handleAgentSelection(block.id, value)}
-                                >
-                                  <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select agent" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {agentsData.map((agent) => (
-                                      <SelectItem key={agent.id} value={agent.id}>
-                                        {agent.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              )}
-                            </div>
-                          </div>
+                                  <MoveUp className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Move up</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                           
-                          {blockDescription && (
-                            <p className="text-xs text-muted-foreground mt-1">{blockDescription}</p>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={index === flow.blocks.length - 1}
+                                  onClick={() => moveBlockDown(index)}
+                                >
+                                  <MoveDown className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Move down</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                                  onClick={() => removeBlock(block.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Remove</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </div>
+                      
+                      {/* Block Options - Horizontal Layout */}
+                      <div className="flex flex-wrap items-center gap-3 mb-3">
+                        <div className="text-sm text-muted-foreground">
+                          Block Type: {block.type.charAt(0).toUpperCase() + block.type.slice(1)}
+                        </div>
+                        
+                        <div className="flex-grow flex items-center gap-2">
+                          <Select 
+                            value={block.option} 
+                            onValueChange={(value) => updateBlockOption(block.id, value)}
+                          >
+                            <SelectTrigger id={`block-option-${block.id}`} className="min-w-[200px]">
+                              <SelectValue placeholder="Select option" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {flowBlockOptions[block.type].map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          
+                          {block.type === 'act' && block.option === 'Agent' && (
+                            <Select
+                              value={block.agentId || ''}
+                              onValueChange={(value) => handleAgentSelection(block.id, value)}
+                            >
+                              <SelectTrigger className="min-w-[200px]">
+                                <SelectValue placeholder="Select agent" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {agentsData.map((agent) => (
+                                  <SelectItem key={agent.id} value={agent.id}>
+                                    {agent.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                          
+                          {block.type === 'agent' && (
+                            <Select
+                              value={block.agentId || ''}
+                              onValueChange={(value) => handleAgentSelection(block.id, value)}
+                            >
+                              <SelectTrigger className="min-w-[200px]">
+                                <SelectValue placeholder="Select agent" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {agentsData.map((agent) => (
+                                  <SelectItem key={agent.id} value={agent.id}>
+                                    {agent.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           )}
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-1">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                disabled={index === 0}
-                                onClick={() => moveBlockUp(index)}
-                              >
-                                <MoveUp className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Move up</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                disabled={index === flow.blocks.length - 1}
-                                onClick={() => moveBlockDown(index)}
-                              >
-                                <MoveDown className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Move down</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-red-500 hover:bg-red-50 hover:text-red-600"
-                                onClick={() => removeBlock(block.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Remove</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
+                      {/* Block Description - User-friendly explanation */}
+                      {blockDescription && (
+                        <p className="text-sm text-muted-foreground bg-gray-50 p-3 rounded-md">
+                          {blockDescription}
+                        </p>
+                      )}
                     </div>
                     
+                    {/* Down arrow connecting blocks */}
                     {index < flow.blocks.length - 1 && (
                       <div className="flex justify-center my-1">
                         <ArrowDown className="h-4 w-4 text-gray-300" />

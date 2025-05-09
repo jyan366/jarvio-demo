@@ -13,6 +13,7 @@ export type ToolConfig = {
   
   // Email Parsing config
   emailParsing?: boolean;
+  emailAddress?: string;
   
   // AI Summary config
   promptTemplate?: string;
