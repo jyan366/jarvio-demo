@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Command as LucideCommand, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { 
   Command,
   CommandGroup,
@@ -8,7 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Popover, PopoverContent } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface JarvioFormatMenuProps {
   open: boolean;
@@ -73,6 +73,9 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
   
   return (
     <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <div ref={triggerRef} />
+      </PopoverTrigger>
       <PopoverContent 
         className="w-80 p-0" 
         align="start" 
@@ -80,8 +83,6 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
         sideOffset={5}
         alignOffset={0}
         avoidCollisions={true}
-        sticky="always"
-        anchor={triggerRef.current || undefined}
       >
         <Command className="max-h-[400px] overflow-hidden">
           <CommandInput 
@@ -170,4 +171,3 @@ export const JarvioFormatMenu: React.FC<JarvioFormatMenuProps> = ({
     </Popover>
   );
 };
-

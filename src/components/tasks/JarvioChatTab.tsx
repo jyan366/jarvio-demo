@@ -200,6 +200,10 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
           }} 
           className="flex gap-2 items-end p-3 relative"
         >
+          <div className="absolute bottom-full mb-2" style={{ left: '50%', transform: 'translateX(-50%)' }}>
+            <div ref={triggerRef} className="w-1 h-1" />
+          </div>
+          
           {/* Format menu popover */}
           <JarvioFormatMenu
             open={formatMenuOpen}
@@ -209,8 +213,6 @@ export const JarvioChatTab: React.FC<JarvioChatTabProps> = ({
             setSearchValue={setSearchValue}
             triggerRef={triggerRef}
           />
-          
-          <div ref={triggerRef} className="absolute bottom-full mb-2" />
           
           <Textarea
             value={inputValue}
