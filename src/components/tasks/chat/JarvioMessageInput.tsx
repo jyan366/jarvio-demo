@@ -43,16 +43,18 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
 }) => {
   // Handle keyboard events
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Slash key to open blocks menu - allow anywhere
+    // Slash key to open blocks menu
     if (e.key === '/' && !formatMenuOpen && !commandActive) {
+      e.preventDefault(); // Prevent typing the slash
       setFormatMenuOpen(true);
       setCommandActive("slash");
       setSearchValue('');
       setMenuType("blocks");
     }
     
-    // @ key to open agents menu - allow anywhere
+    // @ key to open agents menu
     if (e.key === '@' && !formatMenuOpen && !commandActive) {
+      e.preventDefault(); // Prevent typing the @
       setFormatMenuOpen(true);
       setCommandActive("at");
       setSearchValue('');
@@ -80,25 +82,19 @@ export const JarvioMessageInput: React.FC<JarvioMessageInputProps> = ({
     const value = e.target.value;
     setInputValue(value);
     
-    // Check for slash command - triggers anywhere in text
-    if (!commandActive && value !== inputValue && value.includes('/')) {
-      const lastChar = value[value.length - 1];
-      if (lastChar === '/') {
-        setFormatMenuOpen(true);
-        setCommandActive("slash");
-        setSearchValue('');
-        setMenuType("blocks");
-      }
+    // Check for slash command - triggers anywhere
+    if (!commandActive && value.endsWith('/')) {
+      setFormatMenuOpen(true);
+      setCommandActive("slash");
+      setSearchValue('');
+      setMenuType("blocks");
     } 
-    // Check for at command - triggers anywhere in text
-    else if (!commandActive && value !== inputValue && value.includes('@')) {
-      const lastChar = value[value.length - 1];
-      if (lastChar === '@') {
-        setFormatMenuOpen(true);
-        setCommandActive("at");
-        setSearchValue('');
-        setMenuType("agents");
-      }
+    // Check for at command - triggers anywhere
+    else if (!commandActive && value.endsWith('@')) {
+      setFormatMenuOpen(true);
+      setCommandActive("at");
+      setSearchValue('');
+      setMenuType("agents");
     } 
     // If command is active, update search term
     else if (commandActive === "slash") {
