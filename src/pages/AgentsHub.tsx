@@ -7,9 +7,8 @@ import { GroupAgentChat } from "@/components/agents/GroupAgentChat";
 import { Agent } from "@/components/agents/types";
 import { agentsData } from "@/data/agentsData";
 import { Button } from "@/components/ui/button";
-import { Users, MessageSquare } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { AgentSettingsProvider } from "@/hooks/useAgentSettings";
-import { AgentSettings } from "@/components/agents/AgentSettings";
 
 export default function AgentsHub() {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
@@ -61,7 +60,6 @@ export default function AgentsHub() {
             )}
           </div>
         </div>
-        <AgentSettings />
       </MainLayout>
     </AgentSettingsProvider>
   );

@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Settings } from "lucide-react";
 import { Agent } from "./types";
-import { useAgentSettings } from "@/hooks/useAgentSettings";
+import { useNavigate } from "react-router-dom";
 
 interface AgentCardProps {
   agent: Agent;
@@ -12,7 +12,12 @@ interface AgentCardProps {
 }
 
 export function AgentCard({ agent, onSelect }: AgentCardProps) {
-  const { openAgentSettings } = useAgentSettings();
+  const navigate = useNavigate();
+  
+  const handleSettingsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/agents-hub/agent/${agent.id}`);
+  };
   
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
@@ -35,10 +40,7 @@ export function AgentCard({ agent, onSelect }: AgentCardProps) {
             variant="ghost" 
             size="sm" 
             className="h-8 w-8 p-0" 
-            onClick={(e) => {
-              e.stopPropagation();
-              openAgentSettings(agent);
-            }}
+            onClick={handleSettingsClick}
           >
             <Settings className="h-4 w-4" />
             <span className="sr-only">Settings</span>

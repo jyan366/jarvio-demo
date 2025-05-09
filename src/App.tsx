@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -13,6 +14,7 @@ import FlowBuilder from './pages/FlowBuilder';
 import KnowledgeBase from './pages/KnowledgeBase';
 import SalesHub from './pages/SalesHub';
 import AgentsHub from './pages/AgentsHub';
+import AgentProfile from './pages/AgentProfile';
 import AdsManager from './pages/AdsManager';
 import AllProductReviews from './pages/AllProductReviews';
 import MyOffers from './pages/MyOffers';
@@ -46,6 +48,7 @@ function App() {
           <Route path="/knowledge-base" element={<KnowledgeBase />} />
           <Route path="/sales-hub" element={<SalesHub />} />
           <Route path="/agents-hub" element={<AgentsHub />} />
+          <Route path="/agents-hub/agent/:agentId" element={<AgentProfile />} />
           <Route path="/ads-manager" element={<AdsManager />} />
           <Route path="/all-product-reviews" element={<AllProductReviews />} />
           

@@ -10,10 +10,6 @@ type AgentSettings = {
 
 type AgentSettingsContextType = {
   settings: Record<string, AgentSettings>;
-  selectedAgent: Agent | null;
-  isSettingsOpen: boolean;
-  openAgentSettings: (agent: Agent) => void;
-  closeAgentSettings: () => void;
   toggleFlow: (flowId: string, enabled: boolean) => void;
   toggleTool: (toolId: string, enabled: boolean) => void;
   saveSettings: () => void;
@@ -23,8 +19,7 @@ const AgentSettingsContext = createContext<AgentSettingsContextType | undefined>
 
 export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<Record<string, AgentSettings>>({});
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [currentAgentId, setCurrentAgentId] = useState<string | null>(null);
 
   // Load saved settings from localStorage on mount
   useEffect(() => {
@@ -34,34 +29,23 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const openAgentSettings = (agent: Agent) => {
-    setSelectedAgent(agent);
-    setIsSettingsOpen(true);
-    
-    // Initialize settings for this agent if they don't exist yet
-    if (!settings[agent.id]) {
-      setSettings(prev => ({
-        ...prev,
-        [agent.id]: {
-          agentId: agent.id,
-          enabledFlows: [],
-          customTools: []
-        }
-      }));
+  // Extract agent ID from URL if on agent profile page
+  useEffect(() => {
+    const path = window.location.pathname;
+    const match = path.match(/\/agents-hub\/agent\/([^\/]+)/);
+    if (match && match[1]) {
+      setCurrentAgentId(match[1]);
+    } else {
+      setCurrentAgentId(null);
     }
-  };
-
-  const closeAgentSettings = () => {
-    setIsSettingsOpen(false);
-    setSelectedAgent(null);
-  };
+  }, [window.location.pathname]);
 
   const toggleFlow = (flowId: string, enabled: boolean) => {
-    if (!selectedAgent) return;
+    if (!currentAgentId) return;
 
     setSettings(prev => {
-      const currentSettings = prev[selectedAgent.id] || {
-        agentId: selectedAgent.id,
+      const currentSettings = prev[currentAgentId] || {
+        agentId: currentAgentId,
         enabledFlows: [],
         customTools: []
       };
@@ -72,7 +56,7 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return {
         ...prev,
-        [selectedAgent.id]: {
+        [currentAgentId]: {
           ...currentSettings,
           enabledFlows
         }
@@ -81,11 +65,11 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const toggleTool = (toolId: string, enabled: boolean) => {
-    if (!selectedAgent) return;
+    if (!currentAgentId) return;
 
     setSettings(prev => {
-      const currentSettings = prev[selectedAgent.id] || {
-        agentId: selectedAgent.id,
+      const currentSettings = prev[currentAgentId] || {
+        agentId: currentAgentId,
         enabledFlows: [],
         customTools: []
       };
@@ -96,7 +80,7 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return {
         ...prev,
-        [selectedAgent.id]: {
+        [currentAgentId]: {
           ...currentSettings,
           customTools
         }
@@ -106,16 +90,11 @@ export const AgentSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const saveSettings = () => {
     localStorage.setItem('agentSettings', JSON.stringify(settings));
-    closeAgentSettings();
   };
 
   return (
     <AgentSettingsContext.Provider value={{
       settings,
-      selectedAgent,
-      isSettingsOpen,
-      openAgentSettings,
-      closeAgentSettings,
       toggleFlow,
       toggleTool,
       saveSettings
