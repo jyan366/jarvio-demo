@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -86,8 +85,8 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow }: FlowsGridProps) {
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-lg font-semibold">{flow.name}</CardTitle>
-                  <CardDescription className="mt-1 line-clamp-2">{flow.description}</CardDescription>
+                  <CardTitle className="text-lg font-semibold break-words">{flow.name}</CardTitle>
+                  <CardDescription className="mt-1 line-clamp-2 break-words">{flow.description}</CardDescription>
                 </div>
                 <div className="flex items-center space-x-1 rounded-md bg-secondary p-1 text-secondary-foreground">
                   {getTriggerIcon(flow.trigger)}
@@ -118,7 +117,7 @@ export function FlowsGrid({ flows, onEditFlow, onRunFlow }: FlowsGridProps) {
                     <p className="font-medium text-xs text-gray-500 mb-1">Key steps:</p>
                     <ul className="space-y-0.5 list-disc pl-4">
                       {Object.entries(significantBlocks).map(([type, name]) => (
-                        <li key={type} className="break-words line-clamp-2">{name}</li>
+                        <li key={type} className="break-words line-clamp-2 whitespace-normal">{name}</li>
                       ))}
                     </ul>
                   </div>

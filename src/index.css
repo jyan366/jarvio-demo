@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -137,23 +138,35 @@
 .auto-height-input {
   height: auto !important;
   min-height: 2.5rem !important;
-  white-space: normal !important;
+  white-space: pre-wrap !important; 
   word-break: break-word !important;
   overflow-wrap: break-word !important;
-  padding-top: 0.5rem !important;
-  padding-bottom: 0.5rem !important;
+  word-wrap: break-word !important;
+  padding: 0.5rem !important;
   line-height: 1.4 !important;
   width: 100% !important;
+  max-width: 100% !important;
   display: block !important;
   text-overflow: clip !important;
   overflow: visible !important;
 }
 
-/* Ensure text is visible in inputs */
-input.auto-height-input, textarea.auto-height-input {
+/* Target the specific input styling to force text wrapping */
+input.auto-height-input, 
+textarea.auto-height-input,
+.block-name-input {
   text-overflow: unset !important;
   overflow: visible !important;
   white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Fix for any container that might constrain width */
+.name-input-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
 }
 
 /* Workflow Builder Styles */

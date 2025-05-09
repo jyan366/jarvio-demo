@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -745,16 +744,17 @@ export default function FlowBuilder() {
                               value={block.name || ''}
                               placeholder="Describe this specific step"
                               onChange={(e) => updateBlockName(block.id, e.target.value)}
-                              className="font-medium auto-height-input break-words whitespace-normal"
+                              className="font-medium auto-height-input"
                               style={{
                                 height: 'auto',
                                 minHeight: '2.5rem',
-                                paddingTop: '0.5rem',
-                                paddingBottom: '0.5rem',
-                                lineHeight: '1.3',
-                                width: '100%',
+                                whiteSpace: 'normal',
+                                wordBreak: 'break-word',
+                                wordWrap: 'break-word',
                                 overflowWrap: 'break-word',
-                                wordBreak: 'break-word'
+                                width: '100%',
+                                overflow: 'hidden',
+                                textOverflow: 'initial'
                               }}
                             />
                             <div className="text-xs text-muted-foreground capitalize">Type: {block.type}</div>
