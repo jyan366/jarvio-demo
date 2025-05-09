@@ -19,4 +19,7 @@ export type ToolConfig = {
   
   // Send Email config
   emailAddress?: string;
+  emailRecipients?: string;
+  emailSubject?: string;
+  emailTemplate?: string;
 };

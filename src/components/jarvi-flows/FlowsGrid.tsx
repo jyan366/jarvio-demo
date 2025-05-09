@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +11,7 @@ export type TriggerType = 'manual' | 'scheduled' | 'event';
 
 export interface FlowBlock {
   id: string;
-  type: 'collect' | 'think' | 'act';
+  type: 'collect' | 'think' | 'act' | 'agent';  // Added 'agent' as a valid block type
   option: string;
   name?: string;
   agentId?: string;  // Added for agent association

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -44,7 +43,7 @@ import { Flow, FlowBlock, TriggerType } from '@/components/jarvi-flows/FlowsGrid
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { createTask } from '@/lib/supabaseTasks';
 import { agentsData } from '@/data/agentsData';
-import { flowBlockOptions } from '@/data/flowBlockOptions';
+import { flowBlockOptions, BlockCategory } from '@/data/flowBlockOptions';
 
 // Option descriptions to provide context for each block type
 const blockOptionDescriptions = {
@@ -273,7 +272,7 @@ export default function FlowBuilder() {
   }, [flowId]);
 
   // Add a new block of the specified type
-  const addBlock = (type: 'collect' | 'think' | 'act' | 'agent') => {
+  const addBlock = (type: BlockCategory) => {
     const option = type === 'agent' ? 'Agent' : flowBlockOptions[type][0];
     const newBlock: FlowBlock = {
       id: uuidv4(),
@@ -439,10 +438,10 @@ export default function FlowBuilder() {
 
       // Create flow blocks from AI response
       const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => {
-        // Validate block type
+        // Validate block type - make sure to include 'agent' here
         if (!block.type || !['collect', 'think', 'act', 'agent'].includes(block.type)) {
           console.warn(`Invalid block type: ${block.type}, using 'collect' as fallback`);
-          const fallbackType = 'collect';
+          const fallbackType = 'collect' as BlockCategory;
           const fallbackOption = flowBlockOptions[fallbackType][0];
           return {
             id: uuidv4(),

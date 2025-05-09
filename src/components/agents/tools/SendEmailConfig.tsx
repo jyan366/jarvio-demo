@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Save } from "lucide-react"; // Fixed capitalization
+import { Send, Save } from "lucide-react";
 
 export function SendEmailConfig({ toolId }: ToolConfigProps) {
   const { getToolConfig, updateToolConfig } = useAgentSettings();
@@ -30,7 +30,7 @@ export function SendEmailConfig({ toolId }: ToolConfigProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <Send className="h-5 w-5 text-purple-600" /> {/* Fixed capitalization */}
+        <Send className="h-5 w-5 text-purple-600" />
         <h3 className="font-medium">Email Configuration</h3>
       </div>
       
@@ -63,16 +63,16 @@ export function SendEmailConfig({ toolId }: ToolConfigProps) {
             className="mb-1"
             placeholder="Enter your email template. Use {{variables}} for dynamic content."
           />
-          <p className="text-xs text-muted-foreground">Use {{variables}} as placeholders for dynamic content</p>
+          <p className="text-xs text-muted-foreground">Use &#123;&#123;variables&#125;&#125; as placeholders for dynamic content</p>
         </div>
         
         <div className="flex justify-end gap-2">
           <Button onClick={handleSendTest} variant="outline" className="gap-1">
-            <Send className="h-4 w-4" /> {/* Fixed capitalization */}
+            <Send className="h-4 w-4" />
             Test Email
           </Button>
           <Button onClick={handleSave} className="gap-1 bg-purple-600 hover:bg-purple-700">
-            <Save className="h-4 w-4" /> {/* Fixed capitalization */}
+            <Save className="h-4 w-4" />
             Save Configuration
           </Button>
         </div>
