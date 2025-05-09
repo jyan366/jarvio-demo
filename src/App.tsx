@@ -31,6 +31,8 @@ import ProductReviews from "./pages/ProductReviews";
 import AllProductReviews from "./pages/AllProductReviews";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import AgentsHub from "./pages/AgentsHub";
+import JarviFlows from "./pages/JarviFlows";
+import FlowBuilder from "./pages/FlowBuilder";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,9 @@ export default function App() {
               <Route path="/" element={<Navigate to="/task-manager" replace />} />
               <Route path="/task-manager" element={<TaskManager />} />
               <Route path="/action-studio" element={<ActionStudio />} />
+              <Route path="/jarvi-flows" element={<JarviFlows />} />
+              <Route path="/jarvi-flows/builder" element={<FlowBuilder />} />
+              <Route path="/jarvi-flows/builder/:flowId" element={<FlowBuilder />} />
               <Route path="/sales-hub" element={<SalesHub />} />
               <Route path="/analytics-studio" element={<AnalyticsStudio />} />
               <Route path="/my-offers" element={<MyOffers />} />
