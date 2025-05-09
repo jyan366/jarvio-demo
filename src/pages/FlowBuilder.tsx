@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -27,7 +26,10 @@ import {
   ArrowLeft,
   WandSparkles,
   AlertCircle,
-  Loader2
+  Loader2,
+  MoveUp,
+  MoveDown,
+  GripVertical
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
@@ -226,7 +228,8 @@ export default function FlowBuilder() {
     const newBlock: FlowBlock = {
       id: uuidv4(),
       type: type,
-      option: blockOptions[type][0]
+      option: blockOptions[type][0],
+      name: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Step` // Add default name
     };
     
     setFlow(prev => ({
@@ -243,12 +246,46 @@ export default function FlowBuilder() {
     }));
   };
 
+  // Move block up in the list
+  const moveBlockUp = (index: number) => {
+    if (index <= 0) return; // Can't move up if it's the first item
+    
+    setFlow(prev => {
+      const newBlocks = [...prev.blocks];
+      // Swap with previous element
+      [newBlocks[index - 1], newBlocks[index]] = [newBlocks[index], newBlocks[index - 1]];
+      return { ...prev, blocks: newBlocks };
+    });
+  };
+  
+  // Move block down in the list
+  const moveBlockDown = (index: number) => {
+    if (index >= flow.blocks.length - 1) return; // Can't move down if it's the last item
+    
+    setFlow(prev => {
+      const newBlocks = [...prev.blocks];
+      // Swap with next element
+      [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
+      return { ...prev, blocks: newBlocks };
+    });
+  };
+
   // Update block option
   const updateBlockOption = (blockId: string, option: string) => {
     setFlow(prev => ({
       ...prev,
       blocks: prev.blocks.map(block => 
         block.id === blockId ? { ...block, option } : block
+      )
+    }));
+  };
+
+  // Update block name
+  const updateBlockName = (blockId: string, name: string) => {
+    setFlow(prev => ({
+      ...prev,
+      blocks: prev.blocks.map(block => 
+        block.id === blockId ? { ...block, name } : block
       )
     }));
   };
@@ -436,7 +473,7 @@ export default function FlowBuilder() {
         description: `${flow.name} has been saved.`
       });
       
-      navigate('/jarvi-flows');
+      // Removed navigation to /jarvi-flows so user stays on the page
     } catch (error) {
       console.error("Error saving flow:", error);
       toast({
@@ -611,14 +648,20 @@ export default function FlowBuilder() {
                     
                     <Card className="border-l-4" style={{ borderLeftColor: `var(--${blockColor.replace('bg-', '')})` }}>
                       <CardContent className="flex items-center p-4">
-                        <div className={`${blockColor} rounded-full p-2 mr-4`}>
+                        <div className={`${blockColor} rounded-full p-2 mr-4 flex-shrink-0`}>
                           <BlockIcon className="h-5 w-5 text-white" />
                         </div>
                         
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <Label className="capitalize text-xs">Block Type: {block.type}</Label>
-                            <div className="capitalize font-medium">{block.type}</div>
+                            <Label className="text-xs">Block Name</Label>
+                            <Input
+                              value={block.name || ''}
+                              placeholder={`${block.type} Step`}
+                              onChange={(e) => updateBlockName(block.id, e.target.value)}
+                              className="font-medium"
+                            />
+                            <div className="text-xs text-muted-foreground capitalize">Type: {block.type}</div>
                           </div>
                           
                           <div className="space-y-1">
@@ -644,11 +687,32 @@ export default function FlowBuilder() {
                           </div>
                         </div>
                         
+                        <div className="flex flex-col gap-1 ml-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => moveBlockUp(index)}
+                            disabled={index === 0}
+                            className="h-8 w-8"
+                          >
+                            <MoveUp className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => moveBlockDown(index)}
+                            disabled={index === flow.blocks.length - 1}
+                            className="h-8 w-8"
+                          >
+                            <MoveDown className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                        
                         <Button 
                           variant="ghost" 
                           size="icon" 
                           onClick={() => removeBlock(block.id)}
-                          className="ml-4"
+                          className="ml-1"
                         >
                           <Trash2 className="h-5 w-5 text-muted-foreground hover:text-destructive" />
                         </Button>

@@ -12,6 +12,7 @@ export type FlowBlock = {
   id: string;
   type: 'collect' | 'think' | 'act';
   option: string;
+  name?: string; // Add optional name field for blocks
   config?: Record<string, any>;
 };
 
