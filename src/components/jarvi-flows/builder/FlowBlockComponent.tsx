@@ -10,8 +10,8 @@ import {
   ChevronDown, 
   ChevronUp, 
   Info, 
-  MoveDown, 
   MoveUp, 
+  MoveDown, 
   Trash2,
   Database,
   Brain,
@@ -152,32 +152,31 @@ export function FlowBlockComponent({
   return (
     <>
       <div 
-        className={`group border rounded-lg bg-white overflow-hidden shadow hover:shadow-md transition-shadow
-                   ${blockBorderColor} border-l-4`}
+        className="group border rounded-xl bg-white overflow-hidden shadow-sm hover:shadow transition-shadow"
       >
-        <div className="p-4">
+        <div className="p-6">
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between">
               {/* Left side - Block type identifier and name */}
-              <div className="flex items-start gap-3 flex-1">
-                <div className={`${blockColor} p-2.5 rounded-full flex-shrink-0`}>
+              <div className="flex items-start gap-4 flex-1">
+                <div className={`${blockColor} p-3 rounded-full flex-shrink-0`}>
                   <BlockIcon className="h-5 w-5 text-white" />
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge className={`${blockLightColor} ${blockTextColor} border-0`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`${blockTextColor} font-medium text-lg`}>
                       {block.type.charAt(0).toUpperCase() + block.type.slice(1)}
-                    </Badge>
+                    </span>
                     
                     {hasConfig && (
-                      <Badge variant="outline" className="bg-gray-50 text-gray-600">
+                      <Badge variant="outline" className="bg-gray-50 text-gray-600 ml-2">
                         Configurable
                       </Badge>
                     )}
                     
                     {selectedAgent && (
-                      <Badge className="bg-[#f5f2ff] text-[#7356f1] border-0">
+                      <Badge className="bg-[#f5f2ff] text-[#7356f1] border-0 ml-2">
                         Agent: {selectedAgent.name}
                       </Badge>
                     )}
@@ -186,7 +185,7 @@ export function FlowBlockComponent({
                   <label className="text-sm text-gray-500 mb-1">Block Name</label>
                   <Textarea
                     id={`block-name-${block.id}`}
-                    className="text-lg font-medium border-0 focus:ring-0 focus:border-0 resize-none overflow-hidden p-0 bg-transparent flow-block-name-input"
+                    className="text-lg font-normal border-2 focus:border-gray-300 resize-none overflow-hidden p-3 bg-transparent flow-block-name-input rounded-lg my-1"
                     value={block.name || ""}
                     onChange={(e) => updateBlockName(block.id, e.target.value)}
                     rows={1}
@@ -194,13 +193,13 @@ export function FlowBlockComponent({
                   />
                   
                   {blockDescription && (
-                    <p className="text-gray-500 text-sm mt-2 line-clamp-2">{blockDescription}</p>
+                    <p className="text-gray-500 text-sm mt-2">{blockDescription}</p>
                   )}
                 </div>
               </div>
 
               {/* Right side - Actions and configuration */}
-              <div className="flex flex-col items-end gap-3">
+              <div className="flex flex-col items-end gap-3 ml-4">
                 <div className="flex items-center gap-1">
                   <TooltipProvider>
                     <Tooltip>
@@ -253,7 +252,7 @@ export function FlowBlockComponent({
                   </TooltipProvider>
                 </div>
                 
-                <div className="flex flex-col gap-2 items-end">
+                <div className="flex flex-col gap-2 items-end mt-2">
                   <div>
                     <label className="text-sm text-gray-500 mb-1 flex items-center justify-end">
                       Block Action
@@ -273,7 +272,7 @@ export function FlowBlockComponent({
                     >
                       <SelectTrigger 
                         id={`block-option-${block.id}`} 
-                        className="w-[200px] border bg-white"
+                        className="w-[230px] border bg-white"
                       >
                         <SelectValue placeholder="Select option" />
                       </SelectTrigger>
@@ -297,7 +296,7 @@ export function FlowBlockComponent({
                         value={block.agentId || ''}
                         onValueChange={(value) => handleAgentSelection(block.id, value)}
                       >
-                        <SelectTrigger className="w-[200px] border bg-white">
+                        <SelectTrigger className="w-[230px] border bg-white">
                           <SelectValue placeholder="Select agent" />
                         </SelectTrigger>
                         <SelectContent>
