@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -139,7 +138,7 @@ Return ONLY the JSON object, no other text or formatting.
       const flowName = prompt.split(' ').slice(0, 4).join(' ') + "...";
       flowData = {
         name: flowName,
-        description: `Automatically generated flow for: ${prompt}`,
+        description: `This flow helps Amazon sellers to ${prompt}.`,
         blocks: [
           { type: "collect", option: "All Listing Info", name: "Collect Product Data" },
           { type: "think", option: "Basic AI Analysis", name: "Analyze Product Information" },
