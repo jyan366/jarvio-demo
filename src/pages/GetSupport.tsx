@@ -53,8 +53,7 @@ export default function GetSupport() {
             🎯 <span className="font-semibold">Beta Bug Bounty Alert!</span> Found a bug? Let us know! 
             We're on a mission to build the most amazing Amazon brand management tool ever, 
             and your keen eye could help us get there. In return, we promise to keep 
-            innovating and making your brand management experience absolutely fantastic! 
-            # 🚀
+            innovating and making your brand management experience fantastic! 🚀
           </p>
         </div>
 
