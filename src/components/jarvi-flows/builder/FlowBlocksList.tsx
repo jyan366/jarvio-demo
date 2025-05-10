@@ -134,9 +134,7 @@ export function FlowBlocksList({
             <span className="ml-3 flex gap-2">
               {blockCounts.collect > 0}
               {blockCounts.think > 0}
-              {blockCounts.act > 0 && <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                  {blockCounts.act} Act
-                </Badge>}
+              {blockCounts.act > 0}
               {blockCounts.agent > 0 && <Badge variant="outline" className="bg-[#f5f2ff] text-[#7356f1] border-[#d1c7fa]">
                   {blockCounts.agent} Agent
                 </Badge>}
