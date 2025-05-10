@@ -896,7 +896,7 @@ export default function FlowBuilder() {
               </div>
             </div>
 
-            {/* Block list - Updated layout */}
+            {/* Block list - Redesigned layout */}
             <div className="space-y-4">
               {flow.blocks.map((block, index) => {
                 const BlockIcon = blockTypeInfo[block.type].icon;
@@ -909,9 +909,9 @@ export default function FlowBuilder() {
                     className="group border rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="p-4">
-                      {/* Header with icon, block name and controls */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
+                      {/* Header with block name, type icon, and controls */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-start gap-3 flex-grow">
                           <div className={`${blockColor} p-2 rounded-md flex-shrink-0`}>
                             <BlockIcon className="h-4 w-4 text-white" />
                           </div>
@@ -928,7 +928,7 @@ export default function FlowBuilder() {
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-1 flex-shrink-0">
+                        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -979,18 +979,20 @@ export default function FlowBuilder() {
                         </div>
                       </div>
                       
-                      {/* Block Options - Horizontal Layout */}
-                      <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <div className="text-sm text-muted-foreground">
-                          Block Type: {block.type.charAt(0).toUpperCase() + block.type.slice(1)}
-                        </div>
+                      {/* Block Options - New horizontal layout with action on right */}
+                      <div className="flex justify-between items-center gap-3 mb-3">
+                        {blockDescription && (
+                          <p className="text-sm text-muted-foreground flex-grow bg-gray-50 p-2 rounded-md">
+                            {blockDescription}
+                          </p>
+                        )}
                         
-                        <div className="flex-grow flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <Select 
                             value={block.option} 
                             onValueChange={(value) => updateBlockOption(block.id, value)}
                           >
-                            <SelectTrigger id={`block-option-${block.id}`} className="min-w-[200px]">
+                            <SelectTrigger id={`block-option-${block.id}`} className="min-w-[180px]">
                               <SelectValue placeholder="Select option" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1007,7 +1009,7 @@ export default function FlowBuilder() {
                               value={block.agentId || ''}
                               onValueChange={(value) => handleAgentSelection(block.id, value)}
                             >
-                              <SelectTrigger className="min-w-[200px]">
+                              <SelectTrigger className="min-w-[160px]">
                                 <SelectValue placeholder="Select agent" />
                               </SelectTrigger>
                               <SelectContent>
@@ -1025,7 +1027,7 @@ export default function FlowBuilder() {
                               value={block.agentId || ''}
                               onValueChange={(value) => handleAgentSelection(block.id, value)}
                             >
-                              <SelectTrigger className="min-w-[200px]">
+                              <SelectTrigger className="min-w-[160px]">
                                 <SelectValue placeholder="Select agent" />
                               </SelectTrigger>
                               <SelectContent>
@@ -1039,13 +1041,6 @@ export default function FlowBuilder() {
                           )}
                         </div>
                       </div>
-                      
-                      {/* Block Description - User-friendly explanation */}
-                      {blockDescription && (
-                        <p className="text-sm text-muted-foreground bg-gray-50 p-3 rounded-md">
-                          {blockDescription}
-                        </p>
-                      )}
                     </div>
                     
                     {/* Down arrow connecting blocks */}
