@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -15,6 +14,8 @@ import { AIPromptSection } from '@/components/jarvi-flows/builder/AIPromptSectio
 import { FlowDetailsSection } from '@/components/jarvi-flows/builder/FlowDetailsSection';
 import { FlowBlocksList } from '@/components/jarvi-flows/builder/FlowBlocksList';
 import { flowBlockOptions, BlockCategory } from '@/data/flowBlockOptions';
+// Import agentsData directly instead of using require
+import { agentsData } from '@/data/agentsData';
 
 // Predefined flows for testing/editing
 const predefinedFlows: Flow[] = [
@@ -525,9 +526,6 @@ export default function FlowBuilder() {
 
     return contextualNaming[type]?.[option] || `${type.charAt(0).toUpperCase() + type.slice(1)} ${option}`;
   };
-
-  // Imports needed for agent selection
-  const { agentsData } = require('@/data/agentsData');
 
   // Update flow field handlers
   const updateFlowName = (name: string) => {
