@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Database, Brain, Zap, User, Plus } from 'lucide-react';
@@ -6,11 +7,13 @@ import { FlowBlockComponent } from './FlowBlockComponent';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
 interface FlowBlocksListProps {
   blocks: FlowBlock[];
   setBlocks: (blocks: FlowBlock[]) => void;
   handleAgentSelection: (blockId: string, agentId: string) => void;
 }
+
 export function FlowBlocksList({
   blocks,
   setBlocks,
@@ -126,39 +129,62 @@ export function FlowBlocksList({
     act: blocks.filter(b => b.type === 'act').length,
     agent: blocks.filter(b => b.type === 'agent').length
   };
+  
   return <Card className="border shadow-sm">
       <CardHeader className="pb-2 border-b">
         <CardTitle className="flex justify-between items-center">
           <div className="flex items-center">
             Flow Blocks
             <span className="ml-3 flex gap-2">
-              {blockCounts.collect > 0}
-              {blockCounts.think > 0}
-              {blockCounts.act > 0}
+              {blockCounts.collect > 0 && <Badge variant="outline" className="bg-[#f0f7ff] text-[#3b82f6] border-[#c2d8fb]">
+                  {blockCounts.collect} Collect
+                </Badge>}
+              {blockCounts.think > 0 && <Badge variant="outline" className="bg-[#f5f2ff] text-[#8b5cf6] border-[#d8cefa]">
+                  {blockCounts.think} Think
+                </Badge>}
+              {blockCounts.act > 0 && <Badge variant="outline" className="bg-[#f0fdf9] text-[#10b981] border-[#c2f0e3]">
+                  {blockCounts.act} Act
+                </Badge>}
               {blockCounts.agent > 0 && <Badge variant="outline" className="bg-[#f5f2ff] text-[#7356f1] border-[#d1c7fa]">
                   {blockCounts.agent} Agent
                 </Badge>}
             </span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" onClick={() => addBlock('collect')} className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:text-blue-800">
-              <Database className="h-4 w-4 mr-1" />
-              <Plus className="h-3 w-3 mr-1" />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => addBlock('collect')}
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 min-w-[100px]"
+            >
+              <Database className="h-4 w-4 mr-2" />
               Collect
             </Button>
-            <Button variant="outline" size="sm" onClick={() => addBlock('think')} className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:text-purple-800">
-              <Brain className="h-4 w-4 mr-1" />
-              <Plus className="h-3 w-3 mr-1" />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => addBlock('think')}
+              className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800 min-w-[100px]"
+            >
+              <Brain className="h-4 w-4 mr-2" />
               Think
             </Button>
-            <Button variant="outline" size="sm" onClick={() => addBlock('act')} className="border-green-300 text-green-700 hover:bg-green-50 hover:text-green-800">
-              <Zap className="h-4 w-4 mr-1" />
-              <Plus className="h-3 w-3 mr-1" />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => addBlock('act')}
+              className="border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 min-w-[100px]"
+            >
+              <Zap className="h-4 w-4 mr-2" />
               Act
             </Button>
-            <Button variant="outline" size="sm" onClick={() => addBlock('agent')} className="border-[#d1c7fa] text-[#7356f1] hover:bg-[#f5f2ff] hover:text-[#6243e0]">
-              <User className="h-4 w-4 mr-1" />
-              <Plus className="h-3 w-3 mr-1" />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => addBlock('agent')}
+              className="border-[#d1c7fa] text-[#7356f1] hover:bg-[#f5f2ff] hover:text-[#6243e0] min-w-[100px]"
+            >
+              <User className="h-4 w-4 mr-2" />
               Agent
             </Button>
           </div>
