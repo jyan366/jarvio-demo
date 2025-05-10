@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
 import { InsightsFeed } from '@/components/action-studio/InsightsFeed';
-import { PlusCircle, Play } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -27,7 +26,6 @@ export default function ActionStudio() {
   const [selectedCategory, setSelectedCategory] = useState<InsightCategory>('All');
   const [showHowItWorks, setShowHowItWorks] = useState(true);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
-  const [isProcessBuilderOpen, setIsProcessBuilderOpen] = useState(false);
   const [isRestockProcessOpen, setIsRestockProcessOpen] = useState(false);
 
   return (
@@ -42,13 +40,6 @@ export default function ActionStudio() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              onClick={() => setIsProcessBuilderOpen(true)}
-            >
-              <Play className="w-4 h-4 mr-2" />
-              Run Process
-            </Button>
             <Button 
               onClick={() => setIsCreateTaskOpen(true)}
               className="bg-[#4457ff] hover:bg-[#4457ff]/90"
@@ -128,10 +119,7 @@ export default function ActionStudio() {
         }}
       />
 
-      <ProcessBuilder
-        open={isProcessBuilderOpen}
-        onOpenChange={setIsProcessBuilderOpen}
-      />
+      <ProcessBuilder />
 
       <BestSellersRestockProcess
         open={isRestockProcessOpen}
