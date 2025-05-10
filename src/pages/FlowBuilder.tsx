@@ -896,7 +896,7 @@ export default function FlowBuilder() {
               </div>
             </div>
 
-            {/* Block list - Redesigned layout */}
+            {/* Improved Flow Block List */}
             <div className="space-y-4">
               {flow.blocks.map((block, index) => {
                 const BlockIcon = blockTypeInfo[block.type].icon;
@@ -908,18 +908,18 @@ export default function FlowBuilder() {
                     key={block.id} 
                     className="group border rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <div className="p-4">
-                      {/* Header with block name, type icon, and controls */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-start gap-3 flex-grow">
-                          <div className={`${blockColor} p-2 rounded-md flex-shrink-0`}>
-                            <BlockIcon className="h-4 w-4 text-white" />
+                    <div className="p-5">
+                      {/* Header with icon and block name - simplified layout */}
+                      <div className="flex justify-between mb-4">
+                        <div className="flex gap-3 items-start flex-1">
+                          <div className={`${blockColor} p-2.5 rounded-lg flex-shrink-0`}>
+                            <BlockIcon className="h-5 w-5 text-white" />
                           </div>
                           
-                          <div className="flex-grow min-w-0">
+                          <div className="flex-1 min-w-0">
                             <Textarea
                               id={`block-name-${block.id}`}
-                              className="flow-block-name-input leading-tight p-1 text-base font-medium border-0 focus:ring-0 focus:border-0 resize-none overflow-hidden"
+                              className="flow-block-name-input text-lg font-medium border-0 focus:ring-0 focus:border-0 resize-none overflow-hidden p-0 bg-transparent"
                               value={block.name || ""}
                               onChange={(e) => updateBlockName(block.id, e.target.value)}
                               rows={1}
@@ -928,7 +928,7 @@ export default function FlowBuilder() {
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                        <div className="flex items-start gap-2 flex-shrink-0">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -937,8 +937,9 @@ export default function FlowBuilder() {
                                   size="icon"
                                   disabled={index === 0}
                                   onClick={() => moveBlockUp(index)}
+                                  className="h-8 w-8"
                                 >
-                                  <MoveUp className="h-4 w-4" />
+                                  <MoveUp className="h-4 w-4 text-gray-500" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Move up</TooltipContent>
@@ -953,8 +954,9 @@ export default function FlowBuilder() {
                                   size="icon"
                                   disabled={index === flow.blocks.length - 1}
                                   onClick={() => moveBlockDown(index)}
+                                  className="h-8 w-8"
                                 >
-                                  <MoveDown className="h-4 w-4" />
+                                  <MoveDown className="h-4 w-4 text-gray-500" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Move down</TooltipContent>
@@ -967,7 +969,7 @@ export default function FlowBuilder() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                                  className="h-8 w-8 text-red-500 hover:bg-red-50 hover:text-red-600"
                                   onClick={() => removeBlock(block.id)}
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -979,15 +981,16 @@ export default function FlowBuilder() {
                         </div>
                       </div>
                       
-                      {/* Block Options - New horizontal layout with action on right */}
-                      <div className="flex justify-between items-center gap-3 mb-3">
-                        {blockDescription && (
-                          <p className="text-sm text-muted-foreground flex-grow bg-gray-50 p-2 rounded-md">
-                            {blockDescription}
-                          </p>
-                        )}
-                        
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                      {/* Description text */}
+                      {blockDescription && (
+                        <p className="text-gray-500 text-sm mb-4 ml-[52px]">
+                          {blockDescription}
+                        </p>
+                      )}
+                      
+                      {/* Options and dropdown section */}
+                      <div className="flex justify-end mt-3">
+                        <div className="flex items-center gap-2">
                           <Select 
                             value={block.option} 
                             onValueChange={(value) => updateBlockOption(block.id, value)}

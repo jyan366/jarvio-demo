@@ -65,12 +65,12 @@ export function ToolCard({
 
   return (
     <div className="border rounded-lg mb-4 overflow-hidden">
-      <div className={`p-4 ${isEnabled ? 'bg-white' : 'bg-gray-50'}`}>
-        <div className="flex items-center justify-between">
+      <div className={`p-5 ${isEnabled ? 'bg-white' : 'bg-gray-50'}`}>
+        <div className="flex justify-between">
           <div className="flex-1">
-            <div className="flex items-center justify-between">
+            <div className="flex justify-between items-start">
               <div>
-                <h4 className="font-medium">{title}</h4>
+                <h4 className="font-medium text-lg">{title}</h4>
                 <p className="text-sm text-muted-foreground mt-1">
                   {description}
                 </p>
@@ -83,13 +83,13 @@ export function ToolCard({
                   id={`tool-${toolId}`}
                   checked={isEnabled}
                   onCheckedChange={handleToggle}
-                  className="cursor-pointer"
+                  className="cursor-pointer mt-1.5"
                   disabled={!isReady}
                 />
               )}
             </div>
             
-            <div className="mt-2 flex items-center">
+            <div className="mt-3 flex items-center">
               <span className={`text-xs px-2 py-1 rounded-full inline-block ${getCategoryColor(category)}`}>
                 {category}
               </span>
