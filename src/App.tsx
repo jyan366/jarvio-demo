@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from "@/components/ui/toaster";
 import { AgentSettingsProvider } from '@/hooks/useAgentSettings';
@@ -39,7 +39,12 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <AgentSettingsProvider>
           <Routes>
-            <Route path="/" element={<Home />} />
+            {/* Redirect root to task manager */}
+            <Route path="/" element={<Navigate to="/task-manager" replace />} />
+            
+            {/* Keep the original Home component accessible via /home */}
+            <Route path="/home" element={<Home />} />
+            
             <Route path="/task-manager" element={<TaskManager />} />
             <Route path="/task/:taskId" element={<TaskWork />} />
             <Route path="/action-studio" element={<ActionStudio />} />
@@ -74,6 +79,7 @@ function App() {
             <Route path="/advertising-insights" element={<AdvertisingInsights />} />
             <Route path="/ai-assistant" element={<AIAssistant />} />
             
+            {/* Catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
