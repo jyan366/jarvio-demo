@@ -15,8 +15,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const adjustHeight = (element: HTMLTextAreaElement) => {
       // Reset height to auto to get the correct scrollHeight
       element.style.height = 'auto';
-      // Set the height to match the scrollHeight with extra padding to ensure all text is visible
-      element.style.height = `${element.scrollHeight + 20}px`;  // Increased padding from 12px to 20px
+      // Set the height to match the scrollHeight
+      element.style.height = `${element.scrollHeight}px`;
     };
     
     // Handle onChange to adjust height
@@ -35,7 +35,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         adjustHeight(textarea);
         
         // Multiple adjustment attempts with increasing delays to ensure proper rendering
-        const timeouts = [10, 50, 200, 500, 1000].map(delay => // Added a longer 1000ms timeout
+        const timeouts = [10, 50, 200].map(delay =>
           setTimeout(() => {
             if (textarea) adjustHeight(textarea);
           }, delay)
@@ -51,7 +51,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <textarea
         className={cn(
-          "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 whitespace-pre-wrap break-words overflow-wrap-break-word",
+          "flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 whitespace-pre-wrap break-words overflow-wrap-break-word",
           className
         )}
         onChange={handleChange}

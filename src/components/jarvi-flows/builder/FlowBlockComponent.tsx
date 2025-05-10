@@ -157,7 +157,7 @@ export function FlowBlockComponent({
                   <label className="text-xs text-gray-500 mb-1">Block Name</label>
                   <Textarea 
                     id={`block-name-${block.id}`} 
-                    className="text-sm font-normal border-2 focus:border-gray-300 resize-none overflow-hidden p-3 bg-transparent rounded-lg my-1" 
+                    className="text-sm font-normal border-2 focus:border-gray-300 resize-none p-3 bg-transparent rounded-lg my-1 min-h-[38px]" 
                     value={block.name || ""} 
                     onChange={e => updateBlockName(block.id, e.target.value)} 
                     rows={1} 
