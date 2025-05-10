@@ -54,7 +54,7 @@ export default function GetSupport() {
             We're on a mission to build the most amazing Amazon brand management tool ever, 
             and your keen eye could help us get there. In return, we promise to keep 
             innovating and making your brand management experience absolutely fantastic! 
-            #BetterTogether 🚀
+            # 🚀
           </p>
         </div>
 
