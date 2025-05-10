@@ -64,9 +64,9 @@ export function ToolCard({
   };
 
   return (
-    <div className="border rounded-lg mb-4 overflow-hidden">
-      <div className={`p-5 ${isEnabled ? 'bg-white' : 'bg-gray-50'}`}>
-        <div className="flex justify-between">
+    <div className="border rounded-lg mb-4 overflow-hidden shadow-sm">
+      <div className={`p-4 ${isEnabled ? 'bg-white' : 'bg-gray-50'}`}>
+        <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex justify-between items-start">
               <div>
@@ -83,7 +83,7 @@ export function ToolCard({
                   id={`tool-${toolId}`}
                   checked={isEnabled}
                   onCheckedChange={handleToggle}
-                  className="cursor-pointer mt-1.5"
+                  className="cursor-pointer"
                   disabled={!isReady}
                 />
               )}
