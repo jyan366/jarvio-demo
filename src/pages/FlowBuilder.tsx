@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -13,6 +14,7 @@ import { FlowHeader } from '@/components/jarvi-flows/builder/FlowHeader';
 import { AIPromptSection } from '@/components/jarvi-flows/builder/AIPromptSection';
 import { FlowDetailsSection } from '@/components/jarvi-flows/builder/FlowDetailsSection';
 import { FlowBlocksList } from '@/components/jarvi-flows/builder/FlowBlocksList';
+import { flowBlockOptions, BlockCategory } from '@/data/flowBlockOptions';
 
 // Predefined flows for testing/editing
 const predefinedFlows: Flow[] = [
@@ -199,7 +201,7 @@ export default function FlowBuilder() {
         body: {
           prompt: `Create a flow for an Amazon seller based on this description: "${data.prompt}". 
           The flow should include appropriate blocks from these available options:
-          ${JSON.stringify(allBlockOptions)}. 
+          ${JSON.stringify(flowBlockOptions)}. 
           
           A flow typically has 3-5 blocks, usually starting with collect blocks, followed by think blocks, and ending with act blocks.
           
@@ -526,7 +528,6 @@ export default function FlowBuilder() {
 
   // Imports needed for agent selection
   const { agentsData } = require('@/data/agentsData');
-  const { flowBlockOptions } = require('@/data/flowBlockOptions');
 
   // Update flow field handlers
   const updateFlowName = (name: string) => {
