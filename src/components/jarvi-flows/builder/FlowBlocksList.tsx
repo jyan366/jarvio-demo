@@ -1,16 +1,27 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Database, Brain, Zap, User, Plus } from 'lucide-react';
+import { Database, Brain, Zap, User, ChevronDown } from 'lucide-react';
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
 import { FlowBlockComponent } from './FlowBlockComponent';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
 interface FlowBlocksListProps {
   blocks: FlowBlock[];
   setBlocks: (blocks: FlowBlock[]) => void;
   handleAgentSelection: (blockId: string, agentId: string) => void;
 }
+
+// Custom connector component
+const FlowConnector = () => (
+  <div className="relative flex justify-center mb-[-1px]">
+    <div className="w-6 h-6 flex items-center justify-center">
+      <ChevronDown className="h-6 w-6 text-gray-400" />
+    </div>
+  </div>
+);
+
 export function FlowBlocksList({
   blocks,
   setBlocks,
@@ -126,7 +137,9 @@ export function FlowBlocksList({
     act: blocks.filter(b => b.type === 'act').length,
     agent: blocks.filter(b => b.type === 'agent').length
   };
-  return <Card className="border shadow-sm">
+  
+  return (
+    <Card className="border shadow-sm">
       <CardHeader className="pb-2 border-b">
         <CardTitle className="flex justify-between items-center flex-wrap">
           <div className="flex items-center">
@@ -161,15 +174,35 @@ export function FlowBlocksList({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-6 space-y-2">
-        {blocks.length > 0 ? <div className="space-y-1">
-            {blocks.map((block, index) => <FlowBlockComponent key={block.id} block={block} index={index} isLast={index === blocks.length - 1} updateBlockName={updateBlockName} updateBlockOption={updateBlockOption} moveBlockUp={moveBlockUp} moveBlockDown={moveBlockDown} removeBlock={removeBlock} handleAgentSelection={handleAgentSelection} />)}
-          </div> : <div className="border border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50">
+      <CardContent className="p-6">
+        {blocks.length > 0 ? (
+          <div className="space-y-0">
+            {blocks.map((block, index) => (
+              <React.Fragment key={block.id}>
+                <FlowBlockComponent 
+                  block={block} 
+                  index={index} 
+                  isLast={index === blocks.length - 1} 
+                  updateBlockName={updateBlockName} 
+                  updateBlockOption={updateBlockOption} 
+                  moveBlockUp={moveBlockUp} 
+                  moveBlockDown={moveBlockDown} 
+                  removeBlock={removeBlock} 
+                  handleAgentSelection={handleAgentSelection} 
+                />
+                {index < blocks.length - 1 && <FlowConnector />}
+              </React.Fragment>
+            ))}
+          </div>
+        ) : (
+          <div className="border border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50">
             <div className="text-muted-foreground text-center">
               <p>No blocks added yet</p>
               <p className="text-sm mt-1">Click one of the buttons above to add your first block</p>
             </div>
-          </div>}
+          </div>
+        )}
       </CardContent>
-    </Card>;
+    </Card>
+  );
 }
