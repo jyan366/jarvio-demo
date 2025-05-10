@@ -1,32 +1,14 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ArrowDown, 
-  ChevronDown, 
-  ChevronUp, 
-  Info, 
-  MoveUp, 
-  MoveDown, 
-  Trash2,
-  Database,
-  Brain,
-  Zap,
-  User,
-  Settings
-} from 'lucide-react';
+import { ArrowDown, ChevronDown, ChevronUp, Info, MoveUp, MoveDown, Trash2, Database, Brain, Zap, User, Settings } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { agentsData } from '@/data/agentsData';
 import { flowBlockOptions } from '@/data/flowBlockOptions';
-import { 
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SendEmailConfig } from '@/components/agents/tools/SendEmailConfig';
 import { AiSummaryConfig } from '@/components/agents/tools/AiSummaryConfig';
 import { UploadSheetConfig } from '@/components/agents/tools/UploadSheetConfig';
@@ -35,29 +17,29 @@ import { EmailParsingConfig } from '@/components/agents/tools/EmailParsingConfig
 
 // Block type to icon/color mapping
 const blockTypeInfo = {
-  collect: { 
-    icon: Database, 
+  collect: {
+    icon: Database,
     color: 'bg-blue-500',
     lightColor: 'bg-blue-50',
     borderColor: 'border-blue-200',
     textColor: 'text-blue-700'
   },
-  think: { 
-    icon: Brain, 
+  think: {
+    icon: Brain,
     color: 'bg-purple-500',
     lightColor: 'bg-purple-50',
     borderColor: 'border-purple-200',
     textColor: 'text-purple-700'
   },
-  act: { 
-    icon: Zap, 
+  act: {
+    icon: Zap,
     color: 'bg-green-500',
     lightColor: 'bg-green-50',
     borderColor: 'border-green-200',
     textColor: 'text-green-700'
   },
-  agent: { 
-    icon: User, 
+  agent: {
+    icon: User,
     color: 'bg-[#9b87f5]',
     lightColor: 'bg-[#f5f2ff]',
     borderColor: 'border-[#d1c7fa]',
@@ -104,7 +86,6 @@ const configComponentMap = {
   'AI Summary': AiSummaryConfig,
   'Send Email': SendEmailConfig
 };
-
 interface FlowBlockProps {
   block: FlowBlock;
   index: number;
@@ -116,7 +97,6 @@ interface FlowBlockProps {
   removeBlock: (blockId: string) => void;
   handleAgentSelection: (blockId: string, agentId: string) => void;
 }
-
 export function FlowBlockComponent({
   block,
   index,
@@ -129,7 +109,7 @@ export function FlowBlockComponent({
   handleAgentSelection
 }: FlowBlockProps) {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
-  
+
   // Get the block type info
   const typeInfo = blockTypeInfo[block.type];
   const BlockIcon = typeInfo.icon;
@@ -137,23 +117,19 @@ export function FlowBlockComponent({
   const blockLightColor = typeInfo.lightColor;
   const blockBorderColor = typeInfo.borderColor;
   const blockTextColor = typeInfo.textColor;
-  
+
   // Get description for the current block option
   const blockDescription = blockOptionDescriptions[block.type]?.[block.option];
-  
+
   // Check if this block has configurable options
   const hasConfig = Object.keys(configComponentMap).includes(block.option);
   const ConfigComponent = configComponentMap[block.option as keyof typeof configComponentMap];
-  
+
   // Determine if this block uses an agent
-  const hasAgentSelection = (block.type === 'act' && block.option === 'Agent') || block.type === 'agent';
+  const hasAgentSelection = block.type === 'act' && block.option === 'Agent' || block.type === 'agent';
   const selectedAgent = block.agentId ? agentsData.find(agent => agent.id === block.agentId) : null;
-  
-  return (
-    <>
-      <div 
-        className="group border rounded-xl bg-white overflow-hidden shadow-sm hover:shadow transition-shadow"
-      >
+  return <>
+      <div className="group border rounded-xl bg-white overflow-hidden shadow-sm hover:shadow transition-shadow">
         <div className="p-6">
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between">
@@ -169,32 +145,19 @@ export function FlowBlockComponent({
                       {block.type.charAt(0).toUpperCase() + block.type.slice(1)}
                     </span>
                     
-                    {hasConfig && (
-                      <Badge variant="outline" className="bg-gray-50 text-gray-600 ml-2">
+                    {hasConfig && <Badge variant="outline" className="bg-gray-50 text-gray-600 ml-2">
                         Configurable
-                      </Badge>
-                    )}
+                      </Badge>}
                     
-                    {selectedAgent && (
-                      <Badge className="bg-[#f5f2ff] text-[#7356f1] border-0 ml-2">
+                    {selectedAgent && <Badge className="bg-[#f5f2ff] text-[#7356f1] border-0 ml-2">
                         Agent: {selectedAgent.name}
-                      </Badge>
-                    )}
+                      </Badge>}
                   </div>
                   
                   <label className="text-sm text-gray-500 mb-1">Block Name</label>
-                  <Textarea
-                    id={`block-name-${block.id}`}
-                    className="text-lg font-normal border-2 focus:border-gray-300 resize-none overflow-hidden p-3 bg-transparent flow-block-name-input rounded-lg my-1"
-                    value={block.name || ""}
-                    onChange={(e) => updateBlockName(block.id, e.target.value)}
-                    rows={1}
-                    placeholder="Give this block a descriptive name"
-                  />
+                  <Textarea id={`block-name-${block.id}`} className="text-lg font-normal border-2 focus:border-gray-300 resize-none overflow-hidden p-3 bg-transparent flow-block-name-input rounded-lg my-1" value={block.name || ""} onChange={e => updateBlockName(block.id, e.target.value)} rows={1} placeholder="Give this block a descriptive name" />
                   
-                  {blockDescription && (
-                    <p className="text-gray-500 text-sm mt-2">{blockDescription}</p>
-                  )}
+                  {blockDescription && <p className="text-gray-500 text-sm mt-2">{blockDescription}</p>}
                 </div>
               </div>
 
@@ -204,13 +167,7 @@ export function FlowBlockComponent({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          disabled={index === 0}
-                          onClick={() => moveBlockUp(index)}
-                          className="h-8 w-8"
-                        >
+                        <Button variant="ghost" size="icon" disabled={index === 0} onClick={() => moveBlockUp(index)} className="h-8 w-8">
                           <MoveUp className="h-4 w-4 text-gray-500" />
                         </Button>
                       </TooltipTrigger>
@@ -221,13 +178,7 @@ export function FlowBlockComponent({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          disabled={isLast}
-                          onClick={() => moveBlockDown(index)}
-                          className="h-8 w-8"
-                        >
+                        <Button variant="ghost" size="icon" disabled={isLast} onClick={() => moveBlockDown(index)} className="h-8 w-8">
                           <MoveDown className="h-4 w-4 text-gray-500" />
                         </Button>
                       </TooltipTrigger>
@@ -238,12 +189,7 @@ export function FlowBlockComponent({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-red-500 hover:bg-red-50 hover:text-red-600"
-                          onClick={() => removeBlock(block.id)}
-                        >
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => removeBlock(block.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
@@ -266,90 +212,56 @@ export function FlowBlockComponent({
                       </TooltipProvider>
                     </label>
                     
-                    <Select 
-                      value={block.option} 
-                      onValueChange={(value) => updateBlockOption(block.id, value)}
-                    >
-                      <SelectTrigger 
-                        id={`block-option-${block.id}`} 
-                        className="w-[230px] border bg-white"
-                      >
+                    <Select value={block.option} onValueChange={value => updateBlockOption(block.id, value)}>
+                      <SelectTrigger id={`block-option-${block.id}`} className="w-[230px] border bg-white">
                         <SelectValue placeholder="Select option" />
                       </SelectTrigger>
                       <SelectContent>
-                        {flowBlockOptions[block.type].map((option) => (
-                          <SelectItem key={option} value={option}>
+                        {flowBlockOptions[block.type].map(option => <SelectItem key={option} value={option}>
                             {option}
-                          </SelectItem>
-                        ))}
+                          </SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
                   
                   {/* Agent selection dropdown */}
-                  {hasAgentSelection && (
-                    <div className="w-full">
+                  {hasAgentSelection && <div className="w-full">
                       <label className="text-sm text-gray-500 mb-1 flex items-center justify-end">
                         Select Agent
                       </label>
-                      <Select
-                        value={block.agentId || ''}
-                        onValueChange={(value) => handleAgentSelection(block.id, value)}
-                      >
+                      <Select value={block.agentId || ''} onValueChange={value => handleAgentSelection(block.id, value)}>
                         <SelectTrigger className="w-[230px] border bg-white">
                           <SelectValue placeholder="Select agent" />
                         </SelectTrigger>
                         <SelectContent>
-                          {agentsData.map((agent) => (
-                            <SelectItem key={agent.id} value={agent.id}>
+                          {agentsData.map(agent => <SelectItem key={agent.id} value={agent.id}>
                               {agent.name}
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
-                    </div>
-                  )}
+                    </div>}
                   
                   {/* Configuration button for blocks with config options */}
-                  {hasConfig && ConfigComponent && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`mt-2 ${blockLightColor} ${blockTextColor} border-0`}
-                      onClick={() => setIsConfigOpen(!isConfigOpen)}
-                    >
+                  {hasConfig && ConfigComponent && <Button variant="outline" size="sm" className={`mt-2 ${blockLightColor} ${blockTextColor} border-0`} onClick={() => setIsConfigOpen(!isConfigOpen)}>
                       <Settings className="h-3.5 w-3.5 mr-1.5" />
                       Configure
-                      {isConfigOpen ? (
-                        <ChevronUp className="h-3.5 w-3.5 ml-1.5" />
-                      ) : (
-                        <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
-                      )}
-                    </Button>
-                  )}
+                      {isConfigOpen ? <ChevronUp className="h-3.5 w-3.5 ml-1.5" /> : <ChevronDown className="h-3.5 w-3.5 ml-1.5" />}
+                    </Button>}
                 </div>
               </div>
             </div>
             
             {/* Configuration panel */}
-            {hasConfig && ConfigComponent && (
-              <Collapsible open={isConfigOpen} onOpenChange={setIsConfigOpen}>
+            {hasConfig && ConfigComponent && <Collapsible open={isConfigOpen} onOpenChange={setIsConfigOpen}>
                 <CollapsibleContent className="pt-3 border-t mt-2">
                   <ConfigComponent toolId={`${block.type}-${block.option.toLowerCase().replace(/\s+/g, '-')}`} />
                 </CollapsibleContent>
-              </Collapsible>
-            )}
+              </Collapsible>}
           </div>
         </div>
       </div>
       
       {/* Connection arrow between blocks */}
-      {!isLast && (
-        <div className="flex justify-center py-2 relative">
-          <div className="h-6 w-0.5 bg-gray-300"></div>
-          <ArrowDown className="h-4 w-4 text-gray-400 absolute -bottom-1" />
-        </div>
-      )}
-    </>
-  );
+      {!isLast}
+    </>;
 }
