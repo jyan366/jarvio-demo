@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -16,6 +17,7 @@ import { FlowBlocksList } from '@/components/jarvi-flows/builder/FlowBlocksList'
 import { flowBlockOptions, BlockCategory } from '@/data/flowBlockOptions';
 // Import agentsData directly instead of using require
 import { agentsData } from '@/data/agentsData';
+import { useFlowBlockConfig } from '@/hooks/useFlowBlockConfig';
 
 // Predefined flows for testing/editing
 const predefinedFlows: Flow[] = [
@@ -96,6 +98,7 @@ export default function FlowBuilder() {
   const [aiError, setAiError] = useState<string | null>(null);
   const [isRunningFlow, setIsRunningFlow] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const { blockConfigs, updateBlockConfig } = useFlowBlockConfig();
 
   const aiPromptForm = useForm<AIPromptFormValues>({
     defaultValues: {
@@ -578,7 +581,7 @@ export default function FlowBuilder() {
             setTrigger={updateFlowTrigger}
           />
           
-          {/* Flow blocks section */}
+          {/* Flow blocks section with improved UI */}
           <FlowBlocksList
             blocks={flow.blocks}
             setBlocks={updateFlowBlocks}

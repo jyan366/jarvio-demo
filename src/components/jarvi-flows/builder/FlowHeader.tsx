@@ -1,8 +1,21 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Play, Save, WandSparkles } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Loader2, 
+  Play, 
+  Save,
+  WandSparkles, 
+  ChevronDown 
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface FlowHeaderProps {
   showAIPrompt: boolean;
@@ -65,13 +78,28 @@ export function FlowHeader({
           </Button>
         )}
         
-        <Button 
-          onClick={onSaveFlow}
-          className="bg-[#4457ff] hover:bg-[#4457ff]/90"
-        >
-          <Save className="h-4 w-4 mr-2" />
-          Save Flow
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              className="bg-[#4457ff] hover:bg-[#4457ff]/90"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save Flow
+              <ChevronDown className="h-4 w-4 ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-white shadow-lg border border-gray-200">
+            <DropdownMenuItem onClick={onSaveFlow}>
+              Save
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log("Save as new flow")}>
+              Save as New Flow
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log("Export flow")}>
+              Export Flow JSON
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

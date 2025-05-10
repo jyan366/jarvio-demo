@@ -1,10 +1,17 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Database, Brain, Zap, User } from 'lucide-react';
+import { Database, Brain, Zap, User, Plus } from 'lucide-react';
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
 import { FlowBlockComponent } from './FlowBlockComponent';
 import { v4 as uuidv4 } from 'uuid';
+import { 
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle 
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface FlowBlocksListProps {
   blocks: FlowBlock[];
@@ -119,77 +126,115 @@ export function FlowBlocksList({ blocks, setBlocks, handleAgentSelection }: Flow
     ));
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Flow Blocks</h2>
-        
-        <div className="flex flex-wrap gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => addBlock('collect')}
-            className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
-          >
-            <Database className="h-4 w-4 mr-1" />
-            Collect
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => addBlock('think')}
-            className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
-          >
-            <Brain className="h-4 w-4 mr-1" />
-            Think
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => addBlock('act')}
-            className="border-green-300 text-green-700 hover:bg-green-50 hover:text-green-800"
-          >
-            <Zap className="h-4 w-4 mr-1" />
-            Act
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => addBlock('agent')}
-            className="border-[#9b87f5] text-[#7356f1] hover:bg-[#9b87f5]/10 hover:text-[#6243e0]"
-          >
-            <User className="h-4 w-4 mr-1" />
-            Agent
-          </Button>
-        </div>
-      </div>
+  // Determine counts by type
+  const blockCounts = {
+    collect: blocks.filter(b => b.type === 'collect').length,
+    think: blocks.filter(b => b.type === 'think').length,
+    act: blocks.filter(b => b.type === 'act').length,
+    agent: blocks.filter(b => b.type === 'agent').length,
+  };
 
-      {/* Flow Block List */}
-      <div className="space-y-4">
-        {blocks.map((block, index) => (
-          <FlowBlockComponent
-            key={block.id}
-            block={block}
-            index={index}
-            isLast={index === blocks.length - 1}
-            updateBlockName={updateBlockName}
-            updateBlockOption={updateBlockOption}
-            moveBlockUp={moveBlockUp}
-            moveBlockDown={moveBlockDown}
-            removeBlock={removeBlock}
-            handleAgentSelection={handleAgentSelection}
-          />
-        ))}
-        
-        {blocks.length === 0 && (
-          <div className="border border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900">
+  return (
+    <Card className="border shadow-sm">
+      <CardHeader className="pb-2 border-b">
+        <CardTitle className="flex justify-between items-center">
+          <div className="flex items-center">
+            Flow Blocks
+            <span className="ml-3 flex gap-2">
+              {blockCounts.collect > 0 && (
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  {blockCounts.collect} Collect
+                </Badge>
+              )}
+              {blockCounts.think > 0 && (
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                  {blockCounts.think} Think
+                </Badge>
+              )}
+              {blockCounts.act > 0 && (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  {blockCounts.act} Act
+                </Badge>
+              )}
+              {blockCounts.agent > 0 && (
+                <Badge variant="outline" className="bg-[#f5f2ff] text-[#7356f1] border-[#d1c7fa]">
+                  {blockCounts.agent} Agent
+                </Badge>
+              )}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => addBlock('collect')}
+              className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
+            >
+              <Database className="h-4 w-4 mr-1" />
+              <Plus className="h-3 w-3 mr-1" />
+              Collect
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => addBlock('think')}
+              className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+            >
+              <Brain className="h-4 w-4 mr-1" />
+              <Plus className="h-3 w-3 mr-1" />
+              Think
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => addBlock('act')}
+              className="border-green-300 text-green-700 hover:bg-green-50 hover:text-green-800"
+            >
+              <Zap className="h-4 w-4 mr-1" />
+              <Plus className="h-3 w-3 mr-1" />
+              Act
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => addBlock('agent')}
+              className="border-[#d1c7fa] text-[#7356f1] hover:bg-[#f5f2ff] hover:text-[#6243e0]"
+            >
+              <User className="h-4 w-4 mr-1" />
+              <Plus className="h-3 w-3 mr-1" />
+              Agent
+            </Button>
+          </div>
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent className="p-6 space-y-2">
+        {blocks.length > 0 ? (
+          <div className="space-y-1">
+            {blocks.map((block, index) => (
+              <FlowBlockComponent
+                key={block.id}
+                block={block}
+                index={index}
+                isLast={index === blocks.length - 1}
+                updateBlockName={updateBlockName}
+                updateBlockOption={updateBlockOption}
+                moveBlockUp={moveBlockUp}
+                moveBlockDown={moveBlockDown}
+                removeBlock={removeBlock}
+                handleAgentSelection={handleAgentSelection}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="border border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50">
             <div className="text-muted-foreground text-center">
               <p>No blocks added yet</p>
               <p className="text-sm mt-1">Click one of the buttons above to add your first block</p>
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
