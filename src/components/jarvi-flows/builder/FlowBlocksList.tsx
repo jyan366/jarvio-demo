@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Database, Brain, Zap, User, ChevronDown } from 'lucide-react';
@@ -141,33 +142,39 @@ export function FlowBlocksList({
   return (
     <Card className="border shadow-sm">
       <CardHeader className="pb-2 border-b">
-        <CardTitle className="flex justify-between items-center flex-wrap">
+        <CardTitle className="flex justify-between items-center flex-wrap text-base">
           <div className="flex items-center">
             Flow Blocks
             <span className="ml-3 flex gap-2 flex-wrap">
-              {blockCounts.collect > 0}
-              {blockCounts.think > 0}
-              {blockCounts.act > 0}
-              {blockCounts.agent > 0 && <Badge variant="outline" className="bg-[#f5f2ff] text-[#7356f1] border-[#d1c7fa]">
+              {blockCounts.collect > 0 && <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                  {blockCounts.collect} Collect
+                </Badge>}
+              {blockCounts.think > 0 && <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                  {blockCounts.think} Think
+                </Badge>}
+              {blockCounts.act > 0 && <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                  {blockCounts.act} Act
+                </Badge>}
+              {blockCounts.agent > 0 && <Badge variant="outline" className="bg-[#f5f2ff] text-[#7356f1] border-[#d1c7fa] text-xs">
                   {blockCounts.agent} Agent
                 </Badge>}
             </span>
           </div>
           <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
-            <Button variant="outline" size="sm" onClick={() => addBlock('collect')} className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 min-w-[100px]">
-              <Database className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={() => addBlock('collect')} className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 text-xs min-w-[90px]">
+              <Database className="h-3.5 w-3.5 mr-2" />
               Collect
             </Button>
-            <Button variant="outline" size="sm" onClick={() => addBlock('think')} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800 min-w-[100px]">
-              <Brain className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={() => addBlock('think')} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800 text-xs min-w-[90px]">
+              <Brain className="h-3.5 w-3.5 mr-2" />
               Think
             </Button>
-            <Button variant="outline" size="sm" onClick={() => addBlock('act')} className="border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 min-w-[100px]">
-              <Zap className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={() => addBlock('act')} className="border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 text-xs min-w-[90px]">
+              <Zap className="h-3.5 w-3.5 mr-2" />
               Act
             </Button>
-            <Button variant="outline" size="sm" onClick={() => addBlock('agent')} className="border-[#d1c7fa] text-[#7356f1] hover:bg-[#f5f2ff] hover:text-[#6243e0] min-w-[100px]">
-              <User className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={() => addBlock('agent')} className="border-[#d1c7fa] text-[#7356f1] hover:bg-[#f5f2ff] hover:text-[#6243e0] text-xs min-w-[90px]">
+              <User className="h-3.5 w-3.5 mr-2" />
               Agent
             </Button>
           </div>
@@ -197,8 +204,8 @@ export function FlowBlocksList({
         ) : (
           <div className="border border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50">
             <div className="text-muted-foreground text-center">
-              <p>No blocks added yet</p>
-              <p className="text-sm mt-1">Click one of the buttons above to add your first block</p>
+              <p className="text-sm">No blocks added yet</p>
+              <p className="text-xs mt-1">Click one of the buttons above to add your first block</p>
             </div>
           </div>
         )}

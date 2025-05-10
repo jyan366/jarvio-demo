@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
@@ -141,23 +142,23 @@ export function FlowBlockComponent({
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className={`${blockTextColor} font-medium text-lg`}>
+                    <span className={`${blockTextColor} font-medium text-sm`}>
                       {block.type.charAt(0).toUpperCase() + block.type.slice(1)}
                     </span>
                     
-                    {hasConfig && <Badge variant="outline" className="bg-gray-50 text-gray-600 ml-2">
+                    {hasConfig && <Badge variant="outline" className="bg-gray-50 text-gray-600 text-xs ml-2">
                         Configurable
                       </Badge>}
                     
-                    {selectedAgent && <Badge className="bg-[#f5f2ff] text-[#7356f1] border-0 ml-2">
+                    {selectedAgent && <Badge className="bg-[#f5f2ff] text-[#7356f1] border-0 text-xs ml-2">
                         Agent: {selectedAgent.name}
                       </Badge>}
                   </div>
                   
-                  <label className="text-sm text-gray-500 mb-1">Block Name</label>
-                  <Textarea id={`block-name-${block.id}`} className="text-lg font-normal border-2 focus:border-gray-300 resize-none overflow-hidden p-3 bg-transparent flow-block-name-input rounded-lg my-1" value={block.name || ""} onChange={e => updateBlockName(block.id, e.target.value)} rows={1} placeholder="Give this block a descriptive name" />
+                  <label className="text-xs text-gray-500 mb-1">Block Name</label>
+                  <Textarea id={`block-name-${block.id}`} className="text-sm font-normal border-2 focus:border-gray-300 resize-none overflow-hidden p-3 bg-transparent flow-block-name-input rounded-lg my-1" value={block.name || ""} onChange={e => updateBlockName(block.id, e.target.value)} rows={1} placeholder="Give this block a descriptive name" />
                   
-                  {blockDescription && <p className="text-gray-500 text-sm mt-2">{blockDescription}</p>}
+                  {blockDescription && <p className="text-xs text-gray-500 mt-2">{blockDescription}</p>}
                 </div>
               </div>
 
@@ -167,7 +168,7 @@ export function FlowBlockComponent({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" disabled={index === 0} onClick={() => moveBlockUp(index)} className="h-8 w-8">
+                        <Button variant="ghost" size="icon" disabled={index === 0} onClick={() => moveBlockUp(index)} className="h-7 w-7">
                           <MoveUp className="h-4 w-4 text-gray-500" />
                         </Button>
                       </TooltipTrigger>
@@ -178,7 +179,7 @@ export function FlowBlockComponent({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" disabled={isLast} onClick={() => moveBlockDown(index)} className="h-8 w-8">
+                        <Button variant="ghost" size="icon" disabled={isLast} onClick={() => moveBlockDown(index)} className="h-7 w-7">
                           <MoveDown className="h-4 w-4 text-gray-500" />
                         </Button>
                       </TooltipTrigger>
@@ -189,7 +190,7 @@ export function FlowBlockComponent({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => removeBlock(block.id)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => removeBlock(block.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
@@ -200,12 +201,12 @@ export function FlowBlockComponent({
                 
                 <div className="flex flex-col gap-2 items-end mt-2">
                   <div>
-                    <label className="text-sm text-gray-500 mb-1 flex items-center justify-end">
+                    <label className="text-xs text-gray-500 mb-1 flex items-center justify-end">
                       Block Action
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
+                            <Info className="h-3 w-3 ml-1 text-gray-400" />
                           </TooltipTrigger>
                           <TooltipContent>Select the specific action for this block</TooltipContent>
                         </Tooltip>
@@ -213,7 +214,7 @@ export function FlowBlockComponent({
                     </label>
                     
                     <Select value={block.option} onValueChange={value => updateBlockOption(block.id, value)}>
-                      <SelectTrigger id={`block-option-${block.id}`} className="w-[230px] border bg-white">
+                      <SelectTrigger id={`block-option-${block.id}`} className="w-[200px] border bg-white text-sm">
                         <SelectValue placeholder="Select option" />
                       </SelectTrigger>
                       <SelectContent>
@@ -226,11 +227,11 @@ export function FlowBlockComponent({
                   
                   {/* Agent selection dropdown */}
                   {hasAgentSelection && <div className="w-full">
-                      <label className="text-sm text-gray-500 mb-1 flex items-center justify-end">
+                      <label className="text-xs text-gray-500 mb-1 flex items-center justify-end">
                         Select Agent
                       </label>
                       <Select value={block.agentId || ''} onValueChange={value => handleAgentSelection(block.id, value)}>
-                        <SelectTrigger className="w-[230px] border bg-white">
+                        <SelectTrigger className="w-[200px] border bg-white text-sm">
                           <SelectValue placeholder="Select agent" />
                         </SelectTrigger>
                         <SelectContent>
@@ -242,10 +243,10 @@ export function FlowBlockComponent({
                     </div>}
                   
                   {/* Configuration button for blocks with config options */}
-                  {hasConfig && ConfigComponent && <Button variant="outline" size="sm" className={`mt-2 ${blockLightColor} ${blockTextColor} border-0`} onClick={() => setIsConfigOpen(!isConfigOpen)}>
-                      <Settings className="h-3.5 w-3.5 mr-1.5" />
+                  {hasConfig && ConfigComponent && <Button variant="outline" size="sm" className={`mt-2 ${blockLightColor} ${blockTextColor} border-0 text-xs`} onClick={() => setIsConfigOpen(!isConfigOpen)}>
+                      <Settings className="h-3 w-3 mr-1.5" />
                       Configure
-                      {isConfigOpen ? <ChevronUp className="h-3.5 w-3.5 ml-1.5" /> : <ChevronDown className="h-3.5 w-3.5 ml-1.5" />}
+                      {isConfigOpen ? <ChevronUp className="h-3 w-3 ml-1.5" /> : <ChevronDown className="h-3 w-3 ml-1.5" />}
                     </Button>}
                 </div>
               </div>
