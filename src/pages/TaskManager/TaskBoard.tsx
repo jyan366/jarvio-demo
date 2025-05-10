@@ -319,7 +319,7 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
     <div className="space-y-6" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold">Task Manager</h1>
+          <h1 className="text-2xl font-bold">Tasks Manager</h1>
           <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
             <Button
               variant={viewMode === 'list' ? 'secondary' : 'ghost'}
