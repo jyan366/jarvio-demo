@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, React } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask } from "@/lib/supabaseTasks";
 import { generateTaskSteps } from "@/lib/apiUtils";
@@ -391,7 +391,8 @@ export function useTaskWork(taskId: string) {
           ],
           subtasks: normalizedSubs,
           comments: [{ user: "you", text: "new comment", ago: "2 days ago", subtaskId: normalizedSubs[0]?.id }],
-          insights: taskInsights // Added insights
+          insights: taskInsights, // Added insights
+          data: taskData.data,
         };
 
         setTaskState(task);
@@ -413,6 +414,23 @@ export function useTaskWork(taskId: string) {
 
     loadTask();
   }, [taskId, navigate, toast]);
+
+  const isFlowTask = React.useMemo(() => {
+    if (!taskState) return false;
+    return taskState.category === 'FLOW' || (taskState.data && taskState.data.flowId);
+  }, [taskState]);
+
+  const handleRunFlow = async () => {
+    if (!isFlowTask || !taskState?.data?.flowId) return;
+    
+    // Add code to run the flow
+    console.log("Running flow:", taskState.data.flowId);
+    
+    toast({
+      title: "Flow started",
+      description: "Your flow has been started and will process each step sequentially."
+    });
+  };
 
   return {
     loading,
@@ -443,6 +461,8 @@ export function useTaskWork(taskId: string) {
     handleAddComment,
     handleSaveSubtaskResult,
     subtaskData,
+    isFlowTask,
+    handleRunFlow,
   };
 }
 

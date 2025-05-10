@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { JarvioHeader } from './JarvioHeader';
 import { JarvioChatTab } from './JarvioChatTab';
@@ -16,6 +17,10 @@ interface JarvioAssistantProps {
   onSubtaskComplete?: (idx: number) => Promise<void>;
   onSubtaskSelect?: (idx: number) => void;
   onGenerateSteps?: () => void;
+  taskData?: {
+    flowId?: string;
+    flowTrigger?: string;
+  };
 }
 
 export function JarvioAssistant({ 
@@ -26,7 +31,8 @@ export function JarvioAssistant({
   currentSubtaskIndex = 0,
   onSubtaskComplete = async () => {},
   onSubtaskSelect = () => {},
-  onGenerateSteps
+  onGenerateSteps,
+  taskData
 }: JarvioAssistantProps) {
   const {
     messages,
@@ -52,6 +58,22 @@ export function JarvioAssistant({
   );
 
   const { tab, setTab } = useJarvioAssistantTabs();
+  
+  // Detect if this is a flow-driven task
+  const [isFlowTask, setIsFlowTask] = useState(false);
+  
+  useEffect(() => {
+    const checkIfFlowTask = () => {
+      // If taskData has flowId, or if task title starts with "Flow:"
+      if ((taskData && taskData.flowId) || (taskTitle && taskTitle.startsWith("Flow:"))) {
+        setIsFlowTask(true);
+      } else {
+        setIsFlowTask(false);
+      }
+    };
+    
+    checkIfFlowTask();
+  }, [taskData, taskTitle]);
 
   return (
     <div className="h-full flex flex-col">
@@ -61,6 +83,7 @@ export function JarvioAssistant({
         currentStep={currentSubtaskIndex + 1}
         totalSteps={subtasks.length}
         currentStepTitle={subtasks[currentSubtaskIndex]?.title}
+        isFlowTask={isFlowTask}
       />
       
       <Tabs value={tab} className="flex-1 overflow-hidden" onValueChange={(value) => setTab(value as JarvioTab)}>
@@ -76,6 +99,8 @@ export function JarvioAssistant({
               isTransitioning={false}
               onSendMessage={handleSendMessage}
               onGenerateSteps={onGenerateSteps}
+              taskId={taskId}
+              taskData={taskData}
             />
           </div>
         </TabsContent>

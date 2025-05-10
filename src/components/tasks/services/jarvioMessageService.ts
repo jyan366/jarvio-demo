@@ -1,29 +1,73 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Message } from "../hooks/useJarvioAssistantLogic";
 import { Subtask } from "@/pages/TaskWorkContainer";
+import { Message } from "../hooks/useJarvioAssistantLogic";
 
-export interface JarvioMessageResponse {
-  reply: string;
-  subtaskComplete: boolean;
-  approvalNeeded: boolean;
-  collectedData?: string | null;
-  userWorkLog?: string | null;
-}
+// Format a user message
+export const formatUserMessage = (text: string, subtaskIdx?: number): Message => {
+  return {
+    id: crypto.randomUUID(),
+    isUser: true,
+    text,
+    timestamp: new Date(),
+    subtaskIdx
+  };
+};
 
-export async function sendMessageToJarvio(
+// Format Jarvio's response
+export const formatJarvioResponse = (id: string, text: string, subtaskIdx?: number): Message => {
+  return {
+    id,
+    isUser: false,
+    text,
+    timestamp: new Date(),
+    subtaskIdx
+  };
+};
+
+// Format system log message
+export const formatSystemMessage = (text: string, subtaskIdx?: number): Message => {
+  return {
+    id: crypto.randomUUID(),
+    isUser: false,
+    text,
+    timestamp: new Date(),
+    subtaskIdx,
+    systemLog: true
+  };
+};
+
+// Send message to Jarvio assistant
+export const sendMessageToJarvio = async (
   message: string,
   taskTitle: string,
   taskDescription: string,
   subtasks: Subtask[],
   currentSubtaskIndex: number,
-  conversationHistory: Message[],
+  previousMessages: Message[],
   previousContext: string
-): Promise<JarvioMessageResponse> {
+) => {
+  // Check if this is a flow-related task
+  const isFlowTask = taskTitle.startsWith("Flow:") || taskDescription.includes("flowId:");
+  
+  // If flow task and message is about flow execution, handle it specially
+  if (isFlowTask && (message.toLowerCase().includes("run flow") || message.toLowerCase().includes("execute flow"))) {
+    // This is a request to execute the flow
+    return {
+      reply: "I'll help you run this flow. Let me prepare the flow execution environment...",
+      subtaskComplete: false,
+      approvalNeeded: false,
+      collectedData: null
+    };
+  }
+
+  // Filter to include only the current subtask conversation
+  const conversationHistory = previousMessages.filter(
+    msg => msg.subtaskIdx === currentSubtaskIndex || !msg.subtaskIdx
+  );
+
   try {
-    const subtaskContext = subtasks[currentSubtaskIndex];
-    
-    const response = await supabase.functions.invoke("jarvio-assistant", {
+    const response = await supabase.functions.invoke('jarvio-assistant', {
       body: {
         message,
         taskContext: {
@@ -34,41 +78,21 @@ export async function sendMessageToJarvio(
         currentSubtaskIndex,
         conversationHistory,
         previousContext
-      }
+      },
     });
 
-    if (response.error) throw response.error;
+    if (!response.data) {
+      throw new Error("No data received from assistant");
+    }
 
-    return response.data;
+    return {
+      reply: response.data.reply,
+      subtaskComplete: response.data.subtaskComplete,
+      approvalNeeded: response.data.approvalNeeded,
+      collectedData: response.data.collectedData
+    };
   } catch (error) {
     console.error("Error sending message to Jarvio:", error);
-    throw error;
+    throw new Error("Failed to get response from assistant");
   }
-}
-
-export function formatJarvioResponse(
-  messageId: string, 
-  reply: string, 
-  currentSubtaskIndex: number
-): Message {
-  return {
-    id: messageId || crypto.randomUUID(),
-    isUser: false,
-    text: reply,
-    timestamp: new Date(),
-    subtaskIdx: currentSubtaskIndex
-  };
-}
-
-export function formatUserMessage(
-  message: string, 
-  currentSubtaskIndex: number
-): Message {
-  return {
-    id: crypto.randomUUID(),
-    isUser: true,
-    text: message,
-    timestamp: new Date(),
-    subtaskIdx: currentSubtaskIndex
-  };
-}
+};

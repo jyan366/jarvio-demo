@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -89,6 +88,8 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
     subtaskDialogIdx,
     handleCloseSubtask,
     subtaskData,
+    isFlowTask,
+    handleRunFlow,
   } = useTaskWork(taskId);
 
   if (loading)
@@ -134,7 +135,7 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
       : [];
 
   // Check if this task is a flow
-  const isFlow = taskState.category === 'FLOW' || (taskState.data && taskState.data.flowId);
+  const isFlowTask = taskState.category === 'FLOW' || (taskState.data && taskState.data.flowId);
 
   return (
     <MainLayout>
@@ -146,7 +147,7 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
               />
-              {isFlow && (
+              {isFlowTask && (
                 <div className="ml-auto flex items-center text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md">
                   <Workflow className="w-4 h-4 mr-2" />
                   <span className="text-sm font-medium">Flow</span>
@@ -186,6 +187,8 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
             currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0}
             onSubtaskComplete={handleToggleSubtask}
             onSubtaskSelect={handleFocusSubtask}
+            onGenerateSteps={handleGenerateSteps}
+            taskData={taskState.data}
           />
         </aside>
       </div>
