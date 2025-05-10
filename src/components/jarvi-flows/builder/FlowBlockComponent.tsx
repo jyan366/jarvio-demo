@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
@@ -156,7 +155,14 @@ export function FlowBlockComponent({
                   </div>
                   
                   <label className="text-xs text-gray-500 mb-1">Block Name</label>
-                  <Textarea id={`block-name-${block.id}`} className="text-sm font-normal border-2 focus:border-gray-300 resize-none overflow-hidden p-3 bg-transparent flow-block-name-input rounded-lg my-1" value={block.name || ""} onChange={e => updateBlockName(block.id, e.target.value)} rows={1} placeholder="Give this block a descriptive name" />
+                  <Textarea 
+                    id={`block-name-${block.id}`} 
+                    className="text-sm font-normal border-2 focus:border-gray-300 resize-none overflow-hidden p-3 bg-transparent rounded-lg my-1" 
+                    value={block.name || ""} 
+                    onChange={e => updateBlockName(block.id, e.target.value)} 
+                    rows={1} 
+                    placeholder="Give this block a descriptive name" 
+                  />
                   
                   {blockDescription && <p className="text-xs text-gray-500 mt-2">{blockDescription}</p>}
                 </div>

@@ -201,7 +201,7 @@ textarea.auto-height-input,
   overflow-wrap: break-word !important;
 }
 
-/* Enhanced specific styles for flow block names */
+/* Enhanced specific styles for flow block names - REMOVED GROWTH EFFECT */
 .flow-block-name-input {
   white-space: pre-wrap !important;
   word-break: break-word !important;
@@ -213,21 +213,21 @@ textarea.auto-height-input,
   max-width: 100% !important;
   display: block !important;
   height: auto !important;
-  min-height: 3.5rem !important; /* Increased from 3rem to 3.5rem */
+  min-height: 3.5rem !important;
   resize: none !important;
   border: 1px solid transparent !important;
-  transition: min-height 0.2s ease !important;
   box-sizing: border-box !important;
-  padding: 0.75rem !important; /* Increased padding from 0.5rem to 0.75rem */
-  line-height: 1.6 !important; /* Increased line height for better spacing */
+  padding: 0.75rem !important;
+  line-height: 1.6 !important;
   overflow-y: hidden !important;
-  margin-bottom: 0.25rem !important; /* Added bottom margin */
+  margin-bottom: 0.25rem !important;
 }
 
-.flow-block-name-input:focus {
-  min-height: 4.5rem !important; /* Increased from 4rem to 4.5rem */
+/* Removed the focus states that were causing the growth effect */
+/* .flow-block-name-input:focus {
+  min-height: 4.5rem !important;
   height: auto !important;
-}
+} */
 
 /* Enhanced flow block container styles */
 .flow-block-name-container {
