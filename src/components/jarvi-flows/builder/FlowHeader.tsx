@@ -1,0 +1,78 @@
+
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Loader2, Play, Save, WandSparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+interface FlowHeaderProps {
+  showAIPrompt: boolean;
+  setShowAIPrompt: (show: boolean) => void;
+  isManualTrigger: boolean;
+  isRunningFlow: boolean;
+  flowHasBlocks: boolean;
+  onStartFlow: () => void;
+  onSaveFlow: () => void;
+}
+
+export function FlowHeader({
+  showAIPrompt,
+  setShowAIPrompt,
+  isManualTrigger,
+  isRunningFlow,
+  flowHasBlocks,
+  onStartFlow,
+  onSaveFlow
+}: FlowHeaderProps) {
+  const navigate = useNavigate();
+  
+  return (
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate('/jarvi-flows')}
+        className="self-start"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Flows
+      </Button>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          onClick={() => setShowAIPrompt(!showAIPrompt)}
+          className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+        >
+          <WandSparkles className="h-4 w-4 mr-2" />
+          {showAIPrompt ? "Hide AI Builder" : "Create with AI"}
+        </Button>
+        
+        {isManualTrigger && (
+          <Button 
+            onClick={onStartFlow}
+            className="bg-green-600 hover:bg-green-700 text-white"
+            disabled={isRunningFlow || !flowHasBlocks}
+          >
+            {isRunningFlow ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Running...
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4 mr-2" />
+                Start Flow
+              </>
+            )}
+          </Button>
+        )}
+        
+        <Button 
+          onClick={onSaveFlow}
+          className="bg-[#4457ff] hover:bg-[#4457ff]/90"
+        >
+          <Save className="h-4 w-4 mr-2" />
+          Save Flow
+        </Button>
+      </div>
+    </div>
+  );
+}
