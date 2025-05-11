@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface ToolCardProps {
   toolId: string;
@@ -22,21 +29,16 @@ export function ToolCard({
   configComponent 
 }: ToolCardProps) {
   const { settings, toggleTool, isReady, getToolConfig } = useAgentSettings();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
   
   const agentId = window.location.pathname.split('/').pop() || '';
   const agentSettings = settings[agentId] || { customTools: [], toolsConfig: {} };
   const isEnabled = agentSettings.customTools.includes(toolId);
   
-  // React to changes in isReady and isEnabled
+  // Log for debugging
   useEffect(() => {
-    if (isReady && isEnabled && isExpanded) {
-      // Maintain expanded state when settings refresh
-      setIsExpanded(true);
-    }
-    
-    console.log(`ToolCard - ${toolId} - isReady: ${isReady}, isEnabled: ${isEnabled}, isExpanded: ${isExpanded}`);
-  }, [isReady, isEnabled, toolId, isExpanded]);
+    console.log(`ToolCard - ${toolId} - isReady: ${isReady}, isEnabled: ${isEnabled}, configDialogOpen: ${configDialogOpen}`);
+  }, [isReady, isEnabled, toolId, configDialogOpen]);
   
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
@@ -52,16 +54,16 @@ export function ToolCard({
     console.log("Toggle triggered:", checked, toolId);
     toggleTool(toolId, checked);
     
-    // If turning off, collapse the expanded section
-    if (!checked && isExpanded) {
-      setIsExpanded(false);
+    // If turning off, close configuration dialog if open
+    if (!checked && configDialogOpen) {
+      setConfigDialogOpen(false);
     }
   };
 
-  const toggleExpand = () => {
-    if (!isEnabled) return; // Don't allow expansion if tool is not enabled
-    console.log("Toggle expand clicked for:", toolId, "Current state:", isExpanded, "Setting to:", !isExpanded);
-    setIsExpanded(!isExpanded);
+  const toggleConfigDialog = () => {
+    if (!isEnabled) return; // Don't allow opening if tool is not enabled
+    console.log("Toggle config dialog for:", toolId, "Current state:", configDialogOpen, "Setting to:", !configDialogOpen);
+    setConfigDialogOpen(!configDialogOpen);
   };
 
   return (
@@ -100,19 +102,10 @@ export function ToolCard({
                   variant="ghost" 
                   size="sm" 
                   className="ml-2 h-7 text-xs"
-                  onClick={toggleExpand}
+                  onClick={toggleConfigDialog}
                 >
-                  {isExpanded ? (
-                    <>
-                      <ChevronUp className="h-3 w-3 mr-1" />
-                      Hide Configuration
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="h-3 w-3 mr-1" />
-                      Configure
-                    </>
-                  )}
+                  <ChevronDown className="h-3 w-3 mr-1" />
+                  Configure
                 </Button>
               )}
             </div>
@@ -120,13 +113,23 @@ export function ToolCard({
         </div>
       </div>
       
-      {/* Configuration panel - Now kept inside the card with proper z-index and styling to ensure visibility */}
-      {isReady && isEnabled && isExpanded && configComponent && (
-        <div className="border-t p-4 bg-gray-50 relative z-10">
-          <div className="max-h-[500px] overflow-y-auto">
-            {configComponent}
-          </div>
-        </div>
+      {/* Configuration Dialog */}
+      {isReady && configComponent && (
+        <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
+          <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Configure {title}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              {configComponent}
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setConfigDialogOpen(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

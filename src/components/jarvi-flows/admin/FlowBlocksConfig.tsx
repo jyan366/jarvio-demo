@@ -12,6 +12,14 @@ import { toast } from '@/hooks/use-toast';
 import { AddFlowBlockDialog } from './AddFlowBlockDialog';
 import { v4 as uuidv4 } from 'uuid';
 import { flowBlockOptions } from '@/data/flowBlockOptions';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface BlockConfig {
   id: string;
@@ -35,6 +43,7 @@ export function FlowBlocksConfig() {
   const [initializingBlocks, setInitializingBlocks] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [missingBlocks, setMissingBlocks] = useState<{type: string, name: string}[]>([]);
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
 
   // Enhanced function to check for missing blocks
   const checkForMissingBlocks = useCallback((dbBlocks: any[]) => {
@@ -517,6 +526,7 @@ export function FlowBlocksConfig() {
     setEditingConfig(block);
     setCredentialJson(JSON.stringify(block.credentials || {}, null, 2));
     setConfigJson(JSON.stringify(block.config_data || {}, null, 2));
+    setConfigDialogOpen(true);
   };
   
   // Save block config changes
@@ -573,6 +583,7 @@ export function FlowBlocksConfig() {
       }));
       
       // Close editor
+      setConfigDialogOpen(false);
       setEditingConfig(null);
       
       toast({
@@ -587,6 +598,12 @@ export function FlowBlocksConfig() {
         variant: 'destructive'
       });
     }
+  };
+  
+  // Handle close modal without saving
+  const handleCloseModal = () => {
+    setConfigDialogOpen(false);
+    setEditingConfig(null);
   };
   
   // Get icon for block type
@@ -754,23 +771,24 @@ export function FlowBlocksConfig() {
         </CardContent>
       </Card>
       
-      {/* Block Configuration Dialog */}
-      {editingConfig && (
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle>Configure Block: {editingConfig.block_name}</CardTitle>
-            <CardDescription>
+      {/* Block Configuration Modal Dialog */}
+      <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Configure Block: {editingConfig?.block_name}</DialogTitle>
+            <DialogDescription>
               Edit the configuration and credentials for this block
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
             <div>
               <Label>Block Type</Label>
-              <Input value={editingConfig.block_type} readOnly className="bg-muted" />
+              <Input value={editingConfig?.block_type || ''} readOnly className="bg-muted" />
             </div>
             <div>
               <Label>Block Name</Label>
-              <Input value={editingConfig.block_name} readOnly className="bg-muted" />
+              <Input value={editingConfig?.block_name || ''} readOnly className="bg-muted" />
             </div>
             <div>
               <Label>Configuration Data (JSON)</Label>
@@ -788,17 +806,18 @@ export function FlowBlocksConfig() {
                 className="font-mono h-60 overflow-y-auto"
               />
             </div>
-          </CardContent>
-          <CardFooter className="flex justify-end space-x-2 py-4">
-            <Button variant="outline" onClick={() => setEditingConfig(null)}>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCloseModal}>
               Cancel
             </Button>
             <Button onClick={saveBlockChanges}>
               Save Changes
             </Button>
-          </CardFooter>
-        </Card>
-      )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
