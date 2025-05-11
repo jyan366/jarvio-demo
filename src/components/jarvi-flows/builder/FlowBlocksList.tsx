@@ -177,6 +177,7 @@ export function FlowBlocksList({
                 moveBlockDown={moveBlockDown}
                 removeBlock={removeBlock}
                 handleAgentSelection={handleAgentSelection}
+                availableBlockOptions={availableBlockOptions}
               />
             ))}
           </div>

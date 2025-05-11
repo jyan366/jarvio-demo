@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowDown, ChevronDown, Info, MoveUp, MoveDown, Trash2, Database, Brain, Zap, User, Settings } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { agentsData } from '@/data/agentsData';
-import { BlockCategory } from '@/data/flowBlockOptions';
+import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
 import { SendEmailConfig } from '@/components/agents/tools/SendEmailConfig';
 import { AiSummaryConfig } from '@/components/agents/tools/AiSummaryConfig';
 import { UploadSheetConfig } from '@/components/agents/tools/UploadSheetConfig';
@@ -107,6 +107,7 @@ export interface FlowBlockProps {
   moveBlockDown?: (index: number) => void;
   removeBlock?: (blockId: string) => void;
   handleAgentSelection?: (blockId: string, agentId: string) => void;
+  availableBlockOptions?: Record<string, string[]>;
 }
 
 export function FlowBlockComponent({
@@ -121,7 +122,8 @@ export function FlowBlockComponent({
   moveBlockUp,
   moveBlockDown,
   removeBlock,
-  handleAgentSelection
+  handleAgentSelection,
+  availableBlockOptions
 }: FlowBlockProps) {
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
 
@@ -194,6 +196,19 @@ export function FlowBlockComponent({
     console.log("Toggling config dialog. Current state:", configDialogOpen, "Setting to:", !configDialogOpen);
     setConfigDialogOpen(!configDialogOpen);
   };
+
+  // Get available options for current block type
+  const getOptionsForBlockType = () => {
+    // First check if we have availableBlockOptions prop
+    if (availableBlockOptions && availableBlockOptions[block.type]) {
+      return availableBlockOptions[block.type];
+    }
+    // Fall back to default options from flowBlockOptions
+    return flowBlockOptions[block.type as BlockCategory] || [];
+  };
+
+  // Options for current block type
+  const blockOptions = getOptionsForBlockType();
 
   return (
     <div className="group border rounded-xl bg-white overflow-hidden shadow-sm hover:shadow transition-shadow">
@@ -295,7 +310,11 @@ export function FlowBlockComponent({
                       <SelectValue placeholder="Select option" />
                     </SelectTrigger>
                     <SelectContent>
-                      {/* We'll handle this dynamically later */}
+                      {blockOptions.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
