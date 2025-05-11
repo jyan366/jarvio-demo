@@ -37,6 +37,18 @@ export const formatSystemMessage = (text: string, subtaskIdx?: number): Message 
   };
 };
 
+// Format flow action message
+export const formatFlowActionMessage = (text: string, subtaskIdx?: number): Message => {
+  return {
+    id: crypto.randomUUID(),
+    isUser: false,
+    text,
+    timestamp: new Date(),
+    subtaskIdx,
+    flowAction: true
+  };
+};
+
 // Send message to Jarvio assistant
 export const sendMessageToJarvio = async (
   message: string,
@@ -49,6 +61,30 @@ export const sendMessageToJarvio = async (
 ) => {
   // Check if this is a flow-related task
   const isFlowTask = taskTitle.startsWith("Flow:") || taskDescription.includes("flowId:");
+  
+  // Handle special flow update messages
+  if (message.startsWith('[FLOW_UPDATE]')) {
+    const flowUpdateMessage = message.replace('[FLOW_UPDATE] ', '');
+    return {
+      reply: flowUpdateMessage,
+      subtaskComplete: false,
+      approvalNeeded: false,
+      collectedData: null,
+      isFlowUpdate: true
+    };
+  }
+  
+  // Handle flow action required messages
+  if (message.startsWith('[FLOW_ACTION_REQUIRED]')) {
+    const actionRequiredMessage = message.replace('[FLOW_ACTION_REQUIRED] ', '');
+    return {
+      reply: actionRequiredMessage,
+      subtaskComplete: false,
+      approvalNeeded: true, // This indicates the user needs to take action
+      collectedData: null,
+      isFlowAction: true
+    };
+  }
   
   // If flow task and message is about flow execution, handle it specially
   if (isFlowTask && (message.toLowerCase().includes("run flow") || message.toLowerCase().includes("execute flow"))) {

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { JarvioMessageArea } from "./chat/JarvioMessageArea";
 import { JarvioMessageInput } from "./chat/JarvioMessageInput";
@@ -41,6 +41,7 @@ export function JarvioChatTab({
   isFlowTask = false
 }: JarvioChatTabProps) {
   const [showFlowExecution, setShowFlowExecution] = useState(false);
+  const [flowExecutionResults, setFlowExecutionResults] = useState<any>(null);
   
   // Handle message submission from the input
   const handleSubmitMessage = async () => {
@@ -52,6 +53,27 @@ export function JarvioChatTab({
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
+  };
+  
+  // Handle flow execution results update
+  const handleFlowMessageUpdate = (message: any) => {
+    console.log("Flow message:", message);
+    
+    if (message && typeof message === 'object') {
+      setFlowExecutionResults(message);
+      
+      // If we receive results for a completed flow step, we may want to send a message from Jarvio
+      if (message.blockComplete && message.blockType && message.blockName) {
+        const assistantMessage = `✅ Completed flow step "${message.blockName || message.blockType}" successfully.`;
+        onSendMessage(`[FLOW_UPDATE] ${assistantMessage}`);
+      }
+      
+      // If we need user input for a flow step
+      if (message.needsUserInput && message.userPrompt) {
+        const assistantMessage = `🔸 ${message.userPrompt}\n\nPlease provide the necessary information or confirm that you've completed this step manually.`;
+        onSendMessage(`[FLOW_ACTION_REQUIRED] ${assistantMessage}`);
+      }
+    }
   };
   
   return (
@@ -73,9 +95,7 @@ export function JarvioChatTab({
             taskData={taskData}
             subtasks={subtasks}
             isFlowTask={!!isFlowTask}
-            onAddMessage={(message) => {
-              console.log("Flow message:", message);
-            }}
+            onAddMessage={handleFlowMessageUpdate}
           />
           <Button 
             variant="outline"

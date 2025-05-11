@@ -75,6 +75,136 @@ export type Database = {
         }
         Relationships: []
       }
+      block_executions: {
+        Row: {
+          block_id: string
+          block_name: string
+          block_type: string
+          completed_at: string | null
+          error_message: string | null
+          flow_execution_id: string | null
+          id: string
+          input_data: Json | null
+          output_data: Json | null
+          requires_user_action: boolean | null
+          started_at: string | null
+          status: string
+          user_action_response: Json | null
+        }
+        Insert: {
+          block_id: string
+          block_name: string
+          block_type: string
+          completed_at?: string | null
+          error_message?: string | null
+          flow_execution_id?: string | null
+          id?: string
+          input_data?: Json | null
+          output_data?: Json | null
+          requires_user_action?: boolean | null
+          started_at?: string | null
+          status?: string
+          user_action_response?: Json | null
+        }
+        Update: {
+          block_id?: string
+          block_name?: string
+          block_type?: string
+          completed_at?: string | null
+          error_message?: string | null
+          flow_execution_id?: string | null
+          id?: string
+          input_data?: Json | null
+          output_data?: Json | null
+          requires_user_action?: boolean | null
+          started_at?: string | null
+          status?: string
+          user_action_response?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "block_executions_flow_execution_id_fkey"
+            columns: ["flow_execution_id"]
+            isOneToOne: false
+            referencedRelation: "flow_executions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flow_block_configs: {
+        Row: {
+          block_name: string
+          block_type: string
+          config_data: Json | null
+          created_at: string | null
+          credentials: Json | null
+          id: string
+          is_functional: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          block_name: string
+          block_type: string
+          config_data?: Json | null
+          created_at?: string | null
+          credentials?: Json | null
+          id?: string
+          is_functional?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          block_name?: string
+          block_type?: string
+          config_data?: Json | null
+          created_at?: string | null
+          credentials?: Json | null
+          id?: string
+          is_functional?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      flow_executions: {
+        Row: {
+          completed_at: string | null
+          created_by: string | null
+          flow_id: string
+          id: string
+          results: Json | null
+          started_at: string | null
+          status: string
+          task_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_by?: string | null
+          flow_id: string
+          id?: string
+          results?: Json | null
+          started_at?: string | null
+          status?: string
+          task_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_by?: string | null
+          flow_id?: string
+          id?: string
+          results?: Json | null
+          started_at?: string | null
+          status?: string
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flow_executions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
