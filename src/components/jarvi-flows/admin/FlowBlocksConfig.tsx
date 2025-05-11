@@ -511,8 +511,9 @@ export function FlowBlocksConfig() {
     }
   };
   
-  // Open block config editor
+  // Open block config editor - Make sure this works correctly
   const openBlockEditor = (block: BlockConfig) => {
+    console.log("Opening block editor for:", block.block_name);
     setEditingConfig(block);
     setCredentialJson(JSON.stringify(block.credentials || {}, null, 2));
     setConfigJson(JSON.stringify(block.config_data || {}, null, 2));
@@ -523,6 +524,7 @@ export function FlowBlocksConfig() {
     if (!editingConfig) return;
     
     try {
+      console.log("Saving changes for block:", editingConfig.block_name);
       // Parse JSON values
       let parsedCredentials = {};
       let parsedConfig = {};
@@ -530,12 +532,14 @@ export function FlowBlocksConfig() {
       try {
         parsedCredentials = JSON.parse(credentialJson);
       } catch (e) {
+        console.error("JSON parsing error for credentials:", e);
         throw new Error('Invalid credentials JSON');
       }
       
       try {
         parsedConfig = JSON.parse(configJson);
       } catch (e) {
+        console.error("JSON parsing error for config:", e);
         throw new Error('Invalid config JSON');
       }
       
@@ -548,7 +552,12 @@ export function FlowBlocksConfig() {
         })
         .eq('id', editingConfig.id);
         
-      if (error) throw error;
+      if (error) {
+        console.error("Database update error:", error);
+        throw error;
+      }
+      
+      console.log("Successfully updated block config in database");
       
       // Update local state
       setBlockConfigs(prev => prev.map(block => {
