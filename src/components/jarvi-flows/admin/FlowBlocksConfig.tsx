@@ -8,10 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Database, Brain, Zap, User, Check, Loader2, RefreshCw } from 'lucide-react';
+import { Database, Brain, Zap, User, Check, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { AddFlowBlockDialog } from './AddFlowBlockDialog';
 import { v4 as uuidv4 } from 'uuid';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface BlockConfig {
   id: string;
@@ -24,6 +25,88 @@ interface BlockConfig {
   updated_at?: string;
 }
 
+const DEMO_BLOCKS: BlockConfig[] = [
+  {
+    id: "demo-1",
+    block_type: 'collect',
+    block_name: 'Get Account Health',
+    is_functional: false,
+    config_data: {
+      description: 'Collects account health metrics from marketplace',
+      schema: {
+        type: 'object',
+        properties: {
+          marketplace: { type: 'string', enum: ['amazon', 'walmart', 'ebay'] }
+        }
+      }
+    },
+    credentials: {},
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "demo-2",
+    block_type: 'collect',
+    block_name: 'Fetch Reviews',
+    is_functional: false,
+    config_data: {
+      description: 'Collects product reviews from marketplace',
+      schema: {
+        type: 'object',
+        properties: {
+          marketplace: { type: 'string', enum: ['amazon', 'walmart', 'ebay'] },
+          asin: { type: 'string' }
+        }
+      }
+    },
+    credentials: {},
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "demo-3",
+    block_type: 'think',
+    block_name: 'Analyze Reviews',
+    is_functional: false,
+    config_data: {
+      description: 'Analyzes product reviews to extract insights',
+      model: 'gpt-4'
+    },
+    credentials: {},
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "demo-4",
+    block_type: 'act',
+    block_name: 'Send Email Alert',
+    is_functional: false,
+    config_data: {
+      description: 'Sends an email alert based on configured triggers',
+      templates: {
+        default: 'Alert: {{alertType}} for product {{productId}}'
+      }
+    },
+    credentials: {},
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "demo-5",
+    block_type: 'agent',
+    block_name: 'Customer Support Agent',
+    is_functional: false,
+    config_data: {
+      description: 'AI agent that handles customer support inquiries',
+      model: 'gpt-4',
+      capabilities: ['email', 'chat']
+    },
+    credentials: {},
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+];
+
 export function FlowBlocksConfig() {
   const [blockConfigs, setBlockConfigs] = useState<BlockConfig[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,130 +116,15 @@ export function FlowBlocksConfig() {
   const [credentialJson, setCredentialJson] = useState<string>('{}');
   const [configJson, setConfigJson] = useState<string>('{}');
   const [initializingBlocks, setInitializingBlocks] = useState(false);
-
-  // Initialize sample blocks if none exist
-  const initializeSampleBlocks = async () => {
-    try {
-      setInitializingBlocks(true);
-      console.log('Initializing sample flow blocks...');
-      
-      const sampleBlocks = [
-        {
-          id: uuidv4(),
-          block_type: 'collect',
-          block_name: 'Get Account Health',
-          is_functional: false,
-          config_data: {
-            description: 'Collects account health metrics from marketplace',
-            schema: {
-              type: 'object',
-              properties: {
-                marketplace: { type: 'string', enum: ['amazon', 'walmart', 'ebay'] }
-              }
-            }
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: uuidv4(),
-          block_type: 'collect',
-          block_name: 'Fetch Reviews',
-          is_functional: false,
-          config_data: {
-            description: 'Collects product reviews from marketplace',
-            schema: {
-              type: 'object',
-              properties: {
-                marketplace: { type: 'string', enum: ['amazon', 'walmart', 'ebay'] },
-                asin: { type: 'string' }
-              }
-            }
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: uuidv4(),
-          block_type: 'think',
-          block_name: 'Analyze Reviews',
-          is_functional: false,
-          config_data: {
-            description: 'Analyzes product reviews to extract insights',
-            model: 'gpt-4'
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: uuidv4(),
-          block_type: 'act',
-          block_name: 'Send Email Alert',
-          is_functional: false,
-          config_data: {
-            description: 'Sends an email alert based on configured triggers',
-            templates: {
-              default: 'Alert: {{alertType}} for product {{productId}}'
-            }
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: uuidv4(),
-          block_type: 'agent',
-          block_name: 'Customer Support Agent',
-          is_functional: false,
-          config_data: {
-            description: 'AI agent that handles customer support inquiries',
-            model: 'gpt-4',
-            capabilities: ['email', 'chat']
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-      
-      // Insert sample blocks
-      const { error } = await supabase
-        .from('flow_block_configs')
-        .insert(sampleBlocks);
-        
-      if (error) {
-        console.error('Error creating sample blocks:', error);
-        throw error;
-      }
-      
-      console.log('Sample blocks created successfully');
-      
-      // Fetch the newly created blocks
-      await fetchBlockConfigs();
-      
-      toast({
-        title: 'Sample blocks created',
-        description: 'Sample flow blocks have been added to help you get started.',
-      });
-    } catch (error) {
-      console.error('Error initializing sample blocks:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to initialize sample blocks',
-        variant: 'destructive'
-      });
-    } finally {
-      setInitializingBlocks(false);
-    }
-  };
+  const [demoMode, setDemoMode] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Fetch block configs function
   const fetchBlockConfigs = useCallback(async () => {
     console.log('Fetching block configurations...');
     setLoading(true);
+    setAuthError(null);
+    
     try {
       const { data, error } = await supabase
         .from('flow_block_configs')
@@ -166,54 +134,108 @@ export function FlowBlocksConfig() {
         
       if (error) {
         console.error('Error fetching block configs:', error);
-        throw error;
-      }
-      
-      console.log('Fetched block configurations:', data);
-      
-      // Transform Supabase data to match BlockConfig type
-      if (data) {
-        const transformedData: BlockConfig[] = data.map(item => ({
-          ...item,
-          config_data: typeof item.config_data === 'string' 
-            ? JSON.parse(item.config_data) 
-            : item.config_data,
-          credentials: typeof item.credentials === 'string' 
-            ? JSON.parse(item.credentials) 
-            : item.credentials
-        }));
-        setBlockConfigs(transformedData);
+        if (error.code === '42501') { // Permission denied error
+          setAuthError('Permission denied: You need to be authenticated with the right permissions to access flow block configurations.');
+          setDemoMode(true);
+          setBlockConfigs(DEMO_BLOCKS);
+        } else {
+          throw error;
+        }
+      } else {
+        console.log('Fetched block configurations:', data);
         
-        // If no blocks, suggest initializing sample blocks
-        if (data.length === 0) {
+        // Transform Supabase data to match BlockConfig type
+        if (data && data.length > 0) {
+          const transformedData: BlockConfig[] = data.map(item => ({
+            ...item,
+            config_data: typeof item.config_data === 'string' 
+              ? JSON.parse(item.config_data) 
+              : item.config_data,
+            credentials: typeof item.credentials === 'string' 
+              ? JSON.parse(item.credentials) 
+              : item.credentials
+          }));
+          setBlockConfigs(transformedData);
+          setDemoMode(false);
+        } else {
+          // If no data, switch to demo mode
+          setBlockConfigs(DEMO_BLOCKS);
+          setDemoMode(true);
+          
           toast({
-            title: 'No flow blocks found',
-            description: 'Would you like to create some sample blocks to get started?',
-            action: (
-              <Button 
-                variant="default" 
-                size="sm" 
-                onClick={initializeSampleBlocks} 
-                disabled={initializingBlocks}
-              >
-                {initializingBlocks ? 'Creating...' : 'Create Samples'}
-              </Button>
-            ),
-            duration: 10000,
+            title: 'Demo Mode Active',
+            description: 'No flow blocks found in database. Displaying demo blocks.',
+            duration: 5000,
           });
         }
       }
     } catch (error) {
       console.error('Error fetching block configs:', error);
+      setDemoMode(true);
+      setBlockConfigs(DEMO_BLOCKS);
+      
       toast({
         title: 'Error',
-        description: 'Failed to load block configurations',
+        description: 'Failed to load block configurations. Showing demo blocks instead.',
         variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
-  }, [initializingBlocks]);
+  }, []);
+
+  // Initialize sample blocks if none exist
+  const initializeSampleBlocks = async () => {
+    try {
+      setInitializingBlocks(true);
+      console.log('Initializing sample flow blocks...');
+      
+      const sampleBlocks = DEMO_BLOCKS.map(block => ({
+        ...block,
+        id: uuidv4() // Generate new UUIDs
+      }));
+      
+      // Insert sample blocks
+      const { error } = await supabase
+        .from('flow_block_configs')
+        .insert(sampleBlocks);
+        
+      if (error) {
+        console.error('Error creating sample blocks:', error);
+        
+        if (error.code === '42501') { // Permission denied
+          setAuthError('Permission denied: You need to authenticate to create flow blocks.');
+          toast({
+            title: 'Authentication Required',
+            description: 'You need to sign in with appropriate permissions to create flow blocks.',
+            variant: 'destructive'
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        console.log('Sample blocks created successfully');
+        
+        // Fetch the newly created blocks
+        await fetchBlockConfigs();
+        setDemoMode(false);
+        
+        toast({
+          title: 'Sample blocks created',
+          description: 'Sample flow blocks have been added to help you get started.',
+        });
+      }
+    } catch (error) {
+      console.error('Error initializing sample blocks:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to initialize sample blocks. You may need proper permissions.',
+        variant: 'destructive'
+      });
+    } finally {
+      setInitializingBlocks(false);
+    }
+  };
 
   // Refresh the block configs
   const handleRefresh = async () => {
@@ -245,6 +267,26 @@ export function FlowBlocksConfig() {
   
   // Handle toggling block functional status
   const toggleBlockFunctional = async (blockId: string, currentStatus: boolean) => {
+    if (demoMode) {
+      toast({
+        title: 'Demo Mode',
+        description: 'In demo mode, block status changes are not saved to the database.',
+        variant: 'default'
+      });
+      
+      // Update local state only in demo mode
+      setBlockConfigs(prev => prev.map(block => {
+        if (block.id === blockId) {
+          return {
+            ...block,
+            is_functional: !currentStatus
+          };
+        }
+        return block;
+      }));
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('flow_block_configs')
@@ -288,6 +330,43 @@ export function FlowBlocksConfig() {
   // Save block config changes
   const saveBlockChanges = async () => {
     if (!editingConfig) return;
+    
+    if (demoMode) {
+      toast({
+        title: 'Demo Mode',
+        description: 'In demo mode, configuration changes are not saved to the database.',
+        variant: 'default'
+      });
+      
+      // Update local state only in demo mode
+      try {
+        const parsedCredentials = JSON.parse(credentialJson);
+        const parsedConfig = JSON.parse(configJson);
+        
+        setBlockConfigs(prev => prev.map(block => {
+          if (block.id === editingConfig.id) {
+            return {
+              ...block,
+              credentials: parsedCredentials,
+              config_data: parsedConfig,
+              updated_at: new Date().toISOString()
+            };
+          }
+          return block;
+        }));
+        
+        // Close editor
+        setEditingConfig(null);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        toast({
+          title: 'Invalid JSON',
+          description: (error as Error).message || 'Please check your JSON syntax',
+          variant: 'destructive'
+        });
+      }
+      return;
+    }
     
     try {
       // Parse JSON values
@@ -373,6 +452,39 @@ export function FlowBlocksConfig() {
   
   return (
     <div className="space-y-4">
+      {authError && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Authentication Error</AlertTitle>
+          <AlertDescription>
+            {authError}
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {demoMode && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Demo Mode Active</AlertTitle>
+          <AlertDescription>
+            You're viewing demo blocks. Changes will not be saved to the database.
+            {!authError && (
+              <div className="mt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={initializeSampleBlocks} 
+                  disabled={initializingBlocks}
+                >
+                  {initializingBlocks ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  {initializingBlocks ? 'Creating...' : 'Create Real Sample Blocks'}
+                </Button>
+              </div>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+    
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -387,17 +499,7 @@ export function FlowBlocksConfig() {
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              {blockConfigs.length === 0 && (
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  onClick={initializeSampleBlocks} 
-                  disabled={initializingBlocks}
-                >
-                  {initializingBlocks ? 'Creating...' : 'Create Sample Blocks'}
-                </Button>
-              )}
-              <AddFlowBlockDialog onBlockAdded={fetchBlockConfigs} />
+              {!demoMode && <AddFlowBlockDialog onBlockAdded={fetchBlockConfigs} />}
             </div>
           </div>
         </CardHeader>
@@ -490,6 +592,7 @@ export function FlowBlocksConfig() {
             <CardTitle>Configure Block: {editingConfig.block_name}</CardTitle>
             <CardDescription>
               Edit the configuration and credentials for this block
+              {demoMode && <span className="text-amber-500 ml-2">(Changes won't be saved in demo mode)</span>}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
