@@ -63,7 +63,7 @@ export function JarvioChatTab({
         isLoading={isLoading} 
         isTransitioning={isTransitioning}
         onGenerateSteps={onGenerateSteps}
-        isFlowTask={isFlowTask}
+        isFlowTask={!!isFlowTask}
       />
       
       {isFlowTask && showFlowExecution ? (
@@ -98,4 +98,4 @@ export function JarvioChatTab({
       )}
     </>
   );
-};
+}
