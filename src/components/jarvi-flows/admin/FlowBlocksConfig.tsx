@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Database, Brain, Zap, User, Check, Loader2 } from 'lucide-react';
+import { Database, Brain, Zap, User, Check, Loader2, Plus, RefreshCw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { AddFlowBlockDialog } from './AddFlowBlockDialog';
 
 interface BlockConfig {
   id: string;
@@ -25,51 +26,65 @@ interface BlockConfig {
 export function FlowBlocksConfig() {
   const [blockConfigs, setBlockConfigs] = useState<BlockConfig[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>('collect');
   const [editingConfig, setEditingConfig] = useState<BlockConfig | null>(null);
   const [credentialJson, setCredentialJson] = useState<string>('{}');
   const [configJson, setConfigJson] = useState<string>('{}');
 
+  // Fetch block configs function
+  const fetchBlockConfigs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('flow_block_configs')
+        .select('*')
+        .order('block_type')
+        .order('block_name');
+        
+      if (error) throw error;
+      
+      // Transform Supabase data to match BlockConfig type
+      if (data) {
+        const transformedData: BlockConfig[] = data.map(item => ({
+          ...item,
+          config_data: typeof item.config_data === 'string' 
+            ? JSON.parse(item.config_data) 
+            : item.config_data,
+          credentials: typeof item.credentials === 'string' 
+            ? JSON.parse(item.credentials) 
+            : item.credentials
+        }));
+        setBlockConfigs(transformedData);
+      }
+    } catch (error) {
+      console.error('Error fetching block configs:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load block configurations',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Refresh the block configs
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchBlockConfigs();
+    setRefreshing(false);
+    
+    toast({
+      title: 'Refreshed',
+      description: 'Block configurations have been refreshed',
+    });
+  };
+
   // Fetch block configs on component mount
   useEffect(() => {
-    const fetchBlockConfigs = async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('flow_block_configs')
-          .select('*')
-          .order('block_type')
-          .order('block_name');
-          
-        if (error) throw error;
-        
-        // Transform Supabase data to match BlockConfig type
-        if (data) {
-          const transformedData: BlockConfig[] = data.map(item => ({
-            ...item,
-            config_data: typeof item.config_data === 'string' 
-              ? JSON.parse(item.config_data) 
-              : item.config_data,
-            credentials: typeof item.credentials === 'string' 
-              ? JSON.parse(item.credentials) 
-              : item.credentials
-          }));
-          setBlockConfigs(transformedData);
-        }
-      } catch (error) {
-        console.error('Error fetching block configs:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load block configurations',
-          variant: 'destructive'
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchBlockConfigs();
-  }, []);
+  }, [fetchBlockConfigs]);
   
   // Filter blocks by current tab
   const filteredBlocks = blockConfigs.filter(block => block.block_type === currentTab);
@@ -212,10 +227,21 @@ export function FlowBlocksConfig() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Flow Blocks Configuration</CardTitle>
-          <CardDescription>
-            Configure which blocks are functional and which run in demo mode
-          </CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Flow Blocks Configuration</CardTitle>
+              <CardDescription>
+                Configure which blocks are functional and which run in demo mode
+              </CardDescription>
+            </div>
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+                <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <AddFlowBlockDialog onBlockAdded={fetchBlockConfigs} />
+            </div>
+          </div>
         </CardHeader>
         
         <CardContent>
