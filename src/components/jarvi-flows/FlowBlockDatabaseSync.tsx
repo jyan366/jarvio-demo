@@ -1,9 +1,39 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { flowBlockOptions } from '@/data/flowBlockOptions';
-import { v4 as uuidv4 } from 'uuid';
 import { toast } from '@/hooks/use-toast';
+import { v4 as uuidv4 } from 'uuid';
+
+// Default flow block options to use as fallback - this ensures synchronization works even without importing
+const defaultFlowBlockOptions = {
+  collect: [
+    'User Text',
+    'Upload Sheet',
+    'All Listing Info',
+    'Get Keywords',
+    'Estimate Sales',
+    'Review Information',
+    'Scrape Sheet',
+    'Seller Account Feedback',
+    'Email Parsing'
+  ],
+  think: [
+    'Basic AI Analysis',
+    'Listing Analysis',
+    'Insights Generation',
+    'Review Analysis'
+  ],
+  act: [
+    'AI Summary',
+    'Push to Amazon',
+    'Send Email',
+    'Human in the Loop',
+    'Agent'
+  ],
+  agent: [
+    'Agent'
+  ]
+};
 
 export function FlowBlockDatabaseSync() {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -20,6 +50,13 @@ export function FlowBlockDatabaseSync() {
           
         if (fetchError) {
           console.error('Error fetching existing blocks:', fetchError);
+          
+          // If we get a permission error, it might mean the RLS policy isn't set properly
+          if (fetchError.code === '42501') {
+            console.warn('Permission error when fetching blocks. Check RLS policies.');
+            return;
+          }
+          
           return;
         }
         
@@ -34,7 +71,7 @@ export function FlowBlockDatabaseSync() {
         // 3. Identify blocks that need to be created
         const blocksToCreate = [];
         
-        Object.entries(flowBlockOptions).forEach(([blockType, options]) => {
+        Object.entries(defaultFlowBlockOptions).forEach(([blockType, options]) => {
           options.forEach((option) => {
             // Skip if block already exists
             if (existingBlockMap.has(`${blockType}:${option}`)) {
@@ -171,14 +208,38 @@ export function FlowBlockDatabaseSync() {
             
           if (error) {
             console.error(`Error creating batch ${Math.floor(i/batchSize) + 1}:`, error);
+            
+            // Show a toast with the error message
+            toast({
+              title: "Error syncing flow blocks",
+              description: `${error.message}. Please check RLS policies or database permissions.`,
+              variant: "destructive"
+            });
+            
+            break; // Stop trying if we hit an error
           } else {
             console.log(`Batch ${Math.floor(i/batchSize) + 1} created successfully`);
           }
         }
         
         console.log('Flow blocks synchronization complete');
+        
+        // Show success toast when complete
+        toast({
+          title: "Flow blocks synchronized",
+          description: `${blocksToCreate.length} new flow blocks have been added to the database.`
+        });
+        
       } catch (error) {
         console.error('Error syncing flow blocks:', error);
+        
+        // If any error occurs, show a toast
+        toast({
+          title: "Error syncing flow blocks",
+          description: error instanceof Error ? error.message : "An unknown error occurred",
+          variant: "destructive"
+        });
+        
       } finally {
         setIsSyncing(false);
       }
