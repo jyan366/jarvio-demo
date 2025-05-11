@@ -42,10 +42,13 @@ export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void
     setIsSubmitting(true);
     
     try {
+      console.log("Submitting prompt:", prompt);
+      
       if (onSubmit) {
         await onSubmit(prompt);
       } else {
         // Default behavior - navigate to builder with the prompt
+        console.log("Navigating to builder with prompt:", prompt);
         navigate(`/jarvi-flows/builder?prompt=${encodeURIComponent(prompt)}`);
       }
     } catch (error) {

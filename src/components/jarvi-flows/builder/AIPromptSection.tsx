@@ -36,9 +36,15 @@ export function AIPromptSection({
         return;
       }
       
+      console.log("Submitting prompt:", data.prompt);
       await onSubmit(data);
     } catch (error) {
       console.error("Error submitting prompt:", error);
+      toast({
+        title: "Error submitting prompt",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive"
+      });
     }
   };
 

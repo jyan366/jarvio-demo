@@ -268,15 +268,12 @@ export default function FlowBuilder() {
     
     try {
       console.log("Sending prompt to AI:", data.prompt);
-      const response = await supabase.functions.invoke("chat", {
+      
+      // Call our dedicated generate-flow function
+      const response = await supabase.functions.invoke("generate-flow", {
         body: {
-          prompt: `Create a flow for an Amazon seller based on this description: "${data.prompt}". 
-          The flow should include appropriate blocks from these available options:
-          ${JSON.stringify(availableBlockOptions)}. 
-          
-          A flow typically has 3-5 blocks, usually starting with collect blocks, followed by think blocks, and ending with act blocks.
-          
-          Important: Provide descriptive names for each block that clearly explain what each step does.`
+          prompt: data.prompt,
+          blockOptions: availableBlockOptions
         }
       });
 
@@ -284,62 +281,34 @@ export default function FlowBuilder() {
 
       // Check for API errors first
       if (response.error) {
-        throw new Error(`API Error: ${response.error.message}`);
+        console.error("API Error:", response.error);
+        throw new Error(`API Error: ${response.error.message || "Unknown API error"}`);
       }
       
       if (!response.data) {
+        console.error("No data returned from API");
         throw new Error("No data returned from API");
       }
 
-      // Check for backend success status
+      // Check for success status in the response
       if (response.data.success === false) {
-        throw new Error(`Response Error: ${response.data.error}`);
-      }
-
-      // Handle multiple possible response formats
-      let generatedFlow;
-      
-      if (response.data.generatedFlow) {
-        // If we're getting the expected format with generatedFlow
-        console.log("Found generatedFlow in response:", response.data.generatedFlow);
-        generatedFlow = response.data.generatedFlow;
-      } else if (response.data.text) {
-        // If we're getting a text response, try to parse it as JSON
-        console.log("Found text in response, attempting to parse as JSON:", response.data.text);
-        try {
-          // This might be JSON wrapped in markdown or just plain JSON
-          const textContent = response.data.text;
-          // Try to extract JSON if it's wrapped in markdown code blocks
-          const jsonMatch = textContent.match(/```(?:json)?([\s\S]*?)```/) || 
-                            textContent.match(/{[\s\S]*}/);
-                            
-          const jsonContent = jsonMatch ? jsonMatch[1] || jsonMatch[0] : textContent;
-          generatedFlow = JSON.parse(jsonContent.trim());
-          console.log("Successfully parsed JSON from text:", generatedFlow);
-        } catch (jsonError) {
-          console.error("Failed to parse JSON from text:", jsonError);
-          throw new Error("Could not parse flow data from the AI response");
-        }
-      } else {
-        // No recognized format found
-        console.error("Unrecognized response format:", response.data);
-        throw new Error("Unexpected response format from the API");
+        console.error("Function returned error:", response.data.error);
+        throw new Error(`Error: ${response.data.error || "Unknown error in flow generation"}`);
       }
       
-      // Show warning if we're using a fallback flow
-      if (response.data.warning) {
-        console.warn(response.data.warning);
-        toast({
-          title: "Warning",
-          description: response.data.warning,
-          variant: "warning"
-        });
+      // Extract the generated flow from the response
+      const generatedFlow = response.data.generatedFlow;
+      
+      if (!generatedFlow) {
+        console.error("No flow data in response:", response.data);
+        throw new Error("No flow data returned from the API");
       }
       
-      console.log("Final generated flow:", generatedFlow);
+      console.log("Generated flow:", generatedFlow);
       
       // Validate the flow structure
       if (!generatedFlow.name || !generatedFlow.description || !Array.isArray(generatedFlow.blocks)) {
+        console.error("Invalid flow structure:", generatedFlow);
         throw new Error("Invalid flow structure: missing required properties");
       }
 

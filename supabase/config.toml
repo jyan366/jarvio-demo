@@ -1,34 +1,39 @@
 
+# This is an example config file for the Edge Functions feature
+# This file is expected to be at the root of the supabase/functions directory
+
+# Project ID
 project_id = "aojrdgobdavxjpnymskc"
 
-[api]
-enabled = true
-port = 54321
-schemas = ["public", "storage"]
+[chat]
+verify_jwt = false
 
-[db]
-port = 54322
+[restock-check]
+verify_jwt = false
 
-[studio]
-enabled = true
-port = 54323
+[suggest-tasks]
+verify_jwt = false
 
-[inbucket]
-enabled = true
-port = 54324
+[upload-product-images]
+verify_jwt = false
 
-[storage]
-enabled = true
+[upload-marketplace-icons]
+verify_jwt = false
 
-[auth]
-enabled = true
+[execute-flow-block]
+verify_jwt = false
 
-[realtime]
-enabled = true
+[jarvio-assistant]
+verify_jwt = false
 
-[analytics]
-enabled = false
+[generate-task-steps]
+verify_jwt = false
 
-[[functions]]
-name = "execute-flow-block"
-verify_jwt = true
+[update-task-state]
+verify_jwt = false
+
+[enhanced-task-suggestions]
+verify_jwt = false
+
+[generate-flow]
+verify_jwt = false
