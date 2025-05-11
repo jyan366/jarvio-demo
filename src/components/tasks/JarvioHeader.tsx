@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { JarvioTab } from "./hooks/useJarvioAssistantTabs";
 
@@ -54,14 +54,17 @@ export function JarvioHeader({
         </div>
       </div>
 
-      <TabsList className="grid grid-cols-2">
-        <TabsTrigger value="chat" onClick={() => setTab("chat")}>
-          Chat
-        </TabsTrigger>
-        <TabsTrigger value="datalog" onClick={() => setTab("datalog")}>
-          Data Log
-        </TabsTrigger>
-      </TabsList>
+      {/* Wrap TabsList inside a Tabs component with the current tab value */}
+      <Tabs value={tab} className="w-full">
+        <TabsList className="grid grid-cols-2">
+          <TabsTrigger value="chat" onClick={() => setTab("chat")}>
+            Chat
+          </TabsTrigger>
+          <TabsTrigger value="datalog" onClick={() => setTab("datalog")}>
+            Data Log
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     </div>
   );
 }
