@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { AlertCircle, HelpCircle, Loader2, WandSparkles } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
+import { toast } from '@/hooks/use-toast';
 
 interface AIPromptFormValues {
   prompt: string;
@@ -24,11 +25,28 @@ export function AIPromptSection({
   isGenerating, 
   aiError 
 }: AIPromptSectionProps) {
+  const handleSubmit = async (data: AIPromptFormValues) => {
+    try {
+      if (!data.prompt.trim()) {
+        toast({
+          title: "Empty prompt",
+          description: "Please enter a description for your flow",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      await onSubmit(data);
+    } catch (error) {
+      console.error("Error submitting prompt:", error);
+    }
+  };
+
   return (
     <Card className="border-2 border-purple-200 bg-purple-50/50">
       <CardContent className="pt-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="prompt"

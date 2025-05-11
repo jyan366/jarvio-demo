@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { TypewriterText } from './TypewriterText';
+import { toast } from '@/hooks/use-toast';
 
 // More comprehensive Amazon-specific prompt suggestions
 const EXAMPLE_PROMPTS = [
@@ -28,7 +29,15 @@ export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (prompt.trim() === "") return;
+    
+    if (prompt.trim() === "") {
+      toast({
+        title: "Empty prompt",
+        description: "Please enter a description for your flow",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     
@@ -39,6 +48,13 @@ export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void
         // Default behavior - navigate to builder with the prompt
         navigate(`/jarvi-flows/builder?prompt=${encodeURIComponent(prompt)}`);
       }
+    } catch (error) {
+      console.error("Error submitting prompt:", error);
+      toast({
+        title: "Error generating flow",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
