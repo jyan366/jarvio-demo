@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -32,6 +33,7 @@ import Financing from './pages/Financing';
 import AnalyticsStudio from './pages/AnalyticsStudio';
 import AdvertisingInsights from './pages/AdvertisingInsights';
 import AIAssistant from './pages/AIAssistant';
+import FlowBlocksAdmin from './pages/FlowBlocksAdmin';
 
 function App() {
   return (
@@ -57,6 +59,7 @@ function App() {
             <Route path="/agents-hub/agent/:agentId" element={<AgentProfile />} />
             <Route path="/ads-manager" element={<AdsManager />} />
             <Route path="/all-product-reviews" element={<AllProductReviews />} />
+            <Route path="/flow-blocks-admin" element={<FlowBlocksAdmin />} />
             
             {/* Brand Toolkit Routes */}
             <Route path="/my-offers" element={<MyOffers />} />
