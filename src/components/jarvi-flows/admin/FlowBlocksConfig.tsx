@@ -8,10 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Database, Brain, Zap, User, Check, Loader2, RefreshCw } from 'lucide-react';
+import { Database, Brain, Zap, User, Check, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { AddFlowBlockDialog } from './AddFlowBlockDialog';
 import { v4 as uuidv4 } from 'uuid';
+import { flowBlockOptions } from '@/data/flowBlockOptions';
 
 interface BlockConfig {
   id: string;
@@ -33,119 +34,76 @@ export function FlowBlocksConfig() {
   const [credentialJson, setCredentialJson] = useState<string>('{}');
   const [configJson, setConfigJson] = useState<string>('{}');
   const [initializingBlocks, setInitializingBlocks] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Initialize sample blocks if none exist
-  const initializeSampleBlocks = async () => {
+  // Initialize flow blocks based on flowBlockOptions
+  const initializeExistingBlocks = async () => {
     try {
       setInitializingBlocks(true);
-      console.log('Initializing sample flow blocks...');
+      setErrorMessage(null);
+      console.log('Initializing flow blocks from existing options...');
       
-      const sampleBlocks = [
-        {
-          id: uuidv4(),
-          block_type: 'collect',
-          block_name: 'Get Account Health',
-          is_functional: false,
-          config_data: {
-            description: 'Collects account health metrics from marketplace',
-            schema: {
-              type: 'object',
-              properties: {
-                marketplace: { type: 'string', enum: ['amazon', 'walmart', 'ebay'] }
-              }
-            }
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: uuidv4(),
-          block_type: 'collect',
-          block_name: 'Fetch Reviews',
-          is_functional: false,
-          config_data: {
-            description: 'Collects product reviews from marketplace',
-            schema: {
-              type: 'object',
-              properties: {
-                marketplace: { type: 'string', enum: ['amazon', 'walmart', 'ebay'] },
-                asin: { type: 'string' }
-              }
-            }
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: uuidv4(),
-          block_type: 'think',
-          block_name: 'Analyze Reviews',
-          is_functional: false,
-          config_data: {
-            description: 'Analyzes product reviews to extract insights',
-            model: 'gpt-4'
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: uuidv4(),
-          block_type: 'act',
-          block_name: 'Send Email Alert',
-          is_functional: false,
-          config_data: {
-            description: 'Sends an email alert based on configured triggers',
-            templates: {
-              default: 'Alert: {{alertType}} for product {{productId}}'
-            }
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: uuidv4(),
-          block_type: 'agent',
-          block_name: 'Customer Support Agent',
-          is_functional: false,
-          config_data: {
-            description: 'AI agent that handles customer support inquiries',
-            model: 'gpt-4',
-            capabilities: ['email', 'chat']
-          },
-          credentials: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
+      // Collect all unique block types and options from flowBlockOptions
+      const blocksToCreate: BlockConfig[] = [];
       
-      // Insert sample blocks
+      // Process all flow block options from the data
+      Object.entries(flowBlockOptions).forEach(([blockType, options]) => {
+        options.forEach((option) => {
+          // Skip blocks that should not be created
+          const skipBlocks = ['User Text', 'Human in the Loop'];
+          if (skipBlocks.includes(option)) return;
+          
+          blocksToCreate.push({
+            id: uuidv4(),
+            block_type: blockType,
+            block_name: option,
+            is_functional: false,
+            config_data: {
+              description: `${option} block for ${blockType} operations`,
+              // Add specific schema based on block type and option
+              ...(blockType === 'collect' && {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    // Default schema properties
+                  }
+                }
+              })
+            },
+            credentials: {},
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        });
+      });
+      
+      console.log(`Creating ${blocksToCreate.length} default flow blocks`);
+      
+      // Insert blocks into database
       const { error } = await supabase
         .from('flow_block_configs')
-        .insert(sampleBlocks);
+        .insert(blocksToCreate);
         
       if (error) {
-        console.error('Error creating sample blocks:', error);
+        console.error('Error creating flow blocks:', error);
         throw error;
       }
       
-      console.log('Sample blocks created successfully');
+      console.log('Flow blocks created successfully');
       
       // Fetch the newly created blocks
       await fetchBlockConfigs();
       
       toast({
-        title: 'Sample blocks created',
-        description: 'Sample flow blocks have been added to help you get started.',
+        title: 'Flow blocks initialized',
+        description: 'Default flow blocks have been added to the configuration.',
       });
     } catch (error) {
-      console.error('Error initializing sample blocks:', error);
+      console.error('Error initializing flow blocks:', error);
+      setErrorMessage('Failed to initialize flow blocks. Please check your permissions or try again.');
       toast({
         title: 'Error',
-        description: 'Failed to initialize sample blocks',
+        description: 'Failed to initialize flow blocks',
         variant: 'destructive'
       });
     } finally {
@@ -155,8 +113,9 @@ export function FlowBlocksConfig() {
 
   // Fetch block configs function
   const fetchBlockConfigs = useCallback(async () => {
-    console.log('Fetching block configurations...');
+    console.log('Fetching flow block configurations...');
     setLoading(true);
+    setErrorMessage(null);
     try {
       const { data, error } = await supabase
         .from('flow_block_configs')
@@ -184,19 +143,19 @@ export function FlowBlocksConfig() {
         }));
         setBlockConfigs(transformedData);
         
-        // If no blocks, suggest initializing sample blocks
+        // If no blocks, suggest initializing default blocks
         if (data.length === 0) {
           toast({
             title: 'No flow blocks found',
-            description: 'Would you like to create some sample blocks to get started?',
+            description: 'Would you like to initialize the default flow blocks?',
             action: (
               <Button 
                 variant="default" 
                 size="sm" 
-                onClick={initializeSampleBlocks} 
+                onClick={initializeExistingBlocks} 
                 disabled={initializingBlocks}
               >
-                {initializingBlocks ? 'Creating...' : 'Create Samples'}
+                {initializingBlocks ? 'Initializing...' : 'Initialize Blocks'}
               </Button>
             ),
             duration: 10000,
@@ -205,10 +164,24 @@ export function FlowBlocksConfig() {
       }
     } catch (error) {
       console.error('Error fetching block configs:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load block configurations';
+      setErrorMessage(errorMsg);
+      
+      // Show "Initialize Default Blocks" button in case of permission issues
       toast({
-        title: 'Error',
-        description: 'Failed to load block configurations',
-        variant: 'destructive'
+        title: 'Error fetching blocks',
+        description: 'Unable to fetch flow blocks. Please check your database permissions.',
+        variant: 'destructive',
+        action: (
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={initializeExistingBlocks} 
+            disabled={initializingBlocks}
+          >
+            {initializingBlocks ? 'Initializing...' : 'Initialize Default Blocks'}
+          </Button>
+        ),
       });
     } finally {
       setLoading(false);
@@ -387,22 +360,31 @@ export function FlowBlocksConfig() {
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              {blockConfigs.length === 0 && (
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  onClick={initializeSampleBlocks} 
-                  disabled={initializingBlocks}
-                >
-                  {initializingBlocks ? 'Creating...' : 'Create Sample Blocks'}
-                </Button>
-              )}
               <AddFlowBlockDialog onBlockAdded={fetchBlockConfigs} />
             </div>
           </div>
         </CardHeader>
         
         <CardContent>
+          {errorMessage && (
+            <div className="mb-4 p-4 border border-yellow-200 bg-yellow-50 rounded-lg flex items-start">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+              <div>
+                <p className="font-medium text-yellow-800">Database Access Issue</p>
+                <p className="text-sm text-yellow-700 mt-1">{errorMessage}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2 border-yellow-300 text-yellow-700 hover:text-yellow-800 hover:bg-yellow-100" 
+                  onClick={initializeExistingBlocks} 
+                  disabled={initializingBlocks}
+                >
+                  {initializingBlocks ? 'Initializing...' : 'Initialize Default Blocks'}
+                </Button>
+              </div>
+            </div>
+          )}
+        
           <Tabs value={currentTab} onValueChange={setCurrentTab}>
             <TabsList className="grid grid-cols-4">
               <TabsTrigger value="collect" className="flex items-center space-x-2">
