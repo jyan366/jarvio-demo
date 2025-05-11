@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Database, Brain, Zap, User, Check, Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { AddFlowBlockDialog } from './AddFlowBlockDialog';
+import { v4 as uuidv4 } from 'uuid';
 
 interface BlockConfig {
   id: string;
@@ -31,6 +32,126 @@ export function FlowBlocksConfig() {
   const [editingConfig, setEditingConfig] = useState<BlockConfig | null>(null);
   const [credentialJson, setCredentialJson] = useState<string>('{}');
   const [configJson, setConfigJson] = useState<string>('{}');
+  const [initializingBlocks, setInitializingBlocks] = useState(false);
+
+  // Initialize sample blocks if none exist
+  const initializeSampleBlocks = async () => {
+    try {
+      setInitializingBlocks(true);
+      console.log('Initializing sample flow blocks...');
+      
+      const sampleBlocks = [
+        {
+          id: uuidv4(),
+          block_type: 'collect',
+          block_name: 'Get Account Health',
+          is_functional: false,
+          config_data: {
+            description: 'Collects account health metrics from marketplace',
+            schema: {
+              type: 'object',
+              properties: {
+                marketplace: { type: 'string', enum: ['amazon', 'walmart', 'ebay'] }
+              }
+            }
+          },
+          credentials: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: uuidv4(),
+          block_type: 'collect',
+          block_name: 'Fetch Reviews',
+          is_functional: false,
+          config_data: {
+            description: 'Collects product reviews from marketplace',
+            schema: {
+              type: 'object',
+              properties: {
+                marketplace: { type: 'string', enum: ['amazon', 'walmart', 'ebay'] },
+                asin: { type: 'string' }
+              }
+            }
+          },
+          credentials: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: uuidv4(),
+          block_type: 'think',
+          block_name: 'Analyze Reviews',
+          is_functional: false,
+          config_data: {
+            description: 'Analyzes product reviews to extract insights',
+            model: 'gpt-4'
+          },
+          credentials: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: uuidv4(),
+          block_type: 'act',
+          block_name: 'Send Email Alert',
+          is_functional: false,
+          config_data: {
+            description: 'Sends an email alert based on configured triggers',
+            templates: {
+              default: 'Alert: {{alertType}} for product {{productId}}'
+            }
+          },
+          credentials: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: uuidv4(),
+          block_type: 'agent',
+          block_name: 'Customer Support Agent',
+          is_functional: false,
+          config_data: {
+            description: 'AI agent that handles customer support inquiries',
+            model: 'gpt-4',
+            capabilities: ['email', 'chat']
+          },
+          credentials: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      
+      // Insert sample blocks
+      const { error } = await supabase
+        .from('flow_block_configs')
+        .insert(sampleBlocks);
+        
+      if (error) {
+        console.error('Error creating sample blocks:', error);
+        throw error;
+      }
+      
+      console.log('Sample blocks created successfully');
+      
+      // Fetch the newly created blocks
+      await fetchBlockConfigs();
+      
+      toast({
+        title: 'Sample blocks created',
+        description: 'Sample flow blocks have been added to help you get started.',
+      });
+    } catch (error) {
+      console.error('Error initializing sample blocks:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to initialize sample blocks',
+        variant: 'destructive'
+      });
+    } finally {
+      setInitializingBlocks(false);
+    }
+  };
 
   // Fetch block configs function
   const fetchBlockConfigs = useCallback(async () => {
@@ -62,6 +183,25 @@ export function FlowBlocksConfig() {
             : item.credentials
         }));
         setBlockConfigs(transformedData);
+        
+        // If no blocks, suggest initializing sample blocks
+        if (data.length === 0) {
+          toast({
+            title: 'No flow blocks found',
+            description: 'Would you like to create some sample blocks to get started?',
+            action: (
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={initializeSampleBlocks} 
+                disabled={initializingBlocks}
+              >
+                {initializingBlocks ? 'Creating...' : 'Create Samples'}
+              </Button>
+            ),
+            duration: 10000,
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching block configs:', error);
@@ -73,7 +213,7 @@ export function FlowBlocksConfig() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [initializingBlocks]);
 
   // Refresh the block configs
   const handleRefresh = async () => {
@@ -247,6 +387,16 @@ export function FlowBlocksConfig() {
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
+              {blockConfigs.length === 0 && (
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={initializeSampleBlocks} 
+                  disabled={initializingBlocks}
+                >
+                  {initializingBlocks ? 'Creating...' : 'Create Sample Blocks'}
+                </Button>
+              )}
               <AddFlowBlockDialog onBlockAdded={fetchBlockConfigs} />
             </div>
           </div>
