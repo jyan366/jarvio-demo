@@ -120,9 +120,12 @@ export function ToolCard({
         </div>
       </div>
       
+      {/* Configuration panel - Now kept inside the card with proper z-index and styling to ensure visibility */}
       {isReady && isEnabled && isExpanded && configComponent && (
-        <div className="border-t p-4 bg-gray-50">
-          {configComponent}
+        <div className="border-t p-4 bg-gray-50 relative z-10">
+          <div className="max-h-[500px] overflow-y-auto">
+            {configComponent}
+          </div>
         </div>
       )}
     </div>

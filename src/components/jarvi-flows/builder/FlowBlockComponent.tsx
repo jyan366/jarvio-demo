@@ -183,7 +183,7 @@ export function FlowBlockComponent({
     }
   };
 
-  // Fix the toggle function to properly work with Collapsible
+  // Toggle configuration panel
   const toggleConfig = () => {
     console.log("Toggling config panel. Current state:", isConfigOpen, "Setting to:", !isConfigOpen);
     setIsConfigOpen(!isConfigOpen);
@@ -336,11 +336,15 @@ export function FlowBlockComponent({
             </div>
           </div>
           
-          {/* Configuration panel */}
+          {/* Configuration panel - Now properly included within the block */}
           {hasConfig && ConfigComponent && (
-            <Collapsible open={isConfigOpen} onOpenChange={setIsConfigOpen}>
+            <Collapsible open={isConfigOpen} onOpenChange={setIsConfigOpen} className="w-full">
               <CollapsibleContent className="pt-3 border-t mt-2">
-                {ConfigComponent && <ConfigComponent toolId={`${block.type}-${block.option.toLowerCase().replace(/\s+/g, '-')}`} />}
+                {ConfigComponent && (
+                  <div className="py-2">
+                    <ConfigComponent toolId={`${block.type}-${block.option.toLowerCase().replace(/\s+/g, '-')}`} />
+                  </div>
+                )}
               </CollapsibleContent>
             </Collapsible>
           )}
