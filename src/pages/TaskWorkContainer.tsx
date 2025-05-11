@@ -1,3 +1,4 @@
+
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -134,8 +135,8 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
         )
       : [];
 
-  // Check if this task is a flow
-  const isFlowTask = taskState.category === 'FLOW' || (taskState.data && taskState.data.flowId);
+  // We're removing this duplicate declaration since we already get isFlowTask from the hook
+  // const isFlowTask = taskState.category === 'FLOW' || (taskState.data && taskState.data.flowId);
 
   return (
     <MainLayout>

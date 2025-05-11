@@ -1,4 +1,4 @@
-import { useState, useEffect, React } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask } from "@/lib/supabaseTasks";
 import { generateTaskSteps } from "@/lib/apiUtils";
@@ -415,7 +415,7 @@ export function useTaskWork(taskId: string) {
     loadTask();
   }, [taskId, navigate, toast]);
 
-  const isFlowTask = React.useMemo(() => {
+  const isFlowTask = useMemo(() => {
     if (!taskState) return false;
     return taskState.category === 'FLOW' || (taskState.data && taskState.data.flowId);
   }, [taskState]);

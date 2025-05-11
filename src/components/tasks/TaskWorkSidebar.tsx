@@ -23,6 +23,11 @@ interface TaskWorkSidebarProps {
   currentSubtaskIndex: number;
   onSubtaskComplete: (idx: number) => Promise<void>;
   onSubtaskSelect: (idx: number) => void;
+  onGenerateSteps?: () => Promise<void>;
+  taskData?: {
+    flowId?: string;
+    flowTrigger?: string;
+  };
 }
 
 export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
@@ -41,6 +46,8 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   currentSubtaskIndex,
   onSubtaskComplete,
   onSubtaskSelect,
+  onGenerateSteps,
+  taskData,
 }) => {
   const currentSubtask = subtasks[currentSubtaskIndex];
   
