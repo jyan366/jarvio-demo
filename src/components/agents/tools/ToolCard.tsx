@@ -35,7 +35,7 @@ export function ToolCard({
       setIsExpanded(true);
     }
     
-    console.log(`ToolCard - ${toolId} - isReady: ${isReady}, isEnabled: ${isEnabled}`);
+    console.log(`ToolCard - ${toolId} - isReady: ${isReady}, isEnabled: ${isEnabled}, isExpanded: ${isExpanded}`);
   }, [isReady, isEnabled, toolId, isExpanded]);
   
   const getCategoryColor = (category: string) => {
@@ -60,6 +60,7 @@ export function ToolCard({
 
   const toggleExpand = () => {
     if (!isEnabled) return; // Don't allow expansion if tool is not enabled
+    console.log("Toggle expand clicked for:", toolId, "Current state:", isExpanded, "Setting to:", !isExpanded);
     setIsExpanded(!isExpanded);
   };
 

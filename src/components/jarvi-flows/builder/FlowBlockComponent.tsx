@@ -185,8 +185,8 @@ export function FlowBlockComponent({
 
   // Fix the toggle function to properly work with Collapsible
   const toggleConfig = () => {
+    console.log("Toggling config panel. Current state:", isConfigOpen, "Setting to:", !isConfigOpen);
     setIsConfigOpen(!isConfigOpen);
-    console.log("Toggling config panel:", !isConfigOpen);
   };
 
   return (
