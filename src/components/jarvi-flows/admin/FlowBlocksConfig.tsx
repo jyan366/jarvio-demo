@@ -756,7 +756,7 @@ export function FlowBlocksConfig() {
       
       {/* Block Configuration Dialog */}
       {editingConfig && (
-        <Card>
+        <Card className="mt-4">
           <CardHeader>
             <CardTitle>Configure Block: {editingConfig.block_name}</CardTitle>
             <CardDescription>
@@ -777,7 +777,7 @@ export function FlowBlocksConfig() {
               <Textarea 
                 value={configJson}
                 onChange={(e) => setConfigJson(e.target.value)}
-                className="font-mono h-40"
+                className="font-mono h-60 overflow-y-auto"
               />
             </div>
             <div>
@@ -785,11 +785,11 @@ export function FlowBlocksConfig() {
               <Textarea 
                 value={credentialJson}
                 onChange={(e) => setCredentialJson(e.target.value)}
-                className="font-mono h-40"
+                className="font-mono h-60 overflow-y-auto"
               />
             </div>
           </CardContent>
-          <CardFooter className="flex justify-end space-x-2">
+          <CardFooter className="flex justify-end space-x-2 py-4">
             <Button variant="outline" onClick={() => setEditingConfig(null)}>
               Cancel
             </Button>
