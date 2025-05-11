@@ -65,7 +65,17 @@ export class FlowExecutionEngine {
       
       // Create a map of block type+name to config for quick access
       if (configs) {
-        configs.forEach((config: BlockConfig) => {
+        configs.forEach((item: any) => {
+          const config: BlockConfig = {
+            ...item,
+            config_data: typeof item.config_data === 'string' 
+              ? JSON.parse(item.config_data) 
+              : item.config_data,
+            credentials: typeof item.credentials === 'string' 
+              ? JSON.parse(item.credentials) 
+              : item.credentials
+          };
+          
           const key = `${config.block_type}:${config.block_name}`;
           this.blockConfigs[key] = config;
         });

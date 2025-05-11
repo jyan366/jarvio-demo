@@ -45,7 +45,7 @@ export const formatFlowActionMessage = (text: string, subtaskIdx?: number): Mess
     text,
     timestamp: new Date(),
     subtaskIdx,
-    flowAction: true
+    flowAction: true  // This needs to be added to the Message type
   };
 };
 

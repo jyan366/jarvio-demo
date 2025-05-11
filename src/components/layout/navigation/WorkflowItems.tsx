@@ -4,6 +4,7 @@ import {
   Sparkles,
   Book,
   GitBranch,
+  Settings,
 } from "lucide-react";
 
 import { MenuItem } from "./types";
@@ -26,6 +27,12 @@ export const workflowItems: MenuItem[] = [
     label: "Flows",
     href: "/jarvi-flows",
     id: "jarvi-flows",
+  },
+  {
+    icon: Settings,
+    label: "Flow Blocks Admin",
+    href: "/flow-blocks-admin",
+    id: "flow-blocks-admin",
   },
   {
     icon: Book,

@@ -1,16 +1,15 @@
-import { useState, useRef, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect, useCallback } from 'react';
 import { Subtask } from "@/pages/TaskWorkContainer";
-import { sendMessageToJarvio, formatUserMessage, formatJarvioResponse } from "../services/jarvioMessageService";
+import { formatUserMessage, formatJarvioResponse, formatSystemMessage, sendMessageToJarvio } from '../services/jarvioMessageService';
 
 export interface Message {
   id: string;
-  isUser: boolean;
   text: string;
+  isUser: boolean;
   timestamp: Date;
   subtaskIdx?: number;
   systemLog?: boolean;
+  flowAction?: boolean;  // Added this property to fix the type error
 }
 
 export interface SubtaskData {
@@ -67,7 +66,7 @@ export function useJarvioAssistantLogic(
   const { toast } = useToast();
 
   // Function to handle sending messages to Jarvio
-  const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string) => {
+  const handleSendMessage = useCallback(async (e?: React.FormEvent, autoMessage?: string) => {
     e?.preventDefault();
     
     const messageToSend = autoMessage || inputValue;
@@ -116,10 +115,10 @@ export function useJarvioAssistantLogic(
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [messages, inputValue, isLoading, currentSubtaskIndex, taskTitle, taskDescription, subtasks, getPreviousSubtasksContext, handleSaveSubtaskResult]);
 
   // Handle saving subtask results
-  const handleSaveSubtaskResult = async (subtaskId: string, result: string) => {
+  const handleSaveSubtaskResult = useCallback(async (subtaskId: string, result: string) => {
     try {
       await supabase.functions.invoke('update-task-state', {
         body: {
@@ -145,7 +144,7 @@ export function useJarvioAssistantLogic(
       console.error("Failed to save subtask result:", err);
       return false;
     }
-  };
+  }, [supabase]);
 
   // Get context from previous subtasks
   const getPreviousSubtasksContext = () => {

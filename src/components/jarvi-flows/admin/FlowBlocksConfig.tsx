@@ -43,7 +43,19 @@ export function FlowBlocksConfig() {
           
         if (error) throw error;
         
-        setBlockConfigs(data || []);
+        // Transform Supabase data to match BlockConfig type
+        if (data) {
+          const transformedData: BlockConfig[] = data.map(item => ({
+            ...item,
+            config_data: typeof item.config_data === 'string' 
+              ? JSON.parse(item.config_data) 
+              : item.config_data,
+            credentials: typeof item.credentials === 'string' 
+              ? JSON.parse(item.credentials) 
+              : item.credentials
+          }));
+          setBlockConfigs(transformedData);
+        }
       } catch (error) {
         console.error('Error fetching block configs:', error);
         toast({
