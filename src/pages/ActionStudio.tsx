@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
@@ -27,6 +28,7 @@ export default function ActionStudio() {
   const [showHowItWorks, setShowHowItWorks] = useState(true);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [isRestockProcessOpen, setIsRestockProcessOpen] = useState(false);
+  const [isProcessBuilderOpen, setIsProcessBuilderOpen] = useState(false);
 
   return (
     <MainLayout>
@@ -119,7 +121,10 @@ export default function ActionStudio() {
         }}
       />
 
-      <ProcessBuilder />
+      <ProcessBuilder 
+        open={isProcessBuilderOpen}
+        onOpenChange={setIsProcessBuilderOpen}
+      />
 
       <BestSellersRestockProcess
         open={isRestockProcessOpen}
