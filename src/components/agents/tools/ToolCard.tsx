@@ -2,17 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Settings } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAgentSettings } from "@/hooks/useAgentSettings";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose
-} from "@/components/ui/dialog";
 
 interface ToolCardProps {
   toolId: string;
@@ -30,7 +22,7 @@ export function ToolCard({
   configComponent 
 }: ToolCardProps) {
   const { settings, toggleTool, isReady, getToolConfig } = useAgentSettings();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   
   const agentId = window.location.pathname.split('/').pop() || '';
   const agentSettings = settings[agentId] || { customTools: [], toolsConfig: {} };
@@ -38,8 +30,13 @@ export function ToolCard({
   
   // React to changes in isReady and isEnabled
   useEffect(() => {
-    console.log(`ToolCard - ${toolId} - isReady: ${isReady}, isEnabled: ${isEnabled}, isDialogOpen: ${isDialogOpen}`);
-  }, [isReady, isEnabled, toolId, isDialogOpen]);
+    if (isReady && isEnabled && isExpanded) {
+      // Maintain expanded state when settings refresh
+      setIsExpanded(true);
+    }
+    
+    console.log(`ToolCard - ${toolId} - isReady: ${isReady}, isEnabled: ${isEnabled}, isExpanded: ${isExpanded}`);
+  }, [isReady, isEnabled, toolId, isExpanded]);
   
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
@@ -55,15 +52,16 @@ export function ToolCard({
     console.log("Toggle triggered:", checked, toolId);
     toggleTool(toolId, checked);
     
-    // If turning off, close the dialog if open
-    if (!checked && isDialogOpen) {
-      setIsDialogOpen(false);
+    // If turning off, collapse the expanded section
+    if (!checked && isExpanded) {
+      setIsExpanded(false);
     }
   };
 
-  const toggleDialog = () => {
-    if (!isEnabled) return; // Don't allow opening if tool is not enabled
-    setIsDialogOpen(!isDialogOpen);
+  const toggleExpand = () => {
+    if (!isEnabled) return; // Don't allow expansion if tool is not enabled
+    console.log("Toggle expand clicked for:", toolId, "Current state:", isExpanded, "Setting to:", !isExpanded);
+    setIsExpanded(!isExpanded);
   };
 
   return (
@@ -102,35 +100,34 @@ export function ToolCard({
                   variant="ghost" 
                   size="sm" 
                   className="ml-2 h-7 text-xs"
-                  onClick={toggleDialog}
+                  onClick={toggleExpand}
                 >
-                  <Settings className="h-3 w-3 mr-1" />
-                  Configure
+                  {isExpanded ? (
+                    <>
+                      <ChevronUp className="h-3 w-3 mr-1" />
+                      Hide Configuration
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-3 w-3 mr-1" />
+                      Configure
+                    </>
+                  )}
                 </Button>
               )}
             </div>
           </div>
         </div>
-        
-        {/* Configuration Dialog */}
-        {isReady && isEnabled && configComponent && (
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Configure {title}</DialogTitle>
-              </DialogHeader>
-              <div className="py-4">
-                {configComponent}
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Close</Button>
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
       </div>
+      
+      {/* Configuration panel - Now kept inside the card with proper z-index and styling to ensure visibility */}
+      {isReady && isEnabled && isExpanded && configComponent && (
+        <div className="border-t p-4 bg-gray-50 relative z-10">
+          <div className="max-h-[500px] overflow-y-auto">
+            {configComponent}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

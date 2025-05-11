@@ -5,23 +5,16 @@ import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ArrowDown, Info, MoveUp, MoveDown, Trash2, Database, Brain, Zap, User, Settings } from 'lucide-react';
+import { ArrowDown, ChevronDown, ChevronUp, Info, MoveUp, MoveDown, Trash2, Database, Brain, Zap, User, Settings } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { agentsData } from '@/data/agentsData';
 import { BlockCategory } from '@/data/flowBlockOptions';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SendEmailConfig } from '@/components/agents/tools/SendEmailConfig';
 import { AiSummaryConfig } from '@/components/agents/tools/AiSummaryConfig';
 import { UploadSheetConfig } from '@/components/agents/tools/UploadSheetConfig';
 import { ScrapeSheetConfig } from '@/components/agents/tools/ScrapeSheetConfig';
 import { EmailParsingConfig } from '@/components/agents/tools/EmailParsingConfig';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose 
-} from '@/components/ui/dialog';
 
 // Block type to icon/color mapping
 const blockTypeInfo = {
@@ -124,7 +117,7 @@ export function FlowBlockComponent({
   removeBlock,
   handleAgentSelection
 }: FlowBlockProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   // Get the block type info
   const typeInfo = blockTypeInfo[block.type];
@@ -190,10 +183,10 @@ export function FlowBlockComponent({
     }
   };
 
-  // Toggle configuration dialog
-  const toggleDialog = () => {
-    console.log("Toggling config dialog. Current state:", isDialogOpen, "Setting to:", !isDialogOpen);
-    setIsDialogOpen(!isDialogOpen);
+  // Toggle configuration panel
+  const toggleConfig = () => {
+    console.log("Toggling config panel. Current state:", isConfigOpen, "Setting to:", !isConfigOpen);
+    setIsConfigOpen(!isConfigOpen);
   };
 
   return (
@@ -328,33 +321,32 @@ export function FlowBlockComponent({
                     variant="outline" 
                     size="sm" 
                     className={`mt-2 ${blockLightColor} ${blockTextColor} border-0 text-xs`} 
-                    onClick={toggleDialog}
+                    onClick={toggleConfig}
                   >
                     <Settings className="h-3 w-3 mr-1.5" />
                     Configure
+                    {isConfigOpen ? (
+                      <ChevronUp className="h-3 w-3 ml-1.5" />
+                    ) : (
+                      <ChevronDown className="h-3 w-3 ml-1.5" />
+                    )}
                   </Button>
                 )}
               </div>
             </div>
           </div>
           
-          {/* Configuration dialog - Now using a Dialog component */}
+          {/* Configuration panel - Now properly included within the block */}
           {hasConfig && ConfigComponent && (
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Configure {block.option}</DialogTitle>
-                </DialogHeader>
-                <div className="py-4">
-                  {ConfigComponent && <ConfigComponent toolId={`${block.type}-${block.option.toLowerCase().replace(/\s+/g, '-')}`} />}
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline">Close</Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <Collapsible open={isConfigOpen} onOpenChange={setIsConfigOpen} className="w-full">
+              <CollapsibleContent className="pt-3 border-t mt-2">
+                {ConfigComponent && (
+                  <div className="py-2">
+                    <ConfigComponent toolId={`${block.type}-${block.option.toLowerCase().replace(/\s+/g, '-')}`} />
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
           )}
         </div>
       </div>
