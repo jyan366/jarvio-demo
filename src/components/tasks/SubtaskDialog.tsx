@@ -25,6 +25,7 @@ interface SubtaskDialogProps {
   onAddComment?: (text: string) => void;
   commentValue?: string;
   setCommentValue?: (v: string) => void;
+  isFlowStep?: boolean;
 }
 
 export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
@@ -40,6 +41,7 @@ export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
   onAddComment,
   commentValue = "",
   setCommentValue,
+  isFlowStep = false,
 }) => {
   const [localCommentValue, setLocalCommentValue] = React.useState("");
   const handleCommentChange = setCommentValue || setLocalCommentValue;
@@ -95,7 +97,7 @@ export const SubtaskDialog: React.FC<SubtaskDialogProps> = ({
                     ))
                   ) : (
                     <span className="italic text-blue-400 text-xs">
-                      No user inputs or actions for this step yet.
+                      No user inputs or actions for this {isFlowStep ? "step" : "subtask"} yet.
                     </span>
                   )}
                 </div>

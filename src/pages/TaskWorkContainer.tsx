@@ -134,6 +134,9 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
           (c) => c.subtaskId === dialogSubtask.id || (!c.subtaskId && subtaskDialogIdx === 0)
         )
       : [];
+  
+  // Ensure isFlowTask is always a boolean value
+  const isFlowTaskBoolean = isFlowTask === true;
 
   return (
     <MainLayout>
@@ -145,7 +148,7 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
               />
-              {isFlowTask && (
+              {isFlowTaskBoolean && (
                 <div className="ml-auto flex items-center text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md">
                   <Workflow className="w-4 h-4 mr-2" />
                   <span className="text-sm font-medium">Flow</span>
@@ -165,7 +168,7 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
               onFocusSubtask={handleFocusSubtask}
               onUpdateSubtask={handleUpdateSubtask}
               onOpenSubtask={handleOpenSubtask}
-              isFlowTask={isFlowTask}
+              isFlowTask={isFlowTaskBoolean}
             />
           </div>
         </main>
@@ -188,7 +191,7 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
             onSubtaskSelect={handleFocusSubtask}
             onGenerateSteps={handleGenerateSteps}
             taskData={taskState.data}
-            isFlowTask={isFlowTask}
+            isFlowTask={isFlowTaskBoolean}
           />
         </aside>
       </div>
@@ -211,7 +214,7 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
           jarvioCompletedAt={jarvioCompletedAt}
           userWorkLog={userWorkLog}
           comments={dialogComments}
-          isFlowStep={isFlowTask}
+          isFlowStep={isFlowTaskBoolean}
         />
       )}
     </MainLayout>

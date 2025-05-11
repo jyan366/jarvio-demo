@@ -47,7 +47,7 @@ export const JarvioMessageArea: React.FC<JarvioMessageAreaProps> = ({
             subtasks={subtasks}
             activeSubtaskIdx={activeSubtaskIdx}
             onGenerateSteps={onGenerateSteps}
-            isFlowTask={isFlowTask}
+            isFlowTask={isFlowTask === true}
           />
           <div ref={messagesEndRef} />
         </div>
