@@ -13,42 +13,14 @@ import { FlowHeader } from '@/components/jarvi-flows/builder/FlowHeader';
 import { AIPromptSection } from '@/components/jarvi-flows/builder/AIPromptSection';
 import { FlowDetailsSection } from '@/components/jarvi-flows/builder/FlowDetailsSection';
 import { FlowBlocksList } from '@/components/jarvi-flows/builder/FlowBlocksList';
-import { BlockCategory } from '@/data/flowBlockOptions';
+import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
 // Import agentsData directly instead of using require
 import { agentsData } from '@/data/agentsData';
 import { useFlowBlockConfig } from '@/hooks/useFlowBlockConfig';
 import { FlowBlockDatabaseSync } from '@/components/jarvi-flows/FlowBlockDatabaseSync';
 
 // Default flow block options to use as fallback
-const defaultFlowBlockOptions = {
-  collect: [
-    'User Text',
-    'Upload Sheet',
-    'All Listing Info',
-    'Get Keywords',
-    'Estimate Sales',
-    'Review Information',
-    'Scrape Sheet',
-    'Seller Account Feedback',
-    'Email Parsing'
-  ],
-  think: [
-    'Basic AI Analysis',
-    'Listing Analysis',
-    'Insights Generation',
-    'Review Analysis'
-  ],
-  act: [
-    'AI Summary',
-    'Push to Amazon',
-    'Send Email',
-    'Human in the Loop',
-    'Agent'
-  ],
-  agent: [
-    'Agent'
-  ]
-};
+const defaultFlowBlockOptions = flowBlockOptions;
 
 // Predefined flows for testing/editing
 const predefinedFlows: Flow[] = [
@@ -218,12 +190,29 @@ export default function FlowBuilder() {
         
         if (generatedFlow.name && generatedFlow.description && Array.isArray(generatedFlow.blocks)) {
           // Convert any block objects to proper FlowBlock format with ids
-          const newBlocks = generatedFlow.blocks.map((block: any) => ({
-            id: block.id || uuidv4(),
-            type: block.type,
-            option: block.option,
-            name: block.name || getDescriptiveBlockName(block.type, block.option)
-          }));
+          const newBlocks = generatedFlow.blocks.map((block: any) => {
+            // Ensure block type is valid
+            const blockType = block.type && ['collect', 'think', 'act', 'agent'].includes(block.type) 
+              ? block.type 
+              : 'collect';
+            
+            // Find valid options for this block type
+            const validOptions = availableBlockOptions[blockType] || defaultFlowBlockOptions[blockType as BlockCategory];
+            
+            // Check if the provided option is valid for this block type
+            let blockOption = block.option;
+            if (!validOptions.includes(blockOption)) {
+              console.warn(`Invalid block option: ${blockOption} for type ${blockType}, using fallback`);
+              blockOption = validOptions[0] || 'User Text';
+            }
+            
+            return {
+              id: block.id || uuidv4(),
+              type: blockType,
+              option: blockOption,
+              name: block.name || getDescriptiveBlockName(blockType, blockOption)
+            };
+          });
           
           setFlow(prev => ({
             ...prev,
@@ -274,7 +263,7 @@ export default function FlowBuilder() {
       // New flow - initialize with a default ID
       setFlow(prev => ({ ...prev, id: uuidv4() }));
     }
-  }, [flowId, location.search]);
+  }, [flowId, location.search, availableBlockOptions]);
 
   // Handle agent selection
   const handleAgentSelection = (blockId: string, agentId: string) => {
@@ -356,36 +345,26 @@ export default function FlowBuilder() {
       // Create flow blocks from AI response
       const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => {
         // Validate block type - make sure to include 'agent' here
-        if (!block.type || !['collect', 'think', 'act', 'agent'].includes(block.type)) {
-          console.warn(`Invalid block type: ${block.type}, using 'collect' as fallback`);
-          const fallbackType = 'collect' as BlockCategory;
-          const fallbackOption = availableBlockOptions[fallbackType][0] || defaultFlowBlockOptions[fallbackType][0];
-          return {
-            id: uuidv4(),
-            type: fallbackType,
-            option: fallbackOption,
-            name: block.name || getDescriptiveBlockName(fallbackType, fallbackOption)
-          };
-        }
+        const blockType = block.type && ['collect', 'think', 'act', 'agent'].includes(block.type) 
+          ? block.type 
+          : 'collect';
         
-        // Validate block option
-        if (!block.option || !availableBlockOptions[block.type]?.includes(block.option)) {
-          console.warn(`Using fallback option for invalid option: ${block.option}`);
-          // Use the first available option as fallback
-          const fallbackOption = availableBlockOptions[block.type][0] || defaultFlowBlockOptions[block.type][0];
-          return {
-            id: uuidv4(),
-            type: block.type,
-            option: fallbackOption,
-            name: block.name || getDescriptiveBlockName(block.type, fallbackOption)
-          };
+        // Get valid options for this block type from the available options
+        const validOptions = availableBlockOptions[blockType] || defaultFlowBlockOptions[blockType as BlockCategory];
+        
+        // Check if the provided option is valid for this block type
+        // If not, use the first available option as a fallback
+        let blockOption = block.option;
+        if (!validOptions.includes(blockOption)) {
+          console.warn(`Invalid block option: ${blockOption} for type ${blockType}, using fallback`);
+          blockOption = validOptions[0] || '';
         }
         
         return {
           id: uuidv4(),
-          type: block.type,
-          option: block.option,
-          name: block.name || getDescriptiveBlockName(block.type, block.option)
+          type: blockType,
+          option: blockOption,
+          name: block.name || getDescriptiveBlockName(blockType, blockOption)
         };
       });
       

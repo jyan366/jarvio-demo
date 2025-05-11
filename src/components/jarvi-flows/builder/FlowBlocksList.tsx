@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
 import { FlowBlockComponent } from '@/components/jarvi-flows/builder/FlowBlockComponent';
 import { v4 as uuidv4 } from 'uuid';
-import { BlockCategory } from '@/data/flowBlockOptions';
+import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
 
 interface Props {
   blocks: FlowBlock[];
@@ -29,8 +29,8 @@ export function FlowBlocksList({
     if (availableBlockOptions && availableBlockOptions[type] && availableBlockOptions[type].length > 0) {
       return availableBlockOptions[type];
     }
-    // Return empty array as a last resort
-    return [];
+    // Fall back to default flowBlockOptions
+    return flowBlockOptions[type];
   };
 
   const addBlock = (type: BlockCategory, option: string) => {
