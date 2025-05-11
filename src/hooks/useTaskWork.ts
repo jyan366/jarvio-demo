@@ -365,6 +365,20 @@ export function useTaskWork(taskId: string) {
           console.error("Error loading insights:", err);
         }
 
+        // Parse the task data.data field properly
+        let parsedTaskData: { flowId?: string; flowTrigger?: string } = {};
+        if (taskData.data) {
+          try {
+            if (typeof taskData.data === 'string') {
+              parsedTaskData = JSON.parse(taskData.data);
+            } else if (typeof taskData.data === 'object') {
+              parsedTaskData = taskData.data as { flowId?: string; flowTrigger?: string };
+            }
+          } catch (err) {
+            console.error("Error parsing task data:", err);
+          }
+        }
+
         const task: TaskWorkType = {
           id: taskData.id,
           title: taskData.title,
@@ -392,7 +406,7 @@ export function useTaskWork(taskId: string) {
           subtasks: normalizedSubs,
           comments: [{ user: "you", text: "new comment", ago: "2 days ago", subtaskId: normalizedSubs[0]?.id }],
           insights: taskInsights, // Added insights
-          data: taskData.data,
+          data: parsedTaskData,
         };
 
         setTaskState(task);

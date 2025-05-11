@@ -14,8 +14,8 @@ interface JarvioChatMessagesProps {
 
 export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
   messages,
-  subtasks,
-  activeSubtaskIdx,
+  subtasks = [],
+  activeSubtaskIdx = 0,
   onGenerateSteps
 }) => {
   // Function to format message text with styling
@@ -47,34 +47,40 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
     return formattedText;
   };
 
-  if (messages.length === 0 && (!subtasks || subtasks.length === 0)) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
-        <MessageCircle className="h-12 w-12 text-primary/20" />
-        <div className="max-w-[320px] space-y-2">
-          <p className="text-lg font-medium">Let's break down this task</p>
-          <p className="text-sm text-muted-foreground">
-            I notice there are no subtasks yet. Would you like me to help generate some subtasks to break down this work?
-          </p>
-          {onGenerateSteps && (
-            <Button onClick={onGenerateSteps} className="mt-4">
-              Generate Subtasks
-            </Button>
-          )}
+  // Safety check for both messages and subtasks
+  if (!messages || messages.length === 0) {
+    if (!subtasks || subtasks.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
+          <MessageCircle className="h-12 w-12 text-primary/20" />
+          <div className="max-w-[320px] space-y-2">
+            <p className="text-lg font-medium">Let's break down this task</p>
+            <p className="text-sm text-muted-foreground">
+              I notice there are no subtasks yet. Would you like me to help generate some subtasks to break down this work?
+            </p>
+            {onGenerateSteps && (
+              <Button onClick={onGenerateSteps} className="mt-4">
+                Generate Subtasks
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
-  const currentSubtask = subtasks[activeSubtaskIdx];
+  // Safely access current subtask
+  const currentSubtask = subtasks && subtasks.length > activeSubtaskIdx ? subtasks[activeSubtaskIdx] : null;
 
   return (
     <div className="space-y-4 pb-4">
       {messages.map((message, index) => {
         // Check if message contains subtask complete notification
         const isSubtaskComplete = !message.isUser && 
-          message.text.includes("SUBTASK COMPLETE") || 
-          message.text.includes("Subtask complete");
+          message.text && (
+            message.text.includes("SUBTASK COMPLETE") || 
+            message.text.includes("Subtask complete")
+          );
 
         return (
           <div
@@ -117,8 +123,8 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
                     className="markdown-content"
                     dangerouslySetInnerHTML={{ 
                       __html: message.isUser 
-                        ? message.text 
-                        : formatMessageText(message.text)
+                        ? (message.text || '') 
+                        : formatMessageText(message.text || '')
                     }}
                   />
                 )}

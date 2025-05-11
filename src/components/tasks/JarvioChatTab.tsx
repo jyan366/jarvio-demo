@@ -42,12 +42,27 @@ export function JarvioChatTab({
   
   const isFlowTask = taskData && taskData.flowId;
   
+  // Handle message submission from the input
+  const handleSubmitMessage = async () => {
+    if (inputValue.trim() && !isLoading) {
+      await onSendMessage(inputValue);
+    }
+  };
+
+  // Handle input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(e.target.value);
+  };
+  
   return (
     <>
       <JarvioMessageArea 
         messages={messages}
+        subtasks={subtasks}
+        activeSubtaskIdx={activeSubtaskIdx}
         isLoading={isLoading} 
-        isTransitioning={isTransitioning} 
+        isTransitioning={isTransitioning}
+        onGenerateSteps={onGenerateSteps}
       />
       
       {isFlowTask && showFlowExecution ? (
@@ -73,11 +88,11 @@ export function JarvioChatTab({
       ) : (
         <JarvioMessageInput
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)} 
-          onSubmit={() => onSendMessage(inputValue)}
+          onChange={handleInputChange}
+          onSubmit={handleSubmitMessage}
+          disabled={isLoading || isTransitioning}
           isFlowTask={!!isFlowTask}
           onRunFlow={() => setShowFlowExecution(true)}
-          disabled={isLoading || isTransitioning}
         />
       )}
     </>

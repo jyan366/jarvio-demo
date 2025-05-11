@@ -47,6 +47,7 @@ export function JarvioAssistant({
     historySubtaskIdx,
     setHistorySubtaskIdx,
     setIsTransitioning,
+    isTransitioning
   } = useJarvioAssistantLogic(
     taskId,
     taskTitle,
@@ -75,6 +76,11 @@ export function JarvioAssistant({
     checkIfFlowTask();
   }, [taskData, taskTitle]);
 
+  // Adapter for message sending
+  const handleSendMessageAdapter = async (message: string): Promise<void> => {
+    await handleSendMessage(undefined, message);
+  };
+
   return (
     <div className="h-full flex flex-col">
       <JarvioHeader
@@ -96,8 +102,8 @@ export function JarvioAssistant({
               inputValue={inputValue}
               setInputValue={setInputValue}
               isLoading={isLoading}
-              isTransitioning={false}
-              onSendMessage={handleSendMessage}
+              isTransitioning={isTransitioning || false}
+              onSendMessage={handleSendMessageAdapter}
               onGenerateSteps={onGenerateSteps}
               taskId={taskId}
               taskData={taskData}

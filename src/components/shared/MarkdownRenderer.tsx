@@ -8,6 +8,8 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className = '' }) => {
+  if (!content) return null;
+  
   return (
     <div className={`markdown-content ${className}`}>
       <Markdown>{content}</Markdown>
