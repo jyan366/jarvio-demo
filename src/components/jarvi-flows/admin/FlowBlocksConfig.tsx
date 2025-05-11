@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Database, Brain, Zap, User, Check, Loader2, Plus, RefreshCw } from 'lucide-react';
+import { Database, Brain, Zap, User, Check, Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { AddFlowBlockDialog } from './AddFlowBlockDialog';
 
@@ -34,6 +34,7 @@ export function FlowBlocksConfig() {
 
   // Fetch block configs function
   const fetchBlockConfigs = useCallback(async () => {
+    console.log('Fetching block configurations...');
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -42,7 +43,12 @@ export function FlowBlocksConfig() {
         .order('block_type')
         .order('block_name');
         
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching block configs:', error);
+        throw error;
+      }
+      
+      console.log('Fetched block configurations:', data);
       
       // Transform Supabase data to match BlockConfig type
       if (data) {
@@ -71,6 +77,7 @@ export function FlowBlocksConfig() {
 
   // Refresh the block configs
   const handleRefresh = async () => {
+    console.log('Manual refresh triggered');
     setRefreshing(true);
     await fetchBlockConfigs();
     setRefreshing(false);
@@ -83,6 +90,7 @@ export function FlowBlocksConfig() {
 
   // Fetch block configs on component mount
   useEffect(() => {
+    console.log('Component mounted, fetching block configs');
     fetchBlockConfigs();
   }, [fetchBlockConfigs]);
   

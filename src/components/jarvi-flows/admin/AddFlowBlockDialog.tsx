@@ -60,6 +60,7 @@ export function AddFlowBlockDialog({ onBlockAdded }: AddFlowBlockDialogProps) {
 
     try {
       setLoading(true);
+      console.log('Adding new block:', { blockType, blockName });
       
       // Parse the JSON config
       let configData = {};
@@ -94,8 +95,12 @@ export function AddFlowBlockDialog({ onBlockAdded }: AddFlowBlockDialogProps) {
           updated_at: new Date().toISOString(),
         });
         
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding block:', error);
+        throw error;
+      }
       
+      console.log('Block added successfully');
       toast({
         title: "Block added successfully",
         description: `${blockName} has been added in demo mode`,
