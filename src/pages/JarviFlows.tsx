@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { createTask } from '@/lib/supabaseTasks';
+import { supabase } from '@/integrations/supabase/client';
 
 // Predefined flows as fallbacks
 const predefinedFlows: Flow[] = [
@@ -214,7 +215,7 @@ export default function JarviFlows() {
     navigate('/jarvi-flows/builder');
   };
   
-  // Function to handle AI prompt submission
+  // Function to handle AI prompt submission - updated to use the generate-flow edge function
   const handleAIPromptSubmit = async (prompt: string) => {
     try {
       setIsCreating(true);
@@ -225,16 +226,33 @@ export default function JarviFlows() {
         description: "Please wait while we generate your custom flow..."
       });
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the generate-flow function
+      const response = await supabase.functions.invoke("generate-flow", {
+        body: {
+          prompt: prompt
+        }
+      });
       
-      // Navigate to the builder page with the prompt
-      navigate(`/jarvi-flows/builder?prompt=${encodeURIComponent(prompt)}`);
+      if (!response.data || response.data.success === false) {
+        const errorMsg = response.data?.error || "Unknown error occurred";
+        console.error("Flow generation error:", errorMsg);
+        throw new Error(errorMsg);
+      }
+      
+      // If successful, navigate to builder with the generated flow encoded in query params
+      const generatedFlow = response.data.generatedFlow;
+      if (generatedFlow) {
+        console.log("Generated flow:", generatedFlow);
+        const flowParam = encodeURIComponent(JSON.stringify(generatedFlow));
+        navigate(`/jarvi-flows/builder?generatedFlow=${flowParam}`);
+      } else {
+        throw new Error("No flow was generated");
+      }
     } catch (error) {
       console.error("Error creating flow:", error);
       toast({
         title: "Error creating flow",
-        description: "Something went wrong. Please try again.",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {

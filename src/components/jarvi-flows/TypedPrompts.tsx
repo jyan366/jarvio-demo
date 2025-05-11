@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { TypewriterText } from './TypewriterText';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 // More comprehensive Amazon-specific prompt suggestions
 const EXAMPLE_PROMPTS = [
@@ -47,12 +48,37 @@ export function TypedPrompts({ onSubmit }: { onSubmit?: (prompt: string) => void
       if (onSubmit) {
         await onSubmit(prompt);
       } else {
-        // Default behavior - navigate to builder with the prompt
-        console.log("Navigating to builder with prompt:", prompt);
-        navigate(`/jarvi-flows/builder?prompt=${encodeURIComponent(prompt)}`);
+        // Direct flow generation via the Supabase edge function
+        toast({
+          title: "Creating your flow",
+          description: "Please wait while we generate your custom flow..."
+        });
+
+        // Call the generate-flow function directly
+        const response = await supabase.functions.invoke("generate-flow", {
+          body: {
+            prompt: prompt
+          }
+        });
+        
+        if (!response.data || response.data.success === false) {
+          const errorMsg = response.data?.error || "Unknown error occurred";
+          console.error("Flow generation error:", errorMsg);
+          throw new Error(errorMsg);
+        }
+        
+        // If successful, navigate to builder with the generated flow encoded in query params
+        const generatedFlow = response.data.generatedFlow;
+        if (generatedFlow) {
+          console.log("Generated flow:", generatedFlow);
+          const flowParam = encodeURIComponent(JSON.stringify(generatedFlow));
+          navigate(`/jarvi-flows/builder?generatedFlow=${flowParam}`);
+        } else {
+          throw new Error("No flow was generated");
+        }
       }
     } catch (error) {
-      console.error("Error submitting prompt:", error);
+      console.error("Error generating flow:", error);
       toast({
         title: "Error generating flow",
         description: error instanceof Error ? error.message : "An unexpected error occurred",

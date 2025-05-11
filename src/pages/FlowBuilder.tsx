@@ -206,10 +206,51 @@ export default function FlowBuilder() {
     loadFlowBlockOptions();
   }, []);
 
-  // Load existing flow if editing
+  // Parse query parameters for pre-generated flow
   useEffect(() => {
-    if (flowId) {
-      // Get flows from localStorage
+    const queryParams = new URLSearchParams(location.search);
+    const generatedFlowParam = queryParams.get('generatedFlow');
+    
+    if (generatedFlowParam) {
+      try {
+        const generatedFlow = JSON.parse(decodeURIComponent(generatedFlowParam));
+        console.log("Received pre-generated flow:", generatedFlow);
+        
+        if (generatedFlow.name && generatedFlow.description && Array.isArray(generatedFlow.blocks)) {
+          // Convert any block objects to proper FlowBlock format with ids
+          const newBlocks = generatedFlow.blocks.map((block: any) => ({
+            id: block.id || uuidv4(),
+            type: block.type,
+            option: block.option,
+            name: block.name || getDescriptiveBlockName(block.type, block.option)
+          }));
+          
+          setFlow(prev => ({
+            ...prev,
+            id: uuidv4(), // Generate a new ID for this flow
+            name: generatedFlow.name,
+            description: generatedFlow.description,
+            blocks: newBlocks
+          }));
+          
+          toast({
+            title: "Flow created successfully",
+            description: `${newBlocks.length} blocks have been added to your flow.`
+          });
+          
+          // Clear the URL param without refreshing the page
+          navigate('/jarvi-flows/builder', { replace: true });
+        }
+      } catch (error) {
+        console.error("Error parsing generated flow:", error);
+        toast({
+          title: "Error parsing generated flow",
+          description: "The flow data could not be parsed.",
+          variant: "destructive"
+        });
+      }
+    } else if (flowId) {
+      // Load existing flow if editing
       const allFlows = loadSavedFlows();
       const existingFlow = allFlows.find(f => f.id === flowId);
       
@@ -233,7 +274,7 @@ export default function FlowBuilder() {
       // New flow - initialize with a default ID
       setFlow(prev => ({ ...prev, id: uuidv4() }));
     }
-  }, [flowId]);
+  }, [flowId, location.search]);
 
   // Handle agent selection
   const handleAgentSelection = (blockId: string, agentId: string) => {
