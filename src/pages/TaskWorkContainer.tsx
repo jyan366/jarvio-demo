@@ -135,9 +135,6 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
         )
       : [];
 
-  // We're removing this duplicate declaration since we already get isFlowTask from the hook
-  // const isFlowTask = taskState.category === 'FLOW' || (taskState.data && taskState.data.flowId);
-
   return (
     <MainLayout>
       <div className="w-full h-full max-w-none flex flex-row gap-0 bg-background">
@@ -168,6 +165,7 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
               onFocusSubtask={handleFocusSubtask}
               onUpdateSubtask={handleUpdateSubtask}
               onOpenSubtask={handleOpenSubtask}
+              isFlowTask={isFlowTask}
             />
           </div>
         </main>
@@ -190,6 +188,7 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
             onSubtaskSelect={handleFocusSubtask}
             onGenerateSteps={handleGenerateSteps}
             taskData={taskState.data}
+            isFlowTask={isFlowTask}
           />
         </aside>
       </div>
@@ -212,6 +211,7 @@ export default function TaskWorkContainer({ taskId }: TaskWorkContainerProps) {
           jarvioCompletedAt={jarvioCompletedAt}
           userWorkLog={userWorkLog}
           comments={dialogComments}
+          isFlowStep={isFlowTask}
         />
       )}
     </MainLayout>

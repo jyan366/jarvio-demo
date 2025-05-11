@@ -1,6 +1,6 @@
 
 import React from "react";
-import { MessageCircle, CheckCircle2 } from "lucide-react";
+import { MessageCircle, CheckCircle2, Workflow } from "lucide-react";
 import { Subtask } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
 import { agentsData } from "@/data/agentsData";
@@ -10,13 +10,15 @@ interface JarvioChatMessagesProps {
   subtasks: Subtask[];
   activeSubtaskIdx: number;
   onGenerateSteps?: () => void;
+  isFlowTask?: boolean;
 }
 
 export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
   messages,
   subtasks = [],
   activeSubtaskIdx = 0,
-  onGenerateSteps
+  onGenerateSteps,
+  isFlowTask = false
 }) => {
   // Function to format message text with styling
   const formatMessageText = (text: string) => {
@@ -52,18 +54,32 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
     if (!subtasks || subtasks.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
-          <MessageCircle className="h-12 w-12 text-primary/20" />
-          <div className="max-w-[320px] space-y-2">
-            <p className="text-lg font-medium">Let's break down this task</p>
-            <p className="text-sm text-muted-foreground">
-              I notice there are no subtasks yet. Would you like me to help generate some subtasks to break down this work?
-            </p>
-            {onGenerateSteps && (
-              <Button onClick={onGenerateSteps} className="mt-4">
-                Generate Subtasks
-              </Button>
-            )}
-          </div>
+          {isFlowTask ? (
+            <>
+              <Workflow className="h-12 w-12 text-blue-500/30" />
+              <div className="max-w-[320px] space-y-2">
+                <p className="text-lg font-medium">Flow Setup</p>
+                <p className="text-sm text-muted-foreground">
+                  This flow doesn't have any steps yet. Add steps to define the flow process.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <MessageCircle className="h-12 w-12 text-primary/20" />
+              <div className="max-w-[320px] space-y-2">
+                <p className="text-lg font-medium">Let's break down this task</p>
+                <p className="text-sm text-muted-foreground">
+                  I notice there are no subtasks yet. Would you like me to help generate some subtasks to break down this work?
+                </p>
+                {onGenerateSteps && (
+                  <Button onClick={onGenerateSteps} className="mt-4">
+                    Generate Subtasks
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       );
     }
@@ -79,7 +95,9 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
         const isSubtaskComplete = !message.isUser && 
           message.text && (
             message.text.includes("SUBTASK COMPLETE") || 
-            message.text.includes("Subtask complete")
+            message.text.includes("Subtask complete") ||
+            message.text.includes("STEP COMPLETE") ||
+            message.text.includes("Step complete")
           );
 
         return (
@@ -102,21 +120,27 @@ export const JarvioChatMessages: React.FC<JarvioChatMessagesProps> = ({
                 message.isUser
                   ? "bg-white border border-gray-200"
                   : isSubtaskComplete
-                  ? "bg-purple-100 border border-purple-200 w-full"
+                  ? isFlowTask 
+                    ? "bg-blue-100 border border-blue-200 w-full"
+                    : "bg-purple-100 border border-purple-200 w-full"
                   : "bg-muted/50 border border-primary/10"
               }`}
             >
               {!message.isUser && !message.systemLog && currentSubtask && (
-                <div className="text-purple-600 font-medium text-sm mb-1">
+                <div className={`font-medium text-sm mb-1 ${isFlowTask ? "text-blue-600" : "text-purple-600"}`}>
                   {currentSubtask.title}
                 </div>
               )}
               
               <div className="prose prose-sm dark:prose-invert break-words">
                 {isSubtaskComplete ? (
-                  <div className="flex items-center text-purple-700">
+                  <div className={`flex items-center ${isFlowTask ? "text-blue-700" : "text-purple-700"}`}>
                     <CheckCircle2 className="h-5 w-5 mr-2 text-green-500" />
-                    <span>Subtask complete! Please mark this subtask as done and select the next one to continue.</span>
+                    <span>
+                      {isFlowTask 
+                        ? "Step complete! Please mark this step as done and select the next one to continue."
+                        : "Subtask complete! Please mark this subtask as done and select the next one to continue."}
+                    </span>
                   </div>
                 ) : (
                   <div 

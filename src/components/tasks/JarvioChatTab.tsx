@@ -23,6 +23,7 @@ interface JarvioChatTabProps {
     flowId?: string;
     flowTrigger?: string;
   };
+  isFlowTask?: boolean;
 }
 
 export function JarvioChatTab({ 
@@ -36,11 +37,10 @@ export function JarvioChatTab({
   onSendMessage,
   onGenerateSteps,
   taskId,
-  taskData
+  taskData,
+  isFlowTask = false
 }: JarvioChatTabProps) {
   const [showFlowExecution, setShowFlowExecution] = useState(false);
-  
-  const isFlowTask = taskData && taskData.flowId;
   
   // Handle message submission from the input
   const handleSubmitMessage = async () => {
@@ -63,6 +63,7 @@ export function JarvioChatTab({
         isLoading={isLoading} 
         isTransitioning={isTransitioning}
         onGenerateSteps={onGenerateSteps}
+        isFlowTask={isFlowTask}
       />
       
       {isFlowTask && showFlowExecution ? (
@@ -97,4 +98,4 @@ export function JarvioChatTab({
       )}
     </>
   );
-}
+};

@@ -21,6 +21,7 @@ interface JarvioAssistantProps {
     flowId?: string;
     flowTrigger?: string;
   };
+  isFlowTask?: boolean;
 }
 
 export function JarvioAssistant({ 
@@ -32,7 +33,8 @@ export function JarvioAssistant({
   onSubtaskComplete = async () => {},
   onSubtaskSelect = () => {},
   onGenerateSteps,
-  taskData
+  taskData,
+  isFlowTask = false
 }: JarvioAssistantProps) {
   const {
     messages,
@@ -59,22 +61,6 @@ export function JarvioAssistant({
   );
 
   const { tab, setTab } = useJarvioAssistantTabs();
-  
-  // Detect if this is a flow-driven task
-  const [isFlowTask, setIsFlowTask] = useState(false);
-  
-  useEffect(() => {
-    const checkIfFlowTask = () => {
-      // If taskData has flowId, or if task title starts with "Flow:"
-      if ((taskData && taskData.flowId) || (taskTitle && taskTitle.startsWith("Flow:"))) {
-        setIsFlowTask(true);
-      } else {
-        setIsFlowTask(false);
-      }
-    };
-    
-    checkIfFlowTask();
-  }, [taskData, taskTitle]);
 
   // Adapter for message sending
   const handleSendMessageAdapter = async (message: string): Promise<void> => {
@@ -107,6 +93,7 @@ export function JarvioAssistant({
               onGenerateSteps={onGenerateSteps}
               taskId={taskId}
               taskData={taskData}
+              isFlowTask={isFlowTask}
             />
           </div>
         </TabsContent>
@@ -116,6 +103,7 @@ export function JarvioAssistant({
             subtasks={subtasks} 
             subtaskData={subtaskData}
             activeSubtaskIdx={currentSubtaskIndex}
+            isFlowTask={isFlowTask}
           />
         </TabsContent>
       </Tabs>

@@ -18,6 +18,7 @@ interface TaskWorkHeaderProps {
   category: string;
   setCategory: (c: string) => void;
   onOpenSidebarMobile?: () => void;
+  isFlowTask?: boolean;
 }
 
 const statusOptions = ["Not Started", "In Progress", "Done"];
@@ -45,6 +46,7 @@ export const TaskWorkHeader: React.FC<TaskWorkHeaderProps> = ({
   category,
   setCategory,
   onOpenSidebarMobile,
+  isFlowTask = false,
 }) => {
   const navigate = useNavigate();
 
@@ -62,8 +64,6 @@ export const TaskWorkHeader: React.FC<TaskWorkHeaderProps> = ({
     onDescriptionChange(draftDesc);
     setIsEditingDesc(false);
   };
-
-  const isFlow = category === 'FLOW';
 
   return (
     <div className="mb-2 w-full">
@@ -105,7 +105,10 @@ export const TaskWorkHeader: React.FC<TaskWorkHeaderProps> = ({
             </div>
           ) : (
             <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-              {isFlow && title.startsWith("Flow:") ? title : title}
+              {isFlowTask && (
+                <Workflow className="text-blue-500 h-6 w-6" />
+              )}
+              {title}
               <Button
                 variant="ghost"
                 size="icon"
@@ -120,11 +123,20 @@ export const TaskWorkHeader: React.FC<TaskWorkHeaderProps> = ({
             </h1>
           )}
         </div>
+        
         {/* Mobile sidebar open button */}
         {onOpenSidebarMobile && (
           <Button variant="outline" className="md:hidden" onClick={onOpenSidebarMobile}>
             Comments / AI
           </Button>
+        )}
+        
+        {/* Flow indicator for desktop */}
+        {isFlowTask && (
+          <div className="hidden md:flex items-center text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md">
+            <Workflow className="w-4 h-4 mr-2" />
+            <span className="text-sm font-medium">Flow</span>
+          </div>
         )}
       </div>
 

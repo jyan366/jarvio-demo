@@ -28,6 +28,7 @@ interface TaskWorkSidebarProps {
     flowId?: string;
     flowTrigger?: string;
   };
+  isFlowTask?: boolean;
 }
 
 export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
@@ -48,6 +49,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   onSubtaskSelect,
   onGenerateSteps,
   taskData,
+  isFlowTask = false,
 }) => {
   const currentSubtask = subtasks[currentSubtaskIndex];
   
@@ -57,6 +59,8 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
     // or if subtaskId matches current subtask's id
     return (!comment.subtaskId || comment.subtaskId === currentSubtask?.id);
   });
+  
+  const itemLabel = isFlowTask ? "step" : "subtask";
   
   return (
     <>
@@ -115,7 +119,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
               <div className="px-4 py-2 text-xs font-bold text-muted-foreground tracking-[1px] flex justify-between items-center">
                 <span>COMMENTS ({subtaskComments.length})</span>
                 {currentSubtask && (
-                  <span className="text-purple-600 font-semibold">
+                  <span className={`font-semibold ${isFlowTask ? "text-blue-600" : "text-purple-600"}`}>
                     {currentSubtask.title}
                   </span>
                 )}
@@ -138,7 +142,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                     ))
                   ) : (
                     <div className="text-center text-gray-400 py-6">
-                      No comments for this subtask
+                      No comments for this {itemLabel}
                     </div>
                   )}
                 </div>
@@ -157,7 +161,7 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                 >
                   <Textarea
                     className="min-h-24 mb-2 text-sm resize-none"
-                    placeholder={`Add a comment about "${currentSubtask?.title || 'this task'}"...`}
+                    placeholder={`Add a comment about "${currentSubtask?.title || `this ${itemLabel}`}"...`}
                     value={commentValue}
                     onChange={(e) => setCommentValue(e.target.value)}
                   />
@@ -182,6 +186,9 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
                 currentSubtaskIndex={currentSubtaskIndex}
                 onSubtaskComplete={onSubtaskComplete}
                 onSubtaskSelect={onSubtaskSelect}
+                onGenerateSteps={onGenerateSteps}
+                taskData={taskData}
+                isFlowTask={isFlowTask}
               />
             </div>
           )}

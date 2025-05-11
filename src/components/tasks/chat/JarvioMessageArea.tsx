@@ -12,6 +12,7 @@ interface JarvioMessageAreaProps {
   isLoading?: boolean;
   isTransitioning?: boolean;
   onGenerateSteps?: () => void;
+  isFlowTask?: boolean;
 }
 
 export const JarvioMessageArea: React.FC<JarvioMessageAreaProps> = ({
@@ -20,7 +21,8 @@ export const JarvioMessageArea: React.FC<JarvioMessageAreaProps> = ({
   activeSubtaskIdx,
   isLoading = false,
   isTransitioning = false,
-  onGenerateSteps
+  onGenerateSteps,
+  isFlowTask = false
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -45,6 +47,7 @@ export const JarvioMessageArea: React.FC<JarvioMessageAreaProps> = ({
             subtasks={subtasks}
             activeSubtaskIdx={activeSubtaskIdx}
             onGenerateSteps={onGenerateSteps}
+            isFlowTask={isFlowTask}
           />
           <div ref={messagesEndRef} />
         </div>

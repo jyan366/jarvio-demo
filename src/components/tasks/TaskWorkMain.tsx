@@ -3,6 +3,7 @@ import React from "react";
 import { TaskWorkHeader } from "./TaskWorkHeader";
 import { TaskWorkProductCard } from "./TaskWorkProductCard";
 import { TaskWorkSubtasks } from "./TaskWorkSubtasks";
+import { FlowSteps } from "./flows/FlowSteps";
 import { TaskInsights } from "./TaskInsights";
 import { TaskWorkType, Subtask, TaskInsight } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ interface TaskWorkMainProps {
   onFocusSubtask: (idx: number) => void;
   onUpdateSubtask: (field: keyof Subtask, value: any) => void;
   onOpenSubtask: (idx: number) => void;
+  isFlowTask?: boolean;
 }
 
 export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
@@ -37,6 +39,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   onFocusSubtask,
   onUpdateSubtask,
   onOpenSubtask,
+  isFlowTask = false,
 }) => {
   const { toast } = useToast();
 
@@ -51,13 +54,17 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
     try {
       await onAddSubtask(insight.title);
       toast({
-        title: "Subtask created",
-        description: "The insight has been converted to a subtask.",
+        title: isFlowTask ? "Step created" : "Subtask created",
+        description: isFlowTask 
+          ? "The insight has been converted to a flow step." 
+          : "The insight has been converted to a subtask.",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to create subtask from insight.",
+        description: isFlowTask 
+          ? "Failed to create step from insight."
+          : "Failed to create subtask from insight.",
         variant: "destructive",
       });
     }
@@ -82,6 +89,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         category={task.category}
         setCategory={(c: string) => onUpdateTask("category", c)}
         onOpenSidebarMobile={onOpenSidebarMobile}
+        isFlowTask={isFlowTask}
       />
       
       <TaskInsights
@@ -91,17 +99,19 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         onAddComment={handleAddComment}
       />
 
-      <div className="flex gap-4 items-center mb-1">
-        <Button
-          variant="outline"
-          onClick={onGenerateSteps}
-          disabled={isGenerating}
-          className="text-xs"
-        >
-          {isGenerating && <Loader2 className="w-4 h-4 mr-1 animate-spin" />} Generate steps
-        </Button>
-        <span className="text-neutral-400 text-xs">Break down this task</span>
-      </div>
+      {!isFlowTask && (
+        <div className="flex gap-4 items-center mb-1">
+          <Button
+            variant="outline"
+            onClick={onGenerateSteps}
+            disabled={isGenerating}
+            className="text-xs"
+          >
+            {isGenerating && <Loader2 className="w-4 h-4 mr-1 animate-spin" />} Generate steps
+          </Button>
+          <span className="text-neutral-400 text-xs">Break down this task</span>
+        </div>
+      )}
 
       {task.products && task.products[0] && (
         <div className="mb-1">
@@ -111,15 +121,27 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
       )}
 
       <div className="mt-2">
-        <TaskWorkSubtasks
-          subtasks={task.subtasks}
-          onToggleSubtask={onToggleSubtask}
-          onAddSubtask={onAddSubtask}
-          onRemoveSubtask={onRemoveSubtask}
-          focusedSubtaskIdx={focusedSubtaskIdx}
-          onFocusSubtask={onFocusSubtask}
-          onOpenSubtask={onOpenSubtask}
-        />
+        {isFlowTask ? (
+          <FlowSteps 
+            subtasks={task.subtasks}
+            onToggleSubtask={onToggleSubtask}
+            onAddSubtask={onAddSubtask}
+            onRemoveSubtask={onRemoveSubtask}
+            focusedSubtaskIdx={focusedSubtaskIdx}
+            onFocusSubtask={onFocusSubtask}
+            onOpenSubtask={onOpenSubtask}
+          />
+        ) : (
+          <TaskWorkSubtasks
+            subtasks={task.subtasks}
+            onToggleSubtask={onToggleSubtask}
+            onAddSubtask={onAddSubtask}
+            onRemoveSubtask={onRemoveSubtask}
+            focusedSubtaskIdx={focusedSubtaskIdx}
+            onFocusSubtask={onFocusSubtask}
+            onOpenSubtask={onOpenSubtask}
+          />
+        )}
       </div>
     </div>
   );

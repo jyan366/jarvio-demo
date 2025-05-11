@@ -10,9 +10,12 @@ interface MarkdownRendererProps {
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className = '' }) => {
   if (!content) return null;
   
+  // Ensure the content is a string
+  const safeContent = typeof content === 'string' ? content : String(content);
+  
   return (
     <div className={`markdown-content ${className}`}>
-      <Markdown>{content}</Markdown>
+      <Markdown>{safeContent}</Markdown>
     </div>
   );
 };
