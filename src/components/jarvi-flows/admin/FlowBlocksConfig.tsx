@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Database, Brain, Zap, User, Check, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Database, Brain, Zap, User, Check, Loader2, RefreshCw, AlertTriangle, RefreshCcw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { AddFlowBlockDialog } from './AddFlowBlockDialog';
 import { v4 as uuidv4 } from 'uuid';
@@ -35,6 +34,30 @@ export function FlowBlocksConfig() {
   const [configJson, setConfigJson] = useState<string>('{}');
   const [initializingBlocks, setInitializingBlocks] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [missingBlocks, setMissingBlocks] = useState<{type: string, name: string}[]>([]);
+
+  // Enhanced function to check for missing blocks
+  const checkForMissingBlocks = useCallback((dbBlocks: any[]) => {
+    const missing: {type: string, name: string}[] = [];
+    const dbBlockMap = new Map();
+    
+    // Create a map of existing blocks for quick lookup
+    dbBlocks.forEach(block => {
+      dbBlockMap.set(`${block.block_type}:${block.block_name}`, true);
+    });
+    
+    // Check each block in flowBlockOptions
+    Object.entries(flowBlockOptions).forEach(([blockType, options]) => {
+      options.forEach((option) => {
+        if (!dbBlockMap.has(`${blockType}:${option}`)) {
+          missing.push({type: blockType, name: option});
+        }
+      });
+    });
+    
+    setMissingBlocks(missing);
+    return missing;
+  }, []);
 
   // Enhanced function to initialize flow blocks from flowBlockOptions
   const initializeExistingBlocks = async () => {
@@ -236,6 +259,95 @@ export function FlowBlocksConfig() {
     }
   };
 
+  // Sync missing blocks
+  const syncMissingBlocks = async () => {
+    try {
+      setInitializingBlocks(true);
+      setErrorMessage(null);
+      console.log('Syncing missing flow blocks...');
+      
+      // Prepare blocks to create
+      const blocksToCreate = missingBlocks.map(block => {
+        // Generate description and schema based on block type and name
+        let description = '';
+        let schema = {};
+        
+        // Set description based on block name (simplified for brevity)
+        description = `${block.name} block for ${block.type} operations`;
+        
+        // Set schema based on block type and name if needed
+        if (block.type === 'collect' && block.name === 'User Text') {
+          schema = {
+            type: 'object',
+            properties: {
+              prompt: {
+                type: 'string',
+                description: 'Instructions for the user'
+              }
+            }
+          };
+        }
+        
+        return {
+          id: uuidv4(),
+          block_type: block.type,
+          block_name: block.name,
+          is_functional: false,
+          config_data: {
+            description: description,
+            schema: schema
+          },
+          credentials: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+      });
+      
+      // Insert blocks into database
+      if (blocksToCreate.length === 0) {
+        toast({
+          title: 'No blocks to sync',
+          description: 'All blocks are already in the database.',
+        });
+        setInitializingBlocks(false);
+        return;
+      }
+      
+      // Insert in batches to avoid payload size limits
+      const batchSize = 20;
+      for (let i = 0; i < blocksToCreate.length; i += batchSize) {
+        const batch = blocksToCreate.slice(i, i + batchSize);
+        const { error } = await supabase
+          .from('flow_block_configs')
+          .insert(batch);
+          
+        if (error) {
+          console.error(`Error creating batch ${i/batchSize + 1}:`, error);
+          throw error;
+        }
+      }
+      
+      toast({
+        title: 'Blocks synchronized',
+        description: `${blocksToCreate.length} flow blocks have been added to the database.`,
+      });
+      
+      // Clear missing blocks and fetch updated list
+      setMissingBlocks([]);
+      await fetchBlockConfigs();
+      
+    } catch (error) {
+      console.error('Error syncing blocks:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to sync missing blocks',
+        variant: 'destructive'
+      });
+    } finally {
+      setInitializingBlocks(false);
+    }
+  };
+
   // Fetch block configs function
   const fetchBlockConfigs = useCallback(async () => {
     console.log('Fetching flow block configurations...');
@@ -266,7 +378,30 @@ export function FlowBlocksConfig() {
             ? JSON.parse(item.credentials) 
             : item.credentials
         }));
+        
         setBlockConfigs(transformedData);
+        
+        // Check for missing blocks
+        const missing = checkForMissingBlocks(data);
+        
+        // If we found missing blocks, show a toast
+        if (missing.length > 0) {
+          toast({
+            title: `${missing.length} blocks missing from database`,
+            description: 'Some flow blocks defined in code are not in the database. Would you like to sync them?',
+            action: (
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={syncMissingBlocks} 
+                disabled={initializingBlocks}
+              >
+                {initializingBlocks ? 'Syncing...' : 'Sync Blocks'}
+              </Button>
+            ),
+            duration: 10000,
+          });
+        }
         
         // If no blocks, suggest initializing default blocks
         if (data.length === 0) {
@@ -311,7 +446,7 @@ export function FlowBlocksConfig() {
     } finally {
       setLoading(false);
     }
-  }, [initializingBlocks]);
+  }, [checkForMissingBlocks, initializingBlocks]);
 
   // Refresh the block configs
   const handleRefresh = async () => {
@@ -481,6 +616,18 @@ export function FlowBlocksConfig() {
               </CardDescription>
             </div>
             <div className="flex space-x-2">
+              {missingBlocks.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={syncMissingBlocks} 
+                  disabled={initializingBlocks}
+                  className="bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                >
+                  <RefreshCcw className={`w-4 h-4 mr-2 ${initializingBlocks ? 'animate-spin' : ''}`} />
+                  Sync {missingBlocks.length} Missing Blocks
+                </Button>
+              )}
               <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh

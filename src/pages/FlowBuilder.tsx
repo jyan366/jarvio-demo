@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -14,10 +13,11 @@ import { FlowHeader } from '@/components/jarvi-flows/builder/FlowHeader';
 import { AIPromptSection } from '@/components/jarvi-flows/builder/AIPromptSection';
 import { FlowDetailsSection } from '@/components/jarvi-flows/builder/FlowDetailsSection';
 import { FlowBlocksList } from '@/components/jarvi-flows/builder/FlowBlocksList';
-import { flowBlockOptions, BlockCategory } from '@/data/flowBlockOptions';
+import { BlockCategory } from '@/data/flowBlockOptions';
 // Import agentsData directly instead of using require
 import { agentsData } from '@/data/agentsData';
 import { useFlowBlockConfig } from '@/hooks/useFlowBlockConfig';
+import { FlowBlockDatabaseSync } from '@/components/jarvi-flows/FlowBlockDatabaseSync';
 
 // Predefined flows for testing/editing
 const predefinedFlows: Flow[] = [
@@ -124,20 +124,55 @@ export default function FlowBuilder() {
     localStorage.setItem('jarviFlows', JSON.stringify(flows));
   };
 
-  // Check for prompt in URL params on initial load
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const promptParam = params.get('prompt');
-    
-    if (promptParam) {
-      // If a prompt is provided, auto-generate flow
-      aiPromptForm.setValue('prompt', promptParam);
-      generateFlowFromPrompt({ prompt: promptParam });
-      
-      // Clean up URL to prevent re-generating on refresh
-      navigate(location.pathname, { replace: true });
+  // Add a new state to store available flow block options from the database
+  const [availableBlockOptions, setAvailableBlockOptions] = useState<Record<string, string[]>>({
+    collect: [],
+    think: [],
+    act: [],
+    agent: []
+  });
+
+  // Function to load flow block options from the database
+  const loadFlowBlockOptions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('flow_block_configs')
+        .select('block_type, block_name')
+        .order('block_name');
+
+      if (error) {
+        console.error('Error fetching flow block options:', error);
+        // Fallback to predefined options from flowBlockOptions if there's an error
+        return;
+      }
+
+      if (data && data.length > 0) {
+        // Group blocks by type
+        const options: Record<string, string[]> = {
+          collect: [],
+          think: [],
+          act: [],
+          agent: []
+        };
+
+        data.forEach(block => {
+          if (options[block.block_type]) {
+            options[block.block_type].push(block.block_name);
+          }
+        });
+
+        setAvailableBlockOptions(options);
+        console.log('Loaded flow block options from database:', options);
+      }
+    } catch (error) {
+      console.error('Error in loadFlowBlockOptions:', error);
     }
-  }, [location.search]);
+  };
+
+  // Load flow block options when component mounts
+  useEffect(() => {
+    loadFlowBlockOptions();
+  }, []);
 
   // Load existing flow if editing
   useEffect(() => {
@@ -549,6 +584,9 @@ export default function FlowBuilder() {
 
   return (
     <MainLayout>
+      {/* Add the component that syncs flow blocks with the database */}
+      <FlowBlockDatabaseSync />
+
       <div className="space-y-6">
         <FlowHeader
           showAIPrompt={showAIPrompt}
@@ -586,6 +624,7 @@ export default function FlowBuilder() {
             blocks={flow.blocks}
             setBlocks={updateFlowBlocks}
             handleAgentSelection={handleAgentSelection}
+            availableBlockOptions={availableBlockOptions}
           />
         </div>
       </div>

@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
@@ -26,19 +25,78 @@ serve(async (req) => {
     console.log(`Executing flow block: ${blockType}:${blockName} (${blockId})`);
     console.log(`Input data:`, inputData);
     
-    // Get block configuration 
-    const { data: blockConfig, error: blockConfigError } = await supabase
-      .from('flow_block_configs')
-      .select('*')
-      .eq('id', blockId)
-      .single();
+    // Get block configuration from database
+    let blockConfig;
+    let blockConfigError;
     
-    if (blockConfigError) {
-      console.error('Error fetching block config:', blockConfigError);
-      throw new Error(`Block configuration not found: ${blockConfigError.message}`);
+    try {
+      const { data, error } = await supabase
+        .from('flow_block_configs')
+        .select('*')
+        .eq('block_type', blockType)
+        .eq('block_name', blockName)
+        .single();
+      
+      if (error) throw error;
+      blockConfig = data;
+    } catch (error) {
+      console.warn(`Error fetching block config by type and name: ${error.message}`);
+      console.log('Trying to fetch by blockId instead...');
+      
+      // Try fetching by ID as fallback
+      const { data, error } = await supabase
+        .from('flow_block_configs')
+        .select('*')
+        .eq('id', blockId)
+        .single();
+      
+      if (error) {
+        blockConfigError = error;
+        console.error('Error fetching block config by ID:', error);
+      } else {
+        blockConfig = data;
+      }
     }
     
-    // If block is not marked as functional, return dummy data
+    // If block configuration doesn't exist or has error, log and return demo data
+    if (!blockConfig || blockConfigError) {
+      console.warn(`Block configuration not found, using demo mode for ${blockType}:${blockName}`);
+      
+      // Generate demo output based on block type and option
+      const demoOutput = generateDemoOutput(blockType, blockName, inputData);
+      
+      // Record the execution in the database
+      const { data: execution, error: executionError } = await supabase
+        .from('block_executions')
+        .insert({
+          block_id: blockId,
+          block_type: blockType, 
+          block_name: blockName,
+          input_data: inputData,
+          output_data: demoOutput,
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+      
+      if (executionError) {
+        console.error('Error recording execution:', executionError);
+      }
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          demoMode: true,
+          result: demoOutput,
+          executionId: execution?.id,
+          blockConfig: blockConfig
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // If block is not marked as functional, return demo data
     if (!blockConfig.is_functional) {
       console.log(`Block ${blockName} is in demo mode, returning demo data`);
       
@@ -69,7 +127,8 @@ serve(async (req) => {
           success: true,
           demoMode: true,
           result: demoOutput,
-          executionId: execution?.id
+          executionId: execution?.id,
+          blockConfig: blockConfig
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -102,8 +161,26 @@ serve(async (req) => {
     // In a real implementation, this would execute the actual block logic
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Simulate actual block execution
-    const output = generateDemoOutput(blockType, blockName, inputData);
+    let output;
+    
+    try {
+      // Try to use the configured function if it exists
+      if (blockConfig?.config_data?.implementation_function) {
+        // This is just a placeholder - in the future we could implement
+        // a way to execute custom function code from the config
+        console.log(`Using custom implementation function: ${blockConfig.config_data.implementation_function}`);
+        // For now, we still use the demo data generator
+        output = generateDemoOutput(blockType, blockName, inputData);
+      } else {
+        // Otherwise use the demo output generator
+        console.log(`No custom implementation function found, using demo output`);
+        output = generateDemoOutput(blockType, blockName, inputData);
+      }
+    } catch (implementationError) {
+      console.error(`Error executing implementation:`, implementationError);
+      // Fallback to demo output
+      output = generateDemoOutput(blockType, blockName, inputData);
+    }
     
     // Update the execution record
     const { error: updateError } = await supabase
@@ -124,7 +201,8 @@ serve(async (req) => {
         success: true,
         demoMode: false,
         result: output,
-        executionId: execution.id
+        executionId: execution.id,
+        blockConfig: blockConfig
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

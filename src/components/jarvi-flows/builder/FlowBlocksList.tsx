@@ -1,46 +1,59 @@
 
-import React from 'react';
+// Update FlowBlocksList.tsx to accept and use availableBlockOptions prop
+import React, { useState } from 'react';
+import { CheckIcon, PlusIcon, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Database, Brain, Zap, User, ChevronDown } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
-import { FlowBlockComponent } from './FlowBlockComponent';
+import { FlowBlockComponent } from '@/components/jarvi-flows/builder/FlowBlockComponent';
 import { v4 as uuidv4 } from 'uuid';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
 
-interface FlowBlocksListProps {
+interface Props {
   blocks: FlowBlock[];
   setBlocks: (blocks: FlowBlock[]) => void;
   handleAgentSelection: (blockId: string, agentId: string) => void;
+  availableBlockOptions?: Record<string, string[]>;
 }
 
-// Custom connector component
-const FlowConnector = () => (
-  <div className="relative flex justify-center mb-[-1px]">
-    <div className="w-6 h-6 flex items-center justify-center">
-      <ChevronDown className="h-6 w-6 text-gray-400" />
-    </div>
-  </div>
-);
+export function FlowBlocksList({ 
+  blocks, 
+  setBlocks, 
+  handleAgentSelection,
+  availableBlockOptions 
+}: Props) {
+  const [blockType, setBlockType] = useState<BlockCategory>('collect');
 
-export function FlowBlocksList({
-  blocks,
-  setBlocks,
-  handleAgentSelection
-}: FlowBlocksListProps) {
-  // Add a new block of the specified type
-  const addBlock = (type: 'collect' | 'think' | 'act' | 'agent') => {
-    const option = type === 'agent' ? 'Agent' : type === 'collect' ? 'User Text' : type === 'think' ? 'Basic AI Analysis' : 'AI Summary';
-    const newBlock: FlowBlock = {
-      id: uuidv4(),
-      type: type,
-      option: option,
-      name: getDescriptiveBlockName(type, option)
-    };
-    setBlocks([...blocks, newBlock]);
+  // Use availableBlockOptions if provided, otherwise fall back to flowBlockOptions
+  const getBlockOptions = (type: BlockCategory): string[] => {
+    if (availableBlockOptions && availableBlockOptions[type] && availableBlockOptions[type].length > 0) {
+      return availableBlockOptions[type];
+    }
+    return flowBlockOptions[type] || [];
   };
 
-  // Helper functions to generate specific, contextual names based on block type and option
+  const addBlock = (type: BlockCategory, option: string) => {
+    // Create a descriptive name based on the block type and option
+    const name = getDescriptiveBlockName(type, option);
+    
+    setBlocks([
+      ...blocks, 
+      { id: uuidv4(), type, option, name }
+    ]);
+  };
+  
+  const removeBlock = (id: string) => {
+    setBlocks(blocks.filter(block => block.id !== id));
+  };
+  
+  const updateBlock = (id: string, updatedBlock: Partial<FlowBlock>) => {
+    setBlocks(blocks.map(block => 
+      block.id === id ? { ...block, ...updatedBlock } : block
+    ));
+  };
+  
+  // Helper function for descriptive block names
   const getDescriptiveBlockName = (type: string, option: string): string => {
     const contextualNaming: Record<string, Record<string, string>> = {
       collect: {
@@ -71,145 +84,74 @@ export function FlowBlocksList({
         'Agent': 'Use AI Agent for Specialized Task'
       }
     };
+
     return contextualNaming[type]?.[option] || `${type.charAt(0).toUpperCase() + type.slice(1)} ${option}`;
   };
 
-  // Remove a block
-  const removeBlock = (blockId: string) => {
-    setBlocks(blocks.filter(block => block.id !== blockId));
-  };
-
-  // Move block up in the list
-  const moveBlockUp = (index: number) => {
-    if (index <= 0) return; // Can't move up if it's the first item
-
-    const newBlocks = [...blocks];
-    // Swap with previous element
-    [newBlocks[index - 1], newBlocks[index]] = [newBlocks[index], newBlocks[index - 1]];
-    setBlocks(newBlocks);
-  };
-
-  // Move block down in the list
-  const moveBlockDown = (index: number) => {
-    if (index >= blocks.length - 1) return; // Can't move down if it's the last item
-
-    const newBlocks = [...blocks];
-    // Swap with next element
-    [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
-    setBlocks(newBlocks);
-  };
-
-  // Update block option
-  const updateBlockOption = (blockId: string, option: string) => {
-    setBlocks(blocks.map(block => {
-      if (block.id === blockId) {
-        // Update both option and generate a descriptive name if one doesn't already exist
-        const updatedBlock = {
-          ...block,
-          option
-        };
-
-        // Only auto-update the name if it wasn't customized or is empty
-        const currentName = block.name || '';
-        const defaultName = getDescriptiveBlockName(block.type, block.option);
-
-        // If current name matches the old default or is empty, generate a new one
-        if (!currentName || currentName === defaultName) {
-          updatedBlock.name = getDescriptiveBlockName(block.type, option);
-        }
-        return updatedBlock;
-      }
-      return block;
-    }));
-  };
-
-  // Update block name
-  const updateBlockName = (blockId: string, name: string) => {
-    setBlocks(blocks.map(block => block.id === blockId ? {
-      ...block,
-      name
-    } : block));
-  };
-
-  // Determine counts by type
-  const blockCounts = {
-    collect: blocks.filter(b => b.type === 'collect').length,
-    think: blocks.filter(b => b.type === 'think').length,
-    act: blocks.filter(b => b.type === 'act').length,
-    agent: blocks.filter(b => b.type === 'agent').length
-  };
-  
   return (
-    <Card className="border shadow-sm">
-      <CardHeader className="pb-2 border-b">
-        <CardTitle className="flex justify-between items-center flex-wrap text-base">
-          <div className="flex items-center">
-            Flow Blocks
-            <span className="ml-3 flex gap-2 flex-wrap">
-              {blockCounts.collect > 0 && <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-                  {blockCounts.collect} Collect
-                </Badge>}
-              {blockCounts.think > 0 && <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
-                  {blockCounts.think} Think
-                </Badge>}
-              {blockCounts.act > 0 && <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
-                  {blockCounts.act} Act
-                </Badge>}
-              {blockCounts.agent > 0 && <Badge variant="outline" className="bg-[#f5f2ff] text-[#7356f1] border-[#d1c7fa] text-xs">
-                  {blockCounts.agent} Agent
-                </Badge>}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
-            <Button variant="outline" size="sm" onClick={() => addBlock('collect')} className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 text-xs min-w-[90px]">
-              <Database className="h-3.5 w-3.5 mr-2" />
-              Collect
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => addBlock('think')} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800 text-xs min-w-[90px]">
-              <Brain className="h-3.5 w-3.5 mr-2" />
-              Think
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => addBlock('act')} className="border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 text-xs min-w-[90px]">
-              <Zap className="h-3.5 w-3.5 mr-2" />
-              Act
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => addBlock('agent')} className="border-[#d1c7fa] text-[#7356f1] hover:bg-[#f5f2ff] hover:text-[#6243e0] text-xs min-w-[90px]">
-              <User className="h-3.5 w-3.5 mr-2" />
-              Agent
-            </Button>
-          </div>
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="p-6">
-        {blocks.length > 0 ? (
-          <div className="space-y-0">
-            {blocks.map((block, index) => (
-              <React.Fragment key={block.id}>
-                <FlowBlockComponent 
-                  block={block} 
-                  index={index} 
-                  isLast={index === blocks.length - 1} 
-                  updateBlockName={updateBlockName} 
-                  updateBlockOption={updateBlockOption} 
-                  moveBlockUp={moveBlockUp} 
-                  moveBlockDown={moveBlockDown} 
-                  removeBlock={removeBlock} 
-                  handleAgentSelection={handleAgentSelection} 
-                />
-                {index < blocks.length - 1 && <FlowConnector />}
-              </React.Fragment>
-            ))}
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Flow Blocks</h2>
+        
+        {/* Add Block Section */}
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <Select 
+                value={blockType}
+                onValueChange={(value) => setBlockType(value as BlockCategory)}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="collect">Collect</SelectItem>
+                  <SelectItem value="think">Think</SelectItem>
+                  <SelectItem value="act">Act</SelectItem>
+                  <SelectItem value="agent">Agent</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <div className="flex-1 overflow-x-auto whitespace-nowrap pb-2">
+                <div className="inline-flex gap-2">
+                  {getBlockOptions(blockType).map((option) => (
+                    <Button
+                      key={option}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => addBlock(blockType, option)}
+                      className="min-w-fit"
+                    >
+                      <PlusIcon className="mr-1 h-4 w-4" /> 
+                      {option}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Flow Blocks List */}
+        {blocks.length === 0 ? (
+          <div className="text-center py-12 border-2 border-dashed rounded-lg">
+            <p className="text-muted-foreground">Add blocks to build your flow</p>
           </div>
         ) : (
-          <div className="border border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50">
-            <div className="text-muted-foreground text-center">
-              <p className="text-sm">No blocks added yet</p>
-              <p className="text-xs mt-1">Click one of the buttons above to add your first block</p>
-            </div>
+          <div className="space-y-4">
+            {blocks.map((block, index) => (
+              <FlowBlockComponent
+                key={block.id}
+                block={block}
+                index={index}
+                onUpdateBlock={(updatedBlock) => updateBlock(block.id, updatedBlock)}
+                onRemoveBlock={() => removeBlock(block.id)}
+                onAgentSelection={(agentId) => handleAgentSelection(block.id, agentId)}
+              />
+            ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
