@@ -1,5 +1,4 @@
 
-// Update FlowBlocksList.tsx to accept and use availableBlockOptions prop
 import React, { useState } from 'react';
 import { CheckIcon, PlusIcon, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
 import { FlowBlockComponent } from '@/components/jarvi-flows/builder/FlowBlockComponent';
 import { v4 as uuidv4 } from 'uuid';
-import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
+import { BlockCategory } from '@/data/flowBlockOptions';
 
 interface Props {
   blocks: FlowBlock[];
@@ -30,7 +29,8 @@ export function FlowBlocksList({
     if (availableBlockOptions && availableBlockOptions[type] && availableBlockOptions[type].length > 0) {
       return availableBlockOptions[type];
     }
-    return flowBlockOptions[type] || [];
+    // Return empty array as a last resort
+    return [];
   };
 
   const addBlock = (type: BlockCategory, option: string) => {
@@ -51,6 +51,32 @@ export function FlowBlocksList({
     setBlocks(blocks.map(block => 
       block.id === id ? { ...block, ...updatedBlock } : block
     ));
+  };
+
+  // Move a block up in the list
+  const moveBlockUp = (index: number) => {
+    if (index === 0) return; // Already at the top
+    const newBlocks = [...blocks];
+    [newBlocks[index - 1], newBlocks[index]] = [newBlocks[index], newBlocks[index - 1]];
+    setBlocks(newBlocks);
+  };
+
+  // Move a block down in the list
+  const moveBlockDown = (index: number) => {
+    if (index >= blocks.length - 1) return; // Already at the bottom
+    const newBlocks = [...blocks];
+    [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
+    setBlocks(newBlocks);
+  };
+
+  // Update block name
+  const updateBlockName = (blockId: string, name: string) => {
+    updateBlock(blockId, { name });
+  };
+
+  // Update block option
+  const updateBlockOption = (blockId: string, option: string) => {
+    updateBlock(blockId, { option });
   };
   
   // Helper function for descriptive block names
@@ -144,9 +170,13 @@ export function FlowBlocksList({
                 key={block.id}
                 block={block}
                 index={index}
-                onUpdateBlock={(updatedBlock) => updateBlock(block.id, updatedBlock)}
-                onRemoveBlock={() => removeBlock(block.id)}
-                onAgentSelection={(agentId) => handleAgentSelection(block.id, agentId)}
+                isLast={index === blocks.length - 1}
+                updateBlockName={updateBlockName}
+                updateBlockOption={updateBlockOption}
+                moveBlockUp={moveBlockUp}
+                moveBlockDown={moveBlockDown}
+                removeBlock={removeBlock}
+                handleAgentSelection={handleAgentSelection}
               />
             ))}
           </div>

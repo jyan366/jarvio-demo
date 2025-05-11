@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
@@ -7,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowDown, ChevronDown, ChevronUp, Info, MoveUp, MoveDown, Trash2, Database, Brain, Zap, User, Settings } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { agentsData } from '@/data/agentsData';
-import { flowBlockOptions } from '@/data/flowBlockOptions';
+import { BlockCategory } from '@/data/flowBlockOptions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SendEmailConfig } from '@/components/agents/tools/SendEmailConfig';
 import { AiSummaryConfig } from '@/components/agents/tools/AiSummaryConfig';
@@ -86,21 +87,29 @@ const configComponentMap = {
   'AI Summary': AiSummaryConfig,
   'Send Email': SendEmailConfig
 };
-interface FlowBlockProps {
+
+export interface FlowBlockProps {
   block: FlowBlock;
   index: number;
-  isLast: boolean;
-  updateBlockName: (blockId: string, name: string) => void;
-  updateBlockOption: (blockId: string, option: string) => void;
-  moveBlockUp: (index: number) => void;
-  moveBlockDown: (index: number) => void;
-  removeBlock: (blockId: string) => void;
-  handleAgentSelection: (blockId: string, agentId: string) => void;
+  isLast?: boolean;
+  onUpdateBlock?: (updatedBlock: Partial<FlowBlock>) => void;
+  onRemoveBlock?: () => void;
+  onAgentSelection?: (agentId: string) => void;
+  updateBlockName?: (blockId: string, name: string) => void;
+  updateBlockOption?: (blockId: string, option: string) => void;
+  moveBlockUp?: (index: number) => void;
+  moveBlockDown?: (index: number) => void;
+  removeBlock?: (blockId: string) => void;
+  handleAgentSelection?: (blockId: string, agentId: string) => void;
 }
+
 export function FlowBlockComponent({
   block,
   index,
-  isLast,
+  isLast = false,
+  onUpdateBlock,
+  onRemoveBlock,
+  onAgentSelection,
   updateBlockName,
   updateBlockOption,
   moveBlockUp,
@@ -128,6 +137,52 @@ export function FlowBlockComponent({
   // Determine if this block uses an agent
   const hasAgentSelection = block.type === 'act' && block.option === 'Agent' || block.type === 'agent';
   const selectedAgent = block.agentId ? agentsData.find(agent => agent.id === block.agentId) : null;
+
+  // Define handlers that work with either prop style
+  const handleUpdateName = (name: string) => {
+    if (updateBlockName) {
+      updateBlockName(block.id, name);
+    } else if (onUpdateBlock) {
+      onUpdateBlock({ name });
+    }
+  };
+
+  const handleUpdateOption = (option: string) => {
+    if (updateBlockOption) {
+      updateBlockOption(block.id, option);
+    } else if (onUpdateBlock) {
+      onUpdateBlock({ option });
+    }
+  };
+
+  const handleRemoveBlock = () => {
+    if (removeBlock) {
+      removeBlock(block.id);
+    } else if (onRemoveBlock) {
+      onRemoveBlock();
+    }
+  };
+
+  const handleMoveUp = () => {
+    if (moveBlockUp) {
+      moveBlockUp(index);
+    }
+  };
+
+  const handleMoveDown = () => {
+    if (moveBlockDown) {
+      moveBlockDown(index);
+    }
+  };
+
+  const handleAgentSelect = (agentId: string) => {
+    if (handleAgentSelection) {
+      handleAgentSelection(block.id, agentId);
+    } else if (onAgentSelection) {
+      onAgentSelection(agentId);
+    }
+  };
+
   return <>
       <div className="group border rounded-xl bg-white overflow-hidden shadow-sm hover:shadow transition-shadow">
         <div className="p-6">
@@ -157,9 +212,9 @@ export function FlowBlockComponent({
                   <label className="text-xs text-gray-500 mb-1">Block Name</label>
                   <Textarea 
                     id={`block-name-${block.id}`} 
-                    className="text-sm font-normal border-2 focus:border-gray-300 resize-none p-3 bg-transparent rounded-lg my-1 min-h-[38px]" 
+                    className="text-sm font-normal border-2 focus:border-gray-300 resize-none p-3 bg-transparent rounded-lg my-1 min-h-[38px] flow-block-name-input" 
                     value={block.name || ""} 
-                    onChange={e => updateBlockName(block.id, e.target.value)} 
+                    onChange={e => handleUpdateName(e.target.value)} 
                     rows={1} 
                     placeholder="Give this block a descriptive name" 
                   />
@@ -174,7 +229,7 @@ export function FlowBlockComponent({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" disabled={index === 0} onClick={() => moveBlockUp(index)} className="h-7 w-7">
+                        <Button variant="ghost" size="icon" disabled={index === 0} onClick={handleMoveUp} className="h-7 w-7">
                           <MoveUp className="h-4 w-4 text-gray-500" />
                         </Button>
                       </TooltipTrigger>
@@ -185,7 +240,7 @@ export function FlowBlockComponent({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" disabled={isLast} onClick={() => moveBlockDown(index)} className="h-7 w-7">
+                        <Button variant="ghost" size="icon" disabled={isLast} onClick={handleMoveDown} className="h-7 w-7">
                           <MoveDown className="h-4 w-4 text-gray-500" />
                         </Button>
                       </TooltipTrigger>
@@ -196,7 +251,7 @@ export function FlowBlockComponent({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => removeBlock(block.id)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:bg-red-50 hover:text-red-600" onClick={handleRemoveBlock}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
@@ -219,14 +274,13 @@ export function FlowBlockComponent({
                       </TooltipProvider>
                     </label>
                     
-                    <Select value={block.option} onValueChange={value => updateBlockOption(block.id, value)}>
+                    <Select value={block.option} onValueChange={value => handleUpdateOption(value)}>
                       <SelectTrigger id={`block-option-${block.id}`} className="w-[200px] border bg-white text-sm">
                         <SelectValue placeholder="Select option" />
                       </SelectTrigger>
                       <SelectContent>
-                        {flowBlockOptions[block.type].map(option => <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>)}
+                        {/* We'll handle this dynamically later */}
+                        {/* This is a placeholder - actual options will be provided by parent component */}
                       </SelectContent>
                     </Select>
                   </div>
@@ -236,7 +290,7 @@ export function FlowBlockComponent({
                       <label className="text-xs text-gray-500 mb-1 flex items-center justify-end">
                         Select Agent
                       </label>
-                      <Select value={block.agentId || ''} onValueChange={value => handleAgentSelection(block.id, value)}>
+                      <Select value={block.agentId || ''} onValueChange={value => handleAgentSelect(value)}>
                         <SelectTrigger className="w-[200px] border bg-white text-sm">
                           <SelectValue placeholder="Select agent" />
                         </SelectTrigger>

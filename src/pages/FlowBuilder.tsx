@@ -19,6 +19,37 @@ import { agentsData } from '@/data/agentsData';
 import { useFlowBlockConfig } from '@/hooks/useFlowBlockConfig';
 import { FlowBlockDatabaseSync } from '@/components/jarvi-flows/FlowBlockDatabaseSync';
 
+// Default flow block options to use as fallback
+const defaultFlowBlockOptions = {
+  collect: [
+    'User Text',
+    'Upload Sheet',
+    'All Listing Info',
+    'Get Keywords',
+    'Estimate Sales',
+    'Review Information',
+    'Scrape Sheet',
+    'Seller Account Feedback',
+    'Email Parsing'
+  ],
+  think: [
+    'Basic AI Analysis',
+    'Listing Analysis',
+    'Insights Generation',
+    'Review Analysis'
+  ],
+  act: [
+    'AI Summary',
+    'Push to Amazon',
+    'Send Email',
+    'Human in the Loop',
+    'Agent'
+  ],
+  agent: [
+    'Agent'
+  ]
+};
+
 // Predefined flows for testing/editing
 const predefinedFlows: Flow[] = [
   {
@@ -125,12 +156,7 @@ export default function FlowBuilder() {
   };
 
   // Add a new state to store available flow block options from the database
-  const [availableBlockOptions, setAvailableBlockOptions] = useState<Record<string, string[]>>({
-    collect: [],
-    think: [],
-    act: [],
-    agent: []
-  });
+  const [availableBlockOptions, setAvailableBlockOptions] = useState<Record<string, string[]>>(defaultFlowBlockOptions);
 
   // Function to load flow block options from the database
   const loadFlowBlockOptions = async () => {
@@ -142,7 +168,7 @@ export default function FlowBuilder() {
 
       if (error) {
         console.error('Error fetching flow block options:', error);
-        // Fallback to predefined options from flowBlockOptions if there's an error
+        // Fallback to predefined options from defaultFlowBlockOptions if there's an error
         return;
       }
 
@@ -163,9 +189,15 @@ export default function FlowBuilder() {
 
         setAvailableBlockOptions(options);
         console.log('Loaded flow block options from database:', options);
+      } else {
+        // If no data, use defaults
+        console.log('No flow block options found in database, using defaults');
+        setAvailableBlockOptions(defaultFlowBlockOptions);
       }
     } catch (error) {
       console.error('Error in loadFlowBlockOptions:', error);
+      // Use default options on error
+      setAvailableBlockOptions(defaultFlowBlockOptions);
     }
   };
 
@@ -240,7 +272,7 @@ export default function FlowBuilder() {
         body: {
           prompt: `Create a flow for an Amazon seller based on this description: "${data.prompt}". 
           The flow should include appropriate blocks from these available options:
-          ${JSON.stringify(flowBlockOptions)}. 
+          ${JSON.stringify(availableBlockOptions)}. 
           
           A flow typically has 3-5 blocks, usually starting with collect blocks, followed by think blocks, and ending with act blocks.
           
@@ -317,7 +349,7 @@ export default function FlowBuilder() {
         if (!block.type || !['collect', 'think', 'act', 'agent'].includes(block.type)) {
           console.warn(`Invalid block type: ${block.type}, using 'collect' as fallback`);
           const fallbackType = 'collect' as BlockCategory;
-          const fallbackOption = flowBlockOptions[fallbackType][0];
+          const fallbackOption = availableBlockOptions[fallbackType][0] || defaultFlowBlockOptions[fallbackType][0];
           return {
             id: uuidv4(),
             type: fallbackType,
@@ -327,10 +359,10 @@ export default function FlowBuilder() {
         }
         
         // Validate block option
-        if (!block.option || !flowBlockOptions[block.type]?.includes(block.option)) {
+        if (!block.option || !availableBlockOptions[block.type]?.includes(block.option)) {
           console.warn(`Using fallback option for invalid option: ${block.option}`);
           // Use the first available option as fallback
-          const fallbackOption = flowBlockOptions[block.type][0];
+          const fallbackOption = availableBlockOptions[block.type][0] || defaultFlowBlockOptions[block.type][0];
           return {
             id: uuidv4(),
             type: block.type,
