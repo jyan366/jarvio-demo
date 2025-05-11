@@ -36,39 +36,149 @@ export function FlowBlocksConfig() {
   const [initializingBlocks, setInitializingBlocks] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Initialize flow blocks based on flowBlockOptions
+  // Enhanced function to initialize flow blocks from flowBlockOptions
   const initializeExistingBlocks = async () => {
     try {
       setInitializingBlocks(true);
       setErrorMessage(null);
-      console.log('Initializing flow blocks from existing options...');
+      console.log('Initializing all flow blocks from existing options...');
       
-      // Collect all unique block types and options from flowBlockOptions
+      // Check existing blocks first to avoid duplicates
+      const { data: existingBlocks, error: fetchError } = await supabase
+        .from('flow_block_configs')
+        .select('block_type, block_name');
+        
+      if (fetchError) {
+        console.error('Error fetching existing blocks:', fetchError);
+      }
+      
+      // Create a map of existing blocks for quick lookup
+      const existingBlockMap = new Map();
+      if (existingBlocks) {
+        existingBlocks.forEach(block => {
+          existingBlockMap.set(`${block.block_type}:${block.block_name}`, true);
+        });
+      }
+      
+      // Collect all blocks from flowBlockOptions that don't exist yet
       const blocksToCreate: BlockConfig[] = [];
       
       // Process all flow block options from the data
       Object.entries(flowBlockOptions).forEach(([blockType, options]) => {
         options.forEach((option) => {
-          // Skip blocks that should not be created
-          const skipBlocks = ['User Text', 'Human in the Loop'];
-          if (skipBlocks.includes(option)) return;
+          // Skip if block already exists
+          if (existingBlockMap.has(`${blockType}:${option}`)) {
+            console.log(`Block ${blockType}:${option} already exists, skipping`);
+            return;
+          }
           
+          // Create descriptions based on block type and name
+          let description = '';
+          switch (option) {
+            case 'User Text':
+              description = 'Allows users to provide specific instructions or data via direct text input';
+              break;
+            case 'Upload Sheet':
+              description = 'Enables users to upload spreadsheets with product or inventory data';
+              break;
+            case 'All Listing Info':
+              description = 'Retrieves complete information about Amazon product listings';
+              break;
+            case 'Get Keywords':
+              description = 'Performs keyword research for product listings';
+              break;
+            case 'Estimate Sales':
+              description = 'Calculates sales projections based on historical data and trends';
+              break;
+            case 'Review Information':
+              description = 'Collects and analyzes customer reviews for products';
+              break;
+            case 'Scrape Sheet':
+              description = 'Extracts data from Google Sheets or other online spreadsheets';
+              break;
+            case 'Seller Account Feedback':
+              description = 'Gathers seller performance metrics and customer feedback';
+              break;
+            case 'Email Parsing':
+              description = 'Processes and extracts structured data from emails';
+              break;
+            case 'Basic AI Analysis':
+              description = 'Performs standard AI analysis on collected data';
+              break;
+            case 'Listing Analysis':
+              description = 'Analyzes product listings for optimization opportunities';
+              break;
+            case 'Insights Generation':
+              description = 'Creates strategic insights from analyzed data';
+              break;
+            case 'Review Analysis':
+              description = 'Analyzes sentiment and patterns in customer reviews';
+              break;
+            case 'AI Summary':
+              description = 'Generates concise AI summaries of complex data';
+              break;
+            case 'Push to Amazon':
+              description = 'Uploads optimized content directly to Amazon listings';
+              break;
+            case 'Send Email':
+              description = 'Sends automated emails with report results';
+              break;
+            case 'Human in the Loop':
+              description = 'Pauses workflow for human review and approval';
+              break;
+            case 'Agent':
+              description = 'Delegates tasks to specialized AI agents';
+              break;
+            default:
+              description = `${option} block for ${blockType} operations`;
+          }
+          
+          // Set up basic schema based on block type
+          let schema = {};
+          
+          if (blockType === 'collect') {
+            if (option === 'User Text') {
+              schema = {
+                type: 'object',
+                properties: {
+                  prompt: {
+                    type: 'string',
+                    description: 'Instructions for the user'
+                  },
+                  required: {
+                    type: 'boolean',
+                    description: 'Whether input is required'
+                  }
+                }
+              };
+            } else if (option === 'Upload Sheet') {
+              schema = {
+                type: 'object',
+                properties: {
+                  fileTypes: {
+                    type: 'array',
+                    description: 'Allowed file extensions',
+                    default: ['.xlsx', '.csv']
+                  },
+                  maxSizeInMb: {
+                    type: 'number',
+                    description: 'Maximum file size in MB',
+                    default: 10
+                  }
+                }
+              };
+            }
+          }
+          
+          // Add to blocks to create
           blocksToCreate.push({
             id: uuidv4(),
             block_type: blockType,
             block_name: option,
             is_functional: false,
             config_data: {
-              description: `${option} block for ${blockType} operations`,
-              // Add specific schema based on block type and option
-              ...(blockType === 'collect' && {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    // Default schema properties
-                  }
-                }
-              })
+              description: description,
+              schema: schema
             },
             credentials: {},
             created_at: new Date().toISOString(),
@@ -77,26 +187,41 @@ export function FlowBlocksConfig() {
         });
       });
       
-      console.log(`Creating ${blocksToCreate.length} default flow blocks`);
+      console.log(`Creating ${blocksToCreate.length} flow blocks`);
       
-      // Insert blocks into database
-      const { error } = await supabase
-        .from('flow_block_configs')
-        .insert(blocksToCreate);
-        
-      if (error) {
-        console.error('Error creating flow blocks:', error);
-        throw error;
+      if (blocksToCreate.length === 0) {
+        toast({
+          title: 'All blocks already exist',
+          description: 'No new blocks needed to be created.',
+        });
+        setInitializingBlocks(false);
+        return;
       }
       
-      console.log('Flow blocks created successfully');
+      // Insert blocks into database in batches to avoid payload size limits
+      const batchSize = 20;
+      for (let i = 0; i < blocksToCreate.length; i += batchSize) {
+        const batch = blocksToCreate.slice(i, i + batchSize);
+        const { error } = await supabase
+          .from('flow_block_configs')
+          .insert(batch);
+          
+        if (error) {
+          console.error(`Error creating batch ${i/batchSize + 1}:`, error);
+          throw error;
+        }
+        
+        console.log(`Batch ${i/batchSize + 1} created successfully`);
+      }
+      
+      console.log('All flow blocks created successfully');
       
       // Fetch the newly created blocks
       await fetchBlockConfigs();
       
       toast({
         title: 'Flow blocks initialized',
-        description: 'Default flow blocks have been added to the configuration.',
+        description: `${blocksToCreate.length} flow blocks have been added to the configuration.`,
       });
     } catch (error) {
       console.error('Error initializing flow blocks:', error);
@@ -179,7 +304,7 @@ export function FlowBlocksConfig() {
             onClick={initializeExistingBlocks} 
             disabled={initializingBlocks}
           >
-            {initializingBlocks ? 'Initializing...' : 'Initialize Default Blocks'}
+            {initializingBlocks ? 'Initializing...' : 'Initialize All Blocks'}
           </Button>
         ),
       });
@@ -360,6 +485,14 @@ export function FlowBlocksConfig() {
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={initializeExistingBlocks} 
+                disabled={initializingBlocks}
+              >
+                {initializingBlocks ? 'Initializing...' : 'Initialize All Blocks'}
+              </Button>
               <AddFlowBlockDialog onBlockAdded={fetchBlockConfigs} />
             </div>
           </div>
@@ -379,7 +512,7 @@ export function FlowBlocksConfig() {
                   onClick={initializeExistingBlocks} 
                   disabled={initializingBlocks}
                 >
-                  {initializingBlocks ? 'Initializing...' : 'Initialize Default Blocks'}
+                  {initializingBlocks ? 'Initializing...' : 'Initialize All Blocks'}
                 </Button>
               </div>
             </div>
