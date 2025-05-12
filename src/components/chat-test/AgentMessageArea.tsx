@@ -56,7 +56,7 @@ export function AgentMessageArea({
               {!group[0].isUser && <>
                   {/* Jarvio branded header at start of agent message sequence */}
                   <div className="flex items-center mb-2 text-xs text-gray-500">
-                    <img src="/lovable-uploads/08731df9-3205-441e-87a9-16f9d6a6c4d6.png" alt="Jarvio" className="w-[30px] h-auto mr-1" />
+                    <img alt="Jarvio" src="/lovable-uploads/ba87deb0-bc72-4989-90bd-fdc7cdcc5b9e.png" className="w-[20px] h-auto mr-1" />
                     
                   </div>
                   
