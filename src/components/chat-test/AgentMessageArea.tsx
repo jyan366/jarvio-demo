@@ -4,12 +4,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, CheckCircle } from "lucide-react";
 import type { Message, Subtask } from "./AgentChatInterface";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 interface AgentMessageAreaProps {
   messages: Message[];
   subtasks: Subtask[];
   activeSubtaskIndex: number;
   onStepClick?: (stepIndex: number) => void;
 }
+
 export function AgentMessageArea({
   messages,
   subtasks,
@@ -49,75 +51,96 @@ export function AgentMessageArea({
   if (currentGroup.length > 0) {
     messageGroups.push(currentGroup);
   }
-  return <div className="flex-1 overflow-hidden">
+
+  return (
+    <div className="flex-1 overflow-hidden">
       <ScrollArea className="h-full pb-4">
         <div className="p-4">
-          {messageGroups.map((group, groupIndex) => <div key={`group-${groupIndex}`}>
+          {messageGroups.map((group, groupIndex) => (
+            <div key={`group-${groupIndex}`}>
               {/* Agent messages */}
-              {!group[0].isUser && <>
+              {!group[0].isUser && (
+                <>
                   {/* Jarvio branded header at start of agent message sequence */}
                   <div className="flex items-center mb-2 text-xs text-gray-500">
                     <img alt="Jarvio" src="/lovable-uploads/ba87deb0-bc72-4989-90bd-fdc7cdcc5b9e.png" className="w-[30px] h-auto" />
                     <span className="ml-2 font-bold mx-[4px] text-base text-slate-700">Jarvio</span>
                   </div>
                   
-                  {group.map(message => <div key={message.id} className="flex mb-4 gap-2">
+                  {group.map(message => (
+                    <div key={message.id} className="flex mb-4 gap-2">
                       <div className="flex-shrink-0 w-8 self-start mt-1">
                         {/* This space was for the avatar */}
                       </div>
                       
                       <div className="max-w-[85%]">
                         {/* Loading execution message - "Here's what I'm about to do" */}
-                        {message.isLoading && <div className="bg-[#EAE6FF] border border-[#9b87f5]/30 rounded-lg p-3 mb-3 cursor-pointer" onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
+                        {message.isLoading && (
+                          <div className="bg-[#EAE6FF] border border-[#9b87f5]/30 rounded-lg p-3 mb-3 cursor-pointer" 
+                               onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
                             <div className="flex items-center gap-2 text-[#9b87f5]">
                               <Loader2 className="h-4 w-4 animate-spin" />
                               <span>
                                 <strong>Here's what I'm about to do:</strong> {message.text || `Step ${message.stepNumber} being executed...`}
                               </span>
                             </div>
-                          </div>}
+                          </div>
+                        )}
                         
                         {/* Step completion box */}
-                        {message.isStepCompletion && message.stepNumber && <div className="bg-[#EAE6FF] border border-[#9b87f5]/30 rounded-lg p-3 mb-3 cursor-pointer" onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
+                        {message.isStepCompletion && message.stepNumber && (
+                          <div className="bg-[#EAE6FF] border border-[#9b87f5]/30 rounded-lg p-3 mb-3 cursor-pointer" 
+                               onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
                             <div className="flex items-center gap-2 text-green-600">
                               <CheckCircle className="h-4 w-4" />
                               <span>Step {message.stepNumber} completed successfully</span>
                             </div>
-                          </div>}
+                          </div>
+                        )}
                         
                         {/* Regular message - Summary of what's been done */}
-                        {!message.isLoading && <div className="prose prose-sm dark:prose-invert break-words whitespace-pre-wrap">
+                        {!message.isLoading && (
+                          <div className="bg-[#F9F8FF] border border-[#E6E6E6] rounded-lg p-3 prose prose-sm dark:prose-invert break-words whitespace-pre-wrap">
                             {message.text}
                             <div className="text-xs text-gray-400 mt-1">
                               {message.timestamp.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
                             </div>
-                          </div>}
+                          </div>
+                        )}
                       </div>
-                    </div>)}
-                </>}
+                    </div>
+                  ))}
+                </>
+              )}
               
               {/* User messages - no avatar, right aligned */}
-              {group[0].isUser && <>
-                  {group.map(message => <div key={message.id} className="flex justify-end mb-4">
-                      <div className="max-w-[85%] text-right">
-                        <div className="prose prose-sm dark:prose-invert break-words whitespace-pre-wrap">
+              {group[0].isUser && (
+                <>
+                  {group.map(message => (
+                    <div key={message.id} className="flex justify-end mb-4">
+                      <div className="max-w-[85%]">
+                        <div className="bg-white border border-[#E6E6E6] rounded-lg p-3 prose prose-sm dark:prose-invert break-words whitespace-pre-wrap">
                           {message.text}
-                        </div>
-                        <div className="text-xs text-gray-400 mt-1">
-                          {message.timestamp.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                          <div className="text-xs text-gray-400 mt-1 text-right">
+                            {message.timestamp.toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
                         </div>
                       </div>
-                    </div>)}
-                </>}
-            </div>)}
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          ))}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
-    </div>;
+    </div>
+  );
 }
