@@ -1,14 +1,17 @@
+
 import React, { useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, CheckCircle } from "lucide-react";
 import type { Message, Subtask } from "./AgentChatInterface";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 interface AgentMessageAreaProps {
   messages: Message[];
   subtasks: Subtask[];
   activeSubtaskIndex: number;
   onStepClick?: (stepIndex: number) => void;
 }
+
 export function AgentMessageArea({
   messages,
   subtasks,
@@ -56,8 +59,8 @@ export function AgentMessageArea({
               {!group[0].isUser && <>
                   {/* Jarvio branded header at start of agent message sequence */}
                   <div className="flex items-center mb-2 text-xs text-gray-500">
-                    <img alt="Jarvio" src="/lovable-uploads/ba87deb0-bc72-4989-90bd-fdc7cdcc5b9e.png" className="w-[20px] h-auto" />
-                    
+                    <img alt="Jarvio" src="/lovable-uploads/ba87deb0-bc72-4989-90bd-fdc7cdcc5b9e.png" className="w-[30px] h-auto" />
+                    <span className="ml-2 font-bold">Jarvio</span>
                   </div>
                   
                   {group.map(message => <div key={message.id} className="flex mb-4 gap-2">
