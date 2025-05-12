@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -32,7 +31,7 @@ export function AgentDataLogTab({ subtasks, activeSubtaskIndex }: AgentDataLogTa
                 {subtasks.map((subtask, index) => (
                   <TableRow 
                     key={subtask.id}
-                    className={`cursor-pointer ${selectedSubtask === index ? "bg-purple-50" : ""}`}
+                    className={`cursor-pointer ${selectedSubtask === index ? "bg-gray-100" : ""}`}
                     onClick={() => setSelectedSubtask(index)}
                   >
                     <TableCell>{index + 1}</TableCell>

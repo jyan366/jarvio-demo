@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { AgentMessageArea } from "./AgentMessageArea";
 import { AgentInputArea } from "./AgentInputArea";
@@ -127,7 +126,7 @@ export function AgentChatInterface() {
   };
   
   return (
-    <div className="h-full flex flex-col bg-[#F9F8FF]">
+    <div className="h-full flex flex-col bg-[#fcfbf8]">
       <AgentHeader 
         currentStep={currentSubtaskIndex + 1} 
         totalSteps={subtasks.length}

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +42,7 @@ function TabButton({ children, active, onClick }: TabButtonProps) {
       className={cn(
         "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
         active
-          ? "border-[#9b87f5] text-[#9b87f5]"
+          ? "border-[#4457ff] text-[#4457ff]"
           : "border-transparent text-muted-foreground hover:text-foreground"
       )}
     >

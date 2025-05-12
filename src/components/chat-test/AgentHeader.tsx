@@ -1,4 +1,3 @@
-
 import React from "react";
 
 interface AgentHeaderProps {
@@ -12,7 +11,7 @@ export function AgentHeader({ currentStep, totalSteps, stepTitle }: AgentHeaderP
     <div className="border-b p-4 bg-white">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="font-semibold text-lg text-[#9b87f5]">
+          <h2 className="font-semibold text-lg text-[#4a4a4a]">
             Jarvio Assistant
           </h2>
         </div>

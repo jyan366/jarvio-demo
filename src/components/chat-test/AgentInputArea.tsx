@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -36,7 +35,7 @@ export function AgentInputArea({
           onChange={onChange}
           onKeyDown={handleKeyDown}
           placeholder={disabled ? "Jarvio is thinking..." : "Type your message..."}
-          className="flex-1 min-h-[36px] max-h-24 resize-none border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
+          className="flex-1 min-h-[36px] max-h-24 resize-none border-gray-300 focus-visible:ring-gray-400"
           disabled={disabled}
           rows={1}
         />
@@ -44,7 +43,7 @@ export function AgentInputArea({
         <Button 
           onClick={onSubmit} 
           disabled={!value.trim() || disabled}
-          className="self-end rounded-full bg-[#9b87f5] hover:bg-[#8a70ff]"
+          className="self-end rounded-full bg-[#4457ff] hover:bg-[#3a4be0]"
         >
           {disabled ? (
             <Loader2 className="h-4 w-4 animate-spin" />
