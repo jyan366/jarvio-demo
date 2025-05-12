@@ -42,9 +42,7 @@ export function AgentMessageArea({
                   <div className="max-w-[85%]">
                     {/* Regular message or step completion */}
                     {!message.isLoading && (
-                      <div className={`prose prose-sm dark:prose-invert break-words whitespace-pre-wrap ${
-                        message.isStepCompletion ? "text-[#9b87f5] font-medium" : ""
-                      }`}>
+                      <div className="prose prose-sm dark:prose-invert break-words whitespace-pre-wrap">
                         {message.text}
                         <div className="text-xs text-gray-400 mt-1">
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
