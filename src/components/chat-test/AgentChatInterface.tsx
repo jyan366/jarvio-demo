@@ -1,8 +1,10 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { AgentMessageArea } from "./AgentMessageArea";
 import { AgentInputArea } from "./AgentInputArea";
 import { AgentHeader } from "./AgentHeader";
+import { AgentTabs } from "./AgentTabs";
+import { AgentDataLogTab } from "./AgentDataLogTab";
 import { useSampleMessages } from "./hooks/useSampleMessages";
 
 export interface Message {
@@ -21,9 +23,12 @@ export interface Subtask {
   done: boolean;
 }
 
+type TabType = "chat" | "log";
+
 export function AgentChatInterface() {
   const [inputValue, setInputValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<TabType>("chat");
   const { messages, subtasks, currentSubtaskIndex, addUserMessage, executeNextStep } = useSampleMessages();
 
   // Handle user message submission
@@ -60,19 +65,30 @@ export function AgentChatInterface() {
         stepTitle={subtasks[currentSubtaskIndex]?.title || ""}
       />
       
-      <AgentMessageArea 
-        messages={messages} 
-        subtasks={subtasks}
-        activeSubtaskIndex={currentSubtaskIndex}
-      />
+      <AgentTabs activeTab={activeTab} onTabChange={setActiveTab} />
       
-      <AgentInputArea
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onSubmit={handleSendMessage}
-        onRunFlow={handleRunFlow}
-        disabled={isLoading}
-      />
+      {activeTab === "chat" ? (
+        <>
+          <AgentMessageArea 
+            messages={messages} 
+            subtasks={subtasks}
+            activeSubtaskIndex={currentSubtaskIndex}
+          />
+          
+          <AgentInputArea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onSubmit={handleSendMessage}
+            onRunFlow={handleRunFlow}
+            disabled={isLoading}
+          />
+        </>
+      ) : (
+        <AgentDataLogTab 
+          subtasks={subtasks}
+          activeSubtaskIndex={currentSubtaskIndex}
+        />
+      )}
     </div>
   );
 }
