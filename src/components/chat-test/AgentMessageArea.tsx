@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, CheckCircle } from "lucide-react";
 import type { Message, Subtask } from "./AgentChatInterface";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface AgentMessageAreaProps {
   messages: Message[];
@@ -25,72 +26,112 @@ export function AgentMessageArea({
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
+  // Group messages by sender to add logo only at the start of a sequence
+  const messageGroups: Message[][] = [];
+  let currentGroup: Message[] = [];
+  let currentSender: boolean | null = null;
+
+  messages.forEach((message) => {
+    // If this is the first message or sender changed, start a new group
+    if (currentSender === null || currentSender !== message.isUser) {
+      if (currentGroup.length > 0) {
+        messageGroups.push([...currentGroup]);
+      }
+      currentGroup = [message];
+      currentSender = message.isUser;
+    } else {
+      // Same sender, add to current group
+      currentGroup.push(message);
+    }
+  });
+
+  // Add the last group if not empty
+  if (currentGroup.length > 0) {
+    messageGroups.push(currentGroup);
+  }
   
   return (
     <div className="flex-1 overflow-hidden">
       <ScrollArea className="h-full pb-4">
         <div className="p-4">
-          {messages.map((message, index) => (
-            <div key={message.id}>
-              {/* Agent avatar and message */}
-              {!message.isUser && (
-                <div className="flex mb-4 gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[#9b87f5] flex items-center justify-center mr-2 self-start mt-1 flex-shrink-0">
-                    <span className="text-sm font-semibold text-white">J</span>
+          {messageGroups.map((group, groupIndex) => (
+            <div key={`group-${groupIndex}`}>
+              {/* Agent messages */}
+              {!group[0].isUser && (
+                <>
+                  {/* Jarvio branded header at start of agent message sequence */}
+                  <div className="flex items-center mb-2 text-xs text-gray-500">
+                    <img src="/logo.svg" alt="Jarvio" className="h-4 w-4 mr-1" />
+                    <span>Jarvio {group[0].timestamp.toLocaleString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}</span>
                   </div>
                   
-                  <div className="max-w-[85%]">
-                    {/* Regular message or step completion */}
-                    {!message.isLoading && (
-                      <div className="prose prose-sm dark:prose-invert break-words whitespace-pre-wrap">
-                        {message.text}
+                  {group.map((message) => (
+                    <div key={message.id} className="flex mb-4 gap-2">
+                      <div className="w-8 h-8 rounded-full bg-[#9b87f5] flex items-center justify-center mr-2 self-start mt-1 flex-shrink-0">
+                        <span className="text-sm font-semibold text-white">J</span>
+                      </div>
+                      
+                      <div className="max-w-[85%]">
+                        {/* Regular message or step completion */}
+                        {!message.isLoading && (
+                          <div className="prose prose-sm dark:prose-invert break-words whitespace-pre-wrap">
+                            {message.text}
+                            <div className="text-xs text-gray-400 mt-1">
+                              {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Loading execution message */}
+                        {message.isLoading && (
+                          <div className="bg-[#EAE6FF] border border-[#9b87f5]/30 rounded-lg p-3 mb-1 cursor-pointer"
+                              onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
+                            <div className="flex items-center gap-2 text-[#9b87f5]">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span>{message.text || `Step ${message.stepNumber} being executed...`}</span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Step completion box */}
+                        {message.isStepCompletion && message.stepNumber && (
+                          <div className="bg-[#EAE6FF] border border-[#9b87f5]/30 rounded-lg p-3 mt-2 cursor-pointer"
+                              onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
+                            <div className="flex items-center gap-2 text-green-600">
+                              <CheckCircle className="h-4 w-4" />
+                              <span>Step {message.stepNumber} completed successfully</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+              
+              {/* User messages - no avatar, right aligned */}
+              {group[0].isUser && (
+                <>
+                  {group.map((message) => (
+                    <div key={message.id} className="flex justify-end mb-4">
+                      <div className="max-w-[85%] text-right">
+                        <div className="prose prose-sm dark:prose-invert break-words whitespace-pre-wrap">
+                          {message.text}
+                        </div>
                         <div className="text-xs text-gray-400 mt-1">
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
-                    )}
-                    
-                    {/* Loading execution message */}
-                    {message.isLoading && (
-                      <div className="bg-[#EAE6FF] border border-[#9b87f5]/30 rounded-lg p-3 mb-1 cursor-pointer"
-                          onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
-                        <div className="flex items-center gap-2 text-[#9b87f5]">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>{message.text || `Step ${message.stepNumber} being executed...`}</span>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Step completion box */}
-                    {message.isStepCompletion && message.stepNumber && (
-                      <div className="bg-[#EAE6FF] border border-[#9b87f5]/30 rounded-lg p-3 mt-2 cursor-pointer"
-                          onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Step {message.stepNumber} completed successfully</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* User message */}
-              {message.isUser && (
-                <div className="flex justify-end mb-4">
-                  <div className="max-w-[85%] text-right">
-                    <div className="prose prose-sm dark:prose-invert break-words whitespace-pre-wrap">
-                      {message.text}
                     </div>
-                    <div className="text-xs text-gray-400 mt-1">
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                  </div>
-                  
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center ml-2 self-start mt-1">
-                    <span className="text-sm font-semibold text-gray-700">U</span>
-                  </div>
-                </div>
+                  ))}
+                </>
               )}
             </div>
           ))}
