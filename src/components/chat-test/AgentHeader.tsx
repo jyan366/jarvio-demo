@@ -15,9 +15,6 @@ export function AgentHeader({ currentStep, totalSteps, stepTitle }: AgentHeaderP
           <h2 className="font-semibold text-lg text-[#9b87f5]">
             Jarvio Assistant
           </h2>
-          <h3 className="text-sm text-muted-foreground">
-            {stepTitle && `Working on: ${stepTitle}`}
-          </h3>
         </div>
       </div>
     </div>

@@ -71,7 +71,8 @@ export function AgentChatInterface() {
     
     // Respond based on user's message
     setTimeout(() => {
-      if (!flowStarted && (userInput.includes("yes") || userInput.includes("start") || userInput.includes("begin"))) {
+      if (!flowStarted && (userInput.includes("yes") || userInput.includes("start") || userInput.includes("begin") || 
+                          userInput.includes("go") || userInput.includes("do it"))) {
         setFlowStarted(true);
         addAgentMessage("Great! Let me walk you through our Listing Launch Strategy flow. I'll analyze your market, optimize your listing, set up pricing, configure advertising, and create a launch schedule.");
         
