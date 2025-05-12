@@ -34,6 +34,7 @@ import AnalyticsStudio from './pages/AnalyticsStudio';
 import AdvertisingInsights from './pages/AdvertisingInsights';
 import AIAssistant from './pages/AIAssistant';
 import FlowBlocksAdmin from './pages/FlowBlocksAdmin';
+import ChatTest from './pages/ChatTest';
 
 function App() {
   return (
@@ -81,6 +82,9 @@ function App() {
             <Route path="/analytics-studio" element={<AnalyticsStudio />} />
             <Route path="/advertising-insights" element={<AdvertisingInsights />} />
             <Route path="/ai-assistant" element={<AIAssistant />} />
+            
+            {/* Chat Test Page */}
+            <Route path="/chat-test" element={<ChatTest />} />
             
             {/* Catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />
