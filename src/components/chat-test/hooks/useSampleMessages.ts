@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import type { Message, Subtask } from "../AgentChatInterface";
 
@@ -30,6 +29,15 @@ const executeSteps = [
   "Setting up pricing strategy...", 
   "Configuring PPC advertising...", 
   "Finalizing launch schedule..."
+];
+
+// Step summaries (concise versions of the detailed findings)
+const stepSummaries = [
+  "I've analyzed your competitors and found that professional knife sets average $42.99 with key features being stainless steel, ergonomic handles, and dishwasher safety.",
+  "I've optimized your listing with a keyword-rich title highlighting 'Professional Kitchen Knife Set' and bullets focusing on premium materials and features.",
+  "I've created a pricing strategy starting at $39.99 for launch with a planned increase to $47.99 after getting reviews, plus a 15% launch coupon.",
+  "I've set up your PPC strategy with discovery and targeted campaigns, recommended bids of $0.65-$1.20, and identified your primary keywords.",
+  "I've finalized your 5-week launch timeline with a recommended start date of Tuesday, June 4th to maximize visibility and sales."
 ];
 
 export function useSampleMessages() {
@@ -97,8 +105,11 @@ export function useSampleMessages() {
       // Remove loading message
       setMessages(prev => prev.filter(msg => !msg.isLoading));
       
-      // Add step completion message
-      addAgentMessage(agentScript[currentSubtaskIndex * 2], true, stepNumber);
+      // Add step completion notification (without content)
+      addAgentMessage("", true, stepNumber);
+      
+      // Add summary as a separate message
+      addAgentMessage(stepSummaries[currentSubtaskIndex]);
       
       // Update subtask as completed
       setSubtasks(prev => prev.map((st, idx) => 

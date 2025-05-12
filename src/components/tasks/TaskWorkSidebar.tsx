@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -51,6 +50,11 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
   taskData,
   isFlowTask = false,
 }) => {
+  // Set AI tab as selected by default for demo purposes
+  useEffect(() => {
+    setSelectedTab("ai");
+  }, []);
+  
   const currentSubtask = subtasks[currentSubtaskIndex];
   
   // Filter comments to only show those relevant to the current subtask
@@ -90,108 +94,22 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
           <X className="h-4 w-4" />
         </Button>
 
-        <div className="flex p-4 border-b">
-          <button
-            className={`${
-              selectedTab === "ai"
-                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
-                : "text-gray-400 border-b-2 border-transparent"
-            } px-2 py-1 mr-3 text-base transition`}
-            onClick={() => setSelectedTab("ai")}
-          >
-            AI Assistant
-          </button>
-          <button
-            className={`${
-              selectedTab === "comments"
-                ? "font-semibold border-b-2 border-[#3527A0] text-[#3527A0]"
-                : "text-gray-400 border-b-2 border-transparent"
-            } px-2 py-1 text-base transition`}
-            onClick={() => setSelectedTab("comments")}
-          >
-            Comments
-          </button>
-        </div>
-
+        {/* For the demo, we're removing the tabs and just showing Jarvio Assistant */}
         <div className="flex flex-col flex-1 min-h-0">
-          {selectedTab === "comments" ? (
-            <div className="flex flex-col h-full">
-              <div className="px-4 py-2 text-xs font-bold text-muted-foreground tracking-[1px] flex justify-between items-center">
-                <span>COMMENTS ({subtaskComments.length})</span>
-                {currentSubtask && (
-                  <span className={`font-semibold ${isFlowTask ? "text-blue-600" : "text-purple-600"}`}>
-                    {currentSubtask.title}
-                  </span>
-                )}
-              </div>
-              
-              {/* Comments area with ScrollArea to handle overflow */}
-              <ScrollArea className="flex-1 px-4">
-                <div className="space-y-4 pr-2">
-                  {subtaskComments.length > 0 ? (
-                    subtaskComments.map((c, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <div className="bg-zinc-100 rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm text-zinc-700 mt-0.5 flex-shrink-0">
-                          {c.user[0]?.toUpperCase() ?? "U"}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm text-zinc-800 break-words">{c.text}</div>
-                          <div className="text-gray-400 text-xs">{c.ago}</div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center text-gray-400 py-6">
-                      No comments for this {itemLabel}
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-              
-              {/* Add Comment - always at the bottom of the sidebar */}
-              <div className="p-4 pt-2 border-t mt-auto bg-white">
-                <form
-                  className="flex flex-col"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (commentValue.trim()) {
-                      addComment(commentValue);
-                    }
-                  }}
-                >
-                  <Textarea
-                    className="min-h-24 mb-2 text-sm resize-none"
-                    placeholder={`Add a comment about "${currentSubtask?.title || `this ${itemLabel}`}"...`}
-                    value={commentValue}
-                    onChange={(e) => setCommentValue(e.target.value)}
-                  />
-                  <Button
-                    type="submit"
-                    size="sm"
-                    disabled={!commentValue.trim()}
-                    className="ml-auto"
-                  >
-                    Add Comment
-                  </Button>
-                </form>
-              </div>
-            </div>
-          ) : (
-            <div className="h-full overflow-hidden">
-              <JarvioAssistant
-                taskId={taskId}
-                taskTitle={taskTitle}
-                taskDescription={taskDescription}
-                subtasks={subtasks}
-                currentSubtaskIndex={currentSubtaskIndex}
-                onSubtaskComplete={onSubtaskComplete}
-                onSubtaskSelect={onSubtaskSelect}
-                onGenerateSteps={onGenerateSteps}
-                taskData={taskData}
-                isFlowTask={isFlowTask}
-              />
-            </div>
-          )}
+          <div className="h-full overflow-hidden">
+            <JarvioAssistant
+              taskId={taskId}
+              taskTitle={taskTitle}
+              taskDescription={taskDescription}
+              subtasks={subtasks}
+              currentSubtaskIndex={currentSubtaskIndex}
+              onSubtaskComplete={onSubtaskComplete}
+              onSubtaskSelect={onSubtaskSelect}
+              onGenerateSteps={onGenerateSteps}
+              taskData={taskData}
+              isFlowTask={isFlowTask}
+            />
+          </div>
         </div>
       </aside>
     </>

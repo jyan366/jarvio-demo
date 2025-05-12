@@ -41,18 +41,12 @@ export function AgentChatInterface() {
 
   // Set up initial greeting
   useEffect(() => {
-    if (!flowStarted && messages.length <= 1) {
-      const hasIntroMessage = messages.some(m => 
-        m.text && m.text.includes("Listing Launch Strategy") && !m.isUser
-      );
-      
-      if (!hasIntroMessage) {
-        setTimeout(() => {
-          addAgentMessage(
-            "Hi there! I'm Jarvio, your AI assistant. I can help you with your Listing Launch Strategy for Amazon products. Would you like me to walk you through the process?"
-          );
-        }, 500);
-      }
+    if (!flowStarted && messages.length === 0) {
+      setTimeout(() => {
+        addAgentMessage(
+          "Hi there! I'm Jarvio, your AI assistant. I can help you with your Listing Launch Strategy for Amazon products. Would you like me to walk you through the process?"
+        );
+      }, 500);
     }
   }, [flowStarted, messages, addAgentMessage]);
   

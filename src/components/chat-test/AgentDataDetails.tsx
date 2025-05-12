@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 
@@ -6,14 +5,20 @@ interface AgentDataDetailsProps {
   subtaskIndex: number;
   subtaskTitle: string;
   isDone: boolean;
+  subtaskData?: string | null;
 }
 
 export function AgentDataDetails({ 
   subtaskIndex,
   subtaskTitle,
-  isDone
+  isDone,
+  subtaskData
 }: AgentDataDetailsProps) {
-  const stepData = getStepResultDetails(subtaskIndex);
+  // Use provided data if available, otherwise fall back to sample data
+  const stepData = subtaskData || getStepResultDetails(subtaskIndex);
+  
+  // Clean up any raw markdown syntax that might be misinterpreted
+  const cleanedStepData = stepData?.replace(/(?<![#])[#](?![#])\s*/g, '');
   
   return (
     <div className="space-y-4">
@@ -43,17 +48,177 @@ export function AgentDataDetails({
         </div>
       </Card>
       
-      {isDone && stepData && (
+      {isDone && cleanedStepData && (
         <div>
           <h3 className="text-sm font-medium mb-2">Result Data</h3>
           <Card className="p-4 overflow-auto max-h-96">
-            <pre className="text-sm whitespace-pre-wrap">{stepData}</pre>
+            <div className="text-sm">
+              <FormattedDataContent data={cleanedStepData} />
+            </div>
           </Card>
         </div>
       )}
     </div>
   );
 }
+
+// Component to format data content dynamically
+const FormattedDataContent = ({ data }: { data: string }) => {
+  if (!data) return null;
+
+  // Split the content by sections (# headers)
+  const sections = data.split(/(?=# )/g).filter(Boolean);
+
+  return (
+    <div className="space-y-6">
+      {sections.map((section, i) => (
+        <FormattedSection key={i} content={section} />
+      ))}
+    </div>
+  );
+};
+
+// Component to format a single section
+const FormattedSection = ({ content }: { content: string }) => {
+  // Extract section title and content
+  const titleMatch = content.match(/^# (.+)$/m);
+  const title = titleMatch ? titleMatch[1] : '';
+  
+  // Remove the title from content and split by subsections
+  const contentWithoutTitle = content.replace(/^# .+$/m, '').trim();
+  const subsections = contentWithoutTitle.split(/(?=## )/g).filter(Boolean);
+
+  return (
+    <div className="space-y-4">
+      {title && <h2 className="text-lg font-semibold text-gray-800">{title}</h2>}
+      
+      {subsections.map((subsection, i) => (
+        <FormattedSubsection key={i} content={subsection} />
+      ))}
+    </div>
+  );
+};
+
+// Component to format a subsection
+const FormattedSubsection = ({ content }: { content: string }) => {
+  // Extract subsection title and content
+  const titleMatch = content.match(/^## (.+)$/m);
+  const title = titleMatch ? titleMatch[1] : '';
+  
+  // Remove the title and format the content
+  let contentWithoutTitle = content.replace(/^## .+$/m, '').trim();
+  
+  // Clean up any standalone # characters that might be left
+  contentWithoutTitle = contentWithoutTitle.replace(/^\s*#\s*$/gm, '').replace(/\s+#\s*$/gm, '');
+  
+  // Check if content is a list (bullet points)
+  const isList = contentWithoutTitle.match(/^- /m);
+  
+  // Check if content looks like a price
+  const isPriceContent = title.toLowerCase().includes('price') && 
+                         contentWithoutTitle.match(/\$[\d,.]+/);
+  
+  // Check if content might be keywords
+  const isKeywords = title.toLowerCase().includes('keyword') || 
+                     contentWithoutTitle.match(/^- [a-z ]+$/m);
+                     
+  // Parse content based on type
+  return (
+    <div className="mb-4">
+      {title && (
+        <h3 className="text-base font-medium text-gray-700 mb-2">{title}</h3>
+      )}
+      
+      {/* Format based on content type */}
+      {isList ? (
+        <FormattedList content={contentWithoutTitle} 
+                       isKeywords={isKeywords} />
+      ) : isPriceContent ? (
+        <FormattedPriceContent content={contentWithoutTitle} />
+      ) : contentWithoutTitle.match(/^\d+\.\s/m) ? (
+        <FormattedNumberedList content={contentWithoutTitle} />
+      ) : (
+        <p className="text-gray-600">{contentWithoutTitle.replace(/#/g, '')}</p>
+      )}
+    </div>
+  );
+};
+
+// Format bullet point lists
+const FormattedList = ({ content, isKeywords }: { content: string, isKeywords?: boolean }) => {
+  const items = content.split('\n')
+    .filter(line => line.trim().startsWith('- '))
+    .map(line => line.replace(/^- /, '').trim().replace(/#/g, ''));
+
+  if (isKeywords) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {items.map((item, i) => (
+          <span key={i} className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-sm">
+            {item}
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <ul className="list-disc pl-5 space-y-1">
+      {items.map((item, i) => (
+        <li key={i}>{item}</li>
+      ))}
+    </ul>
+  );
+};
+
+// Format numbered lists
+const FormattedNumberedList = ({ content }: { content: string }) => {
+  const items = content.split('\n')
+    .filter(line => line.trim().match(/^\d+\.\s/))
+    .map(line => {
+      // Remove any stray hash characters
+      const cleanLine = line.replace(/#/g, '');
+      const parts = cleanLine.match(/^(\d+)\.\s(.*?)(?:\s-\s(.*))?$/);
+      if (parts) {
+        const [_, number, title, description] = parts;
+        return { number, title, description };
+      }
+      return { title: cleanLine.replace(/^\d+\.\s/, '') };
+    });
+
+  return (
+    <ol className="list-decimal pl-5 space-y-2">
+      {items.map((item, i) => (
+        <li key={i} className="p-2 bg-gray-50 rounded-md">
+          {item.title && item.description ? (
+            <>
+              <span className="font-semibold">{item.title}</span> - {item.description}
+            </>
+          ) : (
+            item.title
+          )}
+        </li>
+      ))}
+    </ol>
+  );
+};
+
+// Format price content
+const FormattedPriceContent = ({ content }: { content: string }) => {
+  // Extract price values
+  const priceMatch = content.match(/\$[\d,.]+/);
+  const price = priceMatch ? priceMatch[0] : '';
+  
+  // Clean the content to remove any stray # characters
+  const cleanContent = content.replace(/#/g, '').trim();
+  
+  return (
+    <div className="p-3 bg-blue-50 rounded-md">
+      <p className="text-xl font-bold text-[#4457ff]">{price}</p>
+      <p className="text-xs text-gray-500">{cleanContent}</p>
+    </div>
+  );
+};
 
 // Helper function to get detailed results for each step
 function getStepResultDetails(stepIndex: number): string | null {

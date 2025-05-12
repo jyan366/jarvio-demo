@@ -5,8 +5,12 @@ import { Check, Loader2 } from "lucide-react";
 import { AgentDataDetails } from "./AgentDataDetails";
 import type { Subtask } from "./AgentChatInterface";
 
+interface ExtendedSubtask extends Subtask {
+  data?: string | null;
+}
+
 interface AgentDataLogTabProps {
-  subtasks: Subtask[];
+  subtasks: ExtendedSubtask[];
   activeSubtaskIndex: number;
 }
 
@@ -63,6 +67,7 @@ export function AgentDataLogTab({ subtasks, activeSubtaskIndex }: AgentDataLogTa
           subtaskIndex={selectedSubtask}
           subtaskTitle={subtasks[selectedSubtask]?.title || ""}
           isDone={subtasks[selectedSubtask]?.done || false}
+          subtaskData={subtasks[selectedSubtask]?.data || null}
         />
       </div>
     </div>

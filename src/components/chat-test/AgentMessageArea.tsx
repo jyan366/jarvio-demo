@@ -51,10 +51,18 @@ export function AgentMessageArea({
     messageGroups.push(currentGroup);
   }
 
+  // Get step title based on step number
+  const getStepTitle = (stepNumber: number): string => {
+    if (stepNumber > 0 && stepNumber <= subtasks.length) {
+      return subtasks[stepNumber - 1]?.title || `Step ${stepNumber}`;
+    }
+    return `Step ${stepNumber}`;
+  };
+
   return (
     <div className="flex-1 overflow-hidden bg-[#fcfbf8]">
       <ScrollArea className="h-full">
-        <div className="p-2">
+        <div className="p-2 pb-4">
           {messageGroups.map((group, groupIndex) => (
             <div key={`group-${groupIndex}`}>
               {/* Agent messages */}
@@ -66,33 +74,50 @@ export function AgentMessageArea({
                     <span className="ml-1 font-bold mx-[2px] text-base text-gray-800">Jarvio</span>
                   </div>
                   {group.map(message => (
-                    <div key={message.id} className="flex mb-3 gap-1">
+                    <div key={message.id} className="flex mb-2 gap-1">
                       <div className="flex-shrink-0 w-6 self-start"></div>
                       <div className="max-w-[85%]">
                         {/* Loading execution message - "Here's what I'm about to do" */}
                         {message.isLoading && (
-                          <div className="bg-[#f5f7fa] border border-[#e6e9f0] rounded-lg p-2 mb-2 cursor-pointer" 
+                          <div className="bg-[#f5f7fa] border border-[#e6e9f0] rounded-lg p-3 mb-2 cursor-pointer transition-all duration-300 hover:bg-[#f0f4fa]" 
                                onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Loader2 className="h-3 w-3 animate-spin text-[#4457ff]" />
-                              <span>
-                                <strong>Here's what I'm about to do:</strong> {message.text || `Step ${message.stepNumber} being executed...`}
-                              </span>
+                            <div className="flex items-start gap-3">
+                              <div className="mt-1">
+                                <div className="rounded-full bg-[#eef0fe] p-1.5 flex items-center justify-center">
+                                  <Loader2 className="h-4 w-4 animate-spin text-[#4457ff]" />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="font-medium text-[#4457ff] mb-1">
+                                  {message.stepNumber ? `Step ${message.stepNumber}: ${getStepTitle(message.stepNumber)}` : 'Processing...'}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                  {message.text || 'Analyzing information...'}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         )}
                         {/* Step completion box */}
                         {message.isStepCompletion && message.stepNumber && (
-                          <div className="bg-[#f0f7f0] border border-[#e0efe0] rounded-lg p-2 mb-2 cursor-pointer" 
+                          <div className="bg-[#f0f7f0] border border-[#e0efe0] rounded-lg p-3 mb-2 cursor-pointer transition-all duration-300 hover:bg-[#e9f5e9]" 
                                onClick={() => message.stepNumber && onStepClick && onStepClick(message.stepNumber - 1)}>
-                            <div className="flex items-center gap-2 text-green-600">
-                              <CheckCircle className="h-4 w-4" />
-                              <span>Step {message.stepNumber} completed successfully</span>
+                            <div className="flex items-start gap-3">
+                              <div className="mt-1">
+                                <div className="rounded-full bg-[#e0f5e0] p-1.5 flex items-center justify-center">
+                                  <CheckCircle className="h-4 w-4 text-green-600" />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="font-medium text-green-700 mb-1">
+                                  Step {message.stepNumber} completed: {getStepTitle(message.stepNumber)}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         )}
                         {/* Regular message - Summary of what's been done - NO BORDER */}
-                        {!message.isLoading && !message.isStepCompletion && (
+                        {!message.isLoading && (!message.isStepCompletion || (message.isStepCompletion && message.text)) && (
                           <div className="p-1 mb-2 text-gray-900">
                             <div className="text-[15px]">{message.text}</div>
                           </div>
