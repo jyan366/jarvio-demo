@@ -62,7 +62,7 @@ export function AgentMessageArea({
                 <>
                   {/* Jarvio branded header at start of agent message sequence */}
                   <div className="flex items-center mb-2 text-xs text-gray-500">
-                    <img src="/logo.svg" alt="Jarvio" className="h-4 w-4 mr-1" />
+                    <img src="/lovable-uploads/08731df9-3205-441e-87a9-16f9d6a6c4d6.png" alt="Jarvio" className="w-[30px] h-auto mr-1" />
                     <span>Jarvio {group[0].timestamp.toLocaleString([], {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -74,8 +74,8 @@ export function AgentMessageArea({
                   
                   {group.map((message) => (
                     <div key={message.id} className="flex mb-4 gap-2">
-                      <div className="w-8 h-8 rounded-full bg-[#9b87f5] flex items-center justify-center mr-2 self-start mt-1 flex-shrink-0">
-                        <span className="text-sm font-semibold text-white">J</span>
+                      <div className="flex-shrink-0 w-8 self-start mt-1">
+                        {/* Removed the avatar with "J" text */}
                       </div>
                       
                       <div className="max-w-[85%]">
