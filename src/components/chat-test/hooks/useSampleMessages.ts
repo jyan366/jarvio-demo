@@ -2,35 +2,35 @@
 import { useState, useEffect } from 'react';
 import type { Message, Subtask } from "../AgentChatInterface";
 
-// Sample subtasks
+// Sample subtasks for Listing Launch Flow
 const sampleSubtasks: Subtask[] = [
-  { id: '1', title: 'Analyze top selling product', done: false },
-  { id: '2', title: 'Identify high-performing keywords', done: false },
-  { id: '3', title: 'Review competitor listings', done: false },
-  { id: '4', title: 'Generate optimization recommendations', done: false },
-  { id: '5', title: 'Implement listing changes', done: false },
+  { id: '1', title: 'Analyze market competition', done: false },
+  { id: '2', title: 'Optimize product title and bullets', done: false },
+  { id: '3', title: 'Set up pricing strategy', done: false },
+  { id: '4', title: 'Configure PPC advertising', done: false },
+  { id: '5', title: 'Finalize launch schedule', done: false },
 ];
 
-// Sample script of agent messages
+// Sample script of agent messages for Listing Launch Flow
 const agentScript = [
-  "Hi, I'm Jarvio. Let's get started on optimizing your product listings.",
-  "I've executed step 1 and found that your best selling product is the 'Ergonomic Kitchen Knife Set'. It has 4.7 stars and 1,245 reviews.",
-  "Let's continue with the next step. I'll now analyze the best performing keywords for this product.",
-  "I've executed step 2 and found the top keywords for your best selling product: 'professional knife set', 'chef knife set', 'kitchen knife set with block', and 'stainless steel knives'.",
-  "Now I'll analyze your competitors' listings to identify opportunities.",
-  "I've completed step 3. Your top competitors are 'ChefsPro', 'KitchenMaster', and 'CulinaryElite'. They use better product imagery and more detailed bullet points than your listing.",
-  "Now I'll generate optimization recommendations based on the analysis.",
-  "Step 4 complete. Here are my optimization recommendations:\n\n1. Update your main image to show the full knife set with the block\n2. Add close-up images of each knife type\n3. Incorporate the keywords 'professional knife set' and 'chef knife set' in your title\n4. Add more technical specifications about blade material and handle design\n5. Include care instructions as a selling point",
-  "Let's implement these changes to your listing.",
-  "Step 5 complete! I've updated your listing with the new title, bullets, and keyword optimization. The image updates will need to be done manually. Would you like me to provide templates for the new product description?"
+  "Hi, I'm Jarvio. Let's get started on your listing launch flow. I'll help you launch your product effectively.",
+  "I've executed step 1 and analyzed your market competition. Here are the findings:\n\n• Main competitors: GoodKnives (4.6★), KitchenElite (4.4★), ChefsPro (4.7★)\n• Average price point: $42.99\n• Key features highlighted: stainless steel, dishwasher safe, ergonomic handles\n• Common keywords: professional knife set, chef knife set, kitchen knife set",
+  "Now let's optimize your product title and bullets based on the competitive analysis.",
+  "I've executed step 2 and optimized your listing content:\n\n• New Title: 'Professional 15-Piece Kitchen Knife Set with Block | Premium Stainless Steel Chef Knives with Ergonomic Handles'\n\n• Improved Bullet Points:\n1. COMPLETE PREMIUM SET - 15-piece professional-grade knife set including chef knife, bread knife, carving knife, utility knife, paring knife, steak knives, and kitchen scissors\n2. SUPERIOR MATERIALS - Forged from high-carbon stainless steel ensuring lasting sharpness and durability\n3. COMFORT GRIP HANDLES - Ergonomically designed handles provide perfect balance and control while cutting",
+  "Now let's work on your pricing strategy based on the market analysis.",
+  "I've executed step 3 and developed your pricing strategy:\n\n• Launch Price: $39.99 (below market average to gain initial sales and reviews)\n• Post-Launch Price: $47.99 (after 30 days and 25+ reviews)\n• Coupon Strategy: 15% off coupon for first 2 weeks\n• Bundle Option: Consider creating a bundle with your cutting board at $54.99",
+  "Great! Now let's configure your PPC advertising campaign for the launch.",
+  "I've executed step 4 and set up your PPC strategy:\n\n• Day 1-7: Discovery campaign with $25/day budget targeting broad keywords\n• Day 8-21: Auto campaign at $40/day + manual campaign for top 20 converting keywords\n• Suggested Bid Range: $0.65-$1.20\n• Target ACOS: 35% during launch, 25% post-stabilization\n• Primary Keywords: professional knife set, stainless steel knives, chef knife set, kitchen knife block set",
+  "Finally, let's finalize your launch schedule for maximum impact.",
+  "I've executed step 5 and created your launch timeline:\n\n• Week 1: Soft launch with friends & family purchases + reviews\n• Week 2: Social media announcement + influencer outreach\n• Week 3: Begin email marketing campaign to existing customers\n• Week 4: Increase PPC budget by 30% + launch Amazon Posts\n• Week 5: Review performance and adjust strategy\n\nRecommended Launch Date: Tuesday, June 4th (optimal day based on category traffic)"
 ];
 
 const executeSteps = [
-  "Step 1 being executed", 
-  "Step 2 being executed", 
-  "Step 3 being executed", 
-  "Step 4 being executed", 
-  "Step 5 being executed"
+  "Step 1: Analyzing market competition...", 
+  "Step 2: Optimizing product title and bullets...", 
+  "Step 3: Setting up pricing strategy...", 
+  "Step 4: Configuring PPC advertising...", 
+  "Step 5: Finalizing launch schedule..."
 ];
 
 export function useSampleMessages() {
