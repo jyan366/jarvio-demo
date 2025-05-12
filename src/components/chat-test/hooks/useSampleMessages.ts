@@ -37,6 +37,7 @@ export function useSampleMessages() {
   const [currentMessageIndex, setCurrentMessageIndex] = useState<number>(0);
   const [subtasks, setSubtasks] = useState<Subtask[]>(sampleSubtasks);
   const [currentSubtaskIndex, setCurrentSubtaskIndex] = useState<number>(0);
+  const [isExecutingStep, setIsExecutingStep] = useState<boolean>(false);
   
   // Add a user message to the chat
   const addUserMessage = (text: string) => {
@@ -83,8 +84,9 @@ export function useSampleMessages() {
   
   // Execute the next step in the flow
   const executeNextStep = () => {
-    if (currentSubtaskIndex >= subtasks.length) return;
+    if (currentSubtaskIndex >= subtasks.length || isExecutingStep) return;
     
+    setIsExecutingStep(true);
     const stepNumber = currentSubtaskIndex + 1;
     
     // First show loading message
@@ -110,11 +112,13 @@ export function useSampleMessages() {
         // Add transition message to next step after a delay
         setTimeout(() => {
           addAgentMessage(agentScript[(currentSubtaskIndex * 2) + 1]);
+          setIsExecutingStep(false);
         }, 1000);
       } else {
         // Flow is complete
         setTimeout(() => {
           addAgentMessage("That completes the Listing Launch Strategy flow! Your product is now ready for a successful launch. Is there anything specific you'd like to review or discuss further?");
+          setIsExecutingStep(false);
         }, 1000);
       }
       
@@ -126,6 +130,7 @@ export function useSampleMessages() {
     messages,
     subtasks,
     currentSubtaskIndex,
+    isExecutingStep,
     addUserMessage,
     addAgentMessage,
     executeNextStep

@@ -30,6 +30,7 @@ export function AgentChatInterface() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabType>("chat");
   const [flowStarted, setFlowStarted] = useState<boolean>(false);
+  const [autoRunning, setAutoRunning] = useState<boolean>(false);
   const { 
     messages, 
     subtasks, 
@@ -55,6 +56,26 @@ export function AgentChatInterface() {
       }
     }
   }, [flowStarted, messages, addAgentMessage]);
+  
+  // Auto-run next steps
+  useEffect(() => {
+    let timer: number;
+    
+    if (flowStarted && autoRunning && !isLoading) {
+      // Check if we have more steps to execute
+      if (currentSubtaskIndex < subtasks.length && !subtasks[currentSubtaskIndex].done) {
+        timer = window.setTimeout(() => {
+          executeNextStep();
+        }, 2000);
+      } else {
+        setAutoRunning(false);
+      }
+    }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [flowStarted, autoRunning, isLoading, currentSubtaskIndex, subtasks, executeNextStep]);
 
   // Handle user message submission
   const handleSendMessage = async () => {
@@ -74,6 +95,7 @@ export function AgentChatInterface() {
       if (!flowStarted && (userInput.includes("yes") || userInput.includes("start") || userInput.includes("begin") || 
                           userInput.includes("go") || userInput.includes("do it"))) {
         setFlowStarted(true);
+        setAutoRunning(true);  // Start automatic progression
         addAgentMessage("Great! Let me walk you through our Listing Launch Strategy flow. I'll analyze your market, optimize your listing, set up pricing, configure advertising, and create a launch schedule.");
         
         setTimeout(() => {
@@ -83,6 +105,7 @@ export function AgentChatInterface() {
         // Continue with flow if already started
         setTimeout(() => {
           executeNextStep();
+          setAutoRunning(true);  // Resume auto-run if it was paused
         }, 1500);
       } else {
         // Generic response for other inputs
