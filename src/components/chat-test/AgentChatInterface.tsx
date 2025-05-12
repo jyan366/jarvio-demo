@@ -29,7 +29,32 @@ export function AgentChatInterface() {
   const [inputValue, setInputValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabType>("chat");
-  const { messages, subtasks, currentSubtaskIndex, addUserMessage, executeNextStep } = useSampleMessages();
+  const [flowStarted, setFlowStarted] = useState<boolean>(false);
+  const { 
+    messages, 
+    subtasks, 
+    currentSubtaskIndex, 
+    addUserMessage, 
+    addAgentMessage, 
+    executeNextStep 
+  } = useSampleMessages();
+
+  // Set up initial greeting
+  useEffect(() => {
+    if (!flowStarted && messages.length <= 1) {
+      const hasIntroMessage = messages.some(m => 
+        m.text && m.text.includes("Listing Launch Strategy") && !m.isUser
+      );
+      
+      if (!hasIntroMessage) {
+        setTimeout(() => {
+          addAgentMessage(
+            "Hi there! I'm Jarvio, your AI assistant. I can help you with your Listing Launch Strategy for Amazon products. Would you like me to walk you through the process?"
+          );
+        }, 500);
+      }
+    }
+  }, [flowStarted, messages, addAgentMessage]);
 
   // Handle user message submission
   const handleSendMessage = async () => {
@@ -39,22 +64,42 @@ export function AgentChatInterface() {
     
     // Add user message to the chat
     addUserMessage(inputValue);
+    
+    // Check for flow start trigger
+    const userInput = inputValue.toLowerCase();
     setInputValue("");
     
-    // Simulate agent response after a delay
+    // Respond based on user's message
     setTimeout(() => {
-      executeNextStep();
+      if (!flowStarted && (userInput.includes("yes") || userInput.includes("start") || userInput.includes("begin"))) {
+        setFlowStarted(true);
+        addAgentMessage("Great! Let me walk you through our Listing Launch Strategy flow. I'll analyze your market, optimize your listing, set up pricing, configure advertising, and create a launch schedule.");
+        
+        setTimeout(() => {
+          executeNextStep();
+        }, 1500);
+      } else if (flowStarted) {
+        // Continue with flow if already started
+        setTimeout(() => {
+          executeNextStep();
+        }, 1500);
+      } else {
+        // Generic response for other inputs
+        addAgentMessage("I'm here to help with your Listing Launch Strategy. Just let me know when you're ready to begin, and we'll get started with the process.");
+      }
+      
       setIsLoading(false);
-    }, 1500);
+    }, 1000);
   };
-
-  // Handle flow execution
-  const handleRunFlow = () => {
-    setIsLoading(true);
-    executeNextStep();
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+  
+  // Navigate between chat and log tabs
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+  };
+  
+  // Handle clicking on a step to view its data
+  const handleStepClick = (stepIndex: number) => {
+    setActiveTab("log");
   };
   
   return (
@@ -65,7 +110,7 @@ export function AgentChatInterface() {
         stepTitle={subtasks[currentSubtaskIndex]?.title || ""}
       />
       
-      <AgentTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <AgentTabs activeTab={activeTab} onTabChange={handleTabChange} />
       
       {activeTab === "chat" ? (
         <>
@@ -73,13 +118,13 @@ export function AgentChatInterface() {
             messages={messages} 
             subtasks={subtasks}
             activeSubtaskIndex={currentSubtaskIndex}
+            onStepClick={handleStepClick}
           />
           
           <AgentInputArea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onSubmit={handleSendMessage}
-            onRunFlow={handleRunFlow}
             disabled={isLoading}
           />
         </>

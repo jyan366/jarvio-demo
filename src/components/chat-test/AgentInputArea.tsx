@@ -2,13 +2,12 @@
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Send, PlayCircle, Loader2 } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 
 interface AgentInputAreaProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSubmit: () => void;
-  onRunFlow: () => void;
   disabled?: boolean;
 }
 
@@ -16,7 +15,6 @@ export function AgentInputArea({
   value,
   onChange,
   onSubmit,
-  onRunFlow,
   disabled = false
 }: AgentInputAreaProps) {
   // Handle keyboard events
@@ -54,16 +52,6 @@ export function AgentInputArea({
             <Send className="h-4 w-4" />
           )}
           <span className="sr-only">Send</span>
-        </Button>
-        
-        <Button
-          onClick={onRunFlow}
-          variant="outline"
-          className="self-end ml-1 border-[#9b87f5]/30 text-[#9b87f5] hover:bg-[#9b87f5]/10"
-          disabled={disabled}
-        >
-          <PlayCircle className="h-4 w-4 mr-1" />
-          Run Flow
         </Button>
       </div>
     </div>
