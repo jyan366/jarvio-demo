@@ -3,11 +3,10 @@ import React, { useState } from 'react';
 import { CheckIcon, PlusIcon, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
 import { FlowBlockComponent } from '@/components/jarvi-flows/builder/FlowBlockComponent';
 import { v4 as uuidv4 } from 'uuid';
-import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
+import { BlockCategory } from '@/data/flowBlockOptions';
 
 interface Props {
   blocks: FlowBlock[];
@@ -22,24 +21,20 @@ export function FlowBlocksList({
   handleAgentSelection,
   availableBlockOptions 
 }: Props) {
-  const [blockType, setBlockType] = useState<BlockCategory>('collect');
-
-  // Use availableBlockOptions if provided, otherwise fall back to flowBlockOptions
-  const getBlockOptions = (type: BlockCategory): string[] => {
-    if (availableBlockOptions && availableBlockOptions[type] && availableBlockOptions[type].length > 0) {
-      return availableBlockOptions[type];
-    }
-    // Fall back to default flowBlockOptions
-    return flowBlockOptions[type];
-  };
-
-  const addBlock = (type: BlockCategory, option: string) => {
-    // Create a descriptive name based on the block type and option
-    const name = getDescriptiveBlockName(type, option);
+  // Create a simplified function to add a block directly from category
+  const addBlockFromCategory = (type: BlockCategory) => {
+    // Create a descriptive name based on the block type
+    const name = `New ${type.charAt(0).toUpperCase() + type.slice(1)} Block`;
+    
+    // Get default option for this block type
+    const defaultOption = availableBlockOptions?.[type]?.[0] || 
+                         (type === 'collect' ? 'User Text' : 
+                          type === 'think' ? 'Basic AI Analysis' : 
+                          type === 'act' ? 'AI Summary' : 'Agent');
     
     setBlocks([
       ...blocks, 
-      { id: uuidv4(), type, option, name }
+      { id: uuidv4(), type, option: defaultOption, name }
     ]);
   };
   
@@ -78,82 +73,28 @@ export function FlowBlocksList({
   const updateBlockOption = (blockId: string, option: string) => {
     updateBlock(blockId, { option });
   };
-  
-  // Helper function for descriptive block names
-  const getDescriptiveBlockName = (type: string, option: string): string => {
-    const contextualNaming: Record<string, Record<string, string>> = {
-      collect: {
-        'User Text': 'Collect Product Details from User',
-        'Upload Sheet': 'Import Product Data Spreadsheet',
-        'All Listing Info': 'Fetch Complete Amazon Listing Data',
-        'Get Keywords': 'Research High-Converting Keywords',
-        'Estimate Sales': 'Generate Product Sales Forecast',
-        'Review Information': 'Gather Customer Product Reviews',
-        'Scrape Sheet': 'Extract Data from Inventory Sheet',
-        'Seller Account Feedback': 'Collect Seller Performance Metrics',
-        'Email Parsing': 'Extract Data from Supplier Emails'
-      },
-      think: {
-        'Basic AI Analysis': 'Analyze Market Positioning Data',
-        'Listing Analysis': 'Identify Listing Optimization Opportunities',
-        'Insights Generation': 'Generate Strategic Marketing Insights',
-        'Review Analysis': 'Process Customer Feedback Trends'
-      },
-      act: {
-        'AI Summary': 'Create Comprehensive Action Report',
-        'Push to Amazon': 'Update Amazon Product Listings',
-        'Send Email': 'Distribute Weekly Performance Report',
-        'Human in the Loop': 'Request Manager Approval for Changes',
-        'Agent': 'Assign Specialized Agent for Task'
-      },
-      agent: {
-        'Agent': 'Use AI Agent for Specialized Task'
-      }
-    };
-
-    return contextualNaming[type]?.[option] || `${type.charAt(0).toUpperCase() + type.slice(1)} ${option}`;
-  };
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold mb-4">Flow Blocks</h2>
         
-        {/* Add Block Section */}
+        {/* Simplified Block Category Selection */}
         <Card className="mb-6">
           <CardContent className="p-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <Select 
-                value={blockType}
-                onValueChange={(value) => setBlockType(value as BlockCategory)}
-              >
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="collect">Collect</SelectItem>
-                  <SelectItem value="think">Think</SelectItem>
-                  <SelectItem value="act">Act</SelectItem>
-                  <SelectItem value="agent">Agent</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <div className="flex-1 overflow-x-auto whitespace-nowrap pb-2">
-                <div className="inline-flex gap-2">
-                  {getBlockOptions(blockType).map((option) => (
-                    <Button
-                      key={option}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addBlock(blockType, option)}
-                      className="min-w-fit"
-                    >
-                      <PlusIcon className="mr-1 h-4 w-4" /> 
-                      {option}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+            <div className="flex flex-wrap gap-3 justify-between">
+              {(['collect', 'think', 'act', 'agent'] as BlockCategory[]).map((category) => (
+                <Button
+                  key={category}
+                  variant="outline"
+                  size="lg"
+                  onClick={() => addBlockFromCategory(category)}
+                  className="flex-1 py-6 text-lg capitalize"
+                >
+                  <PlusIcon className="mr-2 h-5 w-5" /> 
+                  {category}
+                </Button>
+              ))}
             </div>
           </CardContent>
         </Card>
