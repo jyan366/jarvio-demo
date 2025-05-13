@@ -112,15 +112,15 @@ const FormattedSubsection = ({ content }: { content: string }) => {
   contentWithoutTitle = contentWithoutTitle.replace(/^\s*#\s*$/gm, '').replace(/\s+#\s*$/gm, '');
   
   // Check if content is a list (bullet points)
-  const isList = contentWithoutTitle.match(/^- /m);
+  const isList = contentWithoutTitle.match(/^- /m) !== null;
   
   // Check if content looks like a price
   const isPriceContent = title.toLowerCase().includes('price') && 
-                         contentWithoutTitle.match(/\$[\d,.]+/);
+                         contentWithoutTitle.match(/\$[\d,.]+/) !== null;
   
   // Check if content might be keywords
   const isKeywords = title.toLowerCase().includes('keyword') || 
-                     contentWithoutTitle.match(/^- [a-z ]+$/m);
+                     contentWithoutTitle.match(/^- [a-z ]+$/m) !== null;
                      
   // Parse content based on type
   return (
@@ -135,7 +135,7 @@ const FormattedSubsection = ({ content }: { content: string }) => {
                        isKeywords={isKeywords} />
       ) : isPriceContent ? (
         <FormattedPriceContent content={contentWithoutTitle} />
-      ) : contentWithoutTitle.match(/^\d+\.\s/m) ? (
+      ) : contentWithoutTitle.match(/^\d+\.\s/m) !== null ? (
         <FormattedNumberedList content={contentWithoutTitle} />
       ) : (
         <p className="text-gray-600">{contentWithoutTitle.replace(/#/g, '')}</p>
