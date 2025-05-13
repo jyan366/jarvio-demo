@@ -19,6 +19,8 @@ import { useNavigate } from 'react-router-dom';
 import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 import { ProcessBuilder } from '@/components/ads/ProcessBuilder';
 import { BestSellersRestockProcess } from '@/components/inventory/BestSellersRestockProcess';
+import { TaskPrioritizationBox } from '@/components/action-studio/TaskPrioritizationBox';
+import { useToast } from '@/hooks/use-toast';
 
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
 
@@ -29,6 +31,12 @@ export default function ActionStudio() {
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [isRestockProcessOpen, setIsRestockProcessOpen] = useState(false);
   const [isProcessBuilderOpen, setIsProcessBuilderOpen] = useState(false);
+  const [showPrioritizationBox, setShowPrioritizationBox] = useState(true);
+  const { toast } = useToast();
+
+  const handlePrioritizationSubmit = () => {
+    setShowPrioritizationBox(false);
+  };
 
   return (
     <MainLayout>
@@ -85,6 +93,10 @@ export default function ActionStudio() {
         )}
 
         <div className="space-y-6">
+          {showPrioritizationBox && (
+            <TaskPrioritizationBox onSubmit={handlePrioritizationSubmit} />
+          )}
+          
           <SuggestedTasksSection />
 
           <div className="flex flex-col space-y-4">
