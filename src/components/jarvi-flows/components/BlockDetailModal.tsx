@@ -682,8 +682,7 @@ export function BlockDetailModal({
   const renderActBlockContent = () => {
     switch (selectedBlock.name) {
       case 'Push to Amazon':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               We've already connected to your Amazon Seller Central account. Now you can use any SP-API endpoint to update your listings - just enter the endpoint URL and configure your updates in real-time.
             </p>
@@ -697,7 +696,7 @@ export function BlockDetailModal({
                 </li>
                 <li className="flex items-start">
                   <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">2</span>
-                  Configure your update parameters and data
+                  Configure your update parameters and payload data
                 </li>
                 <li className="flex items-start">
                   <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">3</span>
@@ -705,7 +704,7 @@ export function BlockDetailModal({
                 </li>
                 <li className="flex items-start">
                   <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">4</span>
-                  Discover new endpoints and get a month of Jarvio for free!
+                  Execute the update and share new discoveries with us
                 </li>
               </ul>
             </div>
@@ -715,15 +714,15 @@ export function BlockDetailModal({
               <ul className="text-gray-600 space-y-2">
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  /listings/2021-08-01/items - Update listing content
+                  /listings/2021-08-01/items - Update listing content and attributes
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  {"/listings/2021-08-01/items/{sku}/images"} - Manage product images
+                  {"/listings/2021-08-01/items/{sku}/images"} - Upload and manage product images
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  /fba/inventory/v1/items - Update inventory quantities
+                  /fba/inventory/v1/items - Update inventory quantities and settings
                 </li>
               </ul>
             </div>
@@ -733,16 +732,15 @@ export function BlockDetailModal({
               <ul className="text-gray-600 space-y-2">
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Technical users who need precise control over their updates
+                  Technical users who need precise control over their listing updates
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Discovering new update capabilities before we build dedicated blocks
+                  Exploring new update capabilities before we build dedicated blocks
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Slack Message from Jarvio':
         return (
           <div className="space-y-6">
