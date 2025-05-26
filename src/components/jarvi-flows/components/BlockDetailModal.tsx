@@ -435,7 +435,7 @@ export function BlockDetailModal({
               <ul className="text-gray-600 space-y-2">
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>get_task</strong> - View detailed information about specific tasks, including attachments
+                  <strong>View detailed task information</strong> - Access comprehensive task details, including attachments and all related data
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
@@ -831,27 +831,27 @@ export function BlockDetailModal({
               <ul className="text-gray-600 space-y-2">
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>create_folder</strong> - Add new folders to organize your workspace
+                  <strong>Add new folders</strong> - Create folders to organize your workspace
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>create_list</strong> - Add new lists to folders for better organization
+                  <strong>Add new lists</strong> - Create lists within folders for better organization
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>create_task</strong> - Create new tasks with full customization
+                  <strong>Create new tasks</strong> - Generate tasks with full customization options
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>create_task_comment</strong> - Add comments to existing tasks
+                  <strong>Add task comments</strong> - Leave comments on existing tasks for collaboration
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>update_task</strong> - Modify existing tasks with new information
+                  <strong>Update existing tasks</strong> - Modify tasks with new information and status changes
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>delete_task</strong> - Remove tasks from your workspace
+                  <strong>Delete tasks</strong> - Remove completed or unnecessary tasks from your workspace
                 </li>
               </ul>
             </div>
