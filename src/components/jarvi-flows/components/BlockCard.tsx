@@ -69,6 +69,11 @@ export function BlockCard({
             <Badge variant="secondary" className="text-xs capitalize">
               {selectedCategory}
             </Badge>
+            {block.name === 'Pull from Amazon' && (
+              <Badge variant="outline" className="text-xs text-purple-600 border-purple-300">
+                Nerd Mode
+              </Badge>
+            )}
           </div>
           
           <Button
