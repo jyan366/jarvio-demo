@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { HeroSection } from '@/components/jarvi-flows/HeroSection';
 import { FlowsSection } from '@/components/jarvi-flows/FlowsSection';
 import { FlowTemplatesSection } from '@/components/jarvi-flows/FlowTemplatesSection';
+import { MyBlocksSection } from '@/components/jarvi-flows/MyBlocksSection';
 import { Flow } from '@/components/jarvi-flows/FlowsGrid';
 import { 
   AlertDialog,
@@ -271,9 +271,10 @@ export default function JarviFlows() {
 
         {/* Flows Section with Tabs */}
         <Tabs defaultValue="your-flows" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg">
             <TabsTrigger value="your-flows">Your Flows</TabsTrigger>
             <TabsTrigger value="flow-templates">Flow Templates</TabsTrigger>
+            <TabsTrigger value="my-blocks">My Blocks</TabsTrigger>
           </TabsList>
           
           <TabsContent value="your-flows">
@@ -291,6 +292,10 @@ export default function JarviFlows() {
           
           <TabsContent value="flow-templates">
             <FlowTemplatesSection />
+          </TabsContent>
+          
+          <TabsContent value="my-blocks">
+            <MyBlocksSection />
           </TabsContent>
         </Tabs>
       </div>
