@@ -1,17 +1,9 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { Block } from '../types/blockTypes';
-
 interface BlockDetailModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -20,7 +12,6 @@ interface BlockDetailModalProps {
   onServiceConnection: (service: string) => void;
   onActivateBlock: (blockName: string) => void;
 }
-
 export function BlockDetailModal({
   isOpen,
   onOpenChange,
@@ -32,8 +23,7 @@ export function BlockDetailModal({
   if (!selectedBlock) return null;
 
   // Default everything to connected and activated
-  const isConnected = selectedBlock.needsConnection ? 
-    (connectedServices[selectedBlock.connectionService!] ?? true) : true;
+  const isConnected = selectedBlock.needsConnection ? connectedServices[selectedBlock.connectionService!] ?? true : true;
   const isActivated = true; // Default to activated
 
   // Get the current category for this block
@@ -47,24 +37,16 @@ export function BlockDetailModal({
     }
     return 'act';
   };
-
   const currentCategory = getCurrentCategory();
-
   const renderCollectBlockContent = () => {
     switch (selectedBlock.name) {
       case 'Pull from Amazon':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               We've already connected to your Amazon Seller Central account. Now you can access any SP-API endpoint directly - just enter the endpoint URL and test your queries in real-time.
             </p>
             
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
-              <h4 className="font-semibold text-purple-900 mb-2">🎁 Bounty Program</h4>
-              <p className="text-purple-800 text-sm">
-                Discover an endpoint we don't have? Test it successfully and we'll give you a <strong>free month of Jarvio</strong>! We're always looking to expand our API coverage.
-              </p>
-            </div>
+            
 
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">How It Works:</h4>
@@ -103,14 +85,8 @@ export function BlockDetailModal({
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   /catalog/v0/items - Product catalog information
                 </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  /finances/v0/financialEvents - Financial transaction data
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  /reports/2021-06-30/reports - Custom report generation
-                </li>
+                
+                
               </ul>
             </div>
             
@@ -121,25 +97,17 @@ export function BlockDetailModal({
                   <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   Technical users who know exactly what data they need
                 </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Advanced reporting and custom data extraction
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Accessing the latest Amazon SP-API endpoints
-                </li>
+                
+                
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   Exploring new data sources before we build dedicated blocks
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Amazon Sales Summary':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Pull comprehensive Amazon sales data over a defined period for analysis and reporting.
             </p>
@@ -185,11 +153,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Amazon Inventory Summary':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Get real-time inventory levels and automated restock recommendations from Amazon Seller Central.
             </p>
@@ -218,11 +184,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Amazon Listing Summary':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Extract complete listing content from Amazon for optimization and competitive analysis.
             </p>
@@ -255,11 +219,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Amazon Customer Reviews Summary':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Collect and analyze customer reviews from Amazon product pages for sentiment analysis.
             </p>
@@ -301,11 +263,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Scrape Shopify Product Pages':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Extract product information from any public Shopify store without requiring API access.
             </p>
@@ -334,11 +294,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Scrape Competitor Amazon Listings':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Monitor competitor products by providing their ASINs or Amazon URLs for competitive intelligence.
             </p>
@@ -371,11 +329,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Link Google Sheet':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Connect your Google account to access live data from any Google Sheet in your workflows.
             </p>
@@ -400,11 +356,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Upload Sheet':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Upload spreadsheet files containing your data for use in workflows and analysis.
             </p>
@@ -446,11 +400,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Scrape Website':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Extract specific content from any publicly accessible website using URLs and CSS selectors.
             </p>
@@ -475,11 +427,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Pull ClickUp Tasks':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Connect your ClickUp account to retrieve tasks, projects, and team data with customizable filters.
             </p>
@@ -529,24 +479,19 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       default:
-        return (
-          <div className="space-y-4">
+        return <div className="space-y-4">
             <p className="text-gray-600 leading-relaxed">
               {selectedBlock.description}
             </p>
-          </div>
-        );
+          </div>;
     }
   };
-
   const renderThinkBlockContent = () => {
     switch (selectedBlock.name) {
       case 'AI Analysis':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Leverage advanced AI to analyze your data using natural language queries and generate detailed insights, trends, and actionable recommendations.
             </p>
@@ -584,11 +529,9 @@ export function BlockDetailModal({
                 </li>
               </ul>
             </div>
-          </div>
-        );
+          </div>;
       case 'Estimate ASIN Sales':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Analyze any Amazon ASIN to estimate monthly unit sales, revenue, and market performance using proprietary algorithms and category benchmarks.
             </p>
@@ -625,11 +568,9 @@ export function BlockDetailModal({
                 <em>Without these blocks, you'll need to manually input the ASINs to analyze.</em>
               </p>
             </div>
-          </div>
-        );
+          </div>;
       case 'Listing Quality Audit':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Comprehensive audit that scores your Amazon listings across optimization factors with specific recommendations for improvement.
             </p>
@@ -662,11 +603,9 @@ export function BlockDetailModal({
                 <em>Without these blocks, you'll need to manually provide listing content and ASINs.</em>
               </p>
             </div>
-          </div>
-        );
+          </div>;
       case 'Review Sentiment Analysis':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Advanced sentiment analysis that processes customer reviews to identify recurring themes, product issues, and improvement opportunities.
             </p>
@@ -699,11 +638,9 @@ export function BlockDetailModal({
                 <em>Without these blocks, you'll need to manually input review text and product information.</em>
               </p>
             </div>
-          </div>
-        );
+          </div>;
       case 'Summary Message':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
               Transform complex data sets and analysis results into clear, professional summaries tailored for different audiences.
             </p>
@@ -736,19 +673,15 @@ export function BlockDetailModal({
                 <em>This block works best when placed after other analysis blocks in your workflow.</em>
               </p>
             </div>
-          </div>
-        );
+          </div>;
       default:
-        return (
-          <div className="space-y-4">
+        return <div className="space-y-4">
             <p className="text-gray-600 leading-relaxed">
               {selectedBlock.description}
             </p>
-          </div>
-        );
+          </div>;
     }
   };
-
   const renderBlockContent = () => {
     if (currentCategory === 'collect') {
       return renderCollectBlockContent();
@@ -759,48 +692,30 @@ export function BlockDetailModal({
       const formatDescription = (description: string) => {
         const sentences = description.split('. ');
         const paragraphs = [];
-        
         for (let i = 0; i < sentences.length; i += 2) {
           const paragraph = sentences.slice(i, i + 2).join('. ') + (i + 2 < sentences.length ? '.' : '');
           paragraphs.push(paragraph);
         }
-        
         return paragraphs;
       };
-
       const descriptionParagraphs = formatDescription(selectedBlock.description);
-
-      return (
-        <div className="space-y-4">
-          {descriptionParagraphs.map((paragraph, index) => (
-            <p key={index} className="text-gray-600 leading-relaxed">
+      return <div className="space-y-4">
+          {descriptionParagraphs.map((paragraph, index) => <p key={index} className="text-gray-600 leading-relaxed">
               {paragraph}
-            </p>
-          ))}
-        </div>
-      );
+            </p>)}
+        </div>;
     }
   };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+  return <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="pb-4">
           <div className="flex items-start space-x-6">
             <div className="flex-shrink-0">
-              {selectedBlock.logo ? (
-                <div className="w-20 h-20 rounded-xl bg-gray-50 flex items-center justify-center p-4">
-                  <img 
-                    src={selectedBlock.logo} 
-                    alt={`${selectedBlock.name} logo`}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              ) : (
-                <div className="w-20 h-20 rounded-xl bg-gray-100 flex items-center justify-center">
+              {selectedBlock.logo ? <div className="w-20 h-20 rounded-xl bg-gray-50 flex items-center justify-center p-4">
+                  <img src={selectedBlock.logo} alt={`${selectedBlock.name} logo`} className="w-full h-full object-contain" />
+                </div> : <div className="w-20 h-20 rounded-xl bg-gray-100 flex items-center justify-center">
                   <selectedBlock.icon className="h-10 w-10 text-gray-700" />
-                </div>
-              )}
+                </div>}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
@@ -808,11 +723,9 @@ export function BlockDetailModal({
                   {selectedBlock.name}
                 </DialogTitle>
                 <div className="flex items-center gap-2">
-                  {selectedBlock.name === 'Pull from Amazon' && (
-                    <Badge variant="purple" className="flex-shrink-0">
+                  {selectedBlock.name === 'Pull from Amazon' && <Badge variant="purple" className="flex-shrink-0">
                       Nerd Mode
-                    </Badge>
-                  )}
+                    </Badge>}
                   <Badge variant="default" className="bg-gray-900 text-white flex-shrink-0">
                     <Check className="w-3 h-3 mr-1" />
                     Activated
@@ -832,24 +745,16 @@ export function BlockDetailModal({
 
         <DialogFooter className="pt-6 border-t">
           <div className="flex w-full gap-3">
-            <Button 
-              variant="outline"
-              className="flex-1 h-11"
-              disabled
-            >
+            <Button variant="outline" className="flex-1 h-11" disabled>
               <Check className="w-4 h-4 mr-2" />
               Connected
             </Button>
-            <Button 
-              className="flex-1 h-11 bg-gray-900 hover:bg-gray-800"
-              disabled
-            >
+            <Button className="flex-1 h-11 bg-gray-900 hover:bg-gray-800" disabled>
               <Check className="w-4 h-4 mr-2" />
               Activated
             </Button>
           </div>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 }
