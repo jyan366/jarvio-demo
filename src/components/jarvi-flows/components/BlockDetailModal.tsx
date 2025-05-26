@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -492,7 +491,7 @@ export function BlockDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="pb-4">
+        <DialogHeader className="pb-4 pr-8">
           <div className="flex items-start space-x-6">
             <div className="flex-shrink-0">
               {selectedBlock.logo ? (
@@ -510,11 +509,11 @@ export function BlockDetailModal({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between mb-2">
-                <DialogTitle className="text-xl font-semibold text-gray-900 pr-4">
+              <div className="flex items-start justify-between mb-2 pr-4">
+                <DialogTitle className="text-xl font-semibold text-gray-900">
                   {selectedBlock.name}
                 </DialogTitle>
-                <Badge variant="default" className="bg-gray-900 text-white flex-shrink-0">
+                <Badge variant="default" className="bg-gray-900 text-white flex-shrink-0 ml-4">
                   <Check className="w-3 h-3 mr-1" />
                   Activated
                 </Badge>
