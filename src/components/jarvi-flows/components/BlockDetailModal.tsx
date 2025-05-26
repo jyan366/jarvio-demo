@@ -40,6 +40,7 @@ export function BlockDetailModal({
     return 'act';
   };
   const currentCategory = getCurrentCategory();
+
   const renderCollectBlockContent = () => {
     switch (selectedBlock.name) {
       case 'Pull from Amazon':
@@ -678,6 +679,281 @@ export function BlockDetailModal({
           </div>;
     }
   };
+  const renderActBlockContent = () => {
+    switch (selectedBlock.name) {
+      case 'Push to Amazon':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              We've already connected to your Amazon Seller Central account. Now you can use any SP-API endpoint to update your listings - just enter the endpoint URL and configure your updates in real-time.
+            </p>
+            
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">How It Works:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">1</span>
+                  Enter any SP-API endpoint URL (e.g., /listings/2021-08-01/items)
+                </li>
+                <li className="flex items-start">
+                  <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">2</span>
+                  Configure your update parameters and data
+                </li>
+                <li className="flex items-start">
+                  <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">3</span>
+                  Test your update and preview changes before publishing
+                </li>
+                <li className="flex items-start">
+                  <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">4</span>
+                  Discover new endpoints and get a month of Jarvio for free!
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Popular Endpoints to Try:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  /listings/2021-08-01/items - Update listing content
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  /listings/2021-08-01/items/{sku}/images - Manage product images
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  /fba/inventory/v1/items - Update inventory quantities
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Perfect For:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Technical users who need precise control over their updates
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Discovering new update capabilities before we build dedicated blocks
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 'Slack Message from Jarvio':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Automatically send formatted messages, alerts, and reports to designated Slack channels or direct messages.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Features:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Rich formatting and mentions
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Data visualizations and attachments
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Automated notifications and alerts
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 'Slack Message (sent by user)':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Create and send custom Slack messages with your approval before sending.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Features:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Human oversight before sending
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Custom message composition
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Channel and recipient selection
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 'Send Email':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Send professional emails with insights, reports, and alerts to team members and stakeholders.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Features:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Rich HTML formatting
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Data tables and charts
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  File attachments
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 'Create ClickUp Task':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Automatically create tasks in your ClickUp workspace based on workflow triggers and data insights.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Features:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Custom task titles and descriptions
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Assignee and due date configuration
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Priority levels and custom fields
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 'Create Jarvio Task':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Generate internal tasks within the Jarvio platform for tracking follow-up actions and optimization opportunities.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Features:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Detailed descriptions and priority levels
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Due dates and accountability tracking
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Links to related insights and data
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 'Create PDF':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Generate professional, branded PDF documents from your workflow data and analysis results.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Features:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Professional branding and templates
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Data visualizations and tables
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Custom layouts and formatting
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 'Create Word':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Generate Microsoft Word-compatible documents with professional formatting, tables, and charts.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Features:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Custom templates and formatting
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Headers, footers, and consistent styling
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Editable in Microsoft Word
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 'Create Excel Sheet':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Export your workflow data into fully-formatted Excel spreadsheets with multiple sheets and advanced features.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Features:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Multiple sheets and formulas
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Charts and pivot tables
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Conditional formatting and data validation
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div className="space-y-4">
+            <p className="text-gray-600 leading-relaxed">
+              {selectedBlock.description}
+            </p>
+          </div>
+        );
+    }
+  };
+
   const renderBlockContent = () => {
     if (currentCategory === 'collect') {
       return renderCollectBlockContent();
@@ -687,7 +963,9 @@ export function BlockDetailModal({
       return renderActBlockContent();
     }
   };
-  return <Dialog open={isOpen} onOpenChange={onOpenChange}>
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="pb-4">
           <div className="flex items-start space-x-6">
@@ -737,5 +1015,6 @@ export function BlockDetailModal({
           </div>
         </DialogFooter>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 }
