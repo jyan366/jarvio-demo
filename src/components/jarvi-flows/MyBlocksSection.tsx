@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -257,7 +256,6 @@ export function MyBlocksSection() {
                     <Switch
                       checked={isActive}
                       onCheckedChange={() => handleBlockToggle(block.name)}
-                      size="sm"
                     />
                   </div>
                 </div>
