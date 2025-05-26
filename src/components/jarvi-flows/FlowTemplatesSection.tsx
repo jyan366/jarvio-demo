@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,8 +9,8 @@ import { Badge } from '@/components/ui/badge';
 // Enhanced flow templates with community feel
 const flowTemplates = [
   {
-    id: 'john-performance-summary-email',
-    name: "John's Performance Summary Flow",
+    id: 'weekly-performance-summary',
+    name: "Weekly Performance Dashboard",
     description: 'Automated weekly performance reports with sales metrics, inventory alerts, and competitor insights delivered straight to your inbox',
     steps: 4,
     trigger: 'Scheduled',
@@ -21,8 +20,8 @@ const flowTemplates = [
     difficulty: 'Beginner'
   },
   {
-    id: 'sarah-inventory-restock-alert',
-    name: "Sarah's Smart Restock System",
+    id: 'smart-restock-alerts',
+    name: "30-Day Stockout Predictor",
     description: 'AI-powered inventory monitoring that predicts stockouts 30 days in advance and automatically creates purchase orders',
     steps: 6,
     trigger: 'Event',
@@ -32,8 +31,8 @@ const flowTemplates = [
     difficulty: 'Intermediate'
   },
   {
-    id: 'mike-competitor-price-monitoring',
-    name: "Mike's Price Intelligence Flow",
+    id: 'dynamic-repricing-engine',
+    name: "Dynamic Repricing Engine",
     description: 'Real-time competitor price tracking with automatic repricing suggestions and profit margin protection',
     steps: 5,
     trigger: 'Scheduled',
@@ -43,9 +42,9 @@ const flowTemplates = [
     difficulty: 'Advanced'
   },
   {
-    id: 'emma-keyword-optimization',
-    name: "Emma's Keyword Goldmine",
-    description: 'Daily keyword discovery and ranking optimization flow that finds hidden search terms and updates listings automatically',
+    id: 'keyword-discovery-machine',
+    name: "Keyword Discovery Machine",
+    description: 'Daily keyword discovery and ranking optimization that finds hidden search terms and updates listings automatically',
     steps: 7,
     trigger: 'Scheduled',
     author: 'Emma Rodriguez',
@@ -54,8 +53,8 @@ const flowTemplates = [
     difficulty: 'Intermediate'
   },
   {
-    id: 'alex-review-response-automation',
-    name: "Alex's Review Management Pro",
+    id: 'review-response-automation',
+    name: "Auto Review Response",
     description: 'Intelligent review monitoring with AI-generated responses for negative reviews and thank you messages for positive ones',
     steps: 4,
     trigger: 'Event',
@@ -65,9 +64,9 @@ const flowTemplates = [
     difficulty: 'Beginner'
   },
   {
-    id: 'lisa-ppc-optimization',
-    name: "Lisa's PPC Performance Booster",
-    description: 'Advanced advertising optimization flow that adjusts bids, pauses underperforming keywords, and scales winning campaigns',
+    id: 'ppc-bid-optimizer',
+    name: "PPC Bid Optimizer",
+    description: 'Advanced advertising optimization that adjusts bids, pauses underperforming keywords, and scales winning campaigns',
     steps: 8,
     trigger: 'Scheduled',
     author: 'Lisa Wang',
@@ -76,8 +75,8 @@ const flowTemplates = [
     difficulty: 'Advanced'
   },
   {
-    id: 'david-listing-health-check',
-    name: "David's Listing Health Monitor",
+    id: 'listing-compliance-checker',
+    name: "Listing Compliance Checker",
     description: 'Comprehensive listing audit that checks for policy violations, missing images, and optimization opportunities',
     steps: 5,
     trigger: 'Manual',
@@ -87,8 +86,8 @@ const flowTemplates = [
     difficulty: 'Beginner'
   },
   {
-    id: 'maria-supplier-communication',
-    name: "Maria's Supplier Sync Flow",
+    id: 'supplier-sync-automation',
+    name: "Supplier Sync Automation",
     description: 'Automated supplier communication system that sends inventory forecasts and handles reorder notifications',
     steps: 6,
     trigger: 'Scheduled',
