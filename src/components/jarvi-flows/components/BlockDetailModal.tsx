@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { Block } from '../types/blockTypes';
+
 interface BlockDetailModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -12,6 +13,7 @@ interface BlockDetailModalProps {
   onServiceConnection: (service: string) => void;
   onActivateBlock: (blockName: string) => void;
 }
+
 export function BlockDetailModal({
   isOpen,
   onOpenChange,
@@ -46,8 +48,6 @@ export function BlockDetailModal({
               We've already connected to your Amazon Seller Central account. Now you can access any SP-API endpoint directly - just enter the endpoint URL and test your queries in real-time.
             </p>
             
-            
-
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">How It Works:</h4>
               <ul className="text-gray-600 space-y-2">
@@ -85,8 +85,6 @@ export function BlockDetailModal({
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   /catalog/v0/items - Product catalog information
                 </li>
-                
-                
               </ul>
             </div>
             
@@ -97,8 +95,6 @@ export function BlockDetailModal({
                   <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   Technical users who know exactly what data they need
                 </li>
-                
-                
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   Exploring new data sources before we build dedicated blocks
@@ -688,22 +684,7 @@ export function BlockDetailModal({
     } else if (currentCategory === 'think') {
       return renderThinkBlockContent();
     } else {
-      // For act blocks, keep the paragraph format but make it more readable
-      const formatDescription = (description: string) => {
-        const sentences = description.split('. ');
-        const paragraphs = [];
-        for (let i = 0; i < sentences.length; i += 2) {
-          const paragraph = sentences.slice(i, i + 2).join('. ') + (i + 2 < sentences.length ? '.' : '');
-          paragraphs.push(paragraph);
-        }
-        return paragraphs;
-      };
-      const descriptionParagraphs = formatDescription(selectedBlock.description);
-      return <div className="space-y-4">
-          {descriptionParagraphs.map((paragraph, index) => <p key={index} className="text-gray-600 leading-relaxed">
-              {paragraph}
-            </p>)}
-        </div>;
+      return renderActBlockContent();
     }
   };
   return <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -723,7 +704,7 @@ export function BlockDetailModal({
                   {selectedBlock.name}
                 </DialogTitle>
                 <div className="flex items-center gap-2">
-                  {selectedBlock.name === 'Pull from Amazon' && <Badge variant="purple" className="flex-shrink-0">
+                  {(selectedBlock.name === 'Pull from Amazon' || selectedBlock.name === 'Push to Amazon') && <Badge variant="purple" className="flex-shrink-0">
                       Nerd Mode
                     </Badge>}
                   <Badge variant="default" className="bg-gray-900 text-white flex-shrink-0">

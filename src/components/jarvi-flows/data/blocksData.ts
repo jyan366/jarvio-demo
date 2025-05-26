@@ -177,6 +177,15 @@ export const blocksData: BlocksData = {
   ],
   act: [
     {
+      name: 'Push to Amazon',
+      summary: 'Directly update Amazon listings via any SP-API endpoint.',
+      description: 'Directly update your Amazon listings with optimized content, pricing changes, or inventory adjustments via Amazon\'s API. You can update titles, bullet points, descriptions, keywords, prices, and images. All changes are reviewed before publishing, and the block provides confirmation of successful updates and any errors encountered.',
+      icon: Upload,
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
+      needsConnection: false,
+      connectionService: null
+    },
+    {
       name: 'Slack Message from Jarvio',
       summary: 'Send a message to Slack automatically.',
       description: 'Automatically send formatted messages, alerts, and reports to designated Slack channels or direct messages. Perfect for automated notifications about inventory levels, sales milestones, review alerts, or workflow completion updates. Supports rich formatting, mentions, and can include data visualizations or file attachments.',
@@ -245,15 +254,6 @@ export const blocksData: BlocksData = {
       description: 'Export your workflow data into fully-formatted Excel spreadsheets with multiple sheets, formulas, charts, and pivot tables. Perfect for detailed data analysis, sharing with stakeholders who prefer Excel, or creating templates for ongoing data management. Supports custom formatting, conditional formatting, and data validation.',
       icon: FileSpreadsheet,
       logo: '/lovable-uploads/5fa4f5f1-47ba-4810-8a90-321e78f598de.png',
-      needsConnection: false,
-      connectionService: null
-    },
-    {
-      name: 'Push to Amazon',
-      summary: 'Update product content or pricing on Amazon.',
-      description: 'Directly update your Amazon listings with optimized content, pricing changes, or inventory adjustments via Amazon\'s API. You can update titles, bullet points, descriptions, keywords, prices, and images. All changes are reviewed before publishing, and the block provides confirmation of successful updates and any errors encountered.',
-      icon: Upload,
-      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     }
