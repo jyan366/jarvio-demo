@@ -226,7 +226,7 @@ export const blocksData: BlocksData = {
       summary: 'Export formatted content to a .docx file.',
       description: 'Same as PDF, but outputs a Word-compatible format.',
       icon: FileText,
-      logo: null,
+      logo: '/lovable-uploads/c61060cc-bcf7-4dbd-829c-69b1435920c7.png',
       needsConnection: false,
       connectionService: null
     },
@@ -235,7 +235,7 @@ export const blocksData: BlocksData = {
       summary: 'Export structured data into an Excel file.',
       description: 'Select block output to be formatted as a spreadsheet (e.g. inventory table).',
       icon: FileSpreadsheet,
-      logo: null,
+      logo: '/lovable-uploads/5fa4f5f1-47ba-4810-8a90-321e78f598de.png',
       needsConnection: false,
       connectionService: null
     },
