@@ -22,7 +22,7 @@ export function BlockCard({
   const IconComponent = block.icon;
   
   return (
-    <Card className="transition-all duration-200 hover:shadow-md border border-gray-200 bg-white">
+    <Card className="transition-all duration-200 hover:shadow-md border border-gray-200 bg-white flex flex-col h-full">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
@@ -58,12 +58,12 @@ export function BlockCard({
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0">
-        <CardDescription className="text-xs text-gray-600 mb-4 line-clamp-2">
+      <CardContent className="pt-0 flex flex-col flex-1">
+        <CardDescription className="text-xs text-gray-600 mb-4 line-clamp-2 flex-1">
           {block.summary}
         </CardDescription>
         
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-auto">
           <div className="flex items-center space-x-2">
             <div className={`w-2 h-2 rounded-full ${getCategoryColor(selectedCategory)}`} />
             <Badge variant="secondary" className="text-xs capitalize">
