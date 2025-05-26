@@ -22,7 +22,9 @@ export const flowBlockOptions = {
     'Push to Amazon',
     'Send Email',
     'Human in the Loop',
-    'Agent'
+    'Agent',
+    'Run N8N Workflow',
+    'Run Zapier Workflow'
   ],
   agent: [
     'Agent'
