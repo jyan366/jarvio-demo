@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -789,10 +790,17 @@ export function BlockDetailModal({
                 <DialogTitle className="text-xl font-semibold text-gray-900">
                   {selectedBlock.name}
                 </DialogTitle>
-                <Badge variant="default" className="bg-gray-900 text-white flex-shrink-0 absolute top-4 right-4">
-                  <Check className="w-3 h-3 mr-1" />
-                  Activated
-                </Badge>
+                <div className="flex items-center gap-2 absolute top-4 right-4">
+                  {selectedBlock.name === 'Pull from Amazon' && (
+                    <Badge variant="purple" className="flex-shrink-0">
+                      Nerd Mode
+                    </Badge>
+                  )}
+                  <Badge variant="default" className="bg-gray-900 text-white flex-shrink-0">
+                    <Check className="w-3 h-3 mr-1" />
+                    Activated
+                  </Badge>
+                </div>
               </div>
               <DialogDescription className="text-gray-500">
                 {selectedBlock.summary}
