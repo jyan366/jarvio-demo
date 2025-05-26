@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { HeroSection } from '@/components/jarvi-flows/HeroSection';
 import { FlowsSection } from '@/components/jarvi-flows/FlowsSection';
+import { FlowTemplatesSection } from '@/components/jarvi-flows/FlowTemplatesSection';
 import { Flow } from '@/components/jarvi-flows/FlowsGrid';
 import { 
   AlertDialog,
@@ -15,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createTask } from '@/lib/supabaseTasks';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -266,17 +269,30 @@ export default function JarviFlows() {
         {/* Hero Section with AI Prompt */}
         <HeroSection onAIPromptSubmit={handleAIPromptSubmit} />
 
-        {/* Your Flows Section */}
-        <FlowsSection
-          flows={flows}
-          onEditFlow={handleEditFlow}
-          onRunFlow={handleRunFlow}
-          onDeleteFlow={handleDeleteFlow}
-          onCreateNewFlow={handleCreateNewFlow}
-          isCreating={isCreating}
-          isRunningFlow={isRunningFlow}
-          runningFlowId={runningFlowId}
-        />
+        {/* Flows Section with Tabs */}
+        <Tabs defaultValue="your-flows" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsTrigger value="your-flows">Your Flows</TabsTrigger>
+            <TabsTrigger value="flow-templates">Flow Templates</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="your-flows">
+            <FlowsSection
+              flows={flows}
+              onEditFlow={handleEditFlow}
+              onRunFlow={handleRunFlow}
+              onDeleteFlow={handleDeleteFlow}
+              onCreateNewFlow={handleCreateNewFlow}
+              isCreating={isCreating}
+              isRunningFlow={isRunningFlow}
+              runningFlowId={runningFlowId}
+            />
+          </TabsContent>
+          
+          <TabsContent value="flow-templates">
+            <FlowTemplatesSection />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Confirmation dialog for deleting flows */}
