@@ -9,6 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
 import { Block } from '../types/blockTypes';
 
 interface BlockDetailModalProps {
@@ -30,9 +32,29 @@ export function BlockDetailModal({
 }: BlockDetailModalProps) {
   if (!selectedBlock) return null;
 
+  // Default everything to connected and activated
+  const isConnected = selectedBlock.needsConnection ? 
+    (connectedServices[selectedBlock.connectionService!] ?? true) : true;
+  const isActivated = true; // Default to activated
+
+  const formatDescription = (description: string) => {
+    // Split by sentences and create paragraphs for better readability
+    const sentences = description.split('. ');
+    const paragraphs = [];
+    
+    for (let i = 0; i < sentences.length; i += 2) {
+      const paragraph = sentences.slice(i, i + 2).join('. ') + (i + 2 < sentences.length ? '.' : '');
+      paragraphs.push(paragraph);
+    }
+    
+    return paragraphs;
+  };
+
+  const descriptionParagraphs = formatDescription(selectedBlock.description);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-3">
             {selectedBlock.logo ? (
@@ -48,27 +70,80 @@ export function BlockDetailModal({
                 <selectedBlock.icon className="h-7 w-7 text-gray-700" />
               </div>
             )}
-            <span>{selectedBlock.name}</span>
+            <div>
+              <span className="text-lg font-semibold">{selectedBlock.name}</span>
+              <div className="flex items-center gap-2 mt-1">
+                {selectedBlock.needsConnection && (
+                  <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
+                    {isConnected ? (
+                      <>
+                        <Check className="w-3 h-3 mr-1" />
+                        Connected
+                      </>
+                    ) : (
+                      'Not Connected'
+                    )}
+                  </Badge>
+                )}
+                <Badge variant={isActivated ? "default" : "secondary"} className="text-xs">
+                  {isActivated ? (
+                    <>
+                      <Check className="w-3 h-3 mr-1" />
+                      Activated
+                    </>
+                  ) : (
+                    'Not Activated'
+                  )}
+                </Badge>
+              </div>
+            </div>
           </DialogTitle>
-          <DialogDescription className="mt-4">
-            {selectedBlock.description}
-          </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="mt-6">
-          {selectedBlock.needsConnection && selectedBlock.connectionService && !connectedServices[selectedBlock.connectionService] ? (
-            <Button 
-              onClick={() => onServiceConnection(selectedBlock.connectionService!)}
-              className="w-full"
-            >
-              Connect {selectedBlock.connectionService}
-            </Button>
+        
+        <div className="space-y-4 mt-4">
+          {descriptionParagraphs.map((paragraph, index) => (
+            <DialogDescription key={index} className="text-sm text-gray-600 leading-relaxed">
+              {paragraph}
+            </DialogDescription>
+          ))}
+        </div>
+
+        <DialogFooter className="mt-6 gap-2">
+          {selectedBlock.needsConnection && !isConnected ? (
+            <>
+              <Button 
+                variant="outline"
+                onClick={() => onServiceConnection(selectedBlock.connectionService!)}
+                className="flex-1"
+              >
+                Connect {selectedBlock.connectionService}
+              </Button>
+              <Button 
+                onClick={() => onActivateBlock(selectedBlock.name)}
+                className="flex-1"
+                disabled={!isConnected}
+              >
+                Activate Block
+              </Button>
+            </>
           ) : (
-            <Button 
-              onClick={() => onActivateBlock(selectedBlock.name)}
-              className="w-full"
-            >
-              Activate Block
-            </Button>
+            <>
+              <Button 
+                variant="outline"
+                className="flex-1"
+                disabled
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Connected
+              </Button>
+              <Button 
+                className="flex-1"
+                disabled
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Activated
+              </Button>
+            </>
           )}
         </DialogFooter>
       </DialogContent>
