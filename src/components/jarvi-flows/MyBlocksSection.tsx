@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -346,125 +345,114 @@ export function MyBlocksSection() {
         </div>
       </div>
 
-      <div className="flex gap-6">
-        {/* Left Sidebar */}
-        <div className="w-64 flex-shrink-0">
-          <div className="space-y-2">
-            <h3 className="font-medium text-sm text-gray-500 uppercase tracking-wide">Categories</h3>
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`w-full text-left p-3 rounded-lg transition-colors ${
-                  selectedCategory === category.id
-                    ? 'bg-blue-50 border border-blue-200 text-blue-700'
-                    : 'hover:bg-gray-50 text-gray-700'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${getCategoryColor(category.id)}`} />
-                  <div>
-                    <div className="font-medium">{category.name}</div>
-                    <div className="text-xs text-gray-500 mt-1">{category.description}</div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
+      {/* Categories - now horizontal above search */}
+      <div className="space-y-4">
+        <div className="flex gap-2">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setSelectedCategory(category.id)}
+              className={`px-4 py-2 rounded-lg transition-colors flex items-center space-x-2 ${
+                selectedCategory === category.id
+                  ? 'bg-blue-50 border border-blue-200 text-blue-700'
+                  : 'hover:bg-gray-50 text-gray-700 border border-gray-200'
+              }`}
+            >
+              <div className={`w-3 h-3 rounded-full ${getCategoryColor(category.id)}`} />
+              <span className="font-medium">{category.name}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 space-y-4">
-          {/* Search bar */}
-          <div className="max-w-md">
-            <Input 
-              placeholder="Search blocks..." 
-              className="w-full"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          {/* Blocks grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredBlocks.map((block) => {
-              const IconComponent = block.icon;
-              const isActive = activeBlocks[block.name] || false;
-              
-              return (
-                <Card 
-                  key={block.name} 
-                  className={`transition-all duration-200 hover:shadow-md cursor-pointer ${
-                    block.color
-                  } ${isActive ? 'ring-2 ring-blue-500' : ''}`}
-                  onClick={() => handleBlockClick(block)}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                            <IconComponent className="h-5 w-5 text-gray-700" />
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-sm font-medium text-gray-900 truncate">
-                            {block.name}
-                          </CardTitle>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 hover:bg-white/50"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        <Zap className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0">
-                    <CardDescription className="text-xs text-gray-600 mb-3 line-clamp-2">
-                      {block.summary}
-                    </CardDescription>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-2 h-2 rounded-full ${getCategoryColor(selectedCategory)}`} />
-                        <Badge variant="secondary" className="text-xs capitalize">
-                          {selectedCategory}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs text-gray-500">
-                          {isActive ? 'Active' : 'Inactive'}
-                        </span>
-                        <Switch
-                          checked={isActive}
-                          onCheckedChange={(checked) => {
-                            handleBlockToggle(block.name);
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-
-          {filteredBlocks.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No blocks found matching your search.</p>
-            </div>
-          )}
+        {/* Search bar */}
+        <div className="max-w-md">
+          <Input 
+            placeholder="Search blocks..." 
+            className="w-full"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
+
+      {/* Blocks grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredBlocks.map((block) => {
+          const IconComponent = block.icon;
+          const isActive = activeBlocks[block.name] || false;
+          
+          return (
+            <Card 
+              key={block.name} 
+              className={`transition-all duration-200 hover:shadow-md cursor-pointer ${
+                block.color
+              } ${isActive ? 'ring-2 ring-blue-500' : ''}`}
+              onClick={() => handleBlockClick(block)}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm">
+                        <IconComponent className="h-5 w-5 text-gray-700" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-sm font-medium text-gray-900 truncate">
+                        {block.name}
+                      </CardTitle>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 hover:bg-white/50"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Zap className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <CardDescription className="text-xs text-gray-600 mb-3 line-clamp-2">
+                  {block.summary}
+                </CardDescription>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${getCategoryColor(selectedCategory)}`} />
+                    <Badge variant="secondary" className="text-xs capitalize">
+                      {selectedCategory}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-500">
+                      {isActive ? 'Active' : 'Inactive'}
+                    </span>
+                    <Switch
+                      checked={isActive}
+                      onCheckedChange={(checked) => {
+                        handleBlockToggle(block.name);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {filteredBlocks.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No blocks found matching your search.</p>
+        </div>
+      )}
 
       {/* Block Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
