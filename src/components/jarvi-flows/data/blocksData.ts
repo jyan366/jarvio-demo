@@ -213,7 +213,7 @@ export const blocksData: BlocksData = {
       connectionService: 'Email'
     },
     {
-      name: 'Create ClickUp Task',
+      name: 'ClickUp Action',
       summary: 'Create tasks, folders, and lists, and manage ClickUp workspace items.',
       description: 'Automatically create and manage items in your ClickUp workspace based on workflow triggers and data insights. You can create tasks with titles, descriptions, assignees, due dates, priorities, and custom fields. Also supports creating folders, lists, updating tasks, adding comments, and deleting tasks. Perfect for creating follow-up actions from reviews, inventory restock reminders, or optimization tasks identified by AI analysis.',
       icon: CheckSquare,

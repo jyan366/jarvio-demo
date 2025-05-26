@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -43,7 +44,6 @@ export function BlockDetailModal({
 
   const renderCollectBlockContent = () => {
     switch (selectedBlock.name) {
-      // ... keep existing code (other cases)
       case 'Pull ClickUp Tasks':
         return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
@@ -690,6 +690,43 @@ export function BlockDetailModal({
 
   const renderActBlockContent = () => {
     switch (selectedBlock.name) {
+      case 'ClickUp Action':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Create and manage items in your ClickUp workspace based on workflow triggers and data insights.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Available Actions:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <strong>Create Folder:</strong> Add a new folder to a space
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <strong>Create List:</strong> Add a new list to a folder
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <strong>Create Task:</strong> Create a new task
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <strong>Add Comment:</strong> Add a new comment to a task
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <strong>Delete Task:</strong> Delete a task from your workspace
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <strong>Update Task:</strong> Update a task in ClickUp
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
       case 'Push to Amazon':
         return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
@@ -820,43 +857,6 @@ export function BlockDetailModal({
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   File attachments
-                </li>
-              </ul>
-            </div>
-          </div>
-        );
-      case 'Create ClickUp Task':
-        return (
-          <div className="space-y-6">
-            <p className="text-gray-600 leading-relaxed">
-              Create and manage items in your ClickUp workspace based on workflow triggers and data insights.
-            </p>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">What You Can Create & Manage:</h4>
-              <ul className="text-gray-600 space-y-2">
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Create new folders to organize your workspace
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Create new lists within folders for better organization
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Create new tasks with full customization options
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Add comments to existing tasks for collaboration
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Delete tasks from your workspace
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Update existing tasks in ClickUp
                 </li>
               </ul>
             </div>
