@@ -1,4 +1,3 @@
-
 import { 
   Mail, 
   Upload, 
@@ -121,8 +120,8 @@ export const blocksData: BlocksData = {
     },
     {
       name: 'Pull ClickUp Tasks',
-      summary: 'Pull tasks, folders, and lists from your ClickUp workspace.',
-      description: 'Connect your ClickUp account to retrieve tasks, projects, and team data based on customizable filters like status, assignee, due date, or tags. Perfect for project management integration, tracking deliverables, and automating task-based workflows. Supports multiple workspaces and custom fields.',
+      summary: 'Retrieve tasks and project data from your ClickUp workspace.',
+      description: 'Connect your ClickUp account to pull tasks, projects, and team data from your workspace. Filter by status, assignee, due date, or tags to get exactly the task data you need. Perfect for project management integration, tracking deliverables, and creating automated workflows based on your project data.',
       icon: CheckSquare,
       logo: '/lovable-uploads/14b2571a-876e-4546-90b1-8249c36d649c.png',
       needsConnection: true,
@@ -215,7 +214,7 @@ export const blocksData: BlocksData = {
     },
     {
       name: 'Create ClickUp Task',
-      summary: 'Create tasks, folders, lists, and manage ClickUp workspace items.',
+      summary: 'Create tasks, folders, and lists, and manage ClickUp workspace items.',
       description: 'Automatically create and manage items in your ClickUp workspace based on workflow triggers and data insights. You can create tasks with titles, descriptions, assignees, due dates, priorities, and custom fields. Also supports creating folders, lists, updating tasks, adding comments, and deleting tasks. Perfect for creating follow-up actions from reviews, inventory restock reminders, or optimization tasks identified by AI analysis.',
       icon: CheckSquare,
       logo: '/lovable-uploads/14b2571a-876e-4546-90b1-8249c36d649c.png',

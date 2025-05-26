@@ -43,6 +43,64 @@ export function BlockDetailModal({
 
   const renderCollectBlockContent = () => {
     switch (selectedBlock.name) {
+      // ... keep existing code (other cases)
+      case 'Pull ClickUp Tasks':
+        return <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Connect your ClickUp account to retrieve tasks, projects, and team data from your workspace with customizable filters.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Data Retrieved:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Task titles, descriptions, and status
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Assignees and due dates
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Project and folder organization
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Custom fields and tags
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Time tracking and estimates
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Task attachments and all related data
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Filters Available:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Task status and priority
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Assigned team members
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Due date ranges
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Tags and custom fields
+                </li>
+              </ul>
+            </div>
+          </div>;
+      // ... keep existing code (other Amazon and scraping blocks)
       case 'Pull from Amazon':
         return <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
@@ -425,62 +483,6 @@ export function BlockDetailModal({
               </ul>
             </div>
           </div>;
-      case 'Pull ClickUp Tasks':
-        return <div className="space-y-6">
-            <p className="text-gray-600 leading-relaxed">
-              Connect your ClickUp account to retrieve tasks, projects, and team data with customizable filters.
-            </p>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">What You Can Pull:</h4>
-              <ul className="text-gray-600 space-y-2">
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>View detailed task information</strong> - Access comprehensive task details, including attachments and all related data
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Task titles, descriptions, and status
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Assignees and due dates
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Project and folder organization
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Custom fields and tags
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Time tracking and estimates
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Filters Available:</h4>
-              <ul className="text-gray-600 space-y-2">
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Task status and priority
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Assigned team members
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Due date ranges
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Tags and custom fields
-                </li>
-              </ul>
-            </div>
-          </div>;
       default:
         return <div className="space-y-4">
             <p className="text-gray-600 leading-relaxed">
@@ -489,6 +491,8 @@ export function BlockDetailModal({
           </div>;
     }
   };
+
+  // ... keep existing code (renderThinkBlockContent and renderActBlockContent functions)
   const renderThinkBlockContent = () => {
     switch (selectedBlock.name) {
       case 'AI Analysis':
@@ -683,6 +687,7 @@ export function BlockDetailModal({
           </div>;
     }
   };
+
   const renderActBlockContent = () => {
     switch (selectedBlock.name) {
       case 'Push to Amazon':
@@ -831,48 +836,27 @@ export function BlockDetailModal({
               <ul className="text-gray-600 space-y-2">
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>Add new folders</strong> - Create folders to organize your workspace
+                  Create new folders to organize your workspace
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>Add new lists</strong> - Create lists within folders for better organization
+                  Create new lists within folders for better organization
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>Create new tasks</strong> - Generate tasks with full customization options
+                  Create new tasks with full customization options
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>Add task comments</strong> - Leave comments on existing tasks for collaboration
+                  Add comments to existing tasks for collaboration
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>Update existing tasks</strong> - Modify tasks with new information and status changes
+                  Delete tasks from your workspace
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  <strong>Delete tasks</strong> - Remove completed or unnecessary tasks from your workspace
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Task Configuration Options:</h4>
-              <ul className="text-gray-600 space-y-2">
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Custom task titles and descriptions
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Assignee and due date configuration
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Priority levels and custom fields
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Tags and status settings
+                  Update existing tasks in ClickUp
                 </li>
               </ul>
             </div>
