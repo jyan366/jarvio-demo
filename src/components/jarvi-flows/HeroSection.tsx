@@ -17,7 +17,7 @@ export function HeroSection({
           </h1>
           
           <p className="text-gray-700 text-base mb-8 max-w-2xl mx-auto">
-            Create powerful automation flows with AI that streamline your Amazon operations
+            Struggling with tedious eCommerce operations? There's a Flow for that.
           </p>
         </div>
 
