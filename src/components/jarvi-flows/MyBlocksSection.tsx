@@ -137,7 +137,7 @@ const allBlocksData = {
       summary: 'Use natural language to request specific insights from your data.',
       description: 'Provide instructions like "show ASINs with high sales but low reviews" and Jarvio will generate the answer.',
       icon: Brain,
-      logo: null,
+      logo: '/lovable-uploads/4f8a2e0e-6a95-4713-93f8-c4add0710fbb.png',
       needsConnection: false,
       connectionService: null
     },
@@ -146,7 +146,7 @@ const allBlocksData = {
       summary: 'Estimate sales volume for any ASIN.',
       description: 'Enter any Amazon ASIN to estimate its monthly unit sales using our proprietary algorithm.',
       icon: TrendingUp,
-      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
+      logo: '/lovable-uploads/4f8a2e0e-6a95-4713-93f8-c4add0710fbb.png',
       needsConnection: false,
       connectionService: null
     },
@@ -155,7 +155,7 @@ const allBlocksData = {
       summary: 'Score your listings based on SEO and content best practices.',
       description: 'Analyses title length, bullet coverage, image count, A+ content, and backend keywords for each ASIN.',
       icon: Eye,
-      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
+      logo: '/lovable-uploads/4f8a2e0e-6a95-4713-93f8-c4add0710fbb.png',
       needsConnection: false,
       connectionService: null
     },
@@ -164,7 +164,7 @@ const allBlocksData = {
       summary: 'Summarise sentiment from recent 1–3 star reviews.',
       description: 'Jarvio identifies trends and recurring complaints across negative customer feedback.',
       icon: MessageSquare,
-      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
+      logo: '/lovable-uploads/4f8a2e0e-6a95-4713-93f8-c4add0710fbb.png',
       needsConnection: false,
       connectionService: null
     },
@@ -173,7 +173,7 @@ const allBlocksData = {
       summary: 'Turn raw data into a digestible summary.',
       description: 'This block transforms input data (like a sales summary) into a clear written message for reporting or action.',
       icon: FileText,
-      logo: null,
+      logo: '/lovable-uploads/4f8a2e0e-6a95-4713-93f8-c4add0710fbb.png',
       needsConnection: false,
       connectionService: null
     }
@@ -220,7 +220,7 @@ const allBlocksData = {
       summary: 'Create a task within Jarvio.',
       description: 'Add title, description, and optionally link to an insight to track tasks inside Jarvio.',
       icon: User,
-      logo: null,
+      logo: '/lovable-uploads/4f8a2e0e-6a95-4713-93f8-c4add0710fbb.png',
       needsConnection: false,
       connectionService: null
     },
