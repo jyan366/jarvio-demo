@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -57,64 +56,82 @@ export function BlockDetailModal({
         return (
           <div className="space-y-6">
             <p className="text-gray-600 leading-relaxed">
-              Connect directly to Amazon's SP-API endpoints to pull custom data from your seller account with full flexibility.
+              We've already connected to your Amazon Seller Central account. Now you can access any SP-API endpoint directly - just enter the endpoint URL and test your queries in real-time.
             </p>
+            
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+              <h4 className="font-semibold text-purple-900 mb-2">🎁 Bounty Program</h4>
+              <p className="text-purple-800 text-sm">
+                Discover an endpoint we don't have? Test it successfully and we'll give you a <strong>free month of Jarvio</strong>! We're always looking to expand our API coverage.
+              </p>
+            </div>
+
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Configuration Required:</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">How It Works:</h4>
               <ul className="text-gray-600 space-y-2">
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  SP-API endpoint URL (e.g., /orders/v0/orders)
+                  <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">1</span>
+                  Enter any SP-API endpoint URL (e.g., /orders/v0/orders)
                 </li>
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Request parameters and filters
+                  <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">2</span>
+                  Configure your request parameters and filters
                 </li>
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Amazon marketplace selection
+                  <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">3</span>
+                  Test your query and see the data in real-time
+                </li>
+                <li className="flex items-start">
+                  <span className="w-6 h-6 bg-blue-500 text-white rounded-full text-xs flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">4</span>
+                  Use the data in your workflow or share new discoveries with us
                 </li>
               </ul>
             </div>
+            
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Popular Endpoints:</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">Popular Endpoints to Try:</h4>
               <ul className="text-gray-600 space-y-2">
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   /orders/v0/orders - Order data and fulfillment details
                 </li>
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   /fba/inventory/v1/summaries - FBA inventory levels
                 </li>
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   /catalog/v0/items - Product catalog information
                 </li>
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   /finances/v0/financialEvents - Financial transaction data
                 </li>
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   /reports/2021-06-30/reports - Custom report generation
                 </li>
               </ul>
             </div>
+            
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Data Flexibility:</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">Perfect For:</h4>
               <ul className="text-gray-600 space-y-2">
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Access any data available through Amazon SP-API
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Technical users who know exactly what data they need
                 </li>
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Custom date ranges and filtering options
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Advanced reporting and custom data extraction
                 </li>
                 <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Real-time data updates based on your schedule
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Accessing the latest Amazon SP-API endpoints
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Exploring new data sources before we build dedicated blocks
                 </li>
               </ul>
             </div>
