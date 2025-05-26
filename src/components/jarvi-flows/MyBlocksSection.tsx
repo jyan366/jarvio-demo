@@ -1,9 +1,9 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,8 @@ import {
   Star,
   ShoppingCart,
   CheckSquare,
-  Download
+  Download,
+  ExternalLink
 } from 'lucide-react';
 
 // Block data with complete information
@@ -45,90 +46,90 @@ const allBlocksData = {
       summary: 'Pull daily or weekly sales data across your ASINs.',
       description: 'This block fetches your Amazon sales over a defined period and makes it available for use in later blocks.',
       icon: ShoppingCart,
+      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: null
     },
     {
       name: 'Amazon Inventory Summary',
       summary: 'Retrieve current stock levels and restock alerts.',
       description: 'This block gathers inventory levels from Amazon, including fulfilment and restock suggestions.',
       icon: Database,
+      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: null
     },
     {
       name: 'Amazon Listing Summary',
       summary: 'Extract titles, bullets, images, and descriptions for your listings.',
       description: 'Pull full listing content from Amazon, useful for analysis or audits.',
       icon: FileText,
+      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: null
     },
     {
       name: 'Amazon Customer Reviews Summary',
       summary: 'Collect recent Amazon reviews by ASIN.',
       description: 'Scrapes and summarises the latest customer reviews across your ASINs, with optional rating filters.',
       icon: Star,
+      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: null
     },
     {
       name: 'Scrape Shopify Product Pages',
       summary: 'Scrape product content from a Shopify storefront.',
       description: 'Provide a link to your Shopify store and scrape visible product content (no API access needed).',
       icon: Globe,
+      logo: '/lovable-uploads/983c698c-2767-4609-b0fe-48e16d5a1fc0.png', // Shopify logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: null
     },
     {
       name: 'Scrape Competitor Amazon Listings',
       summary: 'Get competitor pricing and product info from Amazon.',
       description: 'Add competitor ASINs or URLs to fetch details such as price, title, image count, and bullet structure.',
       icon: Search,
+      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: null
     },
     {
       name: 'Link Google Sheet',
       summary: 'Link a live Google Sheet for use in your workflows.',
       description: 'Connect your Google account to pull data from a specified sheet.',
       icon: Sheet,
+      logo: '/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png', // Google Sheets logo
       needsConnection: true,
-      connectionService: 'Google Sheets',
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: 'Google Sheets'
     },
     {
       name: 'Upload Sheet',
       summary: 'Upload a CSV or Excel file into Jarvio.',
       description: 'This block allows manual uploading of performance data or customer lists in spreadsheet format.',
       icon: Upload,
+      logo: null,
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: null
     },
     {
       name: 'Scrape Website',
       summary: 'Extract data from any public webpage.',
       description: 'Add a URL and optional selector. Jarvio will scrape the page content for later use.',
       icon: Globe,
+      logo: null,
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: null
     },
     {
       name: 'Pull ClickUp Tasks',
       summary: 'Pull tasks from your ClickUp workspace.',
       description: 'Connect your ClickUp account to retrieve tasks based on filters like tag or status.',
       icon: CheckSquare,
+      logo: '/lovable-uploads/dd1b4a32-6641-4117-91fb-85c0baad331b.png', // ClickUp logo
       needsConnection: true,
-      connectionService: 'ClickUp',
-      color: 'bg-blue-50 border-blue-200'
+      connectionService: 'ClickUp'
     }
   ],
   think: [
@@ -137,45 +138,45 @@ const allBlocksData = {
       summary: 'Use natural language to request specific insights from your data.',
       description: 'Provide instructions like "show ASINs with high sales but low reviews" and Jarvio will generate the answer.',
       icon: Brain,
+      logo: null,
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-purple-50 border-purple-200'
+      connectionService: null
     },
     {
       name: 'Estimate ASIN Sales',
       summary: 'Estimate sales volume for any ASIN.',
       description: 'Enter any Amazon ASIN to estimate its monthly unit sales using our proprietary algorithm.',
       icon: TrendingUp,
+      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-purple-50 border-purple-200'
+      connectionService: null
     },
     {
       name: 'Listing Quality Audit',
       summary: 'Score your listings based on SEO and content best practices.',
       description: 'Analyses title length, bullet coverage, image count, A+ content, and backend keywords for each ASIN.',
       icon: Eye,
+      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-purple-50 border-purple-200'
+      connectionService: null
     },
     {
       name: 'Review Sentiment Analysis',
       summary: 'Summarise sentiment from recent 1–3 star reviews.',
       description: 'Jarvio identifies trends and recurring complaints across negative customer feedback.',
       icon: MessageSquare,
+      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-purple-50 border-purple-200'
+      connectionService: null
     },
     {
       name: 'Summary Message',
       summary: 'Turn raw data into a digestible summary.',
       description: 'This block transforms input data (like a sales summary) into a clear written message for reporting or action.',
       icon: FileText,
+      logo: null,
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-purple-50 border-purple-200'
+      connectionService: null
     }
   ],
   act: [
@@ -184,81 +185,81 @@ const allBlocksData = {
       summary: 'Send a message to Slack automatically.',
       description: 'Jarvio will send a message (e.g. summary, alert) to your specified Slack channel.',
       icon: MessageSquare,
+      logo: '/lovable-uploads/7e11c97a-cdb6-4051-a694-ba75c7c84823.png', // Slack logo
       needsConnection: true,
-      connectionService: 'Slack',
-      color: 'bg-green-50 border-green-200'
+      connectionService: 'Slack'
     },
     {
       name: 'Slack Message (sent by user)',
       summary: 'Compose and send a manual Slack message.',
       description: 'Enter message text and channel for Jarvio to send on your behalf.',
       icon: MessageSquare,
+      logo: '/lovable-uploads/7e11c97a-cdb6-4051-a694-ba75c7c84823.png', // Slack logo
       needsConnection: true,
-      connectionService: 'Slack',
-      color: 'bg-green-50 border-green-200'
+      connectionService: 'Slack'
     },
     {
       name: 'Send Email',
       summary: 'Email insights or alerts to your team.',
       description: 'Choose recipients and link data from earlier blocks to send it via email.',
       icon: Mail,
+      logo: '/lovable-uploads/ca9097cb-1ad1-49a4-acd7-f569db7e1b3a.png', // Gmail logo
       needsConnection: true,
-      connectionService: 'Gmail',
-      color: 'bg-green-50 border-green-200'
+      connectionService: 'Gmail'
     },
     {
       name: 'Create ClickUp Task',
       summary: 'Automatically generate a task in ClickUp.',
       description: 'Connect ClickUp to automatically create tasks based on block triggers (e.g. bad reviews).',
       icon: CheckSquare,
+      logo: '/lovable-uploads/dd1b4a32-6641-4117-91fb-85c0baad331b.png', // ClickUp logo
       needsConnection: true,
-      connectionService: 'ClickUp',
-      color: 'bg-green-50 border-green-200'
+      connectionService: 'ClickUp'
     },
     {
       name: 'Create Jarvio Task',
       summary: 'Create a task within Jarvio.',
       description: 'Add title, description, and optionally link to an insight to track tasks inside Jarvio.',
       icon: User,
+      logo: null,
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-green-50 border-green-200'
+      connectionService: null
     },
     {
       name: 'Create PDF',
       summary: 'Turn any report or message into a downloadable PDF.',
       description: 'Choose what to export (e.g. sales summary or listing audit) and generate a branded PDF file.',
       icon: Download,
+      logo: null,
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-green-50 border-green-200'
+      connectionService: null
     },
     {
       name: 'Create Word',
       summary: 'Export formatted content to a .docx file.',
       description: 'Same as PDF, but outputs a Word-compatible format.',
       icon: FileText,
+      logo: null,
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-green-50 border-green-200'
+      connectionService: null
     },
     {
       name: 'Create Excel Sheet',
       summary: 'Export structured data into an Excel file.',
       description: 'Select block output to be formatted as a spreadsheet (e.g. inventory table).',
       icon: FileSpreadsheet,
+      logo: null,
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-green-50 border-green-200'
+      connectionService: null
     },
     {
       name: 'Push to Amazon',
       summary: 'Update product content or pricing on Amazon.',
       description: 'Choose what to update (e.g. title, price, image) and confirm before publishing to Amazon via API.',
       icon: Upload,
+      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
       needsConnection: false,
-      connectionService: null,
-      color: 'bg-green-50 border-green-200'
+      connectionService: null
     }
   ]
 };
@@ -288,13 +289,6 @@ export function MyBlocksSection() {
       block.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       block.summary.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  };
-
-  const handleBlockToggle = (blockName: string) => {
-    setActiveBlocks(prev => ({
-      ...prev,
-      [blockName]: !prev[blockName]
-    }));
   };
 
   const handleBlockClick = (block: any) => {
@@ -345,7 +339,7 @@ export function MyBlocksSection() {
         </div>
       </div>
 
-      {/* Categories - now horizontal above search */}
+      {/* Categories - horizontal above search */}
       <div className="space-y-4">
         <div className="flex gap-2">
           {categories.map((category) => (
@@ -379,26 +373,32 @@ export function MyBlocksSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredBlocks.map((block) => {
           const IconComponent = block.icon;
-          const isActive = activeBlocks[block.name] || false;
           
           return (
             <Card 
               key={block.name} 
-              className={`transition-all duration-200 hover:shadow-md cursor-pointer ${
-                block.color
-              } ${isActive ? 'ring-2 ring-blue-500' : ''}`}
-              onClick={() => handleBlockClick(block)}
+              className="transition-all duration-200 hover:shadow-md border border-gray-200 bg-white"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                        <IconComponent className="h-5 w-5 text-gray-700" />
-                      </div>
+                      {block.logo ? (
+                        <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center p-2">
+                          <img 
+                            src={block.logo} 
+                            alt={`${block.name} logo`}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                          <IconComponent className="h-5 w-5 text-gray-700" />
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-sm font-medium text-gray-900 truncate">
+                      <CardTitle className="text-sm font-medium text-gray-900">
                         {block.name}
                       </CardTitle>
                     </div>
@@ -406,18 +406,16 @@ export function MyBlocksSection() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 hover:bg-white/50"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
+                    className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+                    onClick={() => handleBlockClick(block)}
                   >
-                    <Zap className="h-4 w-4" />
+                    <ExternalLink className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               
               <CardContent className="pt-0">
-                <CardDescription className="text-xs text-gray-600 mb-3 line-clamp-2">
+                <CardDescription className="text-xs text-gray-600 mb-4 line-clamp-2">
                   {block.summary}
                 </CardDescription>
                 
@@ -429,18 +427,14 @@ export function MyBlocksSection() {
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-500">
-                      {isActive ? 'Active' : 'Inactive'}
-                    </span>
-                    <Switch
-                      checked={isActive}
-                      onCheckedChange={(checked) => {
-                        handleBlockToggle(block.name);
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-blue-600 hover:text-blue-800 p-0 h-auto font-normal"
+                    onClick={() => handleBlockClick(block)}
+                  >
+                    Learn more
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -461,9 +455,19 @@ export function MyBlocksSection() {
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                    <selectedBlock.icon className="h-5 w-5 text-gray-700" />
-                  </div>
+                  {selectedBlock.logo ? (
+                    <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center p-2">
+                      <img 
+                        src={selectedBlock.logo} 
+                        alt={`${selectedBlock.name} logo`}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <selectedBlock.icon className="h-5 w-5 text-gray-700" />
+                    </div>
+                  )}
                   <span>{selectedBlock.name}</span>
                 </DialogTitle>
                 <DialogDescription className="mt-4">
