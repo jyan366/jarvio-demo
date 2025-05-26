@@ -768,7 +768,7 @@ export function BlockDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="pb-4 pr-8">
+        <DialogHeader className="pb-4">
           <div className="flex items-start space-x-6">
             <div className="flex-shrink-0">
               {selectedBlock.logo ? (
@@ -785,12 +785,12 @@ export function BlockDetailModal({
                 </div>
               )}
             </div>
-            <div className="flex-1 min-w-0 pr-24">
-              <div className="flex items-start justify-between mb-2">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2">
                 <DialogTitle className="text-xl font-semibold text-gray-900">
                   {selectedBlock.name}
                 </DialogTitle>
-                <div className="flex items-center gap-2 absolute top-4 right-4">
+                <div className="flex items-center gap-2">
                   {selectedBlock.name === 'Pull from Amazon' && (
                     <Badge variant="purple" className="flex-shrink-0">
                       Nerd Mode
