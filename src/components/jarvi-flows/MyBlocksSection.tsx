@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +37,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-// Block data with complete information
+// Block data with complete information including new logos
 const allBlocksData = {
   collect: [
     {
@@ -46,7 +45,7 @@ const allBlocksData = {
       summary: 'Pull daily or weekly sales data across your ASINs.',
       description: 'This block fetches your Amazon sales over a defined period and makes it available for use in later blocks.',
       icon: ShoppingCart,
-      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
       needsConnection: false,
       connectionService: null
     },
@@ -55,7 +54,7 @@ const allBlocksData = {
       summary: 'Retrieve current stock levels and restock alerts.',
       description: 'This block gathers inventory levels from Amazon, including fulfilment and restock suggestions.',
       icon: Database,
-      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
       needsConnection: false,
       connectionService: null
     },
@@ -64,7 +63,7 @@ const allBlocksData = {
       summary: 'Extract titles, bullets, images, and descriptions for your listings.',
       description: 'Pull full listing content from Amazon, useful for analysis or audits.',
       icon: FileText,
-      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
       needsConnection: false,
       connectionService: null
     },
@@ -73,7 +72,7 @@ const allBlocksData = {
       summary: 'Collect recent Amazon reviews by ASIN.',
       description: 'Scrapes and summarises the latest customer reviews across your ASINs, with optional rating filters.',
       icon: Star,
-      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
       needsConnection: false,
       connectionService: null
     },
@@ -82,7 +81,7 @@ const allBlocksData = {
       summary: 'Scrape product content from a Shopify storefront.',
       description: 'Provide a link to your Shopify store and scrape visible product content (no API access needed).',
       icon: Globe,
-      logo: '/lovable-uploads/983c698c-2767-4609-b0fe-48e16d5a1fc0.png', // Shopify logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/shopify.png',
       needsConnection: false,
       connectionService: null
     },
@@ -91,7 +90,7 @@ const allBlocksData = {
       summary: 'Get competitor pricing and product info from Amazon.',
       description: 'Add competitor ASINs or URLs to fetch details such as price, title, image count, and bullet structure.',
       icon: Search,
-      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
       needsConnection: false,
       connectionService: null
     },
@@ -100,7 +99,7 @@ const allBlocksData = {
       summary: 'Link a live Google Sheet for use in your workflows.',
       description: 'Connect your Google account to pull data from a specified sheet.',
       icon: Sheet,
-      logo: '/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png', // Google Sheets logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/google-sheets.png',
       needsConnection: true,
       connectionService: 'Google Sheets'
     },
@@ -127,7 +126,7 @@ const allBlocksData = {
       summary: 'Pull tasks from your ClickUp workspace.',
       description: 'Connect your ClickUp account to retrieve tasks based on filters like tag or status.',
       icon: CheckSquare,
-      logo: '/lovable-uploads/dd1b4a32-6641-4117-91fb-85c0baad331b.png', // ClickUp logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/clickup.png',
       needsConnection: true,
       connectionService: 'ClickUp'
     }
@@ -147,7 +146,7 @@ const allBlocksData = {
       summary: 'Estimate sales volume for any ASIN.',
       description: 'Enter any Amazon ASIN to estimate its monthly unit sales using our proprietary algorithm.',
       icon: TrendingUp,
-      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
       needsConnection: false,
       connectionService: null
     },
@@ -156,7 +155,7 @@ const allBlocksData = {
       summary: 'Score your listings based on SEO and content best practices.',
       description: 'Analyses title length, bullet coverage, image count, A+ content, and backend keywords for each ASIN.',
       icon: Eye,
-      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
       needsConnection: false,
       connectionService: null
     },
@@ -165,7 +164,7 @@ const allBlocksData = {
       summary: 'Summarise sentiment from recent 1–3 star reviews.',
       description: 'Jarvio identifies trends and recurring complaints across negative customer feedback.',
       icon: MessageSquare,
-      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
       needsConnection: false,
       connectionService: null
     },
@@ -185,7 +184,7 @@ const allBlocksData = {
       summary: 'Send a message to Slack automatically.',
       description: 'Jarvio will send a message (e.g. summary, alert) to your specified Slack channel.',
       icon: MessageSquare,
-      logo: '/lovable-uploads/7e11c97a-cdb6-4051-a694-ba75c7c84823.png', // Slack logo
+      logo: '/lovable-uploads/7e11c97a-cdb6-4051-a694-ba75c7c84823.png',
       needsConnection: true,
       connectionService: 'Slack'
     },
@@ -194,7 +193,7 @@ const allBlocksData = {
       summary: 'Compose and send a manual Slack message.',
       description: 'Enter message text and channel for Jarvio to send on your behalf.',
       icon: MessageSquare,
-      logo: '/lovable-uploads/7e11c97a-cdb6-4051-a694-ba75c7c84823.png', // Slack logo
+      logo: '/lovable-uploads/7e11c97a-cdb6-4051-a694-ba75c7c84823.png',
       needsConnection: true,
       connectionService: 'Slack'
     },
@@ -203,16 +202,16 @@ const allBlocksData = {
       summary: 'Email insights or alerts to your team.',
       description: 'Choose recipients and link data from earlier blocks to send it via email.',
       icon: Mail,
-      logo: '/lovable-uploads/ca9097cb-1ad1-49a4-acd7-f569db7e1b3a.png', // Gmail logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/outlook.png',
       needsConnection: true,
-      connectionService: 'Gmail'
+      connectionService: 'Email'
     },
     {
       name: 'Create ClickUp Task',
       summary: 'Automatically generate a task in ClickUp.',
       description: 'Connect ClickUp to automatically create tasks based on block triggers (e.g. bad reviews).',
       icon: CheckSquare,
-      logo: '/lovable-uploads/dd1b4a32-6641-4117-91fb-85c0baad331b.png', // ClickUp logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/clickup.png',
       needsConnection: true,
       connectionService: 'ClickUp'
     },
@@ -257,7 +256,7 @@ const allBlocksData = {
       summary: 'Update product content or pricing on Amazon.',
       description: 'Choose what to update (e.g. title, price, image) and confirm before publishing to Amazon via API.',
       icon: Upload,
-      logo: '/lovable-uploads/a48a59f9-4d43-4685-924c-1a823c56ec16.png', // Amazon logo
+      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
       needsConnection: false,
       connectionService: null
     }
