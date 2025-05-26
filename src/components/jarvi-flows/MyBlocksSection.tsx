@@ -445,8 +445,7 @@ export function MyBlocksSection() {
                         </span>
                         <Switch
                           checked={isActive}
-                          onCheckedChange={(e) => {
-                            e.stopPropagation();
+                          onCheckedChange={(checked) => {
                             handleBlockToggle(block.name);
                           }}
                           onClick={(e) => e.stopPropagation()}
