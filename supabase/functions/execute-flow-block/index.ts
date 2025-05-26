@@ -227,6 +227,42 @@ function generateDemoOutput(blockType: string, blockName: string, inputData: any
   switch (blockType) {
     case 'collect':
       switch (blockName) {
+        case 'Pull from Amazon':
+          return {
+            endpoint: inputData?.endpoint || '/orders/v0/orders',
+            marketplace: inputData?.marketplace || 'ATVPDKIKX0DER',
+            parameters: inputData?.parameters || { CreatedAfter: '2023-01-01T00:00:00Z' },
+            responseData: {
+              orders: [
+                {
+                  amazonOrderId: 'ORDER-123-4567890',
+                  purchaseDate: '2023-12-15T14:30:00Z',
+                  orderStatus: 'Shipped',
+                  fulfillmentChannel: 'AFN',
+                  salesChannel: 'Amazon.com',
+                  orderTotal: { currencyCode: 'USD', amount: '89.99' },
+                  numberOfItemsShipped: 2,
+                  numberOfItemsUnshipped: 0,
+                  marketplaceId: 'ATVPDKIKX0DER'
+                },
+                {
+                  amazonOrderId: 'ORDER-789-1234567',
+                  purchaseDate: '2023-12-14T09:15:00Z',
+                  orderStatus: 'Pending',
+                  fulfillmentChannel: 'MFN',
+                  salesChannel: 'Amazon.com',
+                  orderTotal: { currencyCode: 'USD', amount: '45.50' },
+                  numberOfItemsShipped: 0,
+                  numberOfItemsUnshipped: 1,
+                  marketplaceId: 'ATVPDKIKX0DER'
+                }
+              ],
+              nextToken: 'NEXT_TOKEN_123',
+              totalCount: 2
+            },
+            executionTime: '1.2s',
+            apiVersion: 'v0'
+          };
         case 'User Text':
           return { text: inputData?.text || 'Sample user input', processed: true };
         case 'Upload Sheet':

@@ -1,4 +1,3 @@
-
 import { 
   Mail, 
   Upload, 
@@ -22,12 +21,22 @@ import {
   ShoppingCart,
   CheckSquare,
   Download,
-  ExternalLink
+  ExternalLink,
+  Link
 } from 'lucide-react';
 import { BlocksData } from '../types/blockTypes';
 
 export const blocksData: BlocksData = {
   collect: [
+    {
+      name: 'Pull from Amazon',
+      summary: 'Connect to any Amazon SP-API endpoint to pull custom data.',
+      description: 'Directly connect to Amazon\'s SP-API endpoints to pull specific data from your seller account. Input any SP-API endpoint URL and configure the parameters to retrieve exactly what you need. This gives you full flexibility to access any Amazon data that\'s available through their API, from orders and inventory to advertising and brand analytics.',
+      icon: Link,
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
+      needsConnection: true,
+      connectionService: 'Amazon SP-API'
+    },
     {
       name: 'Amazon Sales Summary',
       summary: 'Pull daily or weekly sales data across your ASINs.',

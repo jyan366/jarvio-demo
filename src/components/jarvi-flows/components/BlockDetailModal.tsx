@@ -39,7 +39,7 @@ export function BlockDetailModal({
   // Get the current category for this block
   const getCurrentCategory = () => {
     // This is a simple way to determine category - in a real app you might pass this as a prop
-    if (selectedBlock.name.includes('Amazon') || selectedBlock.name.includes('Scrape') || selectedBlock.name.includes('Google Sheet') || selectedBlock.name.includes('Upload') || selectedBlock.name.includes('ClickUp')) {
+    if (selectedBlock.name.includes('Amazon') || selectedBlock.name.includes('Scrape') || selectedBlock.name.includes('Google Sheet') || selectedBlock.name.includes('Upload') || selectedBlock.name.includes('ClickUp') || selectedBlock.name.includes('Pull from Amazon')) {
       return 'collect';
     }
     if (selectedBlock.name.includes('AI') || selectedBlock.name.includes('Estimate') || selectedBlock.name.includes('Audit') || selectedBlock.name.includes('Sentiment') || selectedBlock.name.includes('Summary')) {
@@ -52,6 +52,73 @@ export function BlockDetailModal({
 
   const renderCollectBlockContent = () => {
     switch (selectedBlock.name) {
+      case 'Pull from Amazon':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Connect directly to Amazon's SP-API endpoints to pull custom data from your seller account with full flexibility.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Configuration Required:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  SP-API endpoint URL (e.g., /orders/v0/orders)
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Request parameters and filters
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Amazon marketplace selection
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Popular Endpoints:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  /orders/v0/orders - Order data and fulfillment details
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  /fba/inventory/v1/summaries - FBA inventory levels
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  /catalog/v0/items - Product catalog information
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  /finances/v0/financialEvents - Financial transaction data
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  /reports/2021-06-30/reports - Custom report generation
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Data Flexibility:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Access any data available through Amazon SP-API
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Custom date ranges and filtering options
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Real-time data updates based on your schedule
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
       case 'Amazon Sales Summary':
         return (
           <div className="space-y-6">
@@ -717,12 +784,12 @@ export function BlockDetailModal({
                 </div>
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between mb-2 pr-4">
+            <div className="flex-1 min-w-0 pr-24">
+              <div className="flex items-start justify-between mb-2">
                 <DialogTitle className="text-xl font-semibold text-gray-900">
                   {selectedBlock.name}
                 </DialogTitle>
-                <Badge variant="default" className="bg-gray-900 text-white flex-shrink-0 ml-4">
+                <Badge variant="default" className="bg-gray-900 text-white flex-shrink-0 absolute top-4 right-4">
                   <Check className="w-3 h-3 mr-1" />
                   Activated
                 </Badge>
