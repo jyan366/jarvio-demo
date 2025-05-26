@@ -172,7 +172,7 @@ export const blocksData: BlocksData = {
       summary: 'Send a message to Slack automatically.',
       description: 'Jarvio will send a message (e.g. summary, alert) to your specified Slack channel.',
       icon: MessageSquare,
-      logo: '/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png',
+      logo: '/lovable-uploads/df6f9df7-f782-4394-bba1-a5dde82a3b00.png',
       needsConnection: true,
       connectionService: 'Slack'
     },
@@ -181,7 +181,7 @@ export const blocksData: BlocksData = {
       summary: 'Compose and send a manual Slack message.',
       description: 'Enter message text and channel for Jarvio to send on your behalf.',
       icon: MessageSquare,
-      logo: '/lovable-uploads/77701ad2-d0ba-4b86-829f-87f39dcf8d9d.png',
+      logo: '/lovable-uploads/df6f9df7-f782-4394-bba1-a5dde82a3b00.png',
       needsConnection: true,
       connectionService: 'Slack'
     },
