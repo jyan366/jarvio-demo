@@ -457,11 +457,220 @@ export function BlockDetailModal({
     }
   };
 
+  const renderThinkBlockContent = () => {
+    switch (selectedBlock.name) {
+      case 'AI Analysis':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Leverage advanced AI to analyze your data using natural language queries and generate detailed insights, trends, and actionable recommendations.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Required Input:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Any structured data (sales, inventory, reviews, etc.)
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Natural language query describing what you want to discover
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Compatible Collect Blocks:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Amazon Sales Summary
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Amazon Inventory Summary
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Upload Sheet
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Link Google Sheet
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 'Estimate ASIN Sales':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Analyze any Amazon ASIN to estimate monthly unit sales, revenue, and market performance using proprietary algorithms and category benchmarks.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Required Input:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  List of ASINs to analyze
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Amazon marketplace (US, UK, etc.)
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Compatible Collect Blocks:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Scrape Competitor Amazon Listings (provides ASINs)
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Upload Sheet (with ASIN column)
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Link Google Sheet (with ASIN data)
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500 mt-2">
+                <em>Without these blocks, you'll need to manually input the ASINs to analyze.</em>
+              </p>
+            </div>
+          </div>
+        );
+      case 'Listing Quality Audit':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Comprehensive audit that scores your Amazon listings across optimization factors with specific recommendations for improvement.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Required Input:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Amazon listing content (titles, bullets, descriptions, images)
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  ASINs to audit
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Compatible Collect Blocks:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Amazon Listing Summary (provides complete listing content)
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Scrape Competitor Amazon Listings (for competitive benchmarking)
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500 mt-2">
+                <em>Without these blocks, you'll need to manually provide listing content and ASINs.</em>
+              </p>
+            </div>
+          </div>
+        );
+      case 'Review Sentiment Analysis':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Advanced sentiment analysis that processes customer reviews to identify recurring themes, product issues, and improvement opportunities.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Required Input:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Customer review text and ratings
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Product ASINs for context
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Compatible Collect Blocks:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Amazon Customer Reviews Summary (provides review data)
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Upload Sheet (with review data export)
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500 mt-2">
+                <em>Without these blocks, you'll need to manually input review text and product information.</em>
+              </p>
+            </div>
+          </div>
+        );
+      case 'Summary Message':
+        return (
+          <div className="space-y-6">
+            <p className="text-gray-600 leading-relaxed">
+              Transform complex data sets and analysis results into clear, professional summaries tailored for different audiences.
+            </p>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Required Input:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Data from previous workflow blocks
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Target audience specification (executives, team, etc.)
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Compatible Collect Blocks:</h4>
+              <ul className="text-gray-600 space-y-2">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Any data collection block (sales, inventory, reviews, etc.)
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  Results from other Think blocks for deeper insights
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500 mt-2">
+                <em>This block works best when placed after other analysis blocks in your workflow.</em>
+              </p>
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div className="space-y-4">
+            <p className="text-gray-600 leading-relaxed">
+              {selectedBlock.description}
+            </p>
+          </div>
+        );
+    }
+  };
+
   const renderBlockContent = () => {
     if (currentCategory === 'collect') {
       return renderCollectBlockContent();
+    } else if (currentCategory === 'think') {
+      return renderThinkBlockContent();
     } else {
-      // For think and act blocks, keep the paragraph format but make it more readable
+      // For act blocks, keep the paragraph format but make it more readable
       const formatDescription = (description: string) => {
         const sentences = description.split('. ');
         const paragraphs = [];
