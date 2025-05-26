@@ -719,7 +719,7 @@ export function BlockDetailModal({
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  /listings/2021-08-01/items/{sku}/images - Manage product images
+                  {"/listings/2021-08-01/items/{sku}/images"} - Manage product images
                 </li>
                 <li className="flex items-start">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
