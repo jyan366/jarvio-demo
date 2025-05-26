@@ -37,7 +37,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-// Block data with complete information including new logos
+// Block data with updated logo URLs
 const allBlocksData = {
   collect: [
     {
@@ -45,7 +45,7 @@ const allBlocksData = {
       summary: 'Pull daily or weekly sales data across your ASINs.',
       description: 'This block fetches your Amazon sales over a defined period and makes it available for use in later blocks.',
       icon: ShoppingCart,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     },
@@ -54,7 +54,7 @@ const allBlocksData = {
       summary: 'Retrieve current stock levels and restock alerts.',
       description: 'This block gathers inventory levels from Amazon, including fulfilment and restock suggestions.',
       icon: Database,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     },
@@ -63,7 +63,7 @@ const allBlocksData = {
       summary: 'Extract titles, bullets, images, and descriptions for your listings.',
       description: 'Pull full listing content from Amazon, useful for analysis or audits.',
       icon: FileText,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     },
@@ -72,7 +72,7 @@ const allBlocksData = {
       summary: 'Collect recent Amazon reviews by ASIN.',
       description: 'Scrapes and summarises the latest customer reviews across your ASINs, with optional rating filters.',
       icon: Star,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     },
@@ -81,7 +81,7 @@ const allBlocksData = {
       summary: 'Scrape product content from a Shopify storefront.',
       description: 'Provide a link to your Shopify store and scrape visible product content (no API access needed).',
       icon: Globe,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/shopify.png',
+      logo: '/lovable-uploads/ea403407-f5cf-46bf-95f8-906adf37082f.png',
       needsConnection: false,
       connectionService: null
     },
@@ -90,7 +90,7 @@ const allBlocksData = {
       summary: 'Get competitor pricing and product info from Amazon.',
       description: 'Add competitor ASINs or URLs to fetch details such as price, title, image count, and bullet structure.',
       icon: Search,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     },
@@ -99,7 +99,7 @@ const allBlocksData = {
       summary: 'Link a live Google Sheet for use in your workflows.',
       description: 'Connect your Google account to pull data from a specified sheet.',
       icon: Sheet,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/google-sheets.png',
+      logo: '/lovable-uploads/7ac8edf9-3963-4a29-a547-0f62ea731c5e.png',
       needsConnection: true,
       connectionService: 'Google Sheets'
     },
@@ -126,7 +126,7 @@ const allBlocksData = {
       summary: 'Pull tasks from your ClickUp workspace.',
       description: 'Connect your ClickUp account to retrieve tasks based on filters like tag or status.',
       icon: CheckSquare,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/clickup.png',
+      logo: '/lovable-uploads/14b2571a-876e-4546-90b1-8249c36d649c.png',
       needsConnection: true,
       connectionService: 'ClickUp'
     }
@@ -146,7 +146,7 @@ const allBlocksData = {
       summary: 'Estimate sales volume for any ASIN.',
       description: 'Enter any Amazon ASIN to estimate its monthly unit sales using our proprietary algorithm.',
       icon: TrendingUp,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     },
@@ -155,7 +155,7 @@ const allBlocksData = {
       summary: 'Score your listings based on SEO and content best practices.',
       description: 'Analyses title length, bullet coverage, image count, A+ content, and backend keywords for each ASIN.',
       icon: Eye,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     },
@@ -164,7 +164,7 @@ const allBlocksData = {
       summary: 'Summarise sentiment from recent 1–3 star reviews.',
       description: 'Jarvio identifies trends and recurring complaints across negative customer feedback.',
       icon: MessageSquare,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     },
@@ -202,7 +202,7 @@ const allBlocksData = {
       summary: 'Email insights or alerts to your team.',
       description: 'Choose recipients and link data from earlier blocks to send it via email.',
       icon: Mail,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/outlook.png',
+      logo: '/lovable-uploads/9875ceed-bfd6-465c-9a73-375563737cac.png',
       needsConnection: true,
       connectionService: 'Email'
     },
@@ -211,7 +211,7 @@ const allBlocksData = {
       summary: 'Automatically generate a task in ClickUp.',
       description: 'Connect ClickUp to automatically create tasks based on block triggers (e.g. bad reviews).',
       icon: CheckSquare,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/clickup.png',
+      logo: '/lovable-uploads/14b2571a-876e-4546-90b1-8249c36d649c.png',
       needsConnection: true,
       connectionService: 'ClickUp'
     },
@@ -256,7 +256,7 @@ const allBlocksData = {
       summary: 'Update product content or pricing on Amazon.',
       description: 'Choose what to update (e.g. title, price, image) and confirm before publishing to Amazon via API.',
       icon: Upload,
-      logo: 'https://aojrdgobdavxjpnymskc.supabase.co/storage/v1/object/public/block-icons/amazon.png',
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
       needsConnection: false,
       connectionService: null
     }
@@ -383,7 +383,7 @@ export function MyBlocksSection() {
                   <div className="flex items-center space-x-3">
                     <div className="flex-shrink-0">
                       {block.logo ? (
-                        <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center p-2">
+                        <div className="w-14 h-14 rounded-lg bg-gray-50 flex items-center justify-center p-2">
                           <img 
                             src={block.logo} 
                             alt={`${block.name} logo`}
@@ -391,8 +391,8 @@ export function MyBlocksSection() {
                           />
                         </div>
                       ) : (
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                          <IconComponent className="h-5 w-5 text-gray-700" />
+                        <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
+                          <IconComponent className="h-7 w-7 text-gray-700" />
                         </div>
                       )}
                     </div>
@@ -455,7 +455,7 @@ export function MyBlocksSection() {
               <DialogHeader>
                 <DialogTitle className="flex items-center space-x-3">
                   {selectedBlock.logo ? (
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center p-2">
+                    <div className="w-14 h-14 rounded-lg bg-gray-50 flex items-center justify-center p-2">
                       <img 
                         src={selectedBlock.logo} 
                         alt={`${selectedBlock.name} logo`}
@@ -463,8 +463,8 @@ export function MyBlocksSection() {
                       />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                      <selectedBlock.icon className="h-5 w-5 text-gray-700" />
+                    <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <selectedBlock.icon className="h-7 w-7 text-gray-700" />
                     </div>
                   )}
                   <span>{selectedBlock.name}</span>
