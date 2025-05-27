@@ -66,6 +66,15 @@ export const blocksData: BlocksData = {
       connectionService: null
     },
     {
+      name: 'Amazon Product Images',
+      summary: 'Retrieve all product images from an Amazon listing.',
+      description: 'Extract all product images from any Amazon listing by providing an ASIN or product URL. This block retrieves main images, variant images, lifestyle shots, detail images, and A+ content images in their original quality. Perfect for competitor analysis, creating image libraries, or conducting visual audits of your product listings.',
+      icon: Image,
+      logo: '/lovable-uploads/2327962e-bb94-4ac1-b7a1-ac74d5553b77.png',
+      needsConnection: false,
+      connectionService: null
+    },
+    {
       name: 'Amazon Customer Reviews Summary',
       summary: 'Collect recent Amazon reviews by ASIN.',
       description: 'Scrapes and analyzes customer reviews from Amazon product pages. You can filter by star rating, date range, and verified purchase status. The block extracts review text, ratings, reviewer information, and helpful votes. Ideal for sentiment analysis, identifying product issues, and understanding customer feedback patterns.',
