@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Cog } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,8 +30,8 @@ export const NavigationVisibilityContext = React.createContext<NavigationVisibil
 });
 
 export function NavigationVisibilityProvider({ children }: { children: React.ReactNode }) {
-  // Default navigation settings
-  const defaultSections = ["workflow", "brand", "support"];
+  // Default navigation settings - brand toolkit hidden by default
+  const defaultSections = ["workflow", "support"];
   const defaultItems = [
     "task-manager", "action-studio", "jarvi-flows", "knowledge-base", "agents-hub",
     "sales-center", "inventory", "listing-hub", "customers", "competitors", "advertising",
