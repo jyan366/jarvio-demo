@@ -1,4 +1,3 @@
-
 import { 
   Mail, 
   Upload, 
@@ -300,7 +299,7 @@ export const blocksData: BlocksData = {
       summary: 'Trigger an automated N8N workflow with your data.',
       description: 'Execute complex automation workflows in N8N by passing your workflow data as input. N8N workflows can handle multi-step automations, data transformations, and integrations with hundreds of services. Perfect for triggering sophisticated automation chains, custom business logic, or connecting to services not directly supported.',
       icon: Zap,
-      logo: '/lovable-uploads/ea79b591-e864-43d9-b203-f038c32785d8.png',
+      logo: '/lovable-uploads/8664887d-b062-4eb6-800d-b62a7ef462c3.png',
       needsConnection: true,
       connectionService: 'N8N'
     },
@@ -309,7 +308,7 @@ export const blocksData: BlocksData = {
       summary: 'Execute a Zapier automation with your workflow data.',
       description: 'Trigger Zapier automations by sending your workflow data to a Zapier webhook. This allows you to leverage Zapier\'s extensive library of app integrations and pre-built automation templates. Ideal for connecting to apps not natively supported, triggering multi-app workflows, or using existing Zapier automations in your flow.',
       icon: Zap,
-      logo: '/lovable-uploads/8664887d-b062-4eb6-800d-b62a7ef462c3.png',
+      logo: '/lovable-uploads/ea79b591-e864-43d9-b203-f038c32785d8.png',
       needsConnection: true,
       connectionService: 'Zapier'
     },
