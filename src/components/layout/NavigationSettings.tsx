@@ -34,28 +34,27 @@ export function NavigationVisibilityProvider({ children }: { children: React.Rea
   const defaultSections = ["workflow", "support"];
   const defaultItems = [
     "task-manager", "action-studio", "jarvi-flows", "knowledge-base", "agents-hub",
-    "sales-center", "inventory", "listing-hub", "customers", "competitors", "advertising",
     "jarvio-assistant", "financing", "get-support"
   ];
 
   // Initialize state from localStorage or use defaults
   const [visibleSections, setVisibleSections] = React.useState<string[]>(() => {
-    const stored = localStorage.getItem('visibleNavSections');
+    const stored = localStorage.getItem('visibleNavSections_v2');
     return stored ? JSON.parse(stored) : defaultSections;
   });
 
   const [visibleItems, setVisibleItems] = React.useState<string[]>(() => {
-    const stored = localStorage.getItem('visibleNavItems');
+    const stored = localStorage.getItem('visibleNavItems_v2');
     return stored ? JSON.parse(stored) : defaultItems;
   });
 
   // Save to localStorage whenever state changes
   React.useEffect(() => {
-    localStorage.setItem('visibleNavSections', JSON.stringify(visibleSections));
+    localStorage.setItem('visibleNavSections_v2', JSON.stringify(visibleSections));
   }, [visibleSections]);
 
   React.useEffect(() => {
-    localStorage.setItem('visibleNavItems', JSON.stringify(visibleItems));
+    localStorage.setItem('visibleNavItems_v2', JSON.stringify(visibleItems));
   }, [visibleItems]);
 
   const toggleSection = (sectionId: string) => {
