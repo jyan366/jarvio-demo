@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import Home from './pages/Home';
@@ -49,7 +48,7 @@ function App() {
         <Route path="/community-templates" element={<CommunityTemplates />} />
         <Route path="/flow-builder/:flowId?" element={<FlowBuilder />} />
         <Route path="/task-manager" element={<TaskManager />} />
-        <Route path="/task/:taskId" element={<TaskWorkContainer />} />
+        <Route path="/task/:taskId" element={<TaskWork />} />
         <Route path="/sales-hub" element={<SalesHub />} />
         <Route path="/my-inventory" element={<MyInventory />} />
         <Route path="/product-reviews" element={<ProductReviews />} />
