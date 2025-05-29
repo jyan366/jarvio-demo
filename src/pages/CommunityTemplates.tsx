@@ -9,7 +9,7 @@ export default function CommunityTemplates() {
       <div className="space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            2,800+ Workflow
+            497 Workflow
             <br />
             Automation Templates
           </h1>
