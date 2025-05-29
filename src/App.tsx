@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -35,6 +36,7 @@ import AIAssistant from './pages/AIAssistant';
 import FlowBlocksAdmin from './pages/FlowBlocksAdmin';
 import ChatTest from './pages/ChatTest';
 import BlockTesting from './pages/BlockTesting';
+import PitchDeck from './pages/PitchDeck';
 
 function App() {
   return (
@@ -62,6 +64,7 @@ function App() {
             <Route path="/all-product-reviews" element={<AllProductReviews />} />
             <Route path="/flow-blocks-admin" element={<FlowBlocksAdmin />} />
             <Route path="/block-testing" element={<BlockTesting />} />
+            <Route path="/pitch-deck" element={<PitchDeck />} />
             
             {/* Brand Toolkit Routes */}
             <Route path="/my-offers" element={<MyOffers />} />
