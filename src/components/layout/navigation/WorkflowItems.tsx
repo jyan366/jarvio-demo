@@ -1,50 +1,42 @@
 
-import {
-  CheckSquare,
-  Sparkles,
-  Book,
-  GitBranch,
-  Settings,
-  TestTube,
-} from "lucide-react";
-
-import { MenuItem } from "./types";
+import { Zap, GitBranch, BarChart3, Settings, Users, Globe } from 'lucide-react';
+import { MenuItem } from './types';
 
 export const workflowItems: MenuItem[] = [
   {
-    icon: CheckSquare,
-    label: "Home",
-    href: "/task-manager",
-    id: "task-manager",
+    title: 'My Flows',
+    icon: Zap,
+    href: '/jarvi-flows',
+    description: 'Create and manage your automated workflows'
   },
   {
-    icon: Sparkles,
-    label: "Action Studio",
-    href: "/action-studio",
-    id: "action-studio",
+    title: 'Community Templates',
+    icon: Users,
+    href: '/community-templates',
+    description: 'Browse thousands of proven workflow templates'
   },
   {
+    title: 'Flow Builder',
     icon: GitBranch,
-    label: "Flows",
-    href: "/jarvi-flows",
-    id: "jarvi-flows",
+    href: '/flow-builder',
+    description: 'Visual workflow builder with drag & drop'
   },
   {
+    title: 'Analytics Studio',
+    icon: BarChart3,
+    href: '/analytics-studio',
+    description: 'Advanced workflow analytics and insights'
+  },
+  {
+    title: 'Action Studio',
     icon: Settings,
-    label: "Flow Blocks Admin",
-    href: "/flow-blocks-admin",
-    id: "flow-blocks-admin",
+    href: '/action-studio',
+    description: 'Task prioritization and process automation'
   },
   {
-    icon: TestTube,
-    label: "Block Testing",
-    href: "/block-testing",
-    id: "block-testing",
-  },
-  {
-    icon: Book,
-    label: "Knowledge Base",
-    href: "/knowledge-base",
-    id: "knowledge-base",
-  },
+    title: 'Pitch Deck',
+    icon: Globe,
+    href: '/pitch-deck',
+    description: 'Product showcase and integrations'
+  }
 ];
