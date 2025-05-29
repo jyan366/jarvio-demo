@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,9 +15,9 @@ export default function PitchDeck() {
     { ...blocksData.collect[1], category: 'collect' }, // Amazon Sales Summary
     { ...blocksData.collect[3], category: 'collect' }, // Amazon Listing Summary
     { ...blocksData.collect[5], category: 'collect' }, // Amazon Customer Reviews Summary
-    { ...blocksData.think[0], category: 'think' }, // AI Analysis
-    { ...blocksData.think[1], category: 'think' }, // Price Optimization
     { ...blocksData.act[0], category: 'act' }, // Push to Amazon
+    { ...blocksData.think[1], category: 'think' }, // Price Optimization
+    { ...blocksData.think[0], category: 'think' }, // AI Analysis
     // Jarvio blocks
     { ...blocksData.act[5], category: 'act' }, // Create Jarvio Task
     // Other service blocks
