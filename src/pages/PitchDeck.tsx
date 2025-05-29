@@ -18,6 +18,8 @@ export default function PitchDeck() {
     { ...blocksData.think[1], category: 'think' }, // Price Optimization
     // Find and add Run Zapier Workflow
     ...blocksData.act.filter(block => block.name === 'Run Zapier Workflow').map(block => ({ ...block, category: 'act' })),
+    // Find and add Notion block
+    ...blocksData.act.filter(block => block.name === 'Notion').map(block => ({ ...block, category: 'act' })),
     // Jarvio blocks
     { ...blocksData.act[5], category: 'act' }, // Create Jarvio Task
     // Other service blocks
