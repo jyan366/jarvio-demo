@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Play, CheckCircle, XCircle, ShoppingBag } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Loader2, Play, CheckCircle, XCircle, ShoppingBag, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ExecutionResult {
@@ -14,6 +14,23 @@ interface ExecutionResult {
   error?: string;
   executionTime?: number;
   timestamp?: string;
+}
+
+interface ProductDetails {
+  name?: string;
+  price?: string;
+  description?: string;
+  image?: string;
+  availability?: string;
+  brand?: string;
+  [key: string]: any;
+}
+
+interface OtherProduct {
+  name: string;
+  link: string;
+  price?: string;
+  [key: string]: any;
 }
 
 const N8N_WEBHOOK_URL = 'https://jarvio.app.n8n.cloud/webhook-test/698a75e6-643c-496e-9a84-31543b7d9573';
@@ -60,13 +77,8 @@ export function ProductDetailsRetriever() {
       console.log('Response status:', response.status);
 
       if (response.ok) {
-        let responseData;
-        try {
-          responseData = await response.json();
-        } catch (e) {
-          responseData = await response.text();
-        }
-        
+        // Fix: Only read the response once
+        const responseData = await response.json();
         console.log('Response data:', responseData);
         
         setResult({
@@ -81,7 +93,8 @@ export function ProductDetailsRetriever() {
           description: `Received response in ${executionTime}ms`,
         });
       } else {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
     } catch (error) {
@@ -129,24 +142,98 @@ export function ProductDetailsRetriever() {
     }
   };
 
-  const renderRawData = (data: any) => {
-    if (!data) return null;
-    
+  const renderProductDetails = (productData: ProductDetails) => {
+    if (!productData || typeof productData !== 'object') return null;
+
     return (
       <div className="space-y-4">
-        <div className="bg-gray-50 rounded-lg p-4 border">
-          <h4 className="font-semibold text-gray-900 mb-3">Raw Response Data</h4>
-          <pre className="text-sm text-gray-700 whitespace-pre-wrap overflow-x-auto">
-            {JSON.stringify(data, null, 2)}
-          </pre>
+        <h4 className="font-semibold text-lg text-gray-900">Product Information</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Object.entries(productData).map(([key, value]) => (
+            <div key={key} className="bg-gray-50 rounded-lg p-3 border">
+              <dt className="font-medium text-gray-600 capitalize text-sm">
+                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+              </dt>
+              <dd className="text-gray-900 mt-1">
+                {typeof value === 'string' ? value : JSON.stringify(value)}
+              </dd>
+            </div>
+          ))}
         </div>
+      </div>
+    );
+  };
+
+  const renderOtherProductsTable = (otherProducts: OtherProduct[]) => {
+    if (!Array.isArray(otherProducts) || otherProducts.length === 0) return null;
+
+    return (
+      <div className="space-y-4">
+        <h4 className="font-semibold text-lg text-gray-900">Other Products from Brand</h4>
+        <div className="border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product Name</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Link</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {otherProducts.map((product, index) => (
+                <TableRow key={index}>
+                  <TableCell className="font-medium">{product.name || 'N/A'}</TableCell>
+                  <TableCell>{product.price || 'N/A'}</TableCell>
+                  <TableCell>
+                    {product.link ? (
+                      <a
+                        href={product.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 underline"
+                      >
+                        View Product
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ) : (
+                      'N/A'
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    );
+  };
+
+  const renderResults = (data: any) => {
+    if (!data) return null;
+
+    // Handle different possible response structures
+    const productDetails = data.productDetails || data.product || data.productpage || null;
+    const otherProducts = data.otherProducts || data.relatedProducts || data.otherproducts || null;
+
+    return (
+      <div className="space-y-6">
+        {/* Product Details Section */}
+        {productDetails && renderProductDetails(productDetails)}
         
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-          <h4 className="font-semibold text-blue-900 mb-2">Response Type</h4>
-          <p className="text-blue-700 text-sm">
-            {Array.isArray(data) ? `Array with ${data.length} items` : typeof data}
-          </p>
-        </div>
+        {/* Other Products Table */}
+        {otherProducts && renderOtherProductsTable(otherProducts)}
+        
+        {/* Raw Data Fallback */}
+        {(!productDetails && !otherProducts) && (
+          <div className="space-y-4">
+            <h4 className="font-semibold text-gray-900">Raw Response Data</h4>
+            <div className="bg-gray-50 rounded-lg p-4 border">
+              <pre className="text-sm text-gray-700 whitespace-pre-wrap overflow-x-auto">
+                {JSON.stringify(data, null, 2)}
+              </pre>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -207,7 +294,7 @@ export function ProductDetailsRetriever() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {getStatusIcon(result.status)}
-              Webhook Response
+              Extraction Results
             </CardTitle>
             <CardDescription>
               {result.timestamp && (
@@ -220,7 +307,7 @@ export function ProductDetailsRetriever() {
           </CardHeader>
           <CardContent>
             {result.status === 'success' && result.data ? (
-              renderRawData(result.data)
+              renderResults(result.data)
             ) : result.status === 'error' ? (
               <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
                 <h4 className="font-semibold text-red-800 mb-2">Request Failed</h4>
