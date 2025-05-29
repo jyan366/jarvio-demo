@@ -16,7 +16,7 @@ interface ExecutionResult {
   timestamp?: string;
 }
 
-const N8N_WEBHOOK_URL = 'https://jarvio.app.n8n.cloud/webhook/698a75e6-643c-496e-9a84-31543b7d9573';
+const N8N_WEBHOOK_URL = 'https://jarvio.app.n8n.cloud/webhook-test/698a75e6-643c-496e-9a84-31543b7d9573';
 
 export function ProductDetailsRetriever() {
   const [url, setUrl] = useState('');
