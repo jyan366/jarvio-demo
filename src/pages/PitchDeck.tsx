@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,17 +7,20 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink, Star } from 'lucide-react';
 
 export default function PitchDeck() {
-  // Get popular blocks from each category
+  // Get popular blocks organized by Amazon, then Jarvio, then other services
   const popularBlocks = [
-    { ...blocksData.collect[0], category: 'collect' }, // Amazon Seller Central
-    { ...blocksData.collect[1], category: 'collect' }, // Amazon MWS/SP-API
-    { ...blocksData.think[0], category: 'think' }, // AI Product Analysis
+    // Amazon blocks
+    { ...blocksData.collect[0], category: 'collect' }, // Pull from Amazon
+    { ...blocksData.collect[1], category: 'collect' }, // Amazon Sales Summary
+    { ...blocksData.collect[3], category: 'collect' }, // Amazon Listing Summary
+    { ...blocksData.collect[5], category: 'collect' }, // Amazon Customer Reviews Summary
+    { ...blocksData.think[0], category: 'think' }, // AI Analysis
     { ...blocksData.think[1], category: 'think' }, // Price Optimization
-    { ...blocksData.act[0], category: 'act' }, // Update Listings
-    { ...blocksData.act[1], category: 'act' }, // Inventory Management
-    { ...blocksData.collect[2], category: 'collect' }, // Customer Reviews
-    { ...blocksData.think[2], category: 'think' }, // Competitor Analysis
-    { ...blocksData.collect[6], category: 'collect' } // Scrape Shopify Product Pages (instead of Amazon inventory summary)
+    { ...blocksData.act[0], category: 'act' }, // Push to Amazon
+    // Jarvio blocks
+    { ...blocksData.act[5], category: 'act' }, // Create Jarvio Task
+    // Other service blocks
+    { ...blocksData.collect[6], category: 'collect' } // Scrape Shopify Product Pages
   ].filter(Boolean);
 
   const totalBlocks = blocksData.collect.length + blocksData.think.length + blocksData.act.length;
