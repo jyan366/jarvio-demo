@@ -10,18 +10,57 @@ import { ExternalLink, Star } from 'lucide-react';
 export default function PitchDeck() {
   // Get popular blocks from each category
   const popularBlocks = [
-    blocksData.collect[0], // Amazon Seller Central
-    blocksData.collect[1], // Amazon MWS/SP-API
-    blocksData.think[0], // AI Product Analysis
-    blocksData.think[1], // Price Optimization
-    blocksData.act[0], // Update Listings
-    blocksData.act[1], // Inventory Management
-    blocksData.collect[2], // Customer Reviews
-    blocksData.think[2], // Competitor Analysis
-    blocksData.act[10] // Run Zapier Workflow (instead of inventory summary)
+    { ...blocksData.collect[0], category: 'collect' }, // Amazon Seller Central
+    { ...blocksData.collect[1], category: 'collect' }, // Amazon MWS/SP-API
+    { ...blocksData.think[0], category: 'think' }, // AI Product Analysis
+    { ...blocksData.think[1], category: 'think' }, // Price Optimization
+    { ...blocksData.act[0], category: 'act' }, // Update Listings
+    { ...blocksData.act[1], category: 'act' }, // Inventory Management
+    { ...blocksData.collect[2], category: 'collect' }, // Customer Reviews
+    { ...blocksData.think[2], category: 'think' }, // Competitor Analysis
+    { ...blocksData.act[10], category: 'act' } // Run Zapier Workflow (instead of inventory summary)
   ].filter(Boolean);
 
   const totalBlocks = blocksData.collect.length + blocksData.think.length + blocksData.act.length;
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'collect':
+        return 'bg-blue-500';
+      case 'think':
+        return 'bg-purple-500';
+      case 'act':
+        return 'bg-green-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const getCategoryLabel = (category: string) => {
+    switch (category) {
+      case 'collect':
+        return 'Collect';
+      case 'think':
+        return 'Think';
+      case 'act':
+        return 'Act';
+      default:
+        return category;
+    }
+  };
+
+  const getCategoryBadgeColor = (category: string) => {
+    switch (category) {
+      case 'collect':
+        return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'think':
+        return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'act':
+        return 'bg-green-100 text-green-800 border-green-300';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
 
   return (
     <MainLayout>
@@ -105,14 +144,9 @@ export default function PitchDeck() {
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700 font-medium">
-                            Collect
-                          </span>
-                          <span className="text-xs px-2 py-1 rounded bg-orange-100 text-orange-700 font-medium">
-                            Think
-                          </span>
-                          <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 font-medium">
-                            Act
+                          <div className={`w-2 h-2 rounded-full ${getCategoryColor(block.category)}`}></div>
+                          <span className={`text-xs px-2 py-1 rounded font-medium ${getCategoryBadgeColor(block.category)}`}>
+                            {getCategoryLabel(block.category)}
                           </span>
                         </div>
                         
@@ -206,9 +240,12 @@ export default function PitchDeck() {
                             </p>
                             
                             <div className="flex items-center justify-between">
-                              <Badge variant="outline" className="text-xs capitalize border-gray-300">
-                                {category}
-                              </Badge>
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${getCategoryColor(category)}`}></div>
+                                <span className={`text-xs px-2 py-1 rounded font-medium ${getCategoryBadgeColor(category)}`}>
+                                  {getCategoryLabel(category)}
+                                </span>
+                              </div>
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
