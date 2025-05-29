@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Play, CheckCircle, XCircle, ShoppingBag, DollarSign, Package, Star } from 'lucide-react';
+import { Loader2, Play, CheckCircle, XCircle, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ExecutionResult {
@@ -16,7 +16,7 @@ interface ExecutionResult {
   timestamp?: string;
 }
 
-const N8N_WEBHOOK_URL = 'https://jarvio.app.n8n.cloud/webhook-test/698a75e6-643c-496e-9a84-31543b7d9573';
+const N8N_WEBHOOK_URL = 'https://jarvio.app.n8n.cloud/webhook/698a75e6-643c-496e-9a84-31543b7d9573';
 
 export function ProductDetailsRetriever() {
   const [url, setUrl] = useState('');
@@ -67,6 +67,8 @@ export function ProductDetailsRetriever() {
           responseData = await response.text();
         }
         
+        console.log('Response data:', responseData);
+        
         setResult({
           status: 'success',
           data: responseData,
@@ -75,8 +77,8 @@ export function ProductDetailsRetriever() {
         });
 
         toast({
-          title: "Product Details Extracted!",
-          description: `Successfully analyzed product in ${executionTime}ms`,
+          title: "Request Completed!",
+          description: `Received response in ${executionTime}ms`,
         });
       } else {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -94,7 +96,7 @@ export function ProductDetailsRetriever() {
       });
 
       toast({
-        title: "Extraction Failed",
+        title: "Request Failed",
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: "destructive",
       });
@@ -117,7 +119,7 @@ export function ProductDetailsRetriever() {
   const getStatusBadge = (status: ExecutionResult['status']) => {
     switch (status) {
       case 'running':
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Analyzing...</Badge>;
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Processing...</Badge>;
       case 'success':
         return <Badge variant="default" className="bg-green-100 text-green-800">Success</Badge>;
       case 'error':
@@ -127,117 +129,23 @@ export function ProductDetailsRetriever() {
     }
   };
 
-  const renderProductDetails = (data: any) => {
-    if (!data || !data.data) return null;
-    
-    const product = data.data;
+  const renderRawData = (data: any) => {
+    if (!data) return null;
     
     return (
-      <div className="space-y-6">
-        {/* Product Header */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{product.title}</h3>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                  <span className="text-2xl font-bold text-green-600">{product.price}</span>
-                  {product.currency && (
-                    <span className="text-sm text-gray-500">({product.currency})</span>
-                  )}
-                </div>
-                {product.has_video && (
-                  <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                    Video Available
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
+      <div className="space-y-4">
+        <div className="bg-gray-50 rounded-lg p-4 border">
+          <h4 className="font-semibold text-gray-900 mb-3">Raw Response Data</h4>
+          <pre className="text-sm text-gray-700 whitespace-pre-wrap overflow-x-auto">
+            {JSON.stringify(data, null, 2)}
+          </pre>
         </div>
-
-        {/* Product Details Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          {/* Description */}
-          {product.description && (
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" />
-                  Product Description
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed">{product.description}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Benefits */}
-          {product.benefits && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-amber-500" />
-                  Health Benefits
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700">{product.benefits}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Ingredients */}
-          {product.ingredients_or_materials && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5 text-green-500" />
-                  Ingredients
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700">{product.ingredients_or_materials}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Additional Info */}
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle>Additional Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-lg font-semibold text-gray-900">{product.number_of_images || 0}</div>
-                  <div className="text-sm text-gray-600">Images</div>
-                </div>
-                
-                {product.shipping_cost && (
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-lg font-semibold text-gray-900">{product.shipping_cost}</div>
-                    <div className="text-sm text-gray-600">Shipping</div>
-                  </div>
-                )}
-                
-                {product.variations && (
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-lg font-semibold text-gray-900">Available</div>
-                    <div className="text-sm text-gray-600">Variations</div>
-                  </div>
-                )}
-                
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-lg font-semibold text-gray-900">{data.status}</div>
-                  <div className="text-sm text-gray-600">Status</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        
+        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <h4 className="font-semibold text-blue-900 mb-2">Response Type</h4>
+          <p className="text-blue-700 text-sm">
+            {Array.isArray(data) ? `Array with ${data.length} items` : typeof data}
+          </p>
         </div>
       </div>
     );
@@ -278,7 +186,7 @@ export function ProductDetailsRetriever() {
               size="lg"
             >
               {getStatusIcon(result.status)}
-              {result.status === 'running' ? 'Extracting Details...' : 'Extract Product Details'}
+              {result.status === 'running' ? 'Processing...' : 'Extract Details'}
             </Button>
             
             <div className="flex items-center gap-2">
@@ -299,7 +207,7 @@ export function ProductDetailsRetriever() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {getStatusIcon(result.status)}
-              Extraction Results
+              Webhook Response
             </CardTitle>
             <CardDescription>
               {result.timestamp && (
@@ -312,10 +220,10 @@ export function ProductDetailsRetriever() {
           </CardHeader>
           <CardContent>
             {result.status === 'success' && result.data ? (
-              renderProductDetails(result.data)
+              renderRawData(result.data)
             ) : result.status === 'error' ? (
               <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-                <h4 className="font-semibold text-red-800 mb-2">Extraction Failed</h4>
+                <h4 className="font-semibold text-red-800 mb-2">Request Failed</h4>
                 <p className="text-red-700 text-sm">{result.error}</p>
               </div>
             ) : (
