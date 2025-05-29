@@ -16,20 +16,17 @@ interface ExecutionResult {
   timestamp?: string;
 }
 
-interface ProductDetails {
-  name?: string;
+interface ProductPage {
   price?: string;
+  title?: string;
+  benefits?: string;
+  currency?: string;
+  has_video?: boolean;
+  variations?: string;
   description?: string;
-  image?: string;
-  availability?: string;
-  brand?: string;
-  [key: string]: any;
-}
-
-interface OtherProduct {
-  name: string;
-  link: string;
-  price?: string;
+  shipping_cost?: string;
+  number_of_images?: number;
+  ingredients_or_materials?: string;
   [key: string]: any;
 }
 
@@ -77,7 +74,6 @@ export function ProductDetailsRetriever() {
       console.log('Response status:', response.status);
 
       if (response.ok) {
-        // Fix: Only read the response once
         const responseData = await response.json();
         console.log('Response data:', responseData);
         
@@ -142,20 +138,38 @@ export function ProductDetailsRetriever() {
     }
   };
 
-  const renderProductDetails = (productData: ProductDetails) => {
-    if (!productData || typeof productData !== 'object') return null;
+  const parseMarkdownTable = (markdownTable: string) => {
+    const lines = markdownTable.trim().split('\n');
+    if (lines.length < 3) return [];
+
+    // Skip header and separator lines
+    const dataLines = lines.slice(2);
+    
+    return dataLines.map(line => {
+      const cells = line.split('|').map(cell => cell.trim()).filter(cell => cell);
+      return {
+        name: cells[0] || '',
+        link: cells[1] || ''
+      };
+    }).filter(product => product.name && product.link);
+  };
+
+  const renderProductDetails = (productPage: ProductPage) => {
+    if (!productPage || typeof productPage !== 'object') return null;
 
     return (
       <div className="space-y-4">
         <h4 className="font-semibold text-lg text-gray-900">Product Information</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.entries(productData).map(([key, value]) => (
+          {Object.entries(productPage).map(([key, value]) => (
             <div key={key} className="bg-gray-50 rounded-lg p-3 border">
               <dt className="font-medium text-gray-600 capitalize text-sm">
-                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/^./, str => str.toUpperCase())}
               </dt>
               <dd className="text-gray-900 mt-1">
-                {typeof value === 'string' ? value : JSON.stringify(value)}
+                {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : 
+                 typeof value === 'string' ? value : 
+                 JSON.stringify(value)}
               </dd>
             </div>
           ))}
@@ -164,8 +178,11 @@ export function ProductDetailsRetriever() {
     );
   };
 
-  const renderOtherProductsTable = (otherProducts: OtherProduct[]) => {
-    if (!Array.isArray(otherProducts) || otherProducts.length === 0) return null;
+  const renderOtherProductsTable = (otherProducts: string) => {
+    if (!otherProducts || typeof otherProducts !== 'string') return null;
+
+    const products = parseMarkdownTable(otherProducts);
+    if (products.length === 0) return null;
 
     return (
       <div className="space-y-4">
@@ -175,29 +192,23 @@ export function ProductDetailsRetriever() {
             <TableHeader>
               <TableRow>
                 <TableHead>Product Name</TableHead>
-                <TableHead>Price</TableHead>
                 <TableHead>Link</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {otherProducts.map((product, index) => (
+              {products.map((product, index) => (
                 <TableRow key={index}>
-                  <TableCell className="font-medium">{product.name || 'N/A'}</TableCell>
-                  <TableCell>{product.price || 'N/A'}</TableCell>
+                  <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>
-                    {product.link ? (
-                      <a
-                        href={product.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 underline"
-                      >
-                        View Product
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    ) : (
-                      'N/A'
-                    )}
+                    <a
+                      href={product.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 underline"
+                    >
+                      View Product
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
                   </TableCell>
                 </TableRow>
               ))}
@@ -211,20 +222,25 @@ export function ProductDetailsRetriever() {
   const renderResults = (data: any) => {
     if (!data) return null;
 
-    // Handle different possible response structures
-    const productDetails = data.productDetails || data.product || data.productpage || null;
-    const otherProducts = data.otherProducts || data.relatedProducts || data.otherproducts || null;
+    // Handle array response format
+    const responseArray = Array.isArray(data) ? data : [data];
+    const firstItem = responseArray[0];
+
+    if (!firstItem) return null;
+
+    const productPage = firstItem.productpage;
+    const otherProducts = firstItem.otherproducts;
 
     return (
       <div className="space-y-6">
         {/* Product Details Section */}
-        {productDetails && renderProductDetails(productDetails)}
+        {productPage && renderProductDetails(productPage)}
         
         {/* Other Products Table */}
         {otherProducts && renderOtherProductsTable(otherProducts)}
         
         {/* Raw Data Fallback */}
-        {(!productDetails && !otherProducts) && (
+        {(!productPage && !otherProducts) && (
           <div className="space-y-4">
             <h4 className="font-semibold text-gray-900">Raw Response Data</h4>
             <div className="bg-gray-50 rounded-lg p-4 border">
