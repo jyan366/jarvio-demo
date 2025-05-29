@@ -54,6 +54,10 @@ export function ProductDetailsRetriever() {
     setResult({ status: 'running' });
     const startTime = Date.now();
 
+    // Create an AbortController with a longer timeout (3 minutes)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minutes
+
     try {
       console.log('Triggering n8n workflow with URL:', url);
       
@@ -72,8 +76,10 @@ export function ProductDetailsRetriever() {
           timestamp: new Date().toISOString(),
           source: 'block-testing-interface'
         }),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId); // Clear the timeout if request completes
       const executionTime = Date.now() - startTime;
       console.log('Response status:', response.status);
 
@@ -90,7 +96,7 @@ export function ProductDetailsRetriever() {
 
         toast({
           title: "Request Completed!",
-          description: `Received response in ${executionTime}ms`,
+          description: `Received response in ${Math.round(executionTime / 1000)}s`,
         });
       } else {
         const errorText = await response.text();
@@ -98,19 +104,32 @@ export function ProductDetailsRetriever() {
       }
 
     } catch (error) {
+      clearTimeout(timeoutId); // Clear timeout on error
       console.error('Error triggering workflow:', error);
       const executionTime = Date.now() - startTime;
       
+      let errorMessage = 'Unknown error';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Request timed out after 3 minutes. The server may still be processing your request.';
+        } else if (error.message === 'Failed to fetch') {
+          errorMessage = 'Network error or request timeout. Please check your connection and try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       setResult({
         status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMessage,
         executionTime,
         timestamp: new Date().toISOString(),
       });
 
       toast({
         title: "Request Failed",
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -360,11 +379,17 @@ export function ProductDetailsRetriever() {
               {getStatusBadge(result.status)}
               {result.executionTime && (
                 <span className="text-xs text-gray-500">
-                  {result.executionTime}ms
+                  {Math.round(result.executionTime / 1000)}s
                 </span>
               )}
             </div>
           </div>
+          
+          {result.status === 'running' && (
+            <div className="text-center text-sm text-gray-600 mt-2">
+              <p>Processing your request... This may take up to 3 minutes for complex websites.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -380,7 +405,7 @@ export function ProductDetailsRetriever() {
               {result.timestamp && (
                 <>
                   Completed at {new Date(result.timestamp).toLocaleString()}
-                  {result.executionTime && ` • ${result.executionTime}ms`}
+                  {result.executionTime && ` • ${Math.round(result.executionTime / 1000)}s`}
                 </>
               )}
             </CardDescription>
