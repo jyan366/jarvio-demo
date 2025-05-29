@@ -16,7 +16,8 @@ export default function PitchDeck() {
     { ...blocksData.collect[3], category: 'collect' }, // Amazon Listing Summary
     { ...blocksData.act[0], category: 'act' }, // Push to Amazon
     { ...blocksData.think[1], category: 'think' }, // Price Optimization
-    { ...blocksData.act[11], category: 'act' }, // Run Zapier Workflow
+    // Find and add Run Zapier Workflow
+    ...blocksData.act.filter(block => block.name === 'Run Zapier Workflow').map(block => ({ ...block, category: 'act' })),
     // Jarvio blocks
     { ...blocksData.act[5], category: 'act' }, // Create Jarvio Task
     // Other service blocks
