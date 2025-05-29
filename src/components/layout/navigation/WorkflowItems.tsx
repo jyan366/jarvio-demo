@@ -4,37 +4,37 @@ import { MenuItem } from './types';
 
 export const workflowItems: MenuItem[] = [
   {
-    title: 'My Flows',
+    name: 'My Flows',
     icon: Zap,
     href: '/jarvi-flows',
     description: 'Create and manage your automated workflows'
   },
   {
-    title: 'Community Templates',
+    name: 'Community Templates',
     icon: Users,
     href: '/community-templates',
     description: 'Browse thousands of proven workflow templates'
   },
   {
-    title: 'Flow Builder',
+    name: 'Flow Builder',
     icon: GitBranch,
     href: '/flow-builder',
     description: 'Visual workflow builder with drag & drop'
   },
   {
-    title: 'Analytics Studio',
+    name: 'Analytics Studio',
     icon: BarChart3,
     href: '/analytics-studio',
     description: 'Advanced workflow analytics and insights'
   },
   {
-    title: 'Action Studio',
+    name: 'Action Studio',
     icon: Settings,
     href: '/action-studio',
     description: 'Task prioritization and process automation'
   },
   {
-    title: 'Pitch Deck',
+    name: 'Pitch Deck',
     icon: Globe,
     href: '/pitch-deck',
     description: 'Product showcase and integrations'
