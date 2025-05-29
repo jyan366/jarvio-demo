@@ -28,34 +28,48 @@ export function ProductDetailsRetriever() {
     const startTime = Date.now();
 
     try {
-      console.log('Testing connection to n8n webhook:', N8N_WEBHOOK_URL);
+      console.log('Making POST request to n8n webhook:', N8N_WEBHOOK_URL);
       
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        mode: 'no-cors', // Handle CORS by using no-cors mode
         body: JSON.stringify({
           test: true,
-          message: 'Connection test from Block Testing page'
+          action: 'connection_test',
+          message: 'Connection test from Block Testing page',
+          timestamp: new Date().toISOString(),
+          source: 'block-testing-interface'
         }),
       });
 
       const executionTime = Date.now() - startTime;
+      console.log('Response status:', response.status);
       
-      // With no-cors mode, we can't read the response, but we can assume success if no error was thrown
-      setConnectionTest({
-        status: 'success',
-        data: { message: 'Request sent successfully (no-cors mode - cannot read response)' },
-        executionTime,
-        timestamp: new Date().toISOString(),
-      });
+      if (response.ok) {
+        let responseData;
+        try {
+          responseData = await response.json();
+        } catch (e) {
+          responseData = await response.text();
+        }
+        
+        setConnectionTest({
+          status: 'success',
+          data: responseData,
+          executionTime,
+          timestamp: new Date().toISOString(),
+        });
 
-      toast({
-        title: "Connection Test Sent",
-        description: `Request sent to webhook in ${executionTime}ms. Check your n8n workflow to confirm it was triggered.`,
-      });
+        toast({
+          title: "Connection Test Successful",
+          description: `Connected to n8n webhook in ${executionTime}ms`,
+        });
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
     } catch (error) {
       console.error('Connection test failed:', error);
@@ -70,7 +84,7 @@ export function ProductDetailsRetriever() {
 
       toast({
         title: "Connection Test Failed",
-        description: "CORS error - this is normal when testing external webhooks from browsers. Try executing the actual block instead.",
+        description: error instanceof Error ? error.message : 'Failed to connect to n8n webhook',
         variant: "destructive",
       });
     }
@@ -90,37 +104,51 @@ export function ProductDetailsRetriever() {
     const startTime = Date.now();
 
     try {
-      console.log('Triggering n8n workflow for URL:', url);
+      console.log('Making POST request to trigger n8n workflow for URL:', url);
       
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        mode: 'no-cors', // Handle CORS by using no-cors mode
         body: JSON.stringify({
+          test: false,
+          action: 'extract_product_details',
           blockType: 'collect',
           blockName: 'Retrieve Product Details from Website',
           url: url,
           blockId: 'product-details-retriever',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          source: 'block-testing-interface'
         }),
       });
 
       const executionTime = Date.now() - startTime;
+      console.log('Response status:', response.status);
 
-      // With no-cors mode, we can't read the response, but we can assume success if no error was thrown
-      setResult({
-        status: 'success',
-        data: { message: 'Request sent successfully (no-cors mode - cannot read response)', url: url },
-        executionTime,
-        timestamp: new Date().toISOString(),
-      });
+      if (response.ok) {
+        let responseData;
+        try {
+          responseData = await response.json();
+        } catch (e) {
+          responseData = await response.text();
+        }
+        
+        setResult({
+          status: 'success',
+          data: responseData,
+          executionTime,
+          timestamp: new Date().toISOString(),
+        });
 
-      toast({
-        title: "Block Execution Sent",
-        description: `Request sent to n8n workflow in ${executionTime}ms. Check your n8n workflow for results.`,
-      });
+        toast({
+          title: "Block Execution Successful",
+          description: `n8n workflow completed in ${executionTime}ms`,
+        });
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
     } catch (error) {
       console.error('Error executing block:', error);
@@ -177,11 +205,7 @@ export function ProductDetailsRetriever() {
             Connection Test
           </CardTitle>
           <CardDescription>
-            Test the connection to your n8n webhook: {N8N_WEBHOOK_URL}
-            <br />
-            <span className="text-xs text-muted-foreground">
-              Note: CORS errors are normal when testing external webhooks from browsers
-            </span>
+            Test the POST connection to your n8n webhook: {N8N_WEBHOOK_URL}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -204,10 +228,7 @@ export function ProductDetailsRetriever() {
               <div className="font-medium mb-2">Connection Test Result:</div>
               {connectionTest.status === 'success' && (
                 <div className="text-green-700">
-                  ✅ Request sent successfully ({connectionTest.executionTime}ms)
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    Check your n8n workflow execution history to confirm the webhook was triggered.
-                  </div>
+                  ✅ POST request successful ({connectionTest.executionTime}ms)
                   {connectionTest.data && (
                     <pre className="mt-2 text-xs bg-background p-2 rounded overflow-auto">
                       {JSON.stringify(connectionTest.data, null, 2)}
@@ -217,10 +238,7 @@ export function ProductDetailsRetriever() {
               )}
               {connectionTest.status === 'error' && (
                 <div className="text-red-700">
-                  ❌ Connection test failed: {connectionTest.error}
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    This is likely a CORS issue, which is normal for external webhooks. Try the actual block execution instead.
-                  </div>
+                  ❌ POST request failed: {connectionTest.error}
                 </div>
               )}
             </div>
@@ -288,12 +306,9 @@ export function ProductDetailsRetriever() {
             {result.status === 'success' && result.data && (
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">Request Sent Successfully</h4>
+                  <h4 className="font-semibold mb-2">Execution Results</h4>
                   <div className="bg-green-50 border border-green-200 rounded p-3 text-sm">
-                    <p className="text-green-800">
-                      Your request has been sent to the n8n workflow. Check your n8n execution history to see the results.
-                    </p>
-                    <pre className="mt-2 text-xs bg-background p-2 rounded overflow-auto">
+                    <pre className="text-xs bg-background p-2 rounded overflow-auto">
                       {JSON.stringify(result.data, null, 2)}
                     </pre>
                   </div>
@@ -305,9 +320,6 @@ export function ProductDetailsRetriever() {
               <div className="p-4 bg-red-50 border border-red-200 rounded">
                 <h4 className="font-semibold text-red-800 mb-2">Error Details</h4>
                 <p className="text-red-700 text-sm">{result.error}</p>
-                <div className="mt-2 text-xs text-red-600">
-                  If you're seeing CORS errors, this is normal for external webhooks. The request may still have been sent successfully.
-                </div>
               </div>
             )}
           </CardContent>
