@@ -82,10 +82,7 @@ export const TaskWorkHeader: React.FC<TaskWorkHeaderProps> = ({
           </Button>}
         
         {/* Flow indicator for desktop */}
-        {isFlowTask && <div className="hidden md:flex items-center text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md">
-            <Workflow className="w-4 h-4 mr-2" />
-            <span className="text-sm font-medium">Flow</span>
-          </div>}
+        {isFlowTask}
       </div>
 
       {/* Date row */}
