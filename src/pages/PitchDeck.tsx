@@ -18,7 +18,7 @@ export default function PitchDeck() {
     { ...blocksData.act[1], category: 'act' }, // Inventory Management
     { ...blocksData.collect[2], category: 'collect' }, // Customer Reviews
     { ...blocksData.think[2], category: 'think' }, // Competitor Analysis
-    { ...blocksData.act[10], category: 'act' } // Run Zapier Workflow (instead of inventory summary)
+    { ...blocksData.collect[6], category: 'collect' } // Scrape Shopify Product Pages (instead of Amazon inventory summary)
   ].filter(Boolean);
 
   const totalBlocks = blocksData.collect.length + blocksData.think.length + blocksData.act.length;
