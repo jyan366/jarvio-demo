@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -154,22 +155,38 @@ export function ProductDetailsRetriever() {
     }).filter(product => product.name && product.link);
   };
 
+  const formatFieldName = (key: string) => {
+    return key
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/_/g, ' ')
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
+  };
+
+  const formatFieldValue = (value: any) => {
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    return JSON.stringify(value);
+  };
+
   const renderProductDetails = (productPage: ProductPage) => {
     if (!productPage || typeof productPage !== 'object') return null;
 
     return (
       <div className="space-y-4">
         <h4 className="font-semibold text-lg text-gray-900">Product Information</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-3">
           {Object.entries(productPage).map(([key, value]) => (
-            <div key={key} className="bg-gray-50 rounded-lg p-3 border">
-              <dt className="font-medium text-gray-600 capitalize text-sm">
-                {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/^./, str => str.toUpperCase())}
+            <div key={key} className="flex items-start space-x-4 py-2 border-b border-gray-100 last:border-b-0">
+              <dt className="font-medium text-gray-600 min-w-[140px] text-sm">
+                {formatFieldName(key)}:
               </dt>
-              <dd className="text-gray-900 mt-1">
-                {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : 
-                 typeof value === 'string' ? value : 
-                 JSON.stringify(value)}
+              <dd className="text-gray-900 flex-1">
+                {formatFieldValue(value)}
               </dd>
             </div>
           ))}
