@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Loader2, Play, CheckCircle, XCircle, ShoppingBag, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -36,7 +36,10 @@ const N8N_WEBHOOK_URL = 'https://jarvio.app.n8n.cloud/webhook-test/698a75e6-643c
 export function ProductDetailsRetriever() {
   const [url, setUrl] = useState('');
   const [result, setResult] = useState<ExecutionResult>({ status: 'idle' });
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
+  
+  const ITEMS_PER_PAGE = 15;
 
   const executeBlock = async () => {
     if (!url.trim()) {
@@ -201,9 +204,21 @@ export function ProductDetailsRetriever() {
     const products = parseMarkdownTable(otherProducts);
     if (products.length === 0) return null;
 
+    // Calculate pagination
+    const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentProducts = products.slice(startIndex, endIndex);
+
+    const handlePageChange = (page: number) => {
+      setCurrentPage(page);
+    };
+
     return (
       <div className="space-y-4">
-        <h4 className="font-semibold text-lg text-gray-900">Other Products from Brand</h4>
+        <h4 className="font-semibold text-lg text-gray-900">
+          {products.length} Other Products found from this Brand
+        </h4>
         <div className="border rounded-lg">
           <Table>
             <TableHeader>
@@ -213,8 +228,8 @@ export function ProductDetailsRetriever() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product, index) => (
-                <TableRow key={index}>
+              {currentProducts.map((product, index) => (
+                <TableRow key={startIndex + index}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>
                     <a
@@ -232,6 +247,38 @@ export function ProductDetailsRetriever() {
             </TableBody>
           </Table>
         </div>
+        
+        {totalPages > 1 && (
+          <Pagination className="justify-center">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => handlePageChange(page)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
     );
   };
