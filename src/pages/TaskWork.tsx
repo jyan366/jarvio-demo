@@ -10,5 +10,5 @@ export default function TaskWork() {
     return <div className="flex items-center justify-center min-h-screen">No task ID provided</div>;
   }
   
-  return <TaskWorkContainer taskId={taskId} />;
+  return <TaskWorkContainer />;
 }
