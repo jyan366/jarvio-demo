@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -5,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Play, CheckCircle, XCircle, ShoppingBag, ExternalLink } from 'lucide-react';
+import { Loader2, Play, CheckCircle, XCircle, ShoppingBag, ExternalLink, Star, Truck, Package, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ExecutionResult {
@@ -142,7 +143,6 @@ export function ProductDetailsRetriever() {
     const lines = markdownTable.trim().split('\n');
     if (lines.length < 3) return [];
 
-    // Skip header and separator lines
     const dataLines = lines.slice(2);
     
     return dataLines.map(line => {
@@ -154,25 +154,142 @@ export function ProductDetailsRetriever() {
     }).filter(product => product.name && product.link);
   };
 
-  const renderProductDetails = (productPage: ProductPage) => {
+  const renderEcommerceProductDetails = (productPage: ProductPage) => {
     if (!productPage || typeof productPage !== 'object') return null;
 
     return (
-      <div className="space-y-4">
-        <h4 className="font-semibold text-lg text-gray-900">Product Information</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.entries(productPage).map(([key, value]) => (
-            <div key={key} className="bg-gray-50 rounded-lg p-3 border">
-              <dt className="font-medium text-gray-600 capitalize text-sm">
-                {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/^./, str => str.toUpperCase())}
-              </dt>
-              <dd className="text-gray-900 mt-1">
-                {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : 
-                 typeof value === 'string' ? value : 
-                 JSON.stringify(value)}
-              </dd>
+      <div className="max-w-6xl mx-auto bg-white">
+        {/* Product Hero Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Product Image Placeholder */}
+          <div className="space-y-4">
+            <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center border">
+              <Package className="h-20 w-20 text-gray-400" />
             </div>
-          ))}
+            {productPage.number_of_images && (
+              <p className="text-sm text-gray-600 text-center">
+                {productPage.number_of_images} images available
+              </p>
+            )}
+          </div>
+
+          {/* Product Info */}
+          <div className="space-y-6">
+            {/* Title */}
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {productPage.title || 'Product Title'}
+              </h1>
+              <div className="flex items-center gap-2">
+                <div className="flex text-yellow-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 fill-current" />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600">(Based on reviews)</span>
+              </div>
+            </div>
+
+            {/* Price */}
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-gray-900">
+                  {productPage.price || 'Price not available'}
+                </span>
+                {productPage.currency && (
+                  <Badge variant="secondary" className="text-xs">
+                    {productPage.currency}
+                  </Badge>
+                )}
+              </div>
+              {productPage.shipping_cost && (
+                <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <Truck className="h-4 w-4" />
+                  <span>Shipping: {productPage.shipping_cost}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Variations */}
+            {productPage.variations && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Available Sizes:</Label>
+                <div className="flex flex-wrap gap-2">
+                  {productPage.variations.split(',').map((variation, index) => (
+                    <Badge key={index} variant="outline" className="px-3 py-1">
+                      {variation.trim()}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg">
+                Add to Cart
+              </Button>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1">
+                  <Heart className="h-4 w-4 mr-2" />
+                  Save for Later
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  Share Product
+                </Button>
+              </div>
+            </div>
+
+            {/* Key Features */}
+            {productPage.has_video !== undefined && (
+              <div className="flex items-center gap-2 text-sm">
+                <Badge variant={productPage.has_video ? "success" : "secondary"}>
+                  {productPage.has_video ? "✓ Video Available" : "No Video"}
+                </Badge>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Product Details Tabs */}
+        <div className="space-y-6">
+          {/* Benefits Section */}
+          {productPage.benefits && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Key Benefits</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 leading-relaxed">{productPage.benefits}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Description */}
+          {productPage.description && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Product Description</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {productPage.description}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Ingredients/Materials */}
+          {productPage.ingredients_or_materials && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Ingredients</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700">{productPage.ingredients_or_materials}</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     );
@@ -185,44 +302,59 @@ export function ProductDetailsRetriever() {
     if (products.length === 0) return null;
 
     return (
-      <div className="space-y-4">
-        <h4 className="font-semibold text-lg text-gray-900">Other Products from Brand</h4>
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Product Name</TableHead>
-                <TableHead>Link</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>
-                    <a
-                      href={product.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 underline"
-                    >
-                      View Product
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </TableCell>
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="text-xl">More Products from This Brand</CardTitle>
+          <CardDescription>
+            Discover other products you might like
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="font-semibold">Product Name</TableHead>
+                  <TableHead className="font-semibold">Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {products.slice(0, 10).map((product, index) => (
+                  <TableRow key={index} className="hover:bg-gray-50">
+                    <TableCell className="font-medium py-3">
+                      {product.name}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <a
+                        href={product.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 underline text-sm"
+                      >
+                        View Product
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {products.length > 10 && (
+              <div className="p-4 bg-gray-50 border-t text-center">
+                <p className="text-sm text-gray-600">
+                  And {products.length - 10} more products...
+                </p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     );
   };
 
   const renderResults = (data: any) => {
     if (!data) return null;
 
-    // Handle array response format
     const responseArray = Array.isArray(data) ? data : [data];
     const firstItem = responseArray[0];
 
@@ -233,13 +365,9 @@ export function ProductDetailsRetriever() {
 
     return (
       <div className="space-y-6">
-        {/* Product Details Section */}
-        {productPage && renderProductDetails(productPage)}
-        
-        {/* Other Products Table */}
+        {productPage && renderEcommerceProductDetails(productPage)}
         {otherProducts && renderOtherProductsTable(otherProducts)}
         
-        {/* Raw Data Fallback */}
         {(!productPage && !otherProducts) && (
           <div className="space-y-4">
             <h4 className="font-semibold text-gray-900">Raw Response Data</h4>
@@ -306,36 +434,28 @@ export function ProductDetailsRetriever() {
 
       {/* Results Section */}
       {result.status !== 'idle' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {getStatusIcon(result.status)}
-              Extraction Results
-            </CardTitle>
-            <CardDescription>
-              {result.timestamp && (
-                <>
-                  Completed at {new Date(result.timestamp).toLocaleString()}
-                  {result.executionTime && ` • ${result.executionTime}ms`}
-                </>
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {result.status === 'success' && result.data ? (
-              renderResults(result.data)
-            ) : result.status === 'error' ? (
-              <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-                <h4 className="font-semibold text-red-800 mb-2">Request Failed</h4>
-                <p className="text-red-700 text-sm">{result.error}</p>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div>
+          {result.status === 'success' && result.data ? (
+            renderResults(result.data)
+          ) : result.status === 'error' ? (
+            <Card>
+              <CardContent className="p-6">
+                <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+                  <h4 className="font-semibold text-red-800 mb-2">Request Failed</h4>
+                  <p className="text-red-700 text-sm">{result.error}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
     </div>
   );
