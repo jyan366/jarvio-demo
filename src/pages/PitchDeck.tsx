@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,25 +5,28 @@ import { Badge } from '@/components/ui/badge';
 import { blocksData } from '@/components/jarvi-flows/data/blocksData';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Star } from 'lucide-react';
-
 export default function PitchDeck() {
   // Get popular blocks from each category
-  const popularBlocks = [
-    blocksData.collect[0], // Amazon Seller Central
-    blocksData.collect[1], // Amazon MWS/SP-API
-    blocksData.think[0], // AI Product Analysis
-    blocksData.think[1], // Price Optimization
-    blocksData.act[0], // Update Listings
-    blocksData.act[1], // Inventory Management
-    blocksData.collect[2], // Customer Reviews
-    blocksData.think[2], // Competitor Analysis
-    blocksData.act[2], // Send Notifications
+  const popularBlocks = [blocksData.collect[0],
+  // Amazon Seller Central
+  blocksData.collect[1],
+  // Amazon MWS/SP-API
+  blocksData.think[0],
+  // AI Product Analysis
+  blocksData.think[1],
+  // Price Optimization
+  blocksData.act[0],
+  // Update Listings
+  blocksData.act[1],
+  // Inventory Management
+  blocksData.collect[2],
+  // Customer Reviews
+  blocksData.think[2],
+  // Competitor Analysis
+  blocksData.act[2] // Send Notifications
   ].filter(Boolean);
-
   const totalBlocks = blocksData.collect.length + blocksData.think.length + blocksData.act.length;
-
-  return (
-    <MainLayout>
+  return <MainLayout>
       <div className="min-h-screen bg-white">
         {/* Header */}
         <div className="max-w-7xl mx-auto px-6 py-8">
@@ -32,10 +34,7 @@ export default function PitchDeck() {
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Complete eCommerce Automation Platform
             </h1>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">
-              Every tool and integration you need to build end-to-end ecommerce workflows. 
-              Connect your Amazon store, analyze data with AI, and automate everything from inventory to customer service.
-            </p>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">Every tool and integration you need to build end-to-end eCommerce workflows. </p>
             <div className="flex justify-center items-center gap-8 text-sm text-gray-500">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -61,27 +60,18 @@ export default function PitchDeck() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-              {popularBlocks.map((block) => {
-                const IconComponent = block.icon;
-                return (
-                  <Card key={block.name} className="group hover:shadow-md transition-all duration-200 border border-gray-200">
+              {popularBlocks.map(block => {
+              const IconComponent = block.icon;
+              return <Card key={block.name} className="group hover:shadow-md transition-all duration-200 border border-gray-200">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <div className="flex-shrink-0">
-                            {block.logo ? (
-                              <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center p-2 border">
-                                <img 
-                                  src={block.logo} 
-                                  alt={`${block.name} logo`}
-                                  className="w-full h-full object-contain"
-                                />
-                              </div>
-                            ) : (
-                              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                            {block.logo ? <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center p-2 border">
+                                <img src={block.logo} alt={`${block.name} logo`} className="w-full h-full object-contain" />
+                              </div> : <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
                                 <IconComponent className="h-6 w-6 text-gray-600" />
-                              </div>
-                            )}
+                              </div>}
                           </div>
                           <div className="flex-1 min-w-0">
                             <CardTitle className="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
@@ -89,11 +79,7 @@ export default function PitchDeck() {
                             </CardTitle>
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-blue-600"
-                        >
+                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-blue-600">
                           <ExternalLink className="h-4 w-4" />
                         </Button>
                       </div>
@@ -122,9 +108,8 @@ export default function PitchDeck() {
                         </Button>
                       </div>
                     </CardContent>
-                  </Card>
-                );
-              })}
+                  </Card>;
+            })}
             </div>
           </div>
 
@@ -136,20 +121,17 @@ export default function PitchDeck() {
             </div>
 
             {Object.entries(blocksData).map(([category, blocks]) => {
-              const categoryColors = {
-                collect: 'border-blue-200 bg-blue-50',
-                think: 'border-purple-200 bg-purple-50', 
-                act: 'border-green-200 bg-green-50'
-              };
-              
-              const categoryLabels = {
-                collect: 'Data Collection',
-                think: 'AI Processing',
-                act: 'Automation'
-              };
-
-              return (
-                <div key={category} className="space-y-4">
+            const categoryColors = {
+              collect: 'border-blue-200 bg-blue-50',
+              think: 'border-purple-200 bg-purple-50',
+              act: 'border-green-200 bg-green-50'
+            };
+            const categoryLabels = {
+              collect: 'Data Collection',
+              think: 'AI Processing',
+              act: 'Automation'
+            };
+            return <div key={category} className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className={`px-3 py-1 rounded-lg border ${categoryColors[category as keyof typeof categoryColors]}`}>
                       <span className="text-sm font-medium text-gray-700 capitalize">
@@ -160,27 +142,18 @@ export default function PitchDeck() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {blocks.map((block) => {
-                      const IconComponent = block.icon;
-                      return (
-                        <Card key={block.name} className="group hover:shadow-md transition-all duration-200 border border-gray-200">
+                    {blocks.map(block => {
+                  const IconComponent = block.icon;
+                  return <Card key={block.name} className="group hover:shadow-md transition-all duration-200 border border-gray-200">
                           <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
                               <div className="flex items-center gap-3">
                                 <div className="flex-shrink-0">
-                                  {block.logo ? (
-                                    <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center p-2 border">
-                                      <img 
-                                        src={block.logo} 
-                                        alt={`${block.name} logo`}
-                                        className="w-full h-full object-contain"
-                                      />
-                                    </div>
-                                  ) : (
-                                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                                  {block.logo ? <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center p-2 border">
+                                      <img src={block.logo} alt={`${block.name} logo`} className="w-full h-full object-contain" />
+                                    </div> : <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
                                       <IconComponent className="h-5 w-5 text-gray-600" />
-                                    </div>
-                                  )}
+                                    </div>}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <CardTitle className="text-base font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
@@ -188,11 +161,7 @@ export default function PitchDeck() {
                                   </CardTitle>
                                 </div>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-blue-600"
-                              >
+                              <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-blue-600">
                                 <ExternalLink className="h-4 w-4" />
                               </Button>
                             </div>
@@ -212,16 +181,13 @@ export default function PitchDeck() {
                               </Button>
                             </div>
                           </CardContent>
-                        </Card>
-                      );
-                    })}
+                        </Card>;
+                })}
                   </div>
-                </div>
-              );
-            })}
+                </div>;
+          })}
           </div>
         </div>
       </div>
-    </MainLayout>
-  );
+    </MainLayout>;
 }
