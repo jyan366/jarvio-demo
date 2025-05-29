@@ -98,7 +98,7 @@ export default function PitchDeck() {
         {/* Header */}
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Connect Your eCommerce Stack</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Bringing your eCommerce Stack Together</h1>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">
               Every tool and integration you need to build end-to-end eCommerce workflows.
             </p>
