@@ -5,6 +5,7 @@ import {
   Book,
   GitBranch,
   Settings,
+  TestTube,
 } from "lucide-react";
 
 import { MenuItem } from "./types";
@@ -33,6 +34,12 @@ export const workflowItems: MenuItem[] = [
     label: "Flow Blocks Admin",
     href: "/flow-blocks-admin",
     id: "flow-blocks-admin",
+  },
+  {
+    icon: TestTube,
+    label: "Block Testing",
+    href: "/block-testing",
+    id: "block-testing",
   },
   {
     icon: Book,
