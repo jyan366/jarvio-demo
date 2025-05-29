@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -104,7 +105,7 @@ export function ProductDetailsRetriever() {
     const startTime = Date.now();
 
     try {
-      console.log('Making POST request to trigger n8n workflow for URL:', url);
+      console.log('Triggering n8n workflow with URL:', url);
       
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
@@ -113,11 +114,10 @@ export function ProductDetailsRetriever() {
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          test: false,
+          url: url,
           action: 'extract_product_details',
           blockType: 'collect',
           blockName: 'Retrieve Product Details from Website',
-          url: url,
           blockId: 'product-details-retriever',
           timestamp: new Date().toISOString(),
           source: 'block-testing-interface'
@@ -143,15 +143,15 @@ export function ProductDetailsRetriever() {
         });
 
         toast({
-          title: "Block Execution Successful",
-          description: `n8n workflow completed in ${executionTime}ms`,
+          title: "Workflow Triggered Successfully",
+          description: `n8n workflow executed with URL: ${url} (${executionTime}ms)`,
         });
       } else {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
     } catch (error) {
-      console.error('Error executing block:', error);
+      console.error('Error triggering workflow:', error);
       const executionTime = Date.now() - startTime;
       
       setResult({
@@ -162,7 +162,7 @@ export function ProductDetailsRetriever() {
       });
 
       toast({
-        title: "Execution Failed",
+        title: "Workflow Execution Failed",
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: "destructive",
       });
@@ -251,10 +251,10 @@ export function ProductDetailsRetriever() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Play className="h-5 w-5" />
-            Test Configuration
+            Workflow Execution
           </CardTitle>
           <CardDescription>
-            Enter the product URL to extract details from
+            Enter the product URL to trigger the n8n workflow
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -277,7 +277,7 @@ export function ProductDetailsRetriever() {
               className="flex items-center gap-2"
             >
               {getStatusIcon(result.status)}
-              {result.status === 'running' ? 'Executing...' : 'Execute Block'}
+              {result.status === 'running' ? 'Executing...' : 'Execute Workflow'}
             </Button>
             
             {getStatusBadge(result.status)}
@@ -291,7 +291,7 @@ export function ProductDetailsRetriever() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {getStatusIcon(result.status)}
-              Execution Results
+              Workflow Results
             </CardTitle>
             <CardDescription>
               {result.timestamp && (
@@ -306,7 +306,7 @@ export function ProductDetailsRetriever() {
             {result.status === 'success' && result.data && (
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">Execution Results</h4>
+                  <h4 className="font-semibold mb-2">Workflow Response</h4>
                   <div className="bg-green-50 border border-green-200 rounded p-3 text-sm">
                     <pre className="text-xs bg-background p-2 rounded overflow-auto">
                       {JSON.stringify(result.data, null, 2)}
