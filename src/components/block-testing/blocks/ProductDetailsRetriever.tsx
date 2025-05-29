@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Play, CheckCircle, XCircle, Wifi } from 'lucide-react';
+import { Loader2, Play, CheckCircle, XCircle, ShoppingBag, DollarSign, Package, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ExecutionResult {
@@ -21,75 +21,7 @@ const N8N_WEBHOOK_URL = 'https://jarvio.app.n8n.cloud/webhook-test/698a75e6-643c
 export function ProductDetailsRetriever() {
   const [url, setUrl] = useState('');
   const [result, setResult] = useState<ExecutionResult>({ status: 'idle' });
-  const [connectionTest, setConnectionTest] = useState<ExecutionResult>({ status: 'idle' });
   const { toast } = useToast();
-
-  const testConnection = async () => {
-    setConnectionTest({ status: 'running' });
-    const startTime = Date.now();
-
-    try {
-      console.log('Making POST request to n8n webhook:', N8N_WEBHOOK_URL);
-      
-      const response = await fetch(N8N_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          test: true,
-          action: 'connection_test',
-          message: 'Connection test from Block Testing page',
-          timestamp: new Date().toISOString(),
-          source: 'block-testing-interface'
-        }),
-      });
-
-      const executionTime = Date.now() - startTime;
-      console.log('Response status:', response.status);
-      
-      if (response.ok) {
-        let responseData;
-        try {
-          responseData = await response.json();
-        } catch (e) {
-          responseData = await response.text();
-        }
-        
-        setConnectionTest({
-          status: 'success',
-          data: responseData,
-          executionTime,
-          timestamp: new Date().toISOString(),
-        });
-
-        toast({
-          title: "Connection Test Successful",
-          description: `Connected to n8n webhook in ${executionTime}ms`,
-        });
-      } else {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-    } catch (error) {
-      console.error('Connection test failed:', error);
-      const executionTime = Date.now() - startTime;
-      
-      setConnectionTest({
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
-        executionTime,
-        timestamp: new Date().toISOString(),
-      });
-
-      toast({
-        title: "Connection Test Failed",
-        description: error instanceof Error ? error.message : 'Failed to connect to n8n webhook',
-        variant: "destructive",
-      });
-    }
-  };
 
   const executeBlock = async () => {
     if (!url.trim()) {
@@ -143,8 +75,8 @@ export function ProductDetailsRetriever() {
         });
 
         toast({
-          title: "Workflow Triggered Successfully",
-          description: `n8n workflow executed with URL: ${url} (${executionTime}ms)`,
+          title: "Product Details Extracted!",
+          description: `Successfully analyzed product in ${executionTime}ms`,
         });
       } else {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -162,7 +94,7 @@ export function ProductDetailsRetriever() {
       });
 
       toast({
-        title: "Workflow Execution Failed",
+        title: "Extraction Failed",
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: "destructive",
       });
@@ -178,16 +110,16 @@ export function ProductDetailsRetriever() {
       case 'error':
         return <XCircle className="h-4 w-4 text-red-500" />;
       default:
-        return <Play className="h-4 w-4" />;
+        return <ShoppingBag className="h-4 w-4" />;
     }
   };
 
   const getStatusBadge = (status: ExecutionResult['status']) => {
     switch (status) {
       case 'running':
-        return <Badge variant="secondary">Running...</Badge>;
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Analyzing...</Badge>;
       case 'success':
-        return <Badge variant="default">Success</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800">Success</Badge>;
       case 'error':
         return <Badge variant="destructive">Error</Badge>;
       default:
@@ -195,92 +127,168 @@ export function ProductDetailsRetriever() {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Connection Test Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wifi className="h-5 w-5" />
-            Connection Test
-          </CardTitle>
-          <CardDescription>
-            Test the POST connection to your n8n webhook: {N8N_WEBHOOK_URL}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Button 
-              onClick={testConnection} 
-              disabled={connectionTest.status === 'running'}
-              className="flex items-center gap-2"
-              variant="outline"
-            >
-              {getStatusIcon(connectionTest.status)}
-              {connectionTest.status === 'running' ? 'Testing...' : 'Test Connection'}
-            </Button>
-            
-            {getStatusBadge(connectionTest.status)}
-          </div>
-
-          {connectionTest.status !== 'idle' && (
-            <div className="mt-4 p-3 bg-muted rounded text-sm">
-              <div className="font-medium mb-2">Connection Test Result:</div>
-              {connectionTest.status === 'success' && (
-                <div className="text-green-700">
-                  ✅ POST request successful ({connectionTest.executionTime}ms)
-                  {connectionTest.data && (
-                    <pre className="mt-2 text-xs bg-background p-2 rounded overflow-auto">
-                      {JSON.stringify(connectionTest.data, null, 2)}
-                    </pre>
+  const renderProductDetails = (data: any) => {
+    if (!data || !data.data) return null;
+    
+    const product = data.data;
+    
+    return (
+      <div className="space-y-6">
+        {/* Product Header */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{product.title}</h3>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                  <span className="text-2xl font-bold text-green-600">{product.price}</span>
+                  {product.currency && (
+                    <span className="text-sm text-gray-500">({product.currency})</span>
                   )}
                 </div>
-              )}
-              {connectionTest.status === 'error' && (
-                <div className="text-red-700">
-                  ❌ POST request failed: {connectionTest.error}
-                </div>
-              )}
+                {product.has_video && (
+                  <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                    Video Available
+                  </Badge>
+                )}
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        </div>
 
+        {/* Product Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          {/* Description */}
+          {product.description && (
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Product Description
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 leading-relaxed">{product.description}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Benefits */}
+          {product.benefits && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-amber-500" />
+                  Health Benefits
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700">{product.benefits}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Ingredients */}
+          {product.ingredients_or_materials && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5 text-green-500" />
+                  Ingredients
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700">{product.ingredients_or_materials}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Additional Info */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Additional Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <div className="text-lg font-semibold text-gray-900">{product.number_of_images || 0}</div>
+                  <div className="text-sm text-gray-600">Images</div>
+                </div>
+                
+                {product.shipping_cost && (
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-lg font-semibold text-gray-900">{product.shipping_cost}</div>
+                    <div className="text-sm text-gray-600">Shipping</div>
+                  </div>
+                )}
+                
+                {product.variations && (
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-lg font-semibold text-gray-900">Available</div>
+                    <div className="text-sm text-gray-600">Variations</div>
+                  </div>
+                )}
+                
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <div className="text-lg font-semibold text-gray-900">{data.status}</div>
+                  <div className="text-sm text-gray-600">Status</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
       {/* Input Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Play className="h-5 w-5" />
-            Workflow Execution
+      <Card className="border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-2">
+            <ShoppingBag className="h-6 w-6 text-blue-600" />
+            Product Details Extractor
           </CardTitle>
           <CardDescription>
-            Enter the product URL to trigger the n8n workflow
+            Enter any product URL to extract detailed information using AI
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="product-url">Product URL</Label>
+            <Label htmlFor="product-url" className="text-sm font-medium">Product URL</Label>
             <Input
               id="product-url"
               type="url"
-              placeholder="https://example.com/product/123"
+              placeholder="https://example.com/product/amazing-product"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               disabled={result.status === 'running'}
+              className="text-sm"
             />
           </div>
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pt-2">
             <Button 
               onClick={executeBlock} 
               disabled={result.status === 'running' || !url.trim()}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+              size="lg"
             >
               {getStatusIcon(result.status)}
-              {result.status === 'running' ? 'Executing...' : 'Execute Workflow'}
+              {result.status === 'running' ? 'Extracting Details...' : 'Extract Product Details'}
             </Button>
             
-            {getStatusBadge(result.status)}
+            <div className="flex items-center gap-2">
+              {getStatusBadge(result.status)}
+              {result.executionTime && (
+                <span className="text-xs text-gray-500">
+                  {result.executionTime}ms
+                </span>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -291,35 +299,28 @@ export function ProductDetailsRetriever() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {getStatusIcon(result.status)}
-              Workflow Results
+              Extraction Results
             </CardTitle>
             <CardDescription>
               {result.timestamp && (
                 <>
-                  Executed at {new Date(result.timestamp).toLocaleString()}
+                  Completed at {new Date(result.timestamp).toLocaleString()}
                   {result.executionTime && ` • ${result.executionTime}ms`}
                 </>
               )}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {result.status === 'success' && result.data && (
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2">Workflow Response</h4>
-                  <div className="bg-green-50 border border-green-200 rounded p-3 text-sm">
-                    <pre className="text-xs bg-background p-2 rounded overflow-auto">
-                      {JSON.stringify(result.data, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {result.status === 'error' && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded">
-                <h4 className="font-semibold text-red-800 mb-2">Error Details</h4>
+            {result.status === 'success' && result.data ? (
+              renderProductDetails(result.data)
+            ) : result.status === 'error' ? (
+              <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+                <h4 className="font-semibold text-red-800 mb-2">Extraction Failed</h4>
                 <p className="text-red-700 text-sm">{result.error}</p>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
               </div>
             )}
           </CardContent>
