@@ -1,99 +1,37 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from '@/components/ThemeProvider';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { AgentSettingsProvider } from '@/hooks/useAgentSettings';
-
-import Home from './pages/Home';
-import NotFound from './pages/NotFound';
-import TaskManager from './pages/TaskManager';
-import TaskWork from './pages/TaskWork';
-import ActionStudio from './pages/ActionStudio';
-import JarviFlows from './pages/JarviFlows';
-import FlowBuilder from './pages/FlowBuilder';
-import KnowledgeBase from './pages/KnowledgeBase';
-import SalesHub from './pages/SalesHub';
-import AgentsHub from './pages/AgentsHub';
-import AgentProfile from './pages/AgentProfile';
-import AdsManager from './pages/AdsManager';
-import AllProductReviews from './pages/AllProductReviews';
-import MyOffers from './pages/MyOffers';
-import ReportsBuilder from './pages/ReportsBuilder';
-import MyInventory from './pages/MyInventory';
-import SellerReimbursements from './pages/SellerReimbursements';
-import ListingQuality from './pages/ListingQuality';
-import ListingBuilder from './pages/ListingBuilder';
-import CustomerInsights from './pages/CustomerInsights';
-import CompetitorInsights from './pages/CompetitorInsights';
-import AdsPerformance from './pages/AdsPerformance';
-import GetSupport from './pages/GetSupport';
-import Dashboard from './pages/Dashboard';
-import Financing from './pages/Financing';
-import AnalyticsStudio from './pages/AnalyticsStudio';
-import AdvertisingInsights from './pages/AdvertisingInsights';
-import AIAssistant from './pages/AIAssistant';
-import FlowBlocksAdmin from './pages/FlowBlocksAdmin';
-import ChatTest from './pages/ChatTest';
-import BlockTesting from './pages/BlockTesting';
+import Main from "./Main";
+import TaskWorkContainer from "./pages/TaskWorkContainer";
+import NotFound from "./pages/NotFound";
+import BlockTesting from "./pages/BlockTesting";
+import Flows from "./pages/Flows";
+import FlowBuilder from "./pages/FlowBuilder";
+import FlowBlocksAdmin from "./pages/FlowBlocksAdmin";
+import Agents from "./pages/Agents";
+import BlocksPitchDeck from "./pages/BlocksPitchDeck";
 
 function App() {
   return (
-    <div className="App">
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <AgentSettingsProvider>
+    <QueryClientProvider client={new QueryClient()}>
+      <Router>
+        <div className="min-h-screen bg-background font-sans antialiased">
+          <Toaster />
           <Routes>
-            {/* Redirect root to task manager */}
-            <Route path="/" element={<Navigate to="/task-manager" replace />} />
-            
-            {/* Keep the original Home component accessible via /home */}
-            <Route path="/home" element={<Home />} />
-            
-            <Route path="/task-manager" element={<TaskManager />} />
-            <Route path="/task/:taskId" element={<TaskWork />} />
-            <Route path="/action-studio" element={<ActionStudio />} />
-            <Route path="/jarvi-flows" element={<JarviFlows />} />
-            <Route path="/jarvi-flows/builder" element={<FlowBuilder />} />
-            <Route path="/jarvi-flows/builder/:flowId" element={<FlowBuilder />} />
-            <Route path="/knowledge-base" element={<KnowledgeBase />} />
-            <Route path="/sales-hub" element={<SalesHub />} />
-            <Route path="/agents-hub" element={<AgentsHub />} />
-            <Route path="/agents-hub/agent/:agentId" element={<AgentProfile />} />
-            <Route path="/ads-manager" element={<AdsManager />} />
-            <Route path="/all-product-reviews" element={<AllProductReviews />} />
-            <Route path="/flow-blocks-admin" element={<FlowBlocksAdmin />} />
+            <Route path="/" element={<Main />} />
+            <Route path="/tasks/:taskId" element={<TaskWorkContainer />} />
             <Route path="/block-testing" element={<BlockTesting />} />
-            
-            {/* Brand Toolkit Routes */}
-            <Route path="/my-offers" element={<MyOffers />} />
-            <Route path="/reports-builder" element={<ReportsBuilder />} />
-            <Route path="/inventory" element={<MyInventory />} />
-            <Route path="/seller-reimbursements" element={<SellerReimbursements />} />
-            <Route path="/listing-quality" element={<ListingQuality />} />
-            <Route path="/listing-builder" element={<ListingBuilder />} />
-            <Route path="/customer-insights" element={<CustomerInsights />} />
-            <Route path="/my-competitors" element={<CompetitorInsights />} />
-            <Route path="/ads-performance" element={<AdsPerformance />} />
-            
-            {/* Support Routes */}
-            <Route path="/get-support" element={<GetSupport />} />
-            
-            {/* Other Routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/financing" element={<Financing />} />
-            <Route path="/analytics-studio" element={<AnalyticsStudio />} />
-            <Route path="/advertising-insights" element={<AdvertisingInsights />} />
-            <Route path="/ai-assistant" element={<AIAssistant />} />
-            
-            {/* Chat Test Page */}
-            <Route path="/chat-test" element={<ChatTest />} />
-            
-            {/* Catch-all route for 404 */}
+            <Route path="/flows" element={<Flows />} />
+            <Route path="/flows/new" element={<FlowBuilder />} />
+            <Route path="/flows/:flowId" element={<FlowBuilder />} />
+            <Route path="/flow-blocks-admin" element={<FlowBlocksAdmin />} />
+            <Route path="/agents" element={<Agents />} />
+            <Route path="/blocks-pitch-deck" element={<BlocksPitchDeck />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <Toaster />
-        </AgentSettingsProvider>
-      </ThemeProvider>
-    </div>
+        </div>
+      </Router>
+    </QueryClientProvider>
   );
 }
 
