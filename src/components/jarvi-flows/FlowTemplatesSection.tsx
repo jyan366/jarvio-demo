@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -207,7 +208,7 @@ export function FlowTemplatesSection() {
           const displayUpvotes = template.upvotes + (isUpvoted ? 1 : 0);
           
           return (
-            <Card key={template.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <Card key={template.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -227,7 +228,7 @@ export function FlowTemplatesSection() {
                 </div>
               </CardHeader>
               
-              <CardContent className="pb-3">
+              <CardContent className="pb-3 flex-1 flex flex-col">
                 <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
                   <div className="flex items-center space-x-4">
                     <span>{template.steps} steps</span>
@@ -238,20 +239,23 @@ export function FlowTemplatesSection() {
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="text-xs">
-                    {template.category}
-                  </Badge>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`flex items-center space-x-1 ${isUpvoted ? 'text-red-600' : 'text-gray-600'}`}
-                    onClick={() => handleUpvote(template.id)}
-                  >
-                    <Heart className={`h-4 w-4 ${isUpvoted ? 'fill-current' : ''}`} />
-                    <span className="text-sm">{displayUpvotes}</span>
-                  </Button>
+                {/* Push this section to the bottom */}
+                <div className="mt-auto">
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge variant="outline" className="text-xs">
+                      {template.category}
+                    </Badge>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`flex items-center space-x-1 ${isUpvoted ? 'text-red-600' : 'text-gray-600'}`}
+                      onClick={() => handleUpvote(template.id)}
+                    >
+                      <Heart className={`h-4 w-4 ${isUpvoted ? 'fill-current' : ''}`} />
+                      <span className="text-sm">{displayUpvotes}</span>
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
               

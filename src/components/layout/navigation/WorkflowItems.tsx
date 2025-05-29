@@ -7,42 +7,36 @@ export const workflowItems: MenuItem[] = [
     label: 'My Flows',
     icon: Zap,
     href: '/jarvi-flows',
-    id: 'my-flows',
-    description: 'Create and manage your automated workflows'
+    id: 'my-flows'
   },
   {
     label: 'Community Templates',
     icon: Users,
     href: '/community-templates',
-    id: 'community-templates',
-    description: 'Browse thousands of proven workflow templates'
+    id: 'community-templates'
   },
   {
     label: 'Flow Builder',
     icon: GitBranch,
     href: '/flow-builder',
-    id: 'flow-builder',
-    description: 'Visual workflow builder with drag & drop'
+    id: 'flow-builder'
   },
   {
     label: 'Analytics Studio',
     icon: BarChart3,
     href: '/analytics-studio',
-    id: 'analytics-studio',
-    description: 'Advanced workflow analytics and insights'
+    id: 'analytics-studio'
   },
   {
     label: 'Action Studio',
     icon: Settings,
     href: '/action-studio',
-    id: 'action-studio',
-    description: 'Task prioritization and process automation'
+    id: 'action-studio'
   },
   {
     label: 'Pitch Deck',
     icon: Globe,
     href: '/pitch-deck',
-    id: 'pitch-deck',
-    description: 'Product showcase and integrations'
+    id: 'pitch-deck'
   }
 ];
