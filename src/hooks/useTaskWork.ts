@@ -1,499 +1,259 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { fetchSubtasks, addSubtask, deleteSubtask, toggleSubtask } from "@/lib/supabaseTasks";
-import { generateTaskSteps } from "@/lib/apiUtils";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { TaskWorkType, Subtask } from "@/pages/TaskWorkContainer";
-import { generateEnhancedTaskSuggestions } from "@/utils/taskSuggestions";
 
-const PRODUCT_IMAGE = "/lovable-uploads/98f7d2f8-e54c-46c1-bc30-7cea0a73ca70.png";
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { fetchTasks, fetchSubtasks } from '@/lib/supabaseTasks';
+import { SupabaseTask, SupabaseSubtask } from '@/lib/supabaseTasks';
 
-interface SubtaskData {
-  result: string;
-  completed: boolean;
-  completedAt?: string;
+export interface TaskWorkType {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  category: string;
+  date: string;
+  subtasks: {
+    id: string;
+    title: string;
+    done: boolean;
+    description: string;
+    status: string;
+    priority: string;
+    category: string;
+  }[];
+  insights?: any[];
+  products?: any[];
 }
 
-type SubtaskDataMap = {
-  [subtaskId: string]: SubtaskData;
-};
-
-export function useTaskWork(taskId: string) {
-  const navigate = useNavigate();
-  const { toast } = useToast();
+export const useTaskWork = (taskId: string) => {
+  const [task, setTask] = useState<TaskWorkType | null>(null);
   const [loading, setLoading] = useState(true);
-  const [taskState, setTaskState] = useState<TaskWorkType | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [focusedSubtaskIdx, setFocusedSubtaskIdx] = useState<number | null>(null);
-  const [subtaskDialogIdx, setSubtaskDialogIdx] = useState<number | null>(null);
-  const [subtaskComments, setSubtaskComments] = useState<{ [subtaskId: string]: { user: string, text: string, ago: string }[] }>({});
-  const [selectedTab, setSelectedTab] = useState<"comments" | "ai">("ai");
-  const [commentValue, setCommentValue] = useState("");
-  const [subtaskData, setSubtaskData] = useState<SubtaskDataMap>({});
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
-    setTaskState((prev) => {
-      if (!prev) return prev;
-      return { ...prev, [field]: value };
-    });
-  };
-
-  const handleToggleSubtask = async (idx: number) => {
-    const sub = taskState?.subtasks[idx];
-    if (!sub || !taskState) return;
+  const loadTask = useCallback(async () => {
+    if (!taskId) return;
     
+    setLoading(true);
+    setError(null);
+
     try {
-      await updateTaskState({
-        action: 'toggleSubtask',
-        taskId: taskState.id,
-        subtaskId: sub.id,
-        data: { completed: !sub.done }
-      });
-      
-      setTaskState((prev) => {
-        if (!prev) return prev;
-        const newSubs = [...prev.subtasks];
-        newSubs[idx] = { ...newSubs[idx], done: !newSubs[idx].done };
-        return { ...prev, subtasks: newSubs };
-      });
-      
-      if (!sub.done && idx === focusedSubtaskIdx) {
-        const nextIncompleteIdx = taskState.subtasks.findIndex((s, i) => i > idx && !s.done);
-        if (nextIncompleteIdx !== -1) {
-          setFocusedSubtaskIdx(nextIncompleteIdx);
-        }
+      // Fetch the main task
+      const { data: taskData, error: taskError } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('id', taskId)
+        .single();
+
+      if (taskError) {
+        throw new Error(`Failed to fetch task: ${taskError.message}`);
       }
+
+      if (!taskData) {
+        throw new Error('Task not found');
+      }
+
+      // Fetch child tasks as subtasks
+      const childTasks = await fetchSubtasks([taskId]);
+
+      // Transform the data to match TaskWorkType
+      const transformedTask: TaskWorkType = {
+        id: taskData.id,
+        title: taskData.title,
+        description: taskData.description || '',
+        status: taskData.status || 'Not Started',
+        priority: taskData.priority || 'MEDIUM',
+        category: taskData.category || '',
+        date: new Date(taskData.created_at).toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        }),
+        subtasks: childTasks.map(subtask => ({
+          id: subtask.id,
+          title: subtask.title,
+          done: subtask.completed || false,
+          description: subtask.description || '',
+          status: subtask.status || '',
+          priority: subtask.priority || '',
+          category: subtask.category || ''
+        })),
+        insights: [],
+        products: []
+      };
+
+      setTask(transformedTask);
     } catch (err) {
+      console.error('Error loading task:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load task');
       toast({
-        title: "Error",
-        description: "Failed to update subtask",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleAddSubtask = async (val: string) => {
-    if (val.trim() && taskState) {
-      try {
-        const st = await addSubtask(taskState.id, val);
-        setTaskState((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            subtasks: [
-              ...prev.subtasks,
-              {
-                id: st.id,
-                title: st.title,
-                done: st.completed ?? false,
-                description: st.description ?? "",
-                status: st.status ?? "",
-                priority: st.priority ?? "",
-                category: st.category ?? "",
-              },
-            ],
-          };
-        });
-      } catch (err) {
-        toast({
-          title: "Error",
-          description: "Failed to add subtask",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-
-  const handleRemoveSubtask = async (idx: number) => {
-    const st = taskState?.subtasks[idx];
-    if (!st) return;
-
-    try {
-      await deleteSubtask(st.id);
-      setTaskState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          subtasks: prev.subtasks.filter((_, i) => i !== idx),
-        };
-      });
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to delete subtask",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleGenerateSteps = async () => {
-    if (!taskState) return;
-    setIsGenerating(true);
-    try {
-      const steps = await generateTaskSteps({ title: taskState.title, description: taskState.description });
-
-      if (steps.length === 0) {
-        toast({
-          title: "No steps generated",
-          description: "Could not generate subtasks. Try rewording your task.",
-          variant: "destructive"
-        });
-        setIsGenerating(false);
-        return;
-      }
-
-      // Import the createSubtasks function from supabaseTasks
-      const { createSubtasks } = await import('@/lib/supabaseTasks');
-
-      const createdSteps = await createSubtasks(
-        steps.map((s) => ({
-          task_id: taskState.id,
-          title: s.title,
-          description: s.description ?? "",
-        }))
-      );
-
-      setTaskState((prev) => {
-        if (!prev) return prev;
-        const withNew = [
-          ...prev.subtasks,
-          ...createdSteps.map((s, i) => {
-            return {
-              id: s.id,
-              title: s.title,
-              done: s.completed ?? false,
-              description: s.description ?? steps[i]?.description ?? "",
-              status: s.status ?? "",
-              priority: s.priority ?? "",
-              category: s.category ?? "",
-            };
-          }),
-        ];
-        return { ...prev, subtasks: withNew };
-      });
-
-      toast({
-        title: "Steps generated!",
-        description: "The main task has been broken down into subtasks.",
-        variant: "default"
-      });
-    } catch (err: any) {
-      toast({
-        title: "Error generating steps",
-        description: typeof err === "object" && err?.message ? err.message : "Could not generate subtasks.",
-        variant: "destructive"
+        title: "Error loading task",
+        description: err instanceof Error ? err.message : 'Failed to load task',
+        variant: "destructive",
       });
     } finally {
-      setIsGenerating(false);
+      setLoading(false);
     }
-  };
+  }, [taskId, toast]);
 
-  const handleFocusSubtask = (idx: number) => {
-    setFocusedSubtaskIdx(idx);
-  };
+  const updateTask = useCallback(async (field: keyof TaskWorkType, value: any) => {
+    if (!task) return;
 
-  const handleUpdateSubtask = async (field: keyof Subtask, value: any) => {
-    if (focusedSubtaskIdx === null || !taskState) return;
-    
     try {
-      const subtask = taskState.subtasks[focusedSubtaskIdx];
+      const { error } = await supabase
+        .from('tasks')
+        .update({ [field]: value })
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      setTask(prev => prev ? { ...prev, [field]: value } : null);
       
-      await updateTaskState({
-        action: 'updateSubtask',
-        taskId: taskState.id,
-        subtaskId: subtask.id,
-        data: { field, value }
-      });
-      
-      setTaskState((prev) => {
-        if (!prev) return prev;
-        const updatedSubs = prev.subtasks.map((st, i) =>
-          i === focusedSubtaskIdx ? { ...st, [field]: value } : st
-        );
-        return { ...prev, subtasks: updatedSubs };
-      });
-    } catch (err) {
       toast({
-        title: "Error",
-        description: "Failed to update subtask",
-        variant: "destructive"
+        title: "Task updated",
+        description: `${field} has been updated successfully.`,
       });
-    }
-  };
-
-  const handleOpenSubtask = (idx: number) => setSubtaskDialogIdx(idx);
-  const handleCloseSubtask = () => setSubtaskDialogIdx(null);
-
-  const handleAddComment = async (text: string) => {
-    if (text.trim() && focusedSubtaskIdx !== null && taskState) {
-      const subtaskId = taskState.subtasks[focusedSubtaskIdx]?.id;
-      
-      if (subtaskId) {
-        try {
-          const result = await updateTaskState({
-            action: 'addComment',
-            taskId: taskState.id,
-            subtaskId,
-            data: {
-              text,
-              subtaskId,
-              userId: 'you'
-            }
-          });
-          
-          const newComment = { 
-            user: "you", 
-            text, 
-            ago: "just now",
-            subtaskId
-          };
-          
-          setTaskState(prev => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              comments: [...prev.comments, newComment],
-            };
-          });
-          
-          setSubtaskComments(prev => ({
-            ...prev,
-            [subtaskId]: [...(prev[subtaskId] || []), { user: "you", text, ago: "just now" }]
-          }));
-          
-          setCommentValue("");
-        } catch (err) {
-          toast({
-            title: "Error",
-            description: "Failed to save comment",
-            variant: "destructive"
-          });
-        }
-      }
-    }
-  };
-
-  const handleSaveSubtaskResult = async (subtaskId: string, result: string) => {
-    if (!taskState) return false;
-    
-    try {
-      console.log("Saving subtask result for:", subtaskId);
-      
-      await updateTaskState({
-        action: 'saveSubtaskResult',
-        taskId: taskState.id,
-        subtaskId,
-        data: {
-          result
-        }
-      });
-      
-      setSubtaskData(prev => ({
-        ...prev,
-        [subtaskId]: {
-          ...prev[subtaskId] || {},
-          result,
-          completed: true,
-          completedAt: prev[subtaskId]?.completedAt || new Date().toISOString()
-        }
-      }));
-      
-      return true;
     } catch (err) {
-      console.error("Failed to save subtask result:", err);
-      return false;
+      console.error('Error updating task:', err);
+      toast({
+        title: "Error updating task",
+        description: err instanceof Error ? err.message : 'Failed to update task',
+        variant: "destructive",
+      });
     }
-  };
+  }, [task, taskId, toast]);
+
+  const toggleSubtask = useCallback(async (index: number) => {
+    if (!task || !task.subtasks[index]) return;
+
+    const subtask = task.subtasks[index];
+    const newDoneStatus = !subtask.done;
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: newDoneStatus ? 'Done' : 'Not Started' })
+        .eq('id', subtask.id);
+
+      if (error) throw error;
+
+      setTask(prev => {
+        if (!prev) return null;
+        const newSubtasks = [...prev.subtasks];
+        newSubtasks[index] = { ...newSubtasks[index], done: newDoneStatus };
+        return { ...prev, subtasks: newSubtasks };
+      });
+
+      toast({
+        title: newDoneStatus ? "Subtask completed" : "Subtask reopened",
+        description: `"${subtask.title}" has been ${newDoneStatus ? 'completed' : 'reopened'}.`,
+      });
+    } catch (err) {
+      console.error('Error toggling subtask:', err);
+      toast({
+        title: "Error updating subtask",
+        description: err instanceof Error ? err.message : 'Failed to update subtask',
+        variant: "destructive",
+      });
+    }
+  }, [task, toast]);
+
+  const addSubtask = useCallback(async (title: string) => {
+    if (!task || !title.trim()) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert({
+          title: title.trim(),
+          parent_id: taskId,
+          user_id: "00000000-0000-0000-0000-000000000000",
+          task_type: 'task',
+          status: 'Not Started',
+          priority: 'MEDIUM',
+          category: '',
+          execution_order: task.subtasks.length,
+          description: ""
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newSubtask = {
+        id: data.id,
+        title: data.title,
+        done: false,
+        description: data.description || '',
+        status: data.status || '',
+        priority: data.priority || '',
+        category: data.category || ''
+      };
+
+      setTask(prev => prev ? { ...prev, subtasks: [...prev.subtasks, newSubtask] } : null);
+
+      toast({
+        title: "Subtask added",
+        description: `"${title}" has been added to the task.`,
+      });
+    } catch (err) {
+      console.error('Error adding subtask:', err);
+      toast({
+        title: "Error adding subtask",
+        description: err instanceof Error ? err.message : 'Failed to add subtask',
+        variant: "destructive",
+      });
+    }
+  }, [task, taskId, toast]);
+
+  const removeSubtask = useCallback(async (index: number) => {
+    if (!task || !task.subtasks[index]) return;
+
+    const subtask = task.subtasks[index];
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', subtask.id);
+
+      if (error) throw error;
+
+      setTask(prev => {
+        if (!prev) return null;
+        const newSubtasks = prev.subtasks.filter((_, i) => i !== index);
+        return { ...prev, subtasks: newSubtasks };
+      });
+
+      toast({
+        title: "Subtask removed",
+        description: `"${subtask.title}" has been removed from the task.`,
+      });
+    } catch (err) {
+      console.error('Error removing subtask:', err);
+      toast({
+        title: "Error removing subtask",
+        description: err instanceof Error ? err.message : 'Failed to remove subtask',
+        variant: "destructive",
+      });
+    }
+  }, [task, toast]);
 
   useEffect(() => {
-    async function loadTask() {
-      if (!taskId) {
-        toast({
-          title: "Error",
-          description: "No task ID provided",
-          variant: "destructive"
-        });
-        navigate("/task-manager");
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const { data: taskData, error } = await supabase
-          .from("tasks")
-          .select("*")
-          .eq("id", taskId)
-          .single();
-
-        if (error || !taskData) {
-          toast({
-            title: "Task Not Found",
-            description: "The requested task could not be found",
-            variant: "destructive"
-          });
-          navigate("/task-manager");
-          return;
-        }
-
-        const subtasks = await fetchSubtasks([taskData.id]);
-        const normalizedSubs = subtasks.map(st => ({
-          id: st.id,
-          title: st.title ?? "",
-          done: st.completed ?? false,
-          description: st.description ?? "",
-          status: st.status ?? "",
-          priority: st.priority ?? "",
-          category: st.category ?? "",
-        }));
-
-        // Generate sample insights based on task data
-        let taskInsights = [];
-        try {
-          // Try to load insights from enhanced task suggestions
-          const enhancedData = await generateEnhancedTaskSuggestions({
-            title: taskData.title,
-            description: taskData.description,
-            category: taskData.category
-          });
-          
-          if (enhancedData && enhancedData.insights) {
-            taskInsights = enhancedData.insights;
-          }
-        } catch (err) {
-          console.error("Error loading insights:", err);
-        }
-
-        // Parse the task data.data field properly
-        let parsedTaskData: { flowId?: string; flowTrigger?: string } = {};
-        if (taskData.data) {
-          try {
-            if (typeof taskData.data === 'string') {
-              parsedTaskData = JSON.parse(taskData.data);
-            } else if (typeof taskData.data === 'object') {
-              parsedTaskData = taskData.data as { flowId?: string; flowTrigger?: string };
-            }
-          } catch (err) {
-            console.error("Error parsing task data:", err);
-          }
-        }
-
-        const task: TaskWorkType = {
-          id: taskData.id,
-          title: taskData.title,
-          description: taskData.description || "",
-          status: taskData.status as string,
-          priority: taskData.priority || "MEDIUM",
-          category: taskData.category || "",
-          date: new Date(taskData.created_at).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-          }),
-          products: [
-            {
-              image: PRODUCT_IMAGE,
-              name: "Kimchi 1 kg Jar - Raw & Unpasteurised - Traditionally Fermented - by The Cultured Food Company",
-              asin: "B08P5P3QGC",
-              sku: "KM1000",
-              price: "16.99",
-              units: "111",
-              last30Sales: "1155.32",
-              last30Units: "68",
-            }
-          ],
-          subtasks: normalizedSubs,
-          comments: [{ user: "you", text: "new comment", ago: "2 days ago", subtaskId: normalizedSubs[0]?.id }],
-          insights: taskInsights, // Added insights
-          data: parsedTaskData,
-        };
-
-        setTaskState(task);
-
-        // No subtask_results table: skip attempting to load
-        // Instead, rely on subtaskData that Jarvio writes to on usage
-
-      } catch (e) {
-        console.error("Error loading task:", e);
-        toast({
-          title: "Error",
-          description: "Failed to load task data",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadTask();
-  }, [taskId, navigate, toast]);
-
-  const isFlowTask = useMemo(() => {
-    if (!taskState) return false;
-    return taskState.category === 'FLOW' || (taskState.data && taskState.data.flowId);
-  }, [taskState]);
-
-  const handleRunFlow = async () => {
-    if (!isFlowTask || !taskState?.data?.flowId) return;
-    
-    // Add code to run the flow
-    console.log("Running flow:", taskState.data.flowId);
-    
-    toast({
-      title: "Flow started",
-      description: "Your flow has been started and will process each step sequentially."
-    });
-  };
+  }, [loadTask]);
 
   return {
+    task,
     loading,
-    taskState,
-    setTaskState,
-    sidebarOpen,
-    setSidebarOpen,
-    isGenerating,
-    focusedSubtaskIdx,
-    setFocusedSubtaskIdx,
-    subtaskDialogIdx,
-    setSubtaskDialogIdx,
-    subtaskComments,
-    setSubtaskComments,
-    selectedTab,
-    setSelectedTab,
-    commentValue,
-    setCommentValue,
-    handleUpdateTask,
-    handleToggleSubtask,
-    handleAddSubtask,
-    handleRemoveSubtask,
-    handleGenerateSteps,
-    handleFocusSubtask,
-    handleUpdateSubtask,
-    handleOpenSubtask,
-    handleCloseSubtask,
-    handleAddComment,
-    handleSaveSubtaskResult,
-    subtaskData,
-    isFlowTask,
-    handleRunFlow,
+    error,
+    updateTask,
+    toggleSubtask,
+    addSubtask,
+    removeSubtask,
+    refreshTask: loadTask
   };
-}
-
-// Helper function to update task state in the database
-async function updateTaskState({ action, taskId, subtaskId, data }: {
-  action: string;
-  taskId: string;
-  subtaskId?: string;
-  data?: any;
-}) {
-  try {
-    // This would normally make an API call to update task state
-    // For now we'll just log it and return a simple success response
-    console.log(`Update task state: ${action}`, { taskId, subtaskId, data });
-    return { success: true, data };
-  } catch (error) {
-    console.error(`Error updating task state (${action}):`, error);
-    throw error;
-  }
-}
+};

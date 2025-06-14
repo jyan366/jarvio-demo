@@ -9,13 +9,13 @@ export interface SupabaseTask {
   priority: string | null;
   category: string | null;
   created_at: string;
-  insight_id?: string | null;
   data?: any;
 }
 
+// Since we removed subtasks table, we'll use child tasks instead
 export interface SupabaseSubtask {
   id: string;
-  task_id: string;
+  task_id: string; // This will be parent_id in the tasks table
   title: string;
   completed?: boolean;
   description?: string;
@@ -57,33 +57,37 @@ export async function fetchTasks(): Promise<SupabaseTask[]> {
   }
 }
 
-// Get subtasks is an alias for fetchSubtasks for backward compatibility
-export const getSubtasks = fetchSubtasks;
-
-// Fetch all subtasks for a list of task ids
+// Fetch child tasks as "subtasks" for backward compatibility
 export async function fetchSubtasks(taskIds: string[]): Promise<SupabaseSubtask[]> {
   try {
     if (taskIds.length === 0) return [];
     
     const { data, error } = await supabase
-      .from("subtasks")
+      .from("tasks")
       .select("*")
-      .in("task_id", taskIds);
+      .in("parent_id", taskIds);
 
     if (error) throw error;
-    // Normalize required fields for all subtasks
-    return (data || []).map(st => ({
-      ...st,
-      description: st.description ?? "",
-      status: st.status ?? "",
-      priority: st.priority ?? "",
-      category: st.category ?? "",
+    
+    // Transform child tasks to subtask format for backward compatibility
+    return (data || []).map(task => ({
+      id: task.id,
+      task_id: task.parent_id || '',
+      title: task.title,
+      completed: task.status === 'Done',
+      description: task.description ?? "",
+      status: task.status ?? "",
+      priority: task.priority ?? "",
+      category: task.category ?? "",
     }));
   } catch (error) {
-    console.error("Error fetching subtasks:", error);
+    console.error("Error fetching child tasks as subtasks:", error);
     return [];
   }
 }
+
+// Get subtasks is an alias for fetchSubtasks for backward compatibility
+export const getSubtasks = fetchSubtasks;
 
 // Create task, returns created task
 export async function createTask(task: Partial<SupabaseTask> & { title: string }, subtasks?: { title: string; description?: string }[]) {
@@ -104,17 +108,26 @@ export async function createTask(task: Partial<SupabaseTask> & { title: string }
       throw new Error(`Failed to create task: ${error.message}`);
     }
     
-    // If subtasks were provided, create them
+    // If subtasks were provided, create them as child tasks
     if (subtasks && subtasks.length > 0 && data) {
       try {
-        const subtasksWithTaskId = subtasks.map(st => ({
-          ...st,
-          task_id: data.id
+        const childTasksWithParent = subtasks.map(st => ({
+          title: st.title,
+          description: st.description || "",
+          parent_id: data.id,
+          user_id: user.id,
+          task_type: 'task',
+          status: 'Not Started',
+          priority: 'MEDIUM',
+          category: data.category || '',
+          execution_order: 0
         }));
         
-        await createSubtasks(subtasksWithTaskId);
+        await supabase
+          .from("tasks")
+          .insert(childTasksWithParent);
       } catch (subtaskError) {
-        console.error("Error creating subtasks for new task:", subtaskError);
+        console.error("Error creating child tasks for new task:", subtaskError);
         // We don't throw here since the task was created successfully
       }
     }
@@ -126,15 +139,21 @@ export async function createTask(task: Partial<SupabaseTask> & { title: string }
   }
 }
 
-// Create multiple subtasks, returns array of created subtasks
+// Create multiple child tasks as "subtasks", returns array of created child tasks
 export const createSubtasks = async (subtasks: { task_id: string; title: string; description?: string }[]): Promise<SupabaseSubtask[]> => {
   // Validate subtasks before insertion
   const validSubtasks = subtasks
     .filter(st => st && st.task_id && st.title && st.title.trim() !== '')
     .map(st => ({
-      task_id: st.task_id,
       title: st.title.trim(),
-      description: st.description || "", // Ensure description is properly passed
+      description: st.description || "",
+      parent_id: st.task_id, // Use parent_id instead of task_id
+      user_id: "00000000-0000-0000-0000-000000000000",
+      task_type: 'task',
+      status: 'Not Started',
+      priority: 'MEDIUM',
+      category: '',
+      execution_order: 0
     }));
     
   if (validSubtasks.length === 0) {
@@ -143,75 +162,88 @@ export const createSubtasks = async (subtasks: { task_id: string; title: string;
   }
   
   const { data, error } = await supabase
-    .from("subtasks")
+    .from("tasks")
     .insert(validSubtasks)
     .select();
 
   if (error) {
-    console.error("Error creating subtasks:", error);
+    console.error("Error creating child tasks:", error);
     throw new Error(`Could not create subtasks: ${error.message}`);
   }
   
-  // Log what was returned from the database
-  console.log("Subtasks created in database:", data);
-  
-  return data as SupabaseSubtask[];
+  // Transform back to subtask format
+  return (data || []).map(task => ({
+    id: task.id,
+    task_id: task.parent_id || '',
+    title: task.title,
+    completed: task.status === 'Done',
+    description: task.description ?? "",
+    status: task.status ?? "",
+    priority: task.priority ?? "",
+    category: task.category ?? "",
+  }));
 };
 
-// Add a single subtask
+// Add a single child task as "subtask"
 export async function addSubtask(task_id: string, title: string) {
   try {
     const { data, error } = await supabase
-      .from("subtasks")
+      .from("tasks")
       .insert({ 
-        task_id, 
-        title, 
-        completed: false,
-        description: "",
-        status: "",
-        priority: "",
-        category: ""
+        title,
+        parent_id: task_id,
+        user_id: "00000000-0000-0000-0000-000000000000",
+        task_type: 'task',
+        status: 'Not Started',
+        priority: 'MEDIUM',
+        category: '',
+        execution_order: 0,
+        description: ""
       })
       .select()
       .single();
       
     if (error) throw error;
-    // Normalize result to match type
+    
+    // Transform to subtask format
     return {
-      ...data,
-      description: data?.description ?? "",
-      status: data?.status ?? "",
-      priority: data?.priority ?? "",
-      category: data?.category ?? "",
+      id: data.id,
+      task_id: data.parent_id || '',
+      title: data.title,
+      completed: data.status === 'Done',
+      description: data.description ?? "",
+      status: data.status ?? "",
+      priority: data.priority ?? "",
+      category: data.category ?? "",
     };
   } catch (error) {
-    console.error("Error adding subtask:", error);
+    console.error("Error adding child task as subtask:", error);
     throw error;
   }
 }
 
-// Remove a subtask
+// Remove a child task (subtask)
 export async function deleteSubtask(id: string) {
   try {
     const { error } = await supabase
-      .from("subtasks")
+      .from("tasks")
       .delete()
       .eq("id", id);
       
     if (error) throw error;
     return true;
   } catch (error) {
-    console.error("Error deleting subtask:", error);
+    console.error("Error deleting child task:", error);
     throw error;
   }
 }
 
-// Toggle subtask completion
+// Toggle child task completion
 export async function toggleSubtask(id: string, completed: boolean) {
   try {
     const { data, error } = await supabase
-      .from("subtasks")
-      .update({ completed })
+      .from("tasks")
+      .update({ status: completed ? 'Done' : 'Not Started' })
       .eq("id", id)
       .select()
       .single();
@@ -219,7 +251,7 @@ export async function toggleSubtask(id: string, completed: boolean) {
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error("Error toggling subtask:", error);
+    console.error("Error toggling child task:", error);
     throw error; 
   }
 }
@@ -337,7 +369,7 @@ export async function initializeSampleTasks(): Promise<SupabaseTask[]> {
   }
 }
 
-// Add sample subtasks to a specific task
+// Add sample child tasks to a specific task
 export async function addSampleSubtasksToTask(taskId: string, taskTitle: string): Promise<SupabaseSubtask[]> {
   try {
     let subtasks: { task_id: string; title: string }[] = [];
@@ -367,10 +399,10 @@ export async function addSampleSubtasksToTask(taskId: string, taskTitle: string)
       ];
     }
     
-    // Create the subtasks
+    // Create the child tasks as subtasks
     return await createSubtasks(subtasks);
   } catch (error) {
-    console.error("Error adding sample subtasks:", error);
+    console.error("Error adding sample child tasks:", error);
     throw error;
   }
 }

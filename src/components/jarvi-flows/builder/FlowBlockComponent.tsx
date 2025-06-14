@@ -6,9 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ChevronUp, ChevronDown, Trash2, Database, Brain, Zap, User, ChevronRight, ChevronDown as ChevronDownIcon } from 'lucide-react';
-import { FlowBlock, FlowStep } from '@/types/flowTypes';
+import { FlowBlock } from '@/types/flowTypes';
 import { agentsData } from '@/data/agentsData';
-import { FlowBlockStepsEditor } from './FlowBlockStepsEditor';
 
 interface Props {
   block: FlowBlock;
@@ -16,7 +15,6 @@ interface Props {
   isLast: boolean;
   updateBlockName: (blockId: string, name: string) => void;
   updateBlockOption: (blockId: string, option: string) => void;
-  updateBlockSteps: (blockId: string, steps: FlowStep[]) => void;
   moveBlockUp: (index: number) => void;
   moveBlockDown: (index: number) => void;
   removeBlock: (id: string) => void;
@@ -30,7 +28,6 @@ export function FlowBlockComponent({
   isLast, 
   updateBlockName, 
   updateBlockOption,
-  updateBlockSteps,
   moveBlockUp, 
   moveBlockDown, 
   removeBlock, 
@@ -70,7 +67,6 @@ export function FlowBlockComponent({
   };
 
   const blockOptions = availableBlockOptions?.[block.type] || [];
-  const stepCount = block.steps?.length || 0;
 
   return (
     <Card className={`border-l-4 ${getBlockColor(block.type)} transition-all duration-200`}>
@@ -86,11 +82,6 @@ export function FlowBlockComponent({
               <Badge variant="outline" className="capitalize">
                 {block.type}
               </Badge>
-              {stepCount > 0 && (
-                <Badge variant="secondary" className="text-xs">
-                  {stepCount} step{stepCount !== 1 ? 's' : ''}
-                </Badge>
-              )}
             </div>
           </div>
           
@@ -188,16 +179,6 @@ export function FlowBlockComponent({
             </div>
           )}
         </div>
-
-        {/* Expandable Steps Section */}
-        {isExpanded && (
-          <FlowBlockStepsEditor
-            blockId={block.id}
-            blockName={block.name}
-            steps={block.steps || []}
-            onStepsChange={updateBlockSteps}
-          />
-        )}
       </CardContent>
     </Card>
   );
