@@ -37,6 +37,7 @@ export function FloatingChatButton() {
             currentSubtaskIndex={0}
             onSubtaskComplete={async () => {}}
             onSubtaskSelect={() => {}}
+            isFlowTask={false}
           />
         </DialogContent>
       </Dialog>

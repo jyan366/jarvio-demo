@@ -39,18 +39,30 @@ export function UnifiedJarvioChat({
   isFlowTask,
   currentBlock
 }: UnifiedJarvioChatProps) {
+  // Convert subtasks to the format expected by JarvioChatTab
+  const convertedSubtasks = subtasks.map((subtask, index) => ({
+    id: subtask.id,
+    title: subtask.title,
+    description: subtask.description,
+    done: subtask.done,
+    status: subtask.status as 'Not Started' | 'In Progress' | 'Done',
+    priority: subtask.priority as 'LOW' | 'MEDIUM' | 'HIGH',
+    category: subtask.category
+  }));
+
   return (
     <JarvioChatTab
+      messages={[]}
+      subtasks={convertedSubtasks}
+      activeSubtaskIdx={currentSubtaskIndex}
+      inputValue=""
+      setInputValue={() => {}}
+      isLoading={false}
+      isTransitioning={false}
+      onSendMessage={async () => {}}
       taskId={taskId}
-      taskTitle={taskTitle}
-      taskDescription={taskDescription}
-      subtasks={subtasks}
-      currentSubtaskIndex={currentSubtaskIndex}
-      onSubtaskComplete={onSubtaskComplete}
-      onSubtaskSelect={onSubtaskSelect}
       taskData={taskData}
       isFlowTask={isFlowTask}
-      currentBlock={currentBlock}
     />
   );
 }
