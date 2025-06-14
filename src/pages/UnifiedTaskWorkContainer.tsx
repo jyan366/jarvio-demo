@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { UnifiedTaskSteps } from "@/components/tasks/UnifiedTaskSteps";
@@ -150,23 +151,6 @@ export default function UnifiedTaskWorkContainer() {
     setMessages,
     handleSendMessage,
   });
-
-  // Prevent refresh during auto-run mode to preserve state
-  useEffect(() => {
-    if (autoRunMode && !autoRunPaused) {
-      // Auto-run is active, don't refresh
-      return;
-    }
-    
-    // Only refresh when auto-run is not active
-    const refreshTimer = setTimeout(() => {
-      if (!autoRunActiveRef.current) {
-        refresh();
-      }
-    }, 100);
-
-    return () => clearTimeout(refreshTimer);
-  }, [task?.steps_completed, autoRunMode, autoRunPaused]);
 
   // Now we can have conditional returns after all hooks are called
   if (!taskId) {
