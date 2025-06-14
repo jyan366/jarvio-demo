@@ -3,17 +3,21 @@ import React, { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { UnifiedTaskSteps } from "@/components/tasks/UnifiedTaskSteps";
 import { TaskWorkHeader } from "@/components/tasks/TaskWorkHeader";
-import { UnifiedJarvioChat } from "@/components/tasks/UnifiedJarvioChat";
+import { TaskWorkSidebar } from "@/components/tasks/TaskWorkSidebar";
 import { useUnifiedTaskWork } from "@/hooks/useUnifiedTaskWork";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ArrowUp, MessageCircle, List } from "lucide-react";
+import { ChevronLeft, ArrowUp, MessageCircle } from "lucide-react";
+import { parseTaskSteps } from "@/lib/unifiedTasks";
 
 export default function UnifiedTaskWorkContainer() {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("steps");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [comments, setComments] = useState<{ user: string; text: string; ago: string; subtaskId?: string }[]>([]);
+  const [commentValue, setCommentValue] = useState("");
+  const [selectedTab, setSelectedTab] = useState<"ai" | "comments">("ai");
+  const [currentSubtaskIndex, setCurrentSubtaskIndex] = useState(0);
   
   if (!taskId) {
     return (
@@ -64,6 +68,45 @@ export default function UnifiedTaskWorkContainer() {
     );
   }
 
+  // Convert unified task to subtasks format for the sidebar
+  const steps = parseTaskSteps(task);
+  const subtasks = steps.map((step, index) => ({
+    id: `step-${index}`,
+    title: step,
+    description: "",
+    completed: task.steps_completed?.includes(index) || false,
+    status: task.steps_completed?.includes(index) ? 'Done' as const : 'Not Started' as const
+  }));
+
+  const addComment = (text: string) => {
+    const newComment = {
+      user: "You",
+      text,
+      ago: "now",
+      subtaskId: subtasks[currentSubtaskIndex]?.id
+    };
+    setComments([...comments, newComment]);
+    setCommentValue("");
+  };
+
+  const handleSubtaskComplete = async (stepIndex: number) => {
+    try {
+      const currentCompleted = task.steps_completed || [];
+      const updatedCompleted = currentCompleted.includes(stepIndex) 
+        ? currentCompleted.filter(idx => idx !== stepIndex)
+        : [...currentCompleted, stepIndex];
+      
+      await updateTask({ steps_completed: updatedCompleted });
+      refresh();
+    } catch (error) {
+      console.error("Error updating step completion:", error);
+    }
+  };
+
+  const handleSubtaskSelect = (stepIndex: number) => {
+    setCurrentSubtaskIndex(stepIndex);
+  };
+
   // Build breadcrumb navigation
   const breadcrumbs = [];
   if (task?.parent_id) {
@@ -83,68 +126,86 @@ export default function UnifiedTaskWorkContainer() {
 
   return (
     <MainLayout>
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        {/* Navigation */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button 
-              onClick={() => navigate('/tasks')} 
-              variant="ghost" 
-              size="icon"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {breadcrumbs}
+      <div className="flex h-screen">
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 overflow-auto">
+            <div className="max-w-4xl mx-auto p-6 space-y-6">
+              {/* Navigation */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={() => navigate('/tasks')} 
+                    variant="ghost" 
+                    size="icon"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  {breadcrumbs}
+                </div>
+                <Button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  AI Assistant
+                </Button>
+              </div>
+
+              {/* Task Header */}
+              <TaskWorkHeader
+                title={task.title}
+                onTitleChange={(newTitle) => updateTask({ title: newTitle })}
+                createdAt={task.date || ''}
+                description={task.description}
+                onDescriptionChange={(desc) => updateTask({ description: desc })}
+                status={task.status}
+                setStatus={(status) => updateTask({ status: status as any })}
+                priority={task.priority}
+                setPriority={(priority) => updateTask({ priority: priority as any })}
+                category={task.category}
+                setCategory={(category) => updateTask({ category })}
+                isFlowTask={task.task_type === 'flow'}
+              />
+
+              {/* Main Task Content */}
+              <UnifiedTaskSteps
+                task={task}
+                childTasks={childTasks}
+                onTaskUpdate={refresh}
+                onAddChildTask={addChild}
+                onRemoveChildTask={removeChild}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Task Header */}
-        <TaskWorkHeader
-          title={task.title}
-          onTitleChange={(newTitle) => updateTask({ title: newTitle })}
-          createdAt={task.date || ''}
-          description={task.description}
-          onDescriptionChange={(desc) => updateTask({ description: desc })}
-          status={task.status}
-          setStatus={(status) => updateTask({ status: status as any })}
-          priority={task.priority}
-          setPriority={(priority) => updateTask({ priority: priority as any })}
-          category={task.category}
-          setCategory={(category) => updateTask({ category })}
-          isFlowTask={task.task_type === 'flow'}
-        />
-
-        {/* Main Content with Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="steps" className="flex items-center gap-2">
-              <List className="h-4 w-4" />
-              Steps & Tasks
-            </TabsTrigger>
-            <TabsTrigger value="assistant" className="flex items-center gap-2">
-              <MessageCircle className="h-4 w-4" />
-              AI Assistant
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="steps" className="space-y-6">
-            <UnifiedTaskSteps
-              task={task}
-              childTasks={childTasks}
-              onTaskUpdate={refresh}
-              onAddChildTask={addChild}
-              onRemoveChildTask={removeChild}
+        {/* Sidebar */}
+        {sidebarOpen && (
+          <div className="w-80 border-l bg-background">
+            <TaskWorkSidebar
+              open={sidebarOpen}
+              onOpenChange={setSidebarOpen}
+              selectedTab={selectedTab}
+              setSelectedTab={setSelectedTab}
+              comments={comments}
+              addComment={addComment}
+              commentValue={commentValue}
+              setCommentValue={setCommentValue}
+              taskId={taskId}
+              taskTitle={task.title}
+              taskDescription={task.description}
+              subtasks={subtasks}
+              currentSubtaskIndex={currentSubtaskIndex}
+              onSubtaskComplete={handleSubtaskComplete}
+              onSubtaskSelect={handleSubtaskSelect}
+              taskData={task.data}
+              isFlowTask={task.task_type === 'flow'}
             />
-          </TabsContent>
-
-          <TabsContent value="assistant" className="space-y-6">
-            <UnifiedJarvioChat
-              task={task}
-              childTasks={childTasks}
-              onTaskUpdate={refresh}
-            />
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
