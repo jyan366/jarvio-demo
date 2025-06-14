@@ -193,8 +193,17 @@ export function getAllDescendants(task: TaskTreeNode): UnifiedTask[] {
   return descendants;
 }
 
-// Parse description into steps for agent execution
-export function parseTaskSteps(description: string): string[] {
+// Parse description into steps for agent execution - unified for all tasks
+export function parseTaskSteps(task: UnifiedTask): string[] {
+  // For flow tasks, use the blocks from the flow data
+  if (task.task_type === 'flow' && task.data?.flowBlocks) {
+    return task.data.flowBlocks.map((block: any) => 
+      block.name || `${block.type}: ${block.option}`
+    );
+  }
+  
+  // For regular tasks, parse from description
+  const description = task.description || '';
   if (!description.trim()) return [];
   
   // Split by common step indicators
@@ -257,7 +266,7 @@ export async function markStepCompleted(taskId: string, stepIndex: number, execu
 // Create a new task
 export async function createUnifiedTask(
   task: Partial<UnifiedTask> & { title: string },
-  childTasks?: { title: string; description?: string; blockData?: any; execution_order?: number }[]
+  childTasks?: { title: string; description?: string; execution_order?: number }[]
 ) {
   try {
     await ensureAuthForDemo();
@@ -281,7 +290,7 @@ export async function createUnifiedTask(
       throw new Error(`Failed to create task: ${error.message}`);
     }
     
-    // If child tasks were provided, create them with enhanced data
+    // If child tasks were provided, create them (only for actual parent-child relationships)
     if (childTasks && childTasks.length > 0 && data) {
       try {
         const childTasksWithParent = childTasks.map((ct, index) => ({
@@ -295,9 +304,7 @@ export async function createUnifiedTask(
           category: data.category || '',
           execution_order: ct.execution_order || index,
           steps_completed: [],
-          step_execution_log: [],
-          // Store block execution data for flow tasks
-          data: ct.blockData ? { blockData: ct.blockData } : undefined
+          step_execution_log: []
         }));
         
         await supabase
@@ -406,28 +413,10 @@ export async function deleteUnifiedTask(taskId: string) {
   }
 }
 
-// Convert flow to unified task structure - simplified
+// Convert flow to unified task structure - FIXED to create single task with internal steps
 export async function convertFlowToUnifiedTask(flow: any) {
   try {
-    // Create child tasks from flow steps (which are now linked to blocks)
-    const childTasks = flow.steps?.map((step: any, stepIndex: number) => {
-      const linkedBlock = flow.blocks?.find((block: any) => block.id === step.blockId);
-      
-      return {
-        title: step.title || `Step ${stepIndex + 1}`,
-        description: step.description || 'Flow step',
-        execution_order: step.order || stepIndex,
-        blockData: linkedBlock ? {
-          blockId: linkedBlock.id,
-          blockType: linkedBlock.type,
-          blockOption: linkedBlock.option,
-          blockName: linkedBlock.name,
-          stepId: step.id,
-          isFlowStep: true
-        } : undefined
-      };
-    }) || [];
-    
+    // Create a single flow task with flow blocks stored in data field
     const task = await createUnifiedTask({
       title: `Flow: ${flow.name}`,
       description: flow.description,
@@ -439,10 +428,11 @@ export async function convertFlowToUnifiedTask(flow: any) {
       data: { 
         flowId: flow.id, 
         flowTrigger: flow.trigger,
-        totalSteps: childTasks.length,
+        flowBlocks: flow.blocks || [], // Store the blocks for step generation
+        totalSteps: (flow.blocks || []).length,
         createdAt: new Date().toISOString()
       }
-    }, childTasks);
+    });
     
     return task;
   } catch (error) {

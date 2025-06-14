@@ -206,6 +206,18 @@ export class FlowExecutionEngine {
         })
         .eq('task_id', this.taskId)
         .eq('block_id', block.id);
+
+      // Update task step completion
+      try {
+        const { markStepCompleted } = await import('@/lib/unifiedTasks');
+        await markStepCompleted(
+          this.taskId, 
+          this.currentBlockIndex, 
+          `Block "${block.option}" completed: ${result.success ? 'Success' : 'Failed'}`
+        );
+      } catch (stepError) {
+        console.error("Error updating task step:", stepError);
+      }
       
       // Handle user action if required
       if (result.requiresUserAction && result.userActionPrompt && this.options.onUserActionRequired) {
@@ -450,10 +462,18 @@ export class FlowExecutionEngine {
       .from('flow_executions')
       .update({
         status: 'completed',
-        results: this.blockResults,
+        metadata: { results: this.blockResults },
         completed_at: new Date().toISOString()
       })
       .eq('id', this.executionId);
+
+    // Update the task status to Done
+    try {
+      const { updateUnifiedTask } = await import('@/lib/unifiedTasks');
+      await updateUnifiedTask(this.taskId, { status: 'Done' });
+    } catch (taskError) {
+      console.error("Error updating task status:", taskError);
+    }
     
     if (this.options.onComplete) {
       this.options.onComplete();

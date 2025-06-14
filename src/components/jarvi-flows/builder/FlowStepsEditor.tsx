@@ -64,27 +64,42 @@ export function FlowStepsEditor({
   const addStep = () => {
     if (!newStepTitle.trim()) return;
     
+    // Create a corresponding block for the step
+    const blockId = uuidv4();
+    const stepId = uuidv4();
+    
+    const newBlock: FlowBlock = {
+      id: blockId,
+      type: 'collect', // Default type
+      option: availableBlockOptions?.collect?.[0] || 'User Text',
+      name: newStepTitle
+    };
+    
     const newStep: FlowStep = {
-      id: uuidv4(),
+      id: stepId,
       title: newStepTitle,
       description: newStepDescription,
       completed: false,
-      order: steps.length
+      order: steps.length,
+      blockId: blockId // Link step to block
     };
     
     onStepsChange([...steps, newStep]);
+    onBlocksChange([...blocks, newBlock]);
     setNewStepTitle('');
     setNewStepDescription('');
     setIsAddingStep(false);
   };
 
   const removeStep = (stepId: string) => {
-    // Remove step and any blocks attached to it
+    const step = steps.find(s => s.id === stepId);
+    
+    // Remove step and its linked block
     const updatedSteps = steps
       .filter(step => step.id !== stepId)
       .map((step, index) => ({ ...step, order: index }));
     
-    const updatedBlocks = blocks.filter(block => !steps.find(s => s.id === stepId && s.blockId === block.id));
+    const updatedBlocks = blocks.filter(block => block.id !== step?.blockId);
     
     onStepsChange(updatedSteps);
     onBlocksChange(updatedBlocks);
@@ -114,40 +129,11 @@ export function FlowStepsEditor({
     onStepsChange(reorderedSteps);
   };
 
-  const addBlockToStep = (stepId: string, blockType: 'collect' | 'think' | 'act' | 'agent') => {
-    const defaultOption = availableBlockOptions?.[blockType]?.[0] || 
-                         (blockType === 'collect' ? 'User Text' : 
-                          blockType === 'think' ? 'Basic AI Analysis' : 
-                          blockType === 'act' ? 'AI Summary' : 'Agent');
-
-    const newBlock: FlowBlock = {
-      id: uuidv4(),
-      type: blockType,
-      option: defaultOption,
-      name: `${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
-    };
-
-    // Link the step to this block
-    updateStep(stepId, { blockId: newBlock.id });
-    onBlocksChange([...blocks, newBlock]);
-  };
-
   const updateBlock = (blockId: string, updates: Partial<FlowBlock>) => {
     const updatedBlocks = blocks.map(block =>
       block.id === blockId ? { ...block, ...updates } : block
     );
     onBlocksChange(updatedBlocks);
-  };
-
-  const removeBlock = (blockId: string) => {
-    // Remove block and unlink any steps
-    const updatedBlocks = blocks.filter(block => block.id !== blockId);
-    const updatedSteps = steps.map(step => 
-      step.blockId === blockId ? { ...step, blockId: undefined } : step
-    );
-    
-    onBlocksChange(updatedBlocks);
-    onStepsChange(updatedSteps);
   };
 
   const toggleStepExpanded = (stepId: string) => {
@@ -168,7 +154,12 @@ export function FlowStepsEditor({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Flow Steps</h2>
+        <div>
+          <h2 className="text-xl font-semibold">Flow Steps</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Each step represents an executable action in your flow. Steps are linked to blocks that define the implementation.
+          </p>
+        </div>
         <Button
           onClick={() => setIsAddingStep(true)}
           className="flex items-center gap-2"
@@ -181,6 +172,7 @@ export function FlowStepsEditor({
       {steps.length === 0 && !isAddingStep ? (
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground">Add steps to build your flow</p>
+          <p className="text-xs text-gray-500 mt-1">Each step will have a corresponding block for execution</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -219,9 +211,12 @@ export function FlowStepsEditor({
 
                     <div className="flex items-center gap-1">
                       {stepBlock && (
-                        <Badge variant="outline" className="text-xs">
-                          {stepBlock.name}
-                        </Badge>
+                        <div className="flex items-center gap-1">
+                          {getBlockIcon(stepBlock.type)}
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {stepBlock.type}
+                          </Badge>
+                        </div>
                       )}
                       
                       <Button
@@ -263,97 +258,85 @@ export function FlowStepsEditor({
                   </div>
                 </CardHeader>
 
-                {isExpanded && (
+                {isExpanded && stepBlock && (
                   <CardContent className="pt-0">
-                    {/* Add Block Buttons */}
-                    {!stepBlock && (
-                      <div className="flex gap-2 mb-4">
-                        {(['collect', 'think', 'act', 'agent'] as const).map((blockType) => (
-                          <Button
-                            key={blockType}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => addBlockToStep(step.id, blockType)}
-                            className="flex items-center gap-1"
+                    <div className={`p-3 rounded-lg border ${getBlockColor(stepBlock.type)}`}>
+                      <div className="flex items-start gap-3">
+                        <div className="flex items-center gap-2">
+                          {getBlockIcon(stepBlock.type)}
+                          <Badge variant="outline" className="capitalize text-xs">
+                            {stepBlock.type}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex-1 space-y-2">
+                          <Select 
+                            value={stepBlock.type} 
+                            onValueChange={(value: 'collect' | 'think' | 'act' | 'agent') => {
+                              const defaultOption = availableBlockOptions?.[value]?.[0] || 
+                                                   (value === 'collect' ? 'User Text' : 
+                                                    value === 'think' ? 'Basic AI Analysis' : 
+                                                    value === 'act' ? 'AI Summary' : 'Agent');
+                              updateBlock(stepBlock.id, { 
+                                type: value, 
+                                option: defaultOption 
+                              });
+                            }}
                           >
-                            {getBlockIcon(blockType)}
-                            {blockType}
-                          </Button>
-                        ))}
-                      </div>
-                    )}
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="collect">Collect</SelectItem>
+                              <SelectItem value="think">Think</SelectItem>
+                              <SelectItem value="act">Act</SelectItem>
+                              <SelectItem value="agent">Agent</SelectItem>
+                            </SelectContent>
+                          </Select>
 
-                    {/* Step Block */}
-                    {stepBlock && (
-                      <div className={`p-3 rounded-lg border ${getBlockColor(stepBlock.type)}`}>
-                        <div className="flex items-start gap-3">
-                          <div className="flex items-center gap-2">
-                            {getBlockIcon(stepBlock.type)}
-                            <Badge variant="outline" className="capitalize text-xs">
-                              {stepBlock.type}
-                            </Badge>
-                          </div>
+                          <Select 
+                            value={stepBlock.option} 
+                            onValueChange={(value) => updateBlock(stepBlock.id, { option: value })}
+                          >
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(availableBlockOptions?.[stepBlock.type] || []).map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           
-                          <div className="flex-1 space-y-2">
+                          <Input
+                            value={stepBlock.name}
+                            onChange={(e) => updateBlock(stepBlock.id, { name: e.target.value })}
+                            placeholder="Block name"
+                            className="text-xs"
+                          />
+
+                          {stepBlock.type === 'agent' && (
                             <Select 
-                              value={stepBlock.option} 
-                              onValueChange={(value) => updateBlock(stepBlock.id, { option: value })}
+                              value={stepBlock.agentId || ''} 
+                              onValueChange={(value) => updateBlock(stepBlock.id, { agentId: value, agentName: agentsData.find(a => a.id === value)?.name })}
                             >
                               <SelectTrigger className="h-8 text-xs">
-                                <SelectValue />
+                                <SelectValue placeholder="Choose agent" />
                               </SelectTrigger>
                               <SelectContent>
-                                {(availableBlockOptions?.[stepBlock.type] || []).map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
+                                {agentsData.map((agent) => (
+                                  <SelectItem key={agent.id} value={agent.id}>
+                                    {agent.name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                            
-                            <Input
-                              value={stepBlock.name}
-                              onChange={(e) => updateBlock(stepBlock.id, { name: e.target.value })}
-                              placeholder="Block name"
-                              className="text-xs"
-                            />
-
-                            {stepBlock.type === 'agent' && (
-                              <Select 
-                                value={stepBlock.agentId || ''} 
-                                onValueChange={(value) => updateBlock(stepBlock.id, { agentId: value, agentName: agentsData.find(a => a.id === value)?.name })}
-                              >
-                                <SelectTrigger className="h-8 text-xs">
-                                  <SelectValue placeholder="Choose agent" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {agentsData.map((agent) => (
-                                    <SelectItem key={agent.id} value={agent.id}>
-                                      {agent.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          </div>
-                          
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => removeBlock(stepBlock.id)}
-                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                          )}
                         </div>
                       </div>
-                    )}
-                    
-                    {!stepBlock && (
-                      <div className="text-center py-4 text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-lg">
-                        No block attached to this step. Click a block type above to add one.
-                      </div>
-                    )}
+                    </div>
                   </CardContent>
                 )}
               </Card>
