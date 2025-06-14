@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { UnifiedTaskSteps } from "@/components/tasks/UnifiedTaskSteps";
 import { TaskWorkHeader } from "@/components/tasks/TaskWorkHeader";
@@ -35,6 +35,9 @@ export default function UnifiedTaskWorkContainer() {
   // Auto-run refs
   const autoRunTimerRef = useRef<number | undefined>();
   const autoRunStepInProgressRef = useRef(false);
+  
+  // Add ref to track if we're in the middle of auto-run to prevent state clearing
+  const autoRunActiveRef = useRef(false);
 
   // Call useUnifiedTaskWork hook (must be before conditional returns)
   const {
@@ -93,8 +96,10 @@ export default function UnifiedTaskWorkContainer() {
         }
       }));
       
-      // Force refresh to get updated task data
-      await refresh();
+      // Only refresh if not in auto-run mode to prevent state clearing
+      if (!autoRunActiveRef.current) {
+        await refresh();
+      }
       
       console.log("Step completed successfully:", stepIndex);
     } catch (error) {
@@ -122,6 +127,11 @@ export default function UnifiedTaskWorkContainer() {
       timestamp: new Date()
     }]);
   };
+
+  // Track auto-run state changes
+  useEffect(() => {
+    autoRunActiveRef.current = autoRunMode && !autoRunPaused;
+  }, [autoRunMode, autoRunPaused]);
 
   // Auto-run hook - now called after all other hooks but before conditional returns
   useJarvioAutoRun({
@@ -241,6 +251,7 @@ export default function UnifiedTaskWorkContainer() {
                         ]);
                       } else {
                         setAutoRunPaused(true);
+                        autoRunActiveRef.current = false;
                         console.log("Auto-run stopped");
                         setMessages(prev => [
                           ...prev,
