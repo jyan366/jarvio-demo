@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -417,7 +416,7 @@ export default function FlowBuilder() {
     }
   };
 
-  // Update the handleStartFlow function to use the unified task system
+  // Update the handleStartFlow function to properly pass flow structure
   const handleStartFlow = async () => {
     try {
       if (!flow.name.trim()) {
@@ -456,13 +455,13 @@ export default function FlowBuilder() {
       
       saveAllFlows(allFlows);
       
-      // Convert flow to unified task - this now properly handles the blocks
+      // Convert flow to unified task - pass the complete flow structure
       const task = await convertFlowToUnifiedTask({
         id: flow.id,
         name: flow.name,
         description: flow.description,
         trigger: flow.trigger,
-        blocks: flow.blocks // Pass the blocks array
+        blocks: flow.blocks // This is the key - pass the actual blocks array
       });
       
       if (!task) {
