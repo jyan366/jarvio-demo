@@ -1,3 +1,4 @@
+
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -262,7 +263,7 @@ export default function TaskWorkContainer({
             />
           </div>
         </main>
-        <aside className="h-screen flex flex-col bg-white overflow-hidden shadow-none border-l" style={{ width: '420px', minWidth: '420px', maxWidth: '420px' }}>
+        <aside className="h-screen flex flex-col bg-white overflow-hidden shadow-none border-l" style={{ width: '420px', minWidth: '420px', maxWidth: '420px', flexShrink: 0 }}>
           <TaskWorkSidebar 
             open={sidebarOpen} 
             onOpenChange={setSidebarOpen} 
