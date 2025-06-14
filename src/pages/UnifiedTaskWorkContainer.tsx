@@ -1,16 +1,19 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { UnifiedTaskSteps } from "@/components/tasks/UnifiedTaskSteps";
 import { TaskWorkHeader } from "@/components/tasks/TaskWorkHeader";
+import { UnifiedJarvioChat } from "@/components/tasks/UnifiedJarvioChat";
 import { useUnifiedTaskWork } from "@/hooks/useUnifiedTaskWork";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ArrowUp } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChevronLeft, ArrowUp, MessageCircle, List } from "lucide-react";
 
 export default function UnifiedTaskWorkContainer() {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("steps");
   
   if (!taskId) {
     return (
@@ -80,7 +83,7 @@ export default function UnifiedTaskWorkContainer() {
 
   return (
     <MainLayout>
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <div className="max-w-6xl mx-auto p-6 space-y-6">
         {/* Navigation */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -111,14 +114,37 @@ export default function UnifiedTaskWorkContainer() {
           isFlowTask={task.task_type === 'flow'}
         />
 
-        {/* Task Steps and Child Tasks */}
-        <UnifiedTaskSteps
-          task={task}
-          childTasks={childTasks}
-          onTaskUpdate={refresh}
-          onAddChildTask={addChild}
-          onRemoveChildTask={removeChild}
-        />
+        {/* Main Content with Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="steps" className="flex items-center gap-2">
+              <List className="h-4 w-4" />
+              Steps & Tasks
+            </TabsTrigger>
+            <TabsTrigger value="assistant" className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4" />
+              AI Assistant
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="steps" className="space-y-6">
+            <UnifiedTaskSteps
+              task={task}
+              childTasks={childTasks}
+              onTaskUpdate={refresh}
+              onAddChildTask={addChild}
+              onRemoveChildTask={removeChild}
+            />
+          </TabsContent>
+
+          <TabsContent value="assistant" className="space-y-6">
+            <UnifiedJarvioChat
+              task={task}
+              childTasks={childTasks}
+              onTaskUpdate={refresh}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
