@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { UnifiedTask, TaskTreeNode, TaskType } from "@/types/unifiedTask";
 
@@ -402,10 +401,44 @@ export async function deleteUnifiedTask(taskId: string) {
 // Convert flow to unified task structure
 export async function convertFlowToUnifiedTask(flow: any) {
   try {
-    const childTasks = flow.blocks?.map((block: any) => ({
-      title: block.name || `${block.type}: ${block.option}`,
-      description: `Flow step: ${block.option}`
-    })) || [];
+    // Create child tasks from flow blocks with their steps
+    const childTasks = flow.blocks?.map((block: any, blockIndex: number) => {
+      const blockSteps = block.steps || [];
+      
+      // If block has steps, create individual child tasks for each step
+      if (blockSteps.length > 0) {
+        return blockSteps.map((step: any, stepIndex: number) => ({
+          title: step.title || `${block.name || block.option} - Step ${stepIndex + 1}`,
+          description: step.description || `Flow step: ${block.option}`,
+          blockData: {
+            blockId: block.id,
+            blockType: block.type,
+            blockOption: block.option,
+            blockName: block.name,
+            stepId: step.id,
+            stepOrder: step.order,
+            executionOrder: blockIndex * 100 + stepIndex, // Ensure proper ordering
+            isStep: true,
+            parentBlockIndex: blockIndex
+          }
+        }));
+      } else {
+        // If no steps, create one task for the entire block
+        return [{
+          title: block.name || `${block.type}: ${block.option}`,
+          description: `Flow step: ${block.option}`,
+          blockData: {
+            blockId: block.id,
+            blockType: block.type,
+            blockOption: block.option,
+            blockName: block.name,
+            executionOrder: blockIndex * 100,
+            isStep: false,
+            parentBlockIndex: blockIndex
+          }
+        }];
+      }
+    }).flat() || [];
     
     const task = await createUnifiedTask({
       title: `Flow: ${flow.name}`,
@@ -414,7 +447,16 @@ export async function convertFlowToUnifiedTask(flow: any) {
       priority: 'MEDIUM',
       category: 'FLOW',
       task_type: 'flow',
-      data: { flowId: flow.id, flowTrigger: flow.trigger }
+      data: { 
+        flowId: flow.id, 
+        flowTrigger: flow.trigger,
+        blocks: flow.blocks,
+        executionMetadata: {
+          totalBlocks: flow.blocks?.length || 0,
+          totalSteps: childTasks.length,
+          createdAt: new Date().toISOString()
+        }
+      }
     }, childTasks);
     
     return task;

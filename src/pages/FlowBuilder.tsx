@@ -30,11 +30,11 @@ const predefinedFlows: Flow[] = [
     description: 'Automates the process of launching new product listings with optimized content and keyword strategy',
     trigger: 'manual',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'Upload Sheet', name: 'Import Product Specifications Sheet' },
-      { id: 'c2', type: 'collect', option: 'Get Keywords', name: 'Research Competitive Keywords for Category' },
-      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Create Optimized Product Description' },
-      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Publish New Listings to Amazon' },
-      { id: 'a2', type: 'act', option: 'Send Email', name: 'Notify Team of Successful Launch' }
+      { id: 'c1', type: 'collect', option: 'Upload Sheet', name: 'Import Product Specifications Sheet', steps: [] },
+      { id: 'c2', type: 'collect', option: 'Get Keywords', name: 'Research Competitive Keywords for Category', steps: [] },
+      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Create Optimized Product Description', steps: [] },
+      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Publish New Listings to Amazon', steps: [] },
+      { id: 'a2', type: 'act', option: 'Send Email', name: 'Notify Team of Successful Launch', steps: [] }
     ]
   },
   {
@@ -291,7 +291,7 @@ export default function FlowBuilder() {
     }
   };
 
-  // Generate flow from AI prompt
+  // Enhanced AI generation to include steps
   const generateFlowFromPrompt = async (data: AIPromptFormValues) => {
     setIsGenerating(true);
     setAiError(null);
@@ -299,72 +299,62 @@ export default function FlowBuilder() {
     try {
       console.log("Sending prompt to AI:", data.prompt);
       
-      // Call our dedicated generate-flow function
+      // Call our dedicated generate-flow function with step generation
       const response = await supabase.functions.invoke("generate-flow", {
         body: {
           prompt: data.prompt,
-          blockOptions: availableBlockOptions
+          blockOptions: availableBlockOptions,
+          generateSteps: true // Request step generation
         }
       });
 
       console.log("Raw API response:", response);
 
-      // Check for API errors first
       if (response.error) {
         console.error("API Error:", response.error);
         throw new Error(`API Error: ${response.error.message || "Unknown API error"}`);
       }
       
-      if (!response.data) {
-        console.error("No data returned from API");
-        throw new Error("No data returned from API");
-      }
-
-      // Check for success status in the response
-      if (response.data.success === false) {
-        console.error("Function returned error:", response.data.error);
-        throw new Error(`Error: ${response.data.error || "Unknown error in flow generation"}`);
+      if (!response.data || response.data.success === false) {
+        console.error("Function returned error:", response.data?.error);
+        throw new Error(`Error: ${response.data?.error || "Unknown error in flow generation"}`);
       }
       
-      // Extract the generated flow from the response
       const generatedFlow = response.data.generatedFlow;
       
-      if (!generatedFlow) {
-        console.error("No flow data in response:", response.data);
-        throw new Error("No flow data returned from the API");
-      }
-      
-      console.log("Generated flow:", generatedFlow);
-      
-      // Validate the flow structure
-      if (!generatedFlow.name || !generatedFlow.description || !Array.isArray(generatedFlow.blocks)) {
+      if (!generatedFlow || !generatedFlow.name || !generatedFlow.description || !Array.isArray(generatedFlow.blocks)) {
         console.error("Invalid flow structure:", generatedFlow);
         throw new Error("Invalid flow structure: missing required properties");
       }
 
-      // Create flow blocks from AI response
+      // Create flow blocks with steps from AI response
       const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => {
-        // Validate block type - make sure to include 'agent' here
         const blockType = block.type && ['collect', 'think', 'act', 'agent'].includes(block.type) 
           ? block.type 
           : 'collect';
         
-        // Get valid options for this block type from the available options
         const validOptions = availableBlockOptions[blockType] || defaultFlowBlockOptions[blockType as BlockCategory];
-        
-        // Check if the provided option is valid for this block type
-        // If not, use the first available option as a fallback
         let blockOption = block.option;
         if (!validOptions.includes(blockOption)) {
           console.warn(`Invalid block option: ${blockOption} for type ${blockType}, using fallback`);
           blockOption = validOptions[0] || '';
         }
         
+        // Process steps if provided by AI
+        const steps = (block.steps || []).map((step: any, index: number) => ({
+          id: uuidv4(),
+          title: step.title || `Step ${index + 1}`,
+          description: step.description || '',
+          completed: false,
+          order: index
+        }));
+        
         return {
           id: uuidv4(),
           type: blockType,
           option: blockOption,
-          name: block.name || getDescriptiveBlockName(blockType, blockOption)
+          name: block.name || getDescriptiveBlockName(blockType, blockOption),
+          steps
         };
       });
       
@@ -376,9 +366,10 @@ export default function FlowBuilder() {
         blocks: newBlocks
       }));
       
+      const totalSteps = newBlocks.reduce((sum, block) => sum + (block.steps?.length || 0), 0);
       toast({
         title: "Flow created successfully",
-        description: `${newBlocks.length} blocks have been added to your flow.`
+        description: `${newBlocks.length} blocks and ${totalSteps} steps have been added to your flow.`
       });
       
       setShowAIPrompt(false);
@@ -592,7 +583,6 @@ export default function FlowBuilder() {
 
   return (
     <MainLayout>
-      {/* Add the component that syncs flow blocks with the database */}
       <FlowBlockDatabaseSync />
 
       <div className="space-y-6">
@@ -606,7 +596,6 @@ export default function FlowBuilder() {
           onSaveFlow={saveFlow}
         />
         
-        {/* AI Prompt section */}
         {showAIPrompt && (
           <AIPromptSection
             form={aiPromptForm}
@@ -617,7 +606,6 @@ export default function FlowBuilder() {
         )}
         
         <div className="space-y-6">
-          {/* Flow details section */}
           <FlowDetailsSection
             name={flow.name}
             setName={updateFlowName}
@@ -627,7 +615,6 @@ export default function FlowBuilder() {
             setTrigger={updateFlowTrigger}
           />
           
-          {/* Flow blocks section with improved UI */}
           <FlowBlocksList
             blocks={flow.blocks}
             setBlocks={updateFlowBlocks}

@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { CheckIcon, PlusIcon, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
+import { FlowBlock, FlowStep } from '@/types/flowTypes';
 import { FlowBlockComponent } from '@/components/jarvi-flows/builder/FlowBlockComponent';
 import { v4 as uuidv4 } from 'uuid';
-import { BlockCategory } from '@/data/flowBlockOptions';
+
+type BlockCategory = 'collect' | 'think' | 'act' | 'agent';
 
 interface Props {
   blocks: FlowBlock[];
@@ -34,7 +35,13 @@ export function FlowBlocksList({
     
     setBlocks([
       ...blocks, 
-      { id: uuidv4(), type, option: defaultOption, name }
+      { 
+        id: uuidv4(), 
+        type, 
+        option: defaultOption, 
+        name,
+        steps: []
+      }
     ]);
   };
   
@@ -72,6 +79,11 @@ export function FlowBlocksList({
   // Update block option
   const updateBlockOption = (blockId: string, option: string) => {
     updateBlock(blockId, { option });
+  };
+
+  // Update block steps
+  const updateBlockSteps = (blockId: string, steps: FlowStep[]) => {
+    updateBlock(blockId, { steps });
   };
 
   return (
@@ -114,6 +126,7 @@ export function FlowBlocksList({
                 isLast={index === blocks.length - 1}
                 updateBlockName={updateBlockName}
                 updateBlockOption={updateBlockOption}
+                updateBlockSteps={updateBlockSteps}
                 moveBlockUp={moveBlockUp}
                 moveBlockDown={moveBlockDown}
                 removeBlock={removeBlock}

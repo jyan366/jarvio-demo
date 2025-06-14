@@ -1,384 +1,204 @@
 
 import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ArrowDown, ChevronDown, Info, MoveUp, MoveDown, Trash2, Database, Brain, Zap, User, Settings } from 'lucide-react';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { ChevronUp, ChevronDown, Trash2, Database, Brain, Zap, User, ChevronRight, ChevronDown as ChevronDownIcon } from 'lucide-react';
+import { FlowBlock, FlowStep } from '@/types/flowTypes';
 import { agentsData } from '@/data/agentsData';
-import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
-import { SendEmailConfig } from '@/components/agents/tools/SendEmailConfig';
-import { AiSummaryConfig } from '@/components/agents/tools/AiSummaryConfig';
-import { UploadSheetConfig } from '@/components/agents/tools/UploadSheetConfig';
-import { ScrapeSheetConfig } from '@/components/agents/tools/ScrapeSheetConfig';
-import { EmailParsingConfig } from '@/components/agents/tools/EmailParsingConfig';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { FlowBlockStepsEditor } from './FlowBlockStepsEditor';
 
-// Block type to icon/color mapping
-const blockTypeInfo = {
-  collect: {
-    icon: Database,
-    color: 'bg-blue-500',
-    lightColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
-    textColor: 'text-blue-700'
-  },
-  think: {
-    icon: Brain,
-    color: 'bg-purple-500',
-    lightColor: 'bg-purple-50',
-    borderColor: 'border-purple-200',
-    textColor: 'text-purple-700'
-  },
-  act: {
-    icon: Zap,
-    color: 'bg-green-500',
-    lightColor: 'bg-green-50',
-    borderColor: 'border-green-200',
-    textColor: 'text-green-700'
-  },
-  agent: {
-    icon: User,
-    color: 'bg-[#9b87f5]',
-    lightColor: 'bg-[#f5f2ff]',
-    borderColor: 'border-[#d1c7fa]',
-    textColor: 'text-[#7356f1]'
-  }
-};
-
-// Block option descriptions
-const blockOptionDescriptions = {
-  collect: {
-    'User Text': 'Allows users to provide specific instructions or data via direct text input',
-    'Upload Sheet': 'Handles importing product data from spreadsheets like Excel or CSV',
-    'All Listing Info': 'Gathers comprehensive data from all active Amazon listings',
-    'Get Keywords': 'Retrieves relevant keywords for product listings based on category and competition',
-    'Estimate Sales': 'Collects sales projection data based on historical performance',
-    'Review Information': 'Gathers customer reviews and feedback for specified products',
-    'Scrape Sheet': 'Extracts and processes data from structured spreadsheets',
-    'Seller Account Feedback': 'Collects seller performance metrics and customer feedback',
-    'Email Parsing': 'Extracts relevant data from business emails and notifications'
-  },
-  think: {
-    'Basic AI Analysis': 'Processes collected data to identify patterns and insights',
-    'Listing Analysis': 'Evaluates product listings for optimization opportunities',
-    'Insights Generation': 'Creates actionable business intelligence from analyzed data',
-    'Review Analysis': 'Analyzes customer feedback to identify trends and sentiment'
-  },
-  act: {
-    'AI Summary': 'Generates a comprehensive report from analysis results',
-    'Push to Amazon': 'Updates Amazon listings with optimized content and settings',
-    'Send Email': 'Distributes reports or notifications to specified recipients',
-    'Human in the Loop': 'Pauses for manual review and approval before proceeding',
-    'Agent': 'Assigns a specialized AI agent to perform this step'
-  },
-  agent: {
-    'Agent': 'Assigns a specialized AI agent to perform a specific task'
-  }
-};
-
-// Configuration components map
-const configComponentMap = {
-  'Upload Sheet': UploadSheetConfig,
-  'Scrape Sheet': ScrapeSheetConfig,
-  'Email Parsing': EmailParsingConfig,
-  'AI Summary': AiSummaryConfig,
-  'Send Email': SendEmailConfig
-};
-
-export interface FlowBlockProps {
+interface Props {
   block: FlowBlock;
   index: number;
-  isLast?: boolean;
-  onUpdateBlock?: (updatedBlock: Partial<FlowBlock>) => void;
-  onRemoveBlock?: () => void;
-  onAgentSelection?: (agentId: string) => void;
-  updateBlockName?: (blockId: string, name: string) => void;
-  updateBlockOption?: (blockId: string, option: string) => void;
-  moveBlockUp?: (index: number) => void;
-  moveBlockDown?: (index: number) => void;
-  removeBlock?: (blockId: string) => void;
-  handleAgentSelection?: (blockId: string, agentId: string) => void;
+  isLast: boolean;
+  updateBlockName: (blockId: string, name: string) => void;
+  updateBlockOption: (blockId: string, option: string) => void;
+  updateBlockSteps: (blockId: string, steps: FlowStep[]) => void;
+  moveBlockUp: (index: number) => void;
+  moveBlockDown: (index: number) => void;
+  removeBlock: (id: string) => void;
+  handleAgentSelection: (blockId: string, agentId: string) => void;
   availableBlockOptions?: Record<string, string[]>;
 }
 
-export function FlowBlockComponent({
-  block,
-  index,
-  isLast = false,
-  onUpdateBlock,
-  onRemoveBlock,
-  onAgentSelection,
-  updateBlockName,
+export function FlowBlockComponent({ 
+  block, 
+  index, 
+  isLast, 
+  updateBlockName, 
   updateBlockOption,
-  moveBlockUp,
-  moveBlockDown,
-  removeBlock,
+  updateBlockSteps,
+  moveBlockUp, 
+  moveBlockDown, 
+  removeBlock, 
   handleAgentSelection,
-  availableBlockOptions
-}: FlowBlockProps) {
-  const [configDialogOpen, setConfigDialogOpen] = useState(false);
-
-  // Get the block type info
-  const typeInfo = blockTypeInfo[block.type];
-  const BlockIcon = typeInfo.icon;
-  const blockColor = typeInfo.color;
-  const blockLightColor = typeInfo.lightColor;
-  const blockBorderColor = typeInfo.borderColor;
-  const blockTextColor = typeInfo.textColor;
-
-  // Get description for the current block option
-  const blockDescription = blockOptionDescriptions[block.type]?.[block.option];
-
-  // Check if this block has configurable options
-  const hasConfig = Object.keys(configComponentMap).includes(block.option);
-  const ConfigComponent = configComponentMap[block.option as keyof typeof configComponentMap];
-
-  // Determine if this block uses an agent
-  const hasAgentSelection = block.type === 'act' && block.option === 'Agent' || block.type === 'agent';
-  const selectedAgent = block.agentId ? agentsData.find(agent => agent.id === block.agentId) : null;
-
-  // Define handlers that work with either prop style
-  const handleUpdateName = (name: string) => {
-    if (updateBlockName) {
-      updateBlockName(block.id, name);
-    } else if (onUpdateBlock) {
-      onUpdateBlock({ name });
+  availableBlockOptions 
+}: Props) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const getBlockIcon = (type: string) => {
+    switch (type) {
+      case 'collect':
+        return <Database className="w-4 h-4" />;
+      case 'think':
+        return <Brain className="w-4 h-4" />;
+      case 'act':
+        return <Zap className="w-4 h-4" />;
+      case 'agent':
+        return <User className="w-4 h-4" />;
+      default:
+        return null;
     }
   };
 
-  const handleUpdateOption = (option: string) => {
-    if (updateBlockOption) {
-      updateBlockOption(block.id, option);
-    } else if (onUpdateBlock) {
-      onUpdateBlock({ option });
+  const getBlockColor = (type: string) => {
+    switch (type) {
+      case 'collect':
+        return 'border-l-blue-400 bg-blue-50';
+      case 'think':
+        return 'border-l-purple-400 bg-purple-50';
+      case 'act':
+        return 'border-l-green-400 bg-green-50';
+      case 'agent':
+        return 'border-l-orange-400 bg-orange-50';
+      default:
+        return 'border-l-gray-400 bg-gray-50';
     }
   };
 
-  const handleRemoveBlock = () => {
-    if (removeBlock) {
-      removeBlock(block.id);
-    } else if (onRemoveBlock) {
-      onRemoveBlock();
-    }
-  };
-
-  const handleMoveUp = () => {
-    if (moveBlockUp) {
-      moveBlockUp(index);
-    }
-  };
-
-  const handleMoveDown = () => {
-    if (moveBlockDown) {
-      moveBlockDown(index);
-    }
-  };
-
-  const handleAgentSelect = (agentId: string) => {
-    if (handleAgentSelection) {
-      handleAgentSelection(block.id, agentId);
-    } else if (onAgentSelection) {
-      onAgentSelection(agentId);
-    }
-  };
-
-  // Toggle configuration dialog
-  const toggleConfigDialog = () => {
-    console.log("Toggling config dialog. Current state:", configDialogOpen, "Setting to:", !configDialogOpen);
-    setConfigDialogOpen(!configDialogOpen);
-  };
-
-  // Get available options for current block type
-  const getOptionsForBlockType = () => {
-    // First check if we have availableBlockOptions prop
-    if (availableBlockOptions && availableBlockOptions[block.type]) {
-      return availableBlockOptions[block.type];
-    }
-    // Fall back to default options from flowBlockOptions
-    return flowBlockOptions[block.type as BlockCategory] || [];
-  };
-
-  // Options for current block type
-  const blockOptions = getOptionsForBlockType();
+  const blockOptions = availableBlockOptions?.[block.type] || [];
+  const stepCount = block.steps?.length || 0;
 
   return (
-    <div className="group border rounded-xl bg-white overflow-hidden shadow-sm hover:shadow transition-shadow">
-      <div className="p-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-start justify-between">
-            {/* Left side - Block type identifier and name */}
-            <div className="flex items-start gap-4 flex-1">
-              <div className={`${blockColor} p-3 rounded-full flex-shrink-0`}>
-                <BlockIcon className="h-5 w-5 text-white" />
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`${blockTextColor} font-medium text-sm`}>
-                    {block.type.charAt(0).toUpperCase() + block.type.slice(1)}
-                  </span>
-                  
-                  {hasConfig && (
-                    <Badge variant="outline" className="bg-gray-50 text-gray-600 text-xs ml-2">
-                      Configurable
-                    </Badge>
-                  )}
-                  
-                  {selectedAgent && (
-                    <Badge className="bg-[#f5f2ff] text-[#7356f1] border-0 text-xs ml-2">
-                      Agent: {selectedAgent.name}
-                    </Badge>
-                  )}
-                </div>
-                
-                <label className="text-xs text-gray-500 mb-1">Block Name</label>
-                <Textarea 
-                  id={`block-name-${block.id}`} 
-                  className="text-sm font-normal border-2 focus:border-gray-300 resize-none p-3 bg-transparent rounded-lg my-1 min-h-[38px] flow-block-name-input" 
-                  value={block.name || ""} 
-                  onChange={e => handleUpdateName(e.target.value)} 
-                  rows={1} 
-                  placeholder="Give this block a descriptive name" 
-                />
-                
-                {blockDescription && <p className="text-xs text-gray-500 mt-2">{blockDescription}</p>}
-              </div>
+    <Card className={`border-l-4 ${getBlockColor(block.type)} transition-all duration-200`}>
+      <CardContent className="p-4">
+        {/* Block Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white border border-gray-200">
+              <span className="text-sm font-medium">{index + 1}</span>
             </div>
-
-            {/* Right side - Actions and configuration */}
-            <div className="flex flex-col items-end gap-3 ml-4">
-              <div className="flex items-center gap-1">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" disabled={index === 0} onClick={handleMoveUp} className="h-7 w-7">
-                        <MoveUp className="h-4 w-4 text-gray-500" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Move up</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" disabled={isLast} onClick={handleMoveDown} className="h-7 w-7">
-                        <MoveDown className="h-4 w-4 text-gray-500" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Move down</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:bg-red-50 hover:text-red-600" onClick={handleRemoveBlock}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Remove</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              
-              <div className="flex flex-col gap-2 items-end mt-2">
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 flex items-center justify-end">
-                    Block Action
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3 w-3 ml-1 text-gray-400" />
-                        </TooltipTrigger>
-                        <TooltipContent>Select the specific action for this block</TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </label>
-                  
-                  <Select value={block.option} onValueChange={value => handleUpdateOption(value)}>
-                    <SelectTrigger id={`block-option-${block.id}`} className="w-[200px] border bg-white text-sm">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {blockOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                {/* Agent selection dropdown */}
-                {hasAgentSelection && (
-                  <div className="w-full">
-                    <label className="text-xs text-gray-500 mb-1 flex items-center justify-end">
-                      Select Agent
-                    </label>
-                    <Select value={block.agentId || ''} onValueChange={value => handleAgentSelect(value)}>
-                      <SelectTrigger className="w-[200px] border bg-white text-sm">
-                        <SelectValue placeholder="Select agent" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {agentsData.map(agent => (
-                          <SelectItem key={agent.id} value={agent.id}>
-                            {agent.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-                
-                {/* Configuration button for blocks with config options */}
-                {hasConfig && ConfigComponent && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className={`mt-2 ${blockLightColor} ${blockTextColor} border-0 text-xs`} 
-                    onClick={toggleConfigDialog}
-                  >
-                    <Settings className="h-3 w-3 mr-1.5" />
-                    Configure
-                    <ChevronDown className="h-3 w-3 ml-1.5" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Configuration Dialog */}
-      {hasConfig && ConfigComponent && (
-        <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
-          <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Configure {block.option}</DialogTitle>
-            </DialogHeader>
-            <div className="py-4">
-              {ConfigComponent && (
-                <ConfigComponent toolId={`${block.type}-${block.option.toLowerCase().replace(/\s+/g, '-')}`} />
+            <div className="flex items-center gap-2">
+              {getBlockIcon(block.type)}
+              <Badge variant="outline" className="capitalize">
+                {block.type}
+              </Badge>
+              {stepCount > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {stepCount} step{stepCount !== 1 ? 's' : ''}
+                </Badge>
               )}
             </div>
-            <DialogFooter>
-              <Button onClick={() => setConfigDialogOpen(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
+          </div>
+          
+          {/* Block Controls */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="h-8 w-8 p-0"
+            >
+              {isExpanded ? <ChevronDownIcon className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => moveBlockUp(index)}
+              disabled={index === 0}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronUp className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => moveBlockDown(index)}
+              disabled={isLast}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => removeBlock(block.id)}
+              className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Block Configuration */}
+        <div className="space-y-4">
+          {/* Block Option Selection */}
+          <div>
+            <label className="text-sm font-medium mb-2 block">Block Type</label>
+            <Select value={block.option} onValueChange={(value) => updateBlockOption(block.id, value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select block option" />
+              </SelectTrigger>
+              <SelectContent>
+                {blockOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Block Name */}
+          <div>
+            <label className="text-sm font-medium mb-2 block">Block Name</label>
+            <Textarea
+              value={block.name}
+              onChange={(e) => updateBlockName(block.id, e.target.value)}
+              placeholder="Enter block name"
+              className="resize-none flow-block-name-input"
+              rows={2}
+            />
+          </div>
+
+          {/* Agent Selection for Agent Blocks */}
+          {block.type === 'agent' && (
+            <div>
+              <label className="text-sm font-medium mb-2 block">Select Agent</label>
+              <Select value={block.agentId || ''} onValueChange={(value) => handleAgentSelection(block.id, value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose an agent" />
+                </SelectTrigger>
+                <SelectContent>
+                  {agentsData.map((agent) => (
+                    <SelectItem key={agent.id} value={agent.id}>
+                      <div className="flex items-center gap-2">
+                        <span>{agent.name}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {agent.domain}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+
+        {/* Expandable Steps Section */}
+        {isExpanded && (
+          <FlowBlockStepsEditor
+            blockId={block.id}
+            blockName={block.name}
+            steps={block.steps || []}
+            onStepsChange={updateBlockSteps}
+          />
+        )}
+      </CardContent>
+    </Card>
   );
 }
