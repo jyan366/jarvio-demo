@@ -4,6 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { createUnifiedTask } from "@/lib/unifiedTasks";
+import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 
 type CreateTaskStep = 1 | 2 | 3;
@@ -11,7 +13,7 @@ type CreateTaskStep = 1 | 2 | 3;
 interface CreateTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateTask: (task: any) => void;
+  onCreateTask: () => void;
 }
 
 export function CreateTaskDialog({ open, onOpenChange, onCreateTask }: CreateTaskDialogProps) {
@@ -20,10 +22,10 @@ export function CreateTaskDialog({ open, onOpenChange, onCreateTask }: CreateTas
     title: "",
     description: "",
     category: "",
-    products: [],
-    priority: "low",
-    status: "todo"
+    priority: "MEDIUM" as const,
+    status: "Not Started" as const
   });
+  const { toast } = useToast();
 
   const handleNext = () => {
     if (step < 3) {
@@ -37,18 +39,35 @@ export function CreateTaskDialog({ open, onOpenChange, onCreateTask }: CreateTas
     }
   };
 
-  const handleConfirm = () => {
-    onCreateTask(taskData);
-    onOpenChange(false);
-    setStep(1);
-    setTaskData({
-      title: "",
-      description: "",
-      category: "",
-      products: [],
-      priority: "low",
-      status: "todo"
-    });
+  const handleConfirm = async () => {
+    try {
+      await createUnifiedTask({
+        ...taskData,
+        task_type: 'task'
+      });
+      
+      toast({
+        title: "Task Created",
+        description: "Your task has been created successfully"
+      });
+      
+      onCreateTask();
+      onOpenChange(false);
+      setStep(1);
+      setTaskData({
+        title: "",
+        description: "",
+        category: "",
+        priority: "MEDIUM",
+        status: "Not Started"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create task",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -132,12 +151,13 @@ export function CreateTaskDialog({ open, onOpenChange, onCreateTask }: CreateTas
                 className="w-full rounded-md border border-input bg-background px-3 py-2"
                 value={taskData.priority}
                 onChange={(e) =>
-                  setTaskData({ ...taskData, priority: e.target.value })
+                  setTaskData({ ...taskData, priority: e.target.value as any })
                 }
               >
-                <option value="low">Low Priority</option>
-                <option value="medium">Medium Priority</option>
-                <option value="high">High Priority</option>
+                <option value="LOW">Low Priority</option>
+                <option value="MEDIUM">Medium Priority</option>
+                <option value="HIGH">High Priority</option>
+                <option value="CRITICAL">Critical Priority</option>
               </select>
             </div>
           </div>

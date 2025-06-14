@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,12 @@ const statusColumns = [
   { id: 'Done', title: 'Done', color: 'bg-green-100' }
 ];
 
-export function UnifiedTaskBoard() {
+interface UnifiedTaskBoardProps {
+  onCreateTask?: () => void;
+  onTaskDeleted?: () => void;
+}
+
+export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoardProps) {
   const [tasks, setTasks] = useState<TaskTreeNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,6 +56,7 @@ export function UnifiedTaskBoard() {
     try {
       await deleteUnifiedTask(taskId);
       await loadTasks();
+      onTaskDeleted?.();
       toast({
         title: "Task deleted",
         description: "Task and all its children have been deleted"
@@ -63,6 +68,19 @@ export function UnifiedTaskBoard() {
         variant: "destructive"
       });
     }
+  };
+
+  const handleCreateTask = () => {
+    if (onCreateTask) {
+      onCreateTask();
+    } else {
+      setIsCreateDialogOpen(true);
+    }
+  };
+
+  const handleTaskCreated = async () => {
+    await loadTasks();
+    setIsCreateDialogOpen(false);
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -94,7 +112,7 @@ export function UnifiedTaskBoard() {
           <h1 className="text-2xl font-bold">Task Manager</h1>
           <p className="text-muted-foreground">Manage and track your tasks</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button onClick={handleCreateTask}>
           <Plus className="h-4 w-4 mr-2" />
           Create Task
         </Button>
@@ -172,7 +190,7 @@ export function UnifiedTaskBoard() {
       <CreateTaskDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
-        onTaskCreated={loadTasks}
+        onCreateTask={handleTaskCreated}
       />
     </div>
   );
