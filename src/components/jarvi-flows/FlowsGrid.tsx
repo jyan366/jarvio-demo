@@ -5,26 +5,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Play, Edit, Clock, Zap, Trash2, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+import { Flow, FlowBlock } from '@/types/flowTypes';
 
 // Define the flow types and their properties
 export type TriggerType = 'manual' | 'scheduled' | 'event';
 
-export interface FlowBlock {
-  id: string;
-  type: 'collect' | 'think' | 'act' | 'agent';  // Added 'agent' as a valid block type
-  option: string;
-  name?: string;
-  agentId?: string;  // Added for agent association
-  agentName?: string; // Added to store agent name
-}
-
-export type Flow = {
-  id: string;
-  name: string;
-  description: string;
-  trigger: TriggerType;
-  blocks: FlowBlock[];
-};
+// Re-export types for backward compatibility
+export type { Flow, FlowBlock };
 
 interface FlowsGridProps {
   flows: Flow[];
@@ -58,7 +45,9 @@ const getBlockCounts = (blocks: FlowBlock[]) => {
   };
   
   blocks.forEach(block => {
-    counts[block.type]++;
+    if (block.type === 'collect' || block.type === 'think' || block.type === 'act') {
+      counts[block.type]++;
+    }
   });
   
   return counts;

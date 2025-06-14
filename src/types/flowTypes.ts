@@ -9,7 +9,7 @@ export interface FlowStep {
 
 export interface FlowBlock {
   id: string;
-  type: string;
+  type: 'collect' | 'think' | 'act' | 'agent';
   option: string;
   name: string;
   agentId?: string;

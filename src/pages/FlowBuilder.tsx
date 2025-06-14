@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
-import { Flow, FlowBlock, TriggerType } from '@/components/jarvi-flows/FlowsGrid';
+import { Flow, FlowBlock, FlowStep } from '@/types/flowTypes';
+import { TriggerType } from '@/components/jarvi-flows/FlowsGrid';
 import { convertFlowToUnifiedTask } from '@/lib/unifiedTasks';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
@@ -43,11 +45,11 @@ const predefinedFlows: Flow[] = [
     description: 'Analyzes sales velocity and inventory levels to create timely restock recommendations',
     trigger: 'scheduled',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Retrieve Current Inventory Levels' },
-      { id: 'c2', type: 'collect', option: 'Estimate Sales', name: 'Calculate 30-Day Sales Projections' },
-      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Determine Optimal Restock Quantities' },
-      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Inventory Restock Report' },
-      { id: 'a2', type: 'act', option: 'Send Email', name: 'Send Restock Alert to Supply Chain Team' }
+      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Retrieve Current Inventory Levels', steps: [] },
+      { id: 'c2', type: 'collect', option: 'Estimate Sales', name: 'Calculate 30-Day Sales Projections', steps: [] },
+      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Determine Optimal Restock Quantities', steps: [] },
+      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Inventory Restock Report', steps: [] },
+      { id: 'a2', type: 'act', option: 'Send Email', name: 'Send Restock Alert to Supply Chain Team', steps: [] }
     ]
   },
   {
@@ -56,11 +58,11 @@ const predefinedFlows: Flow[] = [
     description: 'Aggregates and analyzes customer reviews and feedback across all products',
     trigger: 'scheduled',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'Review Information', name: 'Gather Last 30 Days of Product Reviews' },
-      { id: 'c2', type: 'collect', option: 'Seller Account Feedback', name: 'Collect Seller Rating Metrics' },
-      { id: 't1', type: 'think', option: 'Review Analysis', name: 'Identify Common Customer Pain Points' },
-      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Actionable Feedback Report' },
-      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Request Product Manager Review' }
+      { id: 'c1', type: 'collect', option: 'Review Information', name: 'Gather Last 30 Days of Product Reviews', steps: [] },
+      { id: 'c2', type: 'collect', option: 'Seller Account Feedback', name: 'Collect Seller Rating Metrics', steps: [] },
+      { id: 't1', type: 'think', option: 'Review Analysis', name: 'Identify Common Customer Pain Points', steps: [] },
+      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Actionable Feedback Report', steps: [] },
+      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Request Product Manager Review', steps: [] }
     ]
   },
   {
@@ -69,11 +71,11 @@ const predefinedFlows: Flow[] = [
     description: 'Performs deep analysis of listing performance and suggests optimizations every quarter',
     trigger: 'scheduled',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Extract Quarterly Performance Data' },
-      { id: 'c2', type: 'collect', option: 'Review Information', name: 'Gather Quarterly Customer Feedback' },
-      { id: 't1', type: 'think', option: 'Insights Generation', name: 'Create Listing Enhancement Strategy' },
-      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Apply Optimizations to Key Listings' },
-      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Get Marketing Approval for Changes' }
+      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Extract Quarterly Performance Data', steps: [] },
+      { id: 'c2', type: 'collect', option: 'Review Information', name: 'Gather Quarterly Customer Feedback', steps: [] },
+      { id: 't1', type: 'think', option: 'Insights Generation', name: 'Create Listing Enhancement Strategy', steps: [] },
+      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Apply Optimizations to Key Listings', steps: [] },
+      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Get Marketing Approval for Changes', steps: [] }
     ]
   }
 ];
@@ -210,7 +212,8 @@ export default function FlowBuilder() {
               id: block.id || uuidv4(),
               type: blockType,
               option: blockOption,
-              name: block.name || getDescriptiveBlockName(blockType, blockOption)
+              name: block.name || getDescriptiveBlockName(blockType, blockOption),
+              steps: []
             };
           });
           
