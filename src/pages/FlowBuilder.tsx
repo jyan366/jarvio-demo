@@ -14,9 +14,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { FlowHeader } from '@/components/jarvi-flows/builder/FlowHeader';
 import { AIPromptSection } from '@/components/jarvi-flows/builder/AIPromptSection';
 import { FlowDetailsSection } from '@/components/jarvi-flows/builder/FlowDetailsSection';
-import { FlowBlocksList } from '@/components/jarvi-flows/builder/FlowBlocksList';
+import { FlowStepsEditor } from '@/components/jarvi-flows/builder/FlowStepsEditor';
 import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
-// Import agentsData directly instead of using require
 import { agentsData } from '@/data/agentsData';
 import { useFlowBlockConfig } from '@/hooks/useFlowBlockConfig';
 import { FlowBlockDatabaseSync } from '@/components/jarvi-flows/FlowBlockDatabaseSync';
@@ -37,46 +36,8 @@ const predefinedFlows: Flow[] = [
       { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Create Optimized Product Description', steps: [] },
       { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Publish New Listings to Amazon', steps: [] },
       { id: 'a2', type: 'act', option: 'Send Email', name: 'Notify Team of Successful Launch', steps: [] }
-    ]
-  },
-  {
-    id: 'inventory-restock',
-    name: 'Inventory Restock',
-    description: 'Analyzes sales velocity and inventory levels to create timely restock recommendations',
-    trigger: 'scheduled',
-    blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Retrieve Current Inventory Levels', steps: [] },
-      { id: 'c2', type: 'collect', option: 'Estimate Sales', name: 'Calculate 30-Day Sales Projections', steps: [] },
-      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Determine Optimal Restock Quantities', steps: [] },
-      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Inventory Restock Report', steps: [] },
-      { id: 'a2', type: 'act', option: 'Send Email', name: 'Send Restock Alert to Supply Chain Team', steps: [] }
-    ]
-  },
-  {
-    id: 'customer-feedback',
-    name: 'Customer Feedback Report',
-    description: 'Aggregates and analyzes customer reviews and feedback across all products',
-    trigger: 'scheduled',
-    blocks: [
-      { id: 'c1', type: 'collect', option: 'Review Information', name: 'Gather Last 30 Days of Product Reviews', steps: [] },
-      { id: 'c2', type: 'collect', option: 'Seller Account Feedback', name: 'Collect Seller Rating Metrics', steps: [] },
-      { id: 't1', type: 'think', option: 'Review Analysis', name: 'Identify Common Customer Pain Points', steps: [] },
-      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Actionable Feedback Report', steps: [] },
-      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Request Product Manager Review', steps: [] }
-    ]
-  },
-  {
-    id: 'quarterly-optimization',
-    name: 'Quarterly Listing Optimisation',
-    description: 'Performs deep analysis of listing performance and suggests optimizations every quarter',
-    trigger: 'scheduled',
-    blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Extract Quarterly Performance Data', steps: [] },
-      { id: 'c2', type: 'collect', option: 'Review Information', name: 'Gather Quarterly Customer Feedback', steps: [] },
-      { id: 't1', type: 'think', option: 'Insights Generation', name: 'Create Listing Enhancement Strategy', steps: [] },
-      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Apply Optimizations to Key Listings', steps: [] },
-      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Get Marketing Approval for Changes', steps: [] }
-    ]
+    ],
+    steps: []
   }
 ];
 
@@ -95,7 +56,8 @@ export default function FlowBuilder() {
     name: '',
     description: '',
     trigger: 'manual',
-    blocks: []
+    blocks: [],
+    steps: []
   });
   
   const [showAIPrompt, setShowAIPrompt] = useState(false);
@@ -121,7 +83,7 @@ export default function FlowBuilder() {
         console.error("Error parsing saved flows:", error);
       }
     }
-    return predefinedFlows; // Default to predefined flows if none are saved
+    return predefinedFlows;
   };
 
   // Save all flows to localStorage
@@ -142,12 +104,10 @@ export default function FlowBuilder() {
 
       if (error) {
         console.error('Error fetching flow block options:', error);
-        // Fallback to predefined options from defaultFlowBlockOptions if there's an error
         return;
       }
 
       if (data && data.length > 0) {
-        // Group blocks by type
         const options: Record<string, string[]> = {
           collect: [],
           think: [],
@@ -164,13 +124,11 @@ export default function FlowBuilder() {
         setAvailableBlockOptions(options);
         console.log('Loaded flow block options from database:', options);
       } else {
-        // If no data, use defaults
         console.log('No flow block options found in database, using defaults');
         setAvailableBlockOptions(defaultFlowBlockOptions);
       }
     } catch (error) {
       console.error('Error in loadFlowBlockOptions:', error);
-      // Use default options on error
       setAvailableBlockOptions(defaultFlowBlockOptions);
     }
   };
@@ -191,17 +149,22 @@ export default function FlowBuilder() {
         console.log("Received pre-generated flow:", generatedFlow);
         
         if (generatedFlow.name && generatedFlow.description && Array.isArray(generatedFlow.blocks)) {
-          // Convert any block objects to proper FlowBlock format with ids
-          const newBlocks = generatedFlow.blocks.map((block: any) => {
-            // Ensure block type is valid
+          // Convert blocks to steps with attached blocks
+          const newSteps = generatedFlow.blocks.map((block: any, index: number) => ({
+            id: uuidv4(),
+            title: block.name || `Step ${index + 1}`,
+            description: block.description || '',
+            completed: false,
+            order: index
+          }));
+
+          const newBlocks = generatedFlow.blocks.map((block: any, index: number) => {
             const blockType = block.type && ['collect', 'think', 'act', 'agent'].includes(block.type) 
               ? block.type 
               : 'collect';
             
-            // Find valid options for this block type
             const validOptions = availableBlockOptions[blockType] || defaultFlowBlockOptions[blockType as BlockCategory];
             
-            // Check if the provided option is valid for this block type
             let blockOption = block.option;
             if (!validOptions.includes(blockOption)) {
               console.warn(`Invalid block option: ${blockOption} for type ${blockType}, using fallback`);
@@ -213,24 +176,25 @@ export default function FlowBuilder() {
               type: blockType,
               option: blockOption,
               name: block.name || getDescriptiveBlockName(blockType, blockOption),
+              stepId: newSteps[index]?.id,
               steps: []
             };
           });
           
           setFlow(prev => ({
             ...prev,
-            id: uuidv4(), // Generate a new ID for this flow
+            id: uuidv4(),
             name: generatedFlow.name,
             description: generatedFlow.description,
-            blocks: newBlocks
+            blocks: newBlocks,
+            steps: newSteps
           }));
           
           toast({
             title: "Flow created successfully",
-            description: `${newBlocks.length} blocks have been added to your flow.`
+            description: `${newSteps.length} steps have been added to your flow.`
           });
           
-          // Clear the URL param without refreshing the page
           navigate('/jarvi-flows/builder', { replace: true });
         }
       } catch (error) {
@@ -247,12 +211,18 @@ export default function FlowBuilder() {
       const existingFlow = allFlows.find(f => f.id === flowId);
       
       if (existingFlow) {
-        setFlow({...existingFlow});
+        // Ensure the flow has steps array
+        setFlow({
+          ...existingFlow,
+          steps: existingFlow.steps || []
+        });
       } else {
-        // Fallback to predefined flows if not found in localStorage
         const predefinedFlow = predefinedFlows.find(f => f.id === flowId);
         if (predefinedFlow) {
-          setFlow({...predefinedFlow});
+          setFlow({
+            ...predefinedFlow,
+            steps: predefinedFlow.steps || []
+          });
         } else {
           toast({
             title: "Flow not found",
@@ -281,7 +251,6 @@ export default function FlowBuilder() {
               ...block,
               agentId: agentId,
               agentName: selectedAgent.name,
-              // Update the block name if using default naming
               name: block.name === getDescriptiveBlockName(block.type, block.option) 
                 ? `Use ${selectedAgent.name} Agent for ${selectedAgent.domain}`
                 : block.name
@@ -302,12 +271,11 @@ export default function FlowBuilder() {
     try {
       console.log("Sending prompt to AI:", data.prompt);
       
-      // Call our dedicated generate-flow function with step generation
       const response = await supabase.functions.invoke("generate-flow", {
         body: {
           prompt: data.prompt,
           blockOptions: availableBlockOptions,
-          generateSteps: true // Request step generation
+          generateSteps: true
         }
       });
 
@@ -330,8 +298,16 @@ export default function FlowBuilder() {
         throw new Error("Invalid flow structure: missing required properties");
       }
 
-      // Create flow blocks with steps from AI response
-      const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any) => {
+      // Convert blocks to steps with attached blocks
+      const newSteps = generatedFlow.blocks.map((block: any, index: number) => ({
+        id: uuidv4(),
+        title: block.name || `Step ${index + 1}`,
+        description: block.description || '',
+        completed: false,
+        order: index
+      }));
+
+      const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any, index: number) => {
         const blockType = block.type && ['collect', 'think', 'act', 'agent'].includes(block.type) 
           ? block.type 
           : 'collect';
@@ -343,36 +319,27 @@ export default function FlowBuilder() {
           blockOption = validOptions[0] || '';
         }
         
-        // Process steps if provided by AI
-        const steps = (block.steps || []).map((step: any, index: number) => ({
-          id: uuidv4(),
-          title: step.title || `Step ${index + 1}`,
-          description: step.description || '',
-          completed: false,
-          order: index
-        }));
-        
         return {
           id: uuidv4(),
           type: blockType,
           option: blockOption,
           name: block.name || getDescriptiveBlockName(blockType, blockOption),
-          steps
+          stepId: newSteps[index]?.id,
+          steps: []
         };
       });
       
-      // Update flow with AI-generated content
       setFlow(prev => ({
         ...prev,
         name: generatedFlow.name || "New Flow",
         description: generatedFlow.description || "Flow created from AI prompt",
-        blocks: newBlocks
+        blocks: newBlocks,
+        steps: newSteps
       }));
       
-      const totalSteps = newBlocks.reduce((sum, block) => sum + (block.steps?.length || 0), 0);
       toast({
         title: "Flow created successfully",
-        description: `${newBlocks.length} blocks and ${totalSteps} steps have been added to your flow.`
+        description: `${newSteps.length} steps have been added to your flow.`
       });
       
       setShowAIPrompt(false);
@@ -391,7 +358,6 @@ export default function FlowBuilder() {
 
   // Save flow
   const saveFlow = () => {
-    // Input validation
     if (!flow.name.trim()) {
       toast({
         title: "Validation Error",
@@ -401,31 +367,25 @@ export default function FlowBuilder() {
       return;
     }
 
-    if (flow.blocks.length === 0) {
+    if ((flow.steps?.length || 0) === 0 && flow.blocks.length === 0) {
       toast({
         title: "Validation Error",
-        description: "Please add at least one block to your flow",
+        description: "Please add at least one step to your flow",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      // Get all current flows
       const allFlows = loadSavedFlows();
-      
-      // Find the index of the current flow if it exists
       const existingFlowIndex = allFlows.findIndex(f => f.id === flow.id);
       
       if (existingFlowIndex >= 0) {
-        // Update existing flow
         allFlows[existingFlowIndex] = {...flow};
       } else {
-        // Add new flow
         allFlows.push({...flow});
       }
       
-      // Save all flows back to localStorage
       saveAllFlows(allFlows);
       
       console.log('Flow saved:', flow);
@@ -434,8 +394,6 @@ export default function FlowBuilder() {
         title: "Flow saved successfully",
         description: `${flow.name} has been saved.`
       });
-      
-      // We're not navigating away after saving - just stay on this page
     } catch (error) {
       console.error("Error saving flow:", error);
       toast({
@@ -446,29 +404,9 @@ export default function FlowBuilder() {
     }
   };
 
-  // Force adjustment of all textareas when blocks change
-  React.useEffect(() => {
-    // Initial delay for component rendering
-    const timer = setTimeout(() => {
-      // Find all textareas with the flow-block-name-input class
-      document.querySelectorAll('.flow-block-name-input').forEach((element) => {
-        // Trigger multiple resize events with increasing delays
-        [0, 100, 300, 600].forEach(delay => {
-          setTimeout(() => {
-            const event = new Event('input', { bubbles: true });
-            element.dispatchEvent(event);
-          }, delay);
-        });
-      });
-    }, 300);
-    
-    return () => clearTimeout(timer);
-  }, [flow.blocks]);
-  
   // Update the handleStartFlow function to use the unified task system
   const handleStartFlow = async () => {
     try {
-      // Validate flow before starting
       if (!flow.name.trim()) {
         toast({
           title: "Validation Error",
@@ -478,10 +416,10 @@ export default function FlowBuilder() {
         return;
       }
 
-      if (flow.blocks.length === 0) {
+      if ((flow.steps?.length || 0) === 0 && flow.blocks.length === 0) {
         toast({
           title: "Validation Error",
-          description: "Please add at least one block to your flow",
+          description: "Please add at least one step to your flow",
           variant: "destructive"
         });
         return;
@@ -493,7 +431,6 @@ export default function FlowBuilder() {
         description: "Creating tasks from flow steps..."
       });
 
-      // Save the flow first
       const allFlows = loadSavedFlows();
       const existingFlowIndex = allFlows.findIndex(f => f.id === flow.id);
       
@@ -505,7 +442,6 @@ export default function FlowBuilder() {
       
       saveAllFlows(allFlows);
       
-      // Use the enhanced convertFlowToUnifiedTask function
       const task = await convertFlowToUnifiedTask(flow);
       
       if (!task) {
@@ -517,7 +453,6 @@ export default function FlowBuilder() {
         description: "Flow is now running. Opening task view..."
       });
       
-      // Navigate to the original task view that supports flow execution
       navigate(`/task/${task.id}`);
       
     } catch (error) {
@@ -532,7 +467,7 @@ export default function FlowBuilder() {
     }
   };
 
-  // Helper function for descriptive block names - used by handleAgentSelection
+  // Helper function for descriptive block names
   const getDescriptiveBlockName = (type: string, option: string): string => {
     const contextualNaming: Record<string, Record<string, string>> = {
       collect: {
@@ -580,6 +515,10 @@ export default function FlowBuilder() {
     setFlow(prev => ({ ...prev, trigger }));
   };
 
+  const updateFlowSteps = (steps: FlowStep[]) => {
+    setFlow(prev => ({ ...prev, steps }));
+  };
+
   const updateFlowBlocks = (blocks: FlowBlock[]) => {
     setFlow(prev => ({ ...prev, blocks }));
   };
@@ -594,7 +533,7 @@ export default function FlowBuilder() {
           setShowAIPrompt={setShowAIPrompt}
           isManualTrigger={flow.trigger === 'manual'}
           isRunningFlow={isRunningFlow}
-          flowHasBlocks={flow.blocks.length > 0}
+          flowHasBlocks={(flow.steps?.length || 0) > 0 || flow.blocks.length > 0}
           onStartFlow={handleStartFlow}
           onSaveFlow={saveFlow}
         />
@@ -618,10 +557,11 @@ export default function FlowBuilder() {
             setTrigger={updateFlowTrigger}
           />
           
-          <FlowBlocksList
+          <FlowStepsEditor
+            steps={flow.steps || []}
             blocks={flow.blocks}
-            setBlocks={updateFlowBlocks}
-            handleAgentSelection={handleAgentSelection}
+            onStepsChange={updateFlowSteps}
+            onBlocksChange={updateFlowBlocks}
             availableBlockOptions={availableBlockOptions}
           />
         </div>
