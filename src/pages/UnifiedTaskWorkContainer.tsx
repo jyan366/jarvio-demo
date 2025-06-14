@@ -75,6 +75,8 @@ export default function UnifiedTaskWorkContainer() {
   const handleStepComplete = async (stepIndex: number) => {
     try {
       setIsLoading(true);
+      console.log("Completing step:", stepIndex);
+      
       const currentCompleted = task?.steps_completed || [];
       const updatedCompleted = currentCompleted.includes(stepIndex) 
         ? currentCompleted.filter(idx => idx !== stepIndex)
@@ -91,12 +93,8 @@ export default function UnifiedTaskWorkContainer() {
         }
       }));
       
-      // If in auto-run mode and not the last step, prepare for next
-      if (autoRunMode && stepIndex < steps.length - 1) {
-        setReadyForNextSubtask(true);
-      }
-      
       refresh();
+      console.log("Step completed successfully:", stepIndex);
     } catch (error) {
       console.error("Error updating step completion:", error);
     } finally {
@@ -105,6 +103,7 @@ export default function UnifiedTaskWorkContainer() {
   };
 
   const handleStepSelect = (stepIndex: number) => {
+    console.log("Selecting step:", stepIndex);
     setCurrentStepIndex(stepIndex);
     setHistorySubtaskIdx(null);
   };
@@ -120,13 +119,6 @@ export default function UnifiedTaskWorkContainer() {
       text: messageText,
       timestamp: new Date()
     }]);
-    
-    // Simulate AI response and step execution
-    setTimeout(() => {
-      if (currentStepIndex < subtasks.length && !subtasks[currentStepIndex]?.done) {
-        handleStepComplete(currentStepIndex);
-      }
-    }, 1000);
   };
 
   // Auto-run hook - now called after all other hooks but before conditional returns
@@ -230,7 +222,16 @@ export default function UnifiedTaskWorkContainer() {
                 <div className="flex items-center gap-2">
                   {/* Auto-run controls */}
                   <Button
-                    onClick={() => setAutoRunMode(!autoRunMode)}
+                    onClick={() => {
+                      setAutoRunMode(!autoRunMode);
+                      if (!autoRunMode) {
+                        setAutoRunPaused(false);
+                        console.log("Auto-run started");
+                      } else {
+                        setAutoRunPaused(true);
+                        console.log("Auto-run stopped");
+                      }
+                    }}
                     variant={autoRunMode ? "default" : "outline"}
                     size="sm"
                   >
