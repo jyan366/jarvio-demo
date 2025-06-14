@@ -14,10 +14,10 @@ export default function UnifiedTaskWorkContainer() {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [comments, setComments] = useState<{ user: string; text: string; ago: string; subtaskId?: string }[]>([]);
+  const [comments, setComments] = useState<{ user: string; text: string; ago: string; stepId?: string }[]>([]);
   const [commentValue, setCommentValue] = useState("");
   const [selectedTab, setSelectedTab] = useState<"ai" | "comments">("ai");
-  const [currentSubtaskIndex, setCurrentSubtaskIndex] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   
   if (!taskId) {
     return (
@@ -68,28 +68,21 @@ export default function UnifiedTaskWorkContainer() {
     );
   }
 
-  // Convert unified task to subtasks format for the sidebar
+  // Parse steps from the unified task
   const steps = parseTaskSteps(task);
-  const subtasks = steps.map((step, index) => ({
-    id: `step-${index}`,
-    title: step,
-    description: "",
-    completed: task.steps_completed?.includes(index) || false,
-    status: task.steps_completed?.includes(index) ? 'Done' as const : 'Not Started' as const
-  }));
 
   const addComment = (text: string) => {
     const newComment = {
       user: "You",
       text,
       ago: "now",
-      subtaskId: subtasks[currentSubtaskIndex]?.id
+      stepId: `step-${currentStepIndex}`
     };
     setComments([...comments, newComment]);
     setCommentValue("");
   };
 
-  const handleSubtaskComplete = async (stepIndex: number) => {
+  const handleStepComplete = async (stepIndex: number) => {
     try {
       const currentCompleted = task.steps_completed || [];
       const updatedCompleted = currentCompleted.includes(stepIndex) 
@@ -103,8 +96,8 @@ export default function UnifiedTaskWorkContainer() {
     }
   };
 
-  const handleSubtaskSelect = (stepIndex: number) => {
-    setCurrentSubtaskIndex(stepIndex);
+  const handleStepSelect = (stepIndex: number) => {
+    setCurrentStepIndex(stepIndex);
   };
 
   // Build breadcrumb navigation
@@ -197,10 +190,10 @@ export default function UnifiedTaskWorkContainer() {
               taskId={taskId}
               taskTitle={task.title}
               taskDescription={task.description}
-              subtasks={subtasks}
-              currentSubtaskIndex={currentSubtaskIndex}
-              onSubtaskComplete={handleSubtaskComplete}
-              onSubtaskSelect={handleSubtaskSelect}
+              subtasks={[]} // Remove subtasks entirely - sidebar will handle steps differently
+              currentSubtaskIndex={currentStepIndex}
+              onSubtaskComplete={handleStepComplete}
+              onSubtaskSelect={handleStepSelect}
               taskData={task.data}
               isFlowTask={task.task_type === 'flow'}
             />
