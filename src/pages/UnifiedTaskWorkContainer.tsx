@@ -165,12 +165,12 @@ export default function UnifiedTaskWorkContainer() {
     }, 1000);
   };
 
-  // Auto-run hook
+  // Auto-run hook - fix the prop name from currentStepIndex to currentSubtaskIndex
   useJarvioAutoRun({
     autoRunMode,
     autoRunPaused,
     historySubtaskIdx,
-    currentStepIndex,
+    currentSubtaskIndex: currentStepIndex, // Fix: use currentSubtaskIndex
     isLoading,
     isTransitioning,
     readyForNextSubtask,
@@ -273,7 +273,7 @@ export default function UnifiedTaskWorkContainer() {
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* Sidebar - Remove unsupported props */}
         {sidebarOpen && (
           <div className="w-80 border-l bg-background">
             <TaskWorkSidebar
@@ -294,10 +294,6 @@ export default function UnifiedTaskWorkContainer() {
               onSubtaskSelect={handleStepSelect}
               taskData={task.data}
               isFlowTask={task.task_type === 'flow'}
-              autoRunMode={autoRunMode}
-              setAutoRunMode={setAutoRunMode}
-              autoRunPaused={autoRunPaused}
-              setAutoRunPaused={setAutoRunPaused}
             />
           </div>
         )}
