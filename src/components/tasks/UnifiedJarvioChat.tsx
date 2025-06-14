@@ -74,6 +74,11 @@ export function UnifiedJarvioChat({
     onSubtaskSelect
   );
 
+  // Create a wrapper function that adapts the signature
+  const handleSendMessageWrapper = async (message: string) => {
+    await handleSendMessage(undefined, message);
+  };
+
   return (
     <div className="flex flex-col h-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
@@ -91,7 +96,7 @@ export function UnifiedJarvioChat({
             setInputValue={setInputValue}
             isLoading={isLoading}
             isTransitioning={isTransitioning}
-            onSendMessage={handleSendMessage}
+            onSendMessage={handleSendMessageWrapper}
             taskId={taskId}
             taskData={taskData}
             isFlowTask={isFlowTask}
