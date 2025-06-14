@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -77,13 +76,12 @@ export const TaskWorkSidebar: React.FC<TaskWorkSidebarProps> = ({
         onClick={() => onOpenChange(false)}
       />
       <aside
-        className={`flex flex-col h-full bg-white
+        className={`flex flex-col h-full w-full md:w-auto
         ${open ? "translate-x-0" : "translate-x-full"} md:translate-x-0
         fixed md:static top-0 right-0 z-50 transition-all`}
         style={{
-          width: '420px',
-          minWidth: '420px',
-          maxWidth: '420px'
+          height: '100%',
+          minWidth: open ? 320 : 0,
         }}
       >
         {/* Close button for mobile */}
