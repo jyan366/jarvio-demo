@@ -71,6 +71,17 @@ export default function UnifiedTaskWorkContainer() {
   // Parse steps from the unified task
   const steps = parseTaskSteps(task);
 
+  // Convert steps to subtask format for sidebar compatibility
+  const subtasks = steps.map((step, index) => ({
+    id: `step-${index}`,
+    title: step,
+    description: "",
+    done: task.steps_completed?.includes(index) || false,
+    status: task.steps_completed?.includes(index) ? 'Done' as const : 'Not Started' as const,
+    priority: 'MEDIUM' as const,
+    category: 'FLOW'
+  }));
+
   const addComment = (text: string) => {
     const newComment = {
       user: "You",
@@ -190,7 +201,7 @@ export default function UnifiedTaskWorkContainer() {
               taskId={taskId}
               taskTitle={task.title}
               taskDescription={task.description}
-              subtasks={[]} // Remove subtasks entirely - sidebar will handle steps differently
+              subtasks={subtasks}
               currentSubtaskIndex={currentStepIndex}
               onSubtaskComplete={handleStepComplete}
               onSubtaskSelect={handleStepSelect}
