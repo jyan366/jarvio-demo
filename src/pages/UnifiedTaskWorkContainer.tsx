@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { UnifiedTaskSteps } from "@/components/tasks/UnifiedTaskSteps";
 import { TaskWorkHeader } from "@/components/tasks/TaskWorkHeader";
@@ -9,6 +9,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ArrowUp, MessageCircle } from "lucide-react";
 import { parseTaskSteps } from "@/lib/unifiedTasks";
+import { useJarvioAutoRun } from "@/components/tasks/hooks/useJarvioAutoRun";
 
 export default function UnifiedTaskWorkContainer() {
   const { taskId } = useParams<{ taskId: string }>();
@@ -18,6 +19,20 @@ export default function UnifiedTaskWorkContainer() {
   const [commentValue, setCommentValue] = useState("");
   const [selectedTab, setSelectedTab] = useState<"ai" | "comments">("ai");
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  
+  // Auto-run state
+  const [autoRunMode, setAutoRunMode] = useState(false);
+  const [autoRunPaused, setAutoRunPaused] = useState(false);
+  const [readyForNextSubtask, setReadyForNextSubtask] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [subtaskData, setSubtaskData] = useState<Record<string, any>>({});
+  const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
+  
+  // Auto-run refs
+  const autoRunTimerRef = useRef<number | undefined>();
+  const autoRunStepInProgressRef = useRef(false);
   
   if (!taskId) {
     return (
@@ -95,21 +110,83 @@ export default function UnifiedTaskWorkContainer() {
 
   const handleStepComplete = async (stepIndex: number) => {
     try {
+      setIsLoading(true);
       const currentCompleted = task.steps_completed || [];
       const updatedCompleted = currentCompleted.includes(stepIndex) 
         ? currentCompleted.filter(idx => idx !== stepIndex)
         : [...currentCompleted, stepIndex];
       
       await updateTask({ steps_completed: updatedCompleted });
+      
+      // Store step result data
+      setSubtaskData(prev => ({
+        ...prev,
+        [`step-${stepIndex}`]: {
+          result: `Step ${stepIndex + 1} completed: ${steps[stepIndex]}`,
+          completedAt: new Date().toISOString()
+        }
+      }));
+      
+      // If in auto-run mode and not the last step, prepare for next
+      if (autoRunMode && stepIndex < steps.length - 1) {
+        setReadyForNextSubtask(true);
+      }
+      
       refresh();
     } catch (error) {
       console.error("Error updating step completion:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleStepSelect = (stepIndex: number) => {
     setCurrentStepIndex(stepIndex);
+    setHistorySubtaskIdx(null);
   };
+
+  const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string) => {
+    if (e) e.preventDefault();
+    
+    const messageText = autoMessage || "Continue with next step";
+    
+    setMessages(prev => [...prev, {
+      id: crypto.randomUUID(),
+      isUser: !!autoMessage,
+      text: messageText,
+      timestamp: new Date()
+    }]);
+    
+    // Simulate AI response and step execution
+    setTimeout(() => {
+      if (currentStepIndex < subtasks.length && !subtasks[currentStepIndex]?.done) {
+        handleStepComplete(currentStepIndex);
+      }
+    }, 1000);
+  };
+
+  // Auto-run hook
+  useJarvioAutoRun({
+    autoRunMode,
+    autoRunPaused,
+    historySubtaskIdx,
+    currentStepIndex,
+    isLoading,
+    isTransitioning,
+    readyForNextSubtask,
+    subtasks,
+    subtaskData,
+    messages,
+    onSubtaskComplete: handleStepComplete,
+    onSubtaskSelect: handleStepSelect,
+    setAutoRunPaused,
+    setReadyForNextSubtask,
+    autoRunTimerRef,
+    autoRunStepInProgressRef,
+    setIsTransitioning,
+    setMessages,
+    handleSendMessage,
+  });
 
   // Build breadcrumb navigation
   const breadcrumbs = [];
@@ -147,15 +224,25 @@ export default function UnifiedTaskWorkContainer() {
                   </Button>
                   {breadcrumbs}
                 </div>
-                <Button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  AI Assistant
-                </Button>
+                <div className="flex items-center gap-2">
+                  {/* Auto-run controls */}
+                  <Button
+                    onClick={() => setAutoRunMode(!autoRunMode)}
+                    variant={autoRunMode ? "default" : "outline"}
+                    size="sm"
+                  >
+                    {autoRunMode ? "Stop Auto-Run" : "Start Auto-Run"}
+                  </Button>
+                  <Button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    AI Assistant
+                  </Button>
+                </div>
               </div>
 
               {/* Task Header */}
@@ -207,6 +294,10 @@ export default function UnifiedTaskWorkContainer() {
               onSubtaskSelect={handleStepSelect}
               taskData={task.data}
               isFlowTask={task.task_type === 'flow'}
+              autoRunMode={autoRunMode}
+              setAutoRunMode={setAutoRunMode}
+              autoRunPaused={autoRunPaused}
+              setAutoRunPaused={setAutoRunPaused}
             />
           </div>
         )}
