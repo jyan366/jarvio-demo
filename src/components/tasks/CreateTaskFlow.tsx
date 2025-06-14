@@ -97,9 +97,11 @@ export function CreateTaskFlow({
       // Remove sourceData from the task data before sending to API
       const { sourceData, ...taskDataToSend } = taskData;
       
-      // Create unified task with proper task_type
+      // Create unified task with proper task_type and ensure proper typing
       const finalTaskData = {
         ...taskDataToSend,
+        status: taskDataToSend.status as "Not Started" | "In Progress" | "Done",
+        priority: taskDataToSend.priority as "CRITICAL" | "HIGH" | "MEDIUM" | "LOW",
         task_type: 'task' as const,
         data: sourceData ? { sourceData } : null
       };

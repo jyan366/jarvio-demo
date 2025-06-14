@@ -25,10 +25,20 @@ export async function fetchTaskTree(): Promise<TaskTreeNode[]> {
 
     if (error) throw error;
     
+    // Properly type and transform the database data
     const tasks: UnifiedTask[] = (data || []).map(task => ({
-      ...task,
-      task_type: task.task_type || 'task',
-      date: new Date(task.created_at).toLocaleDateString('en-US', {
+      id: task.id,
+      title: task.title,
+      description: task.description || "",
+      status: (task.status as UnifiedTask['status']) || 'Not Started',
+      priority: (task.priority as UnifiedTask['priority']) || 'MEDIUM',
+      category: task.category || "",
+      task_type: (task.task_type as TaskType) || 'task',
+      parent_id: task.parent_id || undefined,
+      user_id: task.user_id,
+      created_at: task.created_at || new Date().toISOString(),
+      data: task.data || undefined,
+      date: new Date(task.created_at || Date.now()).toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'short',
         year: 'numeric'
