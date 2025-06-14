@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, FolderTree } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { fetchTaskTree, deleteUnifiedTask } from '@/lib/unifiedTasks';
 import { TaskTreeNode } from '@/types/unifiedTask';
 import { UnifiedTaskCard } from './UnifiedTaskCard';
@@ -15,7 +15,6 @@ interface UnifiedTaskBoardProps {
 export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoardProps) {
   const [taskTree, setTaskTree] = useState<TaskTreeNode[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'flat' | 'tree'>('flat');
   const { toast } = useToast();
 
   const loadTasks = async () => {
@@ -70,13 +69,13 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
     return allTasks;
   };
 
-  const tasksToShow = viewMode === 'flat' ? getAllTasks(taskTree) : taskTree;
+  const allTasks = getAllTasks(taskTree);
 
   // Group tasks by status for display
   const groupedTasks = {
-    'Not Started': tasksToShow.filter(task => task.status === 'Not Started'),
-    'In Progress': tasksToShow.filter(task => task.status === 'In Progress'),
-    'Done': tasksToShow.filter(task => task.status === 'Done')
+    'Not Started': allTasks.filter(task => task.status === 'Not Started'),
+    'In Progress': allTasks.filter(task => task.status === 'In Progress'),
+    'Done': allTasks.filter(task => task.status === 'Done')
   };
 
   if (loading) {
@@ -90,17 +89,7 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold">Tasks</h1>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setViewMode(viewMode === 'flat' ? 'tree' : 'flat')}
-          >
-            <FolderTree className="h-4 w-4 mr-2" />
-            {viewMode === 'flat' ? 'Tree View' : 'Flat View'}
-          </Button>
-        </div>
+        <h1 className="text-2xl font-bold">Tasks</h1>
         <Button onClick={onCreateTask}>
           <Plus className="h-4 w-4 mr-2" />
           Create Task
@@ -124,7 +113,6 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
                   task={task}
                   onDelete={handleDeleteTask}
                   onUpdate={loadTasks}
-                  showHierarchy={viewMode === 'tree'}
                 />
               ))}
             </div>

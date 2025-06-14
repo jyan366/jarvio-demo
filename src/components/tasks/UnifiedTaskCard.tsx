@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash, ExternalLink, GitBranch, Workflow, CheckSquare } from 'lucide-react';
+import { Trash, GitBranch, Workflow, CheckSquare } from 'lucide-react';
 import { TaskTreeNode } from '@/types/unifiedTask';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,10 +11,9 @@ interface UnifiedTaskCardProps {
   task: TaskTreeNode;
   onDelete: (taskId: string) => void;
   onUpdate: () => void;
-  showHierarchy?: boolean;
 }
 
-export function UnifiedTaskCard({ task, onDelete, onUpdate, showHierarchy }: UnifiedTaskCardProps) {
+export function UnifiedTaskCard({ task, onDelete, onUpdate }: UnifiedTaskCardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -68,9 +67,9 @@ export function UnifiedTaskCard({ task, onDelete, onUpdate, showHierarchy }: Uni
                 {getTaskTypeIcon()}
                 <span className="ml-1 capitalize">{task.task_type}</span>
               </Badge>
-              {task.parent_id && showHierarchy && (
+              {task.parent_id && (
                 <Badge variant="outline" className="text-xs">
-                  Child Task
+                  Subtask
                 </Badge>
               )}
             </div>
@@ -118,23 +117,6 @@ export function UnifiedTaskCard({ task, onDelete, onUpdate, showHierarchy }: Uni
             </div>
           </div>
         </div>
-        
-        {showHierarchy && task.children.length > 0 && (
-          <div className="mt-3 space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">Subtasks:</div>
-            {task.children.slice(0, 3).map((child) => (
-              <div key={child.id} className="flex items-center gap-2 text-xs">
-                <CheckSquare className="h-3 w-3" />
-                <span className="truncate">{child.title}</span>
-              </div>
-            ))}
-            {task.children.length > 3 && (
-              <div className="text-xs text-muted-foreground">
-                +{task.children.length - 3} more...
-              </div>
-            )}
-          </div>
-        )}
       </CardContent>
     </Card>
   );
