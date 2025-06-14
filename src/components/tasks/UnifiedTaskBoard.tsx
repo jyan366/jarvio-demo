@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,6 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
   const [tasks, setTasks] = useState<TaskTreeNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
@@ -86,15 +86,12 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || task.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   const getTasksByStatus = (status: string) => {
     return filteredTasks.filter(task => task.status === status);
   };
-
-  const categories = Array.from(new Set(tasks.map(task => task.category).filter(Boolean)));
 
   if (loading) {
     return (
@@ -118,7 +115,7 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
         </Button>
       </div>
 
-      {/* Filters */}
+      {/* Search */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -128,25 +125,6 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant={selectedCategory === '' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedCategory('')}
-          >
-            All Categories
-          </Button>
-          {categories.map(category => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </Button>
-          ))}
         </div>
       </div>
 
