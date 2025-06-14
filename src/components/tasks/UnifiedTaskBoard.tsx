@@ -56,26 +56,11 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
     }
   };
 
-  // Get all tasks in flat view (including children)
-  const getAllTasks = (nodes: TaskTreeNode[]): TaskTreeNode[] => {
-    const allTasks: TaskTreeNode[] = [];
-    
-    function traverse(node: TaskTreeNode) {
-      allTasks.push(node);
-      node.children.forEach(child => traverse(child));
-    }
-    
-    nodes.forEach(node => traverse(node));
-    return allTasks;
-  };
-
-  const allTasks = getAllTasks(taskTree);
-
-  // Group tasks by status for display
+  // Group parent tasks by status for display
   const groupedTasks = {
-    'Not Started': allTasks.filter(task => task.status === 'Not Started'),
-    'In Progress': allTasks.filter(task => task.status === 'In Progress'),
-    'Done': allTasks.filter(task => task.status === 'Done')
+    'Not Started': taskTree.filter(task => task.status === 'Not Started'),
+    'In Progress': taskTree.filter(task => task.status === 'In Progress'),
+    'Done': taskTree.filter(task => task.status === 'Done')
   };
 
   if (loading) {
@@ -113,6 +98,7 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
                   task={task}
                   onDelete={handleDeleteTask}
                   onUpdate={loadTasks}
+                  showChildren={true}
                 />
               ))}
             </div>
