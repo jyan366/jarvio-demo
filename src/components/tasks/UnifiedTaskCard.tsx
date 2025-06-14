@@ -89,7 +89,7 @@ export function UnifiedTaskCard({ task, onDelete, onUpdate }: UnifiedTaskCardPro
           {task.description || 'No description'}
         </p>
         
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <Badge variant="outline" className={getPriorityColor()}>
               {task.priority}
@@ -112,34 +112,6 @@ export function UnifiedTaskCard({ task, onDelete, onUpdate }: UnifiedTaskCardPro
             </div>
           </div>
         </div>
-
-        {/* Show nested child tasks within the parent card */}
-        {task.children.length > 0 && (
-          <div className="border-t pt-3 space-y-2">
-            <div className="text-xs font-medium text-muted-foreground mb-2">Subtasks:</div>
-            {task.children.map((child) => (
-              <div
-                key={child.id}
-                className="flex items-center justify-between p-2 bg-muted/50 rounded text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/task/${child.id}`);
-                }}
-              >
-                <div className="flex items-center gap-2 flex-1">
-                  <Badge className="bg-blue-100 text-blue-800" variant="secondary">
-                    <CheckSquare className="h-3 w-3 mr-1" />
-                    Step
-                  </Badge>
-                  <span className="font-medium truncate">{child.title}</span>
-                </div>
-                <Badge variant="outline" className="text-xs">
-                  {child.status}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        )}
       </CardContent>
     </Card>
   );

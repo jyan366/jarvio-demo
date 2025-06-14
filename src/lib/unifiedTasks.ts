@@ -38,8 +38,12 @@ export async function fetchTaskTree(): Promise<TaskTreeNode[]> {
       user_id: task.user_id,
       created_at: task.created_at || new Date().toISOString(),
       data: task.data || undefined,
-      steps_completed: task.steps_completed || [],
-      step_execution_log: task.step_execution_log || [],
+      steps_completed: Array.isArray(task.steps_completed) ? task.steps_completed as number[] : [],
+      step_execution_log: Array.isArray(task.step_execution_log) ? task.step_execution_log as Array<{
+        stepIndex: number;
+        completedAt: string;
+        log: string;
+      }> : [],
       date: new Date(task.created_at || Date.now()).toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'short',
@@ -82,8 +86,12 @@ export async function fetchTaskById(taskId: string): Promise<UnifiedTask | null>
       user_id: data.user_id,
       created_at: data.created_at || new Date().toISOString(),
       data: data.data || undefined,
-      steps_completed: data.steps_completed || [],
-      step_execution_log: data.step_execution_log || [],
+      steps_completed: Array.isArray(data.steps_completed) ? data.steps_completed as number[] : [],
+      step_execution_log: Array.isArray(data.step_execution_log) ? data.step_execution_log as Array<{
+        stepIndex: number;
+        completedAt: string;
+        log: string;
+      }> : [],
       date: new Date(data.created_at || Date.now()).toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'short',
@@ -121,8 +129,12 @@ export async function fetchChildTasks(parentId: string): Promise<UnifiedTask[]> 
       user_id: task.user_id,
       created_at: task.created_at || new Date().toISOString(),
       data: task.data || undefined,
-      steps_completed: task.steps_completed || [],
-      step_execution_log: task.step_execution_log || [],
+      steps_completed: Array.isArray(task.steps_completed) ? task.steps_completed as number[] : [],
+      step_execution_log: Array.isArray(task.step_execution_log) ? task.step_execution_log as Array<{
+        stepIndex: number;
+        completedAt: string;
+        log: string;
+      }> : [],
       date: new Date(task.created_at || Date.now()).toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'short',
@@ -319,7 +331,31 @@ export async function addChildTask(parentId: string, title: string, description?
       .single();
       
     if (error) throw error;
-    return data;
+    
+    return {
+      id: data.id,
+      title: data.title,
+      description: data.description || "",
+      status: (data.status as UnifiedTask['status']) || 'Not Started',
+      priority: (data.priority as UnifiedTask['priority']) || 'MEDIUM',
+      category: data.category || "",
+      task_type: (data.task_type as TaskType) || 'task',
+      parent_id: data.parent_id || undefined,
+      user_id: data.user_id,
+      created_at: data.created_at || new Date().toISOString(),
+      data: data.data || undefined,
+      steps_completed: Array.isArray(data.steps_completed) ? data.steps_completed as number[] : [],
+      step_execution_log: Array.isArray(data.step_execution_log) ? data.step_execution_log as Array<{
+        stepIndex: number;
+        completedAt: string;
+        log: string;
+      }> : [],
+      date: new Date(data.created_at || Date.now()).toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      })
+    };
   } catch (error) {
     console.error("Error adding child task:", error);
     throw error;
