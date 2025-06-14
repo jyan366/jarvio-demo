@@ -1,7 +1,7 @@
+
 import React from "react";
 import { X, MessageCircle, Send } from "lucide-react";
 import { JarvioAssistant } from "./JarvioAssistant";
-import { TaskWorkType } from "@/pages/TaskWorkContainer";
 
 interface TaskWorkSidebarProps {
   open: boolean;
@@ -26,6 +26,7 @@ interface TaskWorkSidebarProps {
     flowSteps?: any[];
   };
   isFlowTask: boolean;
+  onGenerateSteps?: () => Promise<void>;
 }
 
 export function TaskWorkSidebar({
@@ -45,7 +46,8 @@ export function TaskWorkSidebar({
   onSubtaskComplete,
   onSubtaskSelect,
   taskData,
-  isFlowTask
+  isFlowTask,
+  onGenerateSteps
 }: TaskWorkSidebarProps) {
   // Get block information for current subtask if it's a flow task
   const getCurrentSubtaskBlock = () => {
