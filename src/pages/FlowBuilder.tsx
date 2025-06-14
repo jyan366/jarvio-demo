@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -31,13 +30,19 @@ const predefinedFlows: Flow[] = [
     description: 'Automates the process of launching new product listings with optimized content and keyword strategy',
     trigger: 'manual',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'Upload Sheet', name: 'Import Product Specifications Sheet', steps: [] },
-      { id: 'c2', type: 'collect', option: 'Get Keywords', name: 'Research Competitive Keywords for Category', steps: [] },
-      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Create Optimized Product Description', steps: [] },
-      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Publish New Listings to Amazon', steps: [] },
-      { id: 'a2', type: 'act', option: 'Send Email', name: 'Notify Team of Successful Launch', steps: [] }
+      { id: 'c1', type: 'collect', option: 'Upload Sheet', name: 'Import Product Specifications Sheet' },
+      { id: 'c2', type: 'collect', option: 'Get Keywords', name: 'Research Competitive Keywords for Category' },
+      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Create Optimized Product Description' },
+      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Publish New Listings to Amazon' },
+      { id: 'a2', type: 'act', option: 'Send Email', name: 'Notify Team of Successful Launch' }
     ],
-    steps: []
+    steps: [
+      { id: 's1', title: 'Import Product Data', description: 'Upload product specifications', order: 0, blockId: 'c1' },
+      { id: 's2', title: 'Research Keywords', description: 'Find competitive keywords', order: 1, blockId: 'c2' },
+      { id: 's3', title: 'Optimize Listing', description: 'Create optimized description', order: 2, blockId: 't1' },
+      { id: 's4', title: 'Publish Listings', description: 'Push to Amazon', order: 3, blockId: 'a1' },
+      { id: 's5', title: 'Notify Team', description: 'Send completion email', order: 4, blockId: 'a2' }
+    ]
   }
 ];
 
@@ -149,16 +154,25 @@ export default function FlowBuilder() {
         console.log("Received pre-generated flow:", generatedFlow);
         
         if (generatedFlow.name && generatedFlow.description && Array.isArray(generatedFlow.blocks)) {
-          // Convert blocks to steps with attached blocks
-          const newSteps = generatedFlow.blocks.map((block: any, index: number) => ({
-            id: uuidv4(),
-            title: block.name || `Step ${index + 1}`,
-            description: block.description || '',
-            completed: false,
-            order: index
-          }));
-
-          const newBlocks = generatedFlow.blocks.map((block: any, index: number) => {
+          // Convert AI-generated blocks to steps and blocks structure
+          const newSteps: FlowStep[] = [];
+          const newBlocks: FlowBlock[] = [];
+          
+          generatedFlow.blocks.forEach((block: any, index: number) => {
+            const blockId = uuidv4();
+            const stepId = uuidv4();
+            
+            // Create step
+            newSteps.push({
+              id: stepId,
+              title: block.name || `Step ${index + 1}`,
+              description: block.description || '',
+              completed: false,
+              order: index,
+              blockId: blockId
+            });
+            
+            // Create block
             const blockType = block.type && ['collect', 'think', 'act', 'agent'].includes(block.type) 
               ? block.type 
               : 'collect';
@@ -171,14 +185,12 @@ export default function FlowBuilder() {
               blockOption = validOptions[0] || 'User Text';
             }
             
-            return {
-              id: block.id || uuidv4(),
+            newBlocks.push({
+              id: blockId,
               type: blockType,
               option: blockOption,
-              name: block.name || getDescriptiveBlockName(blockType, blockOption),
-              stepId: newSteps[index]?.id,
-              steps: []
-            };
+              name: block.name || getDescriptiveBlockName(blockType, blockOption)
+            });
           });
           
           setFlow(prev => ({
@@ -211,18 +223,11 @@ export default function FlowBuilder() {
       const existingFlow = allFlows.find(f => f.id === flowId);
       
       if (existingFlow) {
-        // Ensure the flow has steps array
-        setFlow({
-          ...existingFlow,
-          steps: existingFlow.steps || []
-        });
+        setFlow(existingFlow);
       } else {
         const predefinedFlow = predefinedFlows.find(f => f.id === flowId);
         if (predefinedFlow) {
-          setFlow({
-            ...predefinedFlow,
-            steps: predefinedFlow.steps || []
-          });
+          setFlow(predefinedFlow);
         } else {
           toast({
             title: "Flow not found",
@@ -298,16 +303,25 @@ export default function FlowBuilder() {
         throw new Error("Invalid flow structure: missing required properties");
       }
 
-      // Convert blocks to steps with attached blocks
-      const newSteps = generatedFlow.blocks.map((block: any, index: number) => ({
-        id: uuidv4(),
-        title: block.name || `Step ${index + 1}`,
-        description: block.description || '',
-        completed: false,
-        order: index
-      }));
-
-      const newBlocks: FlowBlock[] = generatedFlow.blocks.map((block: any, index: number) => {
+      // Convert AI-generated blocks to steps and blocks structure
+      const newSteps: FlowStep[] = [];
+      const newBlocks: FlowBlock[] = [];
+      
+      generatedFlow.blocks.forEach((block: any, index: number) => {
+        const blockId = uuidv4();
+        const stepId = uuidv4();
+        
+        // Create step
+        newSteps.push({
+          id: stepId,
+          title: block.name || `Step ${index + 1}`,
+          description: block.description || '',
+          completed: false,
+          order: index,
+          blockId: blockId
+        });
+        
+        // Create block
         const blockType = block.type && ['collect', 'think', 'act', 'agent'].includes(block.type) 
           ? block.type 
           : 'collect';
@@ -319,14 +333,12 @@ export default function FlowBuilder() {
           blockOption = validOptions[0] || '';
         }
         
-        return {
-          id: uuidv4(),
+        newBlocks.push({
+          id: blockId,
           type: blockType,
           option: blockOption,
-          name: block.name || getDescriptiveBlockName(blockType, blockOption),
-          stepId: newSteps[index]?.id,
-          steps: []
-        };
+          name: block.name || getDescriptiveBlockName(blockType, blockOption)
+        });
       });
       
       setFlow(prev => ({
@@ -367,7 +379,7 @@ export default function FlowBuilder() {
       return;
     }
 
-    if ((flow.steps?.length || 0) === 0 && flow.blocks.length === 0) {
+    if (flow.steps.length === 0) {
       toast({
         title: "Validation Error",
         description: "Please add at least one step to your flow",
@@ -416,7 +428,7 @@ export default function FlowBuilder() {
         return;
       }
 
-      if ((flow.steps?.length || 0) === 0 && flow.blocks.length === 0) {
+      if (flow.steps.length === 0) {
         toast({
           title: "Validation Error",
           description: "Please add at least one step to your flow",
@@ -533,7 +545,7 @@ export default function FlowBuilder() {
           setShowAIPrompt={setShowAIPrompt}
           isManualTrigger={flow.trigger === 'manual'}
           isRunningFlow={isRunningFlow}
-          flowHasBlocks={(flow.steps?.length || 0) > 0 || flow.blocks.length > 0}
+          flowHasBlocks={flow.steps.length > 0}
           onStartFlow={handleStartFlow}
           onSaveFlow={saveFlow}
         />
@@ -558,7 +570,7 @@ export default function FlowBuilder() {
           />
           
           <FlowStepsEditor
-            steps={flow.steps || []}
+            steps={flow.steps}
             blocks={flow.blocks}
             onStepsChange={updateFlowSteps}
             onBlocksChange={updateFlowBlocks}

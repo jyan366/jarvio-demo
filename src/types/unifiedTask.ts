@@ -12,9 +12,10 @@ export interface UnifiedTask {
   parent_id?: string;
   user_id: string;
   created_at: string;
+  execution_order: number;
   data?: any;
   
-  // Step execution tracking
+  // Step execution tracking - simplified
   steps_completed?: number[];
   step_execution_log?: Array<{
     stepIndex: number;
@@ -24,10 +25,6 @@ export interface UnifiedTask {
   
   // For UI compatibility
   date?: string;
-  subtasks?: UnifiedTask[]; // Deprecated - kept for backward compatibility
-  products?: any[];
-  comments?: any[];
-  insights?: any[];
 }
 
 export interface TaskTreeNode extends UnifiedTask {

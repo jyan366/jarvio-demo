@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { UnifiedTask, TaskTreeNode, TaskType } from "@/types/unifiedTask";
 
@@ -36,6 +37,7 @@ export async function fetchTaskTree(): Promise<TaskTreeNode[]> {
       parent_id: task.parent_id || undefined,
       user_id: task.user_id,
       created_at: task.created_at || new Date().toISOString(),
+      execution_order: task.execution_order || 0,
       data: task.data || undefined,
       steps_completed: Array.isArray(task.steps_completed) ? task.steps_completed as number[] : [],
       step_execution_log: Array.isArray(task.step_execution_log) ? task.step_execution_log as Array<{
@@ -84,6 +86,7 @@ export async function fetchTaskById(taskId: string): Promise<UnifiedTask | null>
       parent_id: data.parent_id || undefined,
       user_id: data.user_id,
       created_at: data.created_at || new Date().toISOString(),
+      execution_order: data.execution_order || 0,
       data: data.data || undefined,
       steps_completed: Array.isArray(data.steps_completed) ? data.steps_completed as number[] : [],
       step_execution_log: Array.isArray(data.step_execution_log) ? data.step_execution_log as Array<{
@@ -112,7 +115,7 @@ export async function fetchChildTasks(parentId: string): Promise<UnifiedTask[]> 
       .from("tasks")
       .select("*")
       .eq("parent_id", parentId)
-      .order("created_at", { ascending: true });
+      .order("execution_order", { ascending: true });
 
     if (error) throw error;
     
@@ -127,6 +130,7 @@ export async function fetchChildTasks(parentId: string): Promise<UnifiedTask[]> 
       parent_id: task.parent_id || undefined,
       user_id: task.user_id,
       created_at: task.created_at || new Date().toISOString(),
+      execution_order: task.execution_order || 0,
       data: task.data || undefined,
       steps_completed: Array.isArray(task.steps_completed) ? task.steps_completed as number[] : [],
       step_execution_log: Array.isArray(task.step_execution_log) ? task.step_execution_log as Array<{
@@ -253,7 +257,7 @@ export async function markStepCompleted(taskId: string, stepIndex: number, execu
 // Create a new task
 export async function createUnifiedTask(
   task: Partial<UnifiedTask> & { title: string },
-  childTasks?: { title: string; description?: string; blockData?: any }[]
+  childTasks?: { title: string; description?: string; blockData?: any; execution_order?: number }[]
 ) {
   try {
     await ensureAuthForDemo();
@@ -265,6 +269,7 @@ export async function createUnifiedTask(
         ...task, 
         user_id: user.id,
         task_type: task.task_type || 'task',
+        execution_order: task.execution_order || 0,
         steps_completed: [],
         step_execution_log: []
       })
@@ -279,7 +284,7 @@ export async function createUnifiedTask(
     // If child tasks were provided, create them with enhanced data
     if (childTasks && childTasks.length > 0 && data) {
       try {
-        const childTasksWithParent = childTasks.map(ct => ({
+        const childTasksWithParent = childTasks.map((ct, index) => ({
           title: ct.title,
           description: ct.description || "",
           parent_id: data.id,
@@ -288,6 +293,7 @@ export async function createUnifiedTask(
           status: 'Not Started' as const,
           priority: 'MEDIUM' as const,
           category: data.category || '',
+          execution_order: ct.execution_order || index,
           steps_completed: [],
           step_execution_log: [],
           // Store block execution data for flow tasks
@@ -310,7 +316,7 @@ export async function createUnifiedTask(
 }
 
 // Add a child task to an existing task
-export async function addChildTask(parentId: string, title: string, description?: string) {
+export async function addChildTask(parentId: string, title: string, description?: string, execution_order?: number) {
   try {
     const user = await ensureAuthForDemo();
     
@@ -325,6 +331,7 @@ export async function addChildTask(parentId: string, title: string, description?
         status: 'Not Started',
         priority: 'MEDIUM',
         category: '',
+        execution_order: execution_order || 0,
         steps_completed: [],
         step_execution_log: []
       })
@@ -344,6 +351,7 @@ export async function addChildTask(parentId: string, title: string, description?
       parent_id: data.parent_id || undefined,
       user_id: data.user_id,
       created_at: data.created_at || new Date().toISOString(),
+      execution_order: data.execution_order || 0,
       data: data.data || undefined,
       steps_completed: Array.isArray(data.steps_completed) ? data.steps_completed as number[] : [],
       step_execution_log: Array.isArray(data.step_execution_log) ? data.step_execution_log as Array<{
@@ -398,47 +406,27 @@ export async function deleteUnifiedTask(taskId: string) {
   }
 }
 
-// Convert flow to unified task structure
+// Convert flow to unified task structure - simplified
 export async function convertFlowToUnifiedTask(flow: any) {
   try {
-    // Create child tasks from flow blocks with their steps
-    const childTasks = flow.blocks?.map((block: any, blockIndex: number) => {
-      const blockSteps = block.steps || [];
+    // Create child tasks from flow steps (which are now linked to blocks)
+    const childTasks = flow.steps?.map((step: any, stepIndex: number) => {
+      const linkedBlock = flow.blocks?.find((block: any) => block.id === step.blockId);
       
-      // If block has steps, create individual child tasks for each step
-      if (blockSteps.length > 0) {
-        return blockSteps.map((step: any, stepIndex: number) => ({
-          title: step.title || `${block.name || block.option} - Step ${stepIndex + 1}`,
-          description: step.description || `Flow step: ${block.option}`,
-          blockData: {
-            blockId: block.id,
-            blockType: block.type,
-            blockOption: block.option,
-            blockName: block.name,
-            stepId: step.id,
-            stepOrder: step.order,
-            executionOrder: blockIndex * 100 + stepIndex, // Ensure proper ordering
-            isStep: true,
-            parentBlockIndex: blockIndex
-          }
-        }));
-      } else {
-        // If no steps, create one task for the entire block
-        return [{
-          title: block.name || `${block.type}: ${block.option}`,
-          description: `Flow step: ${block.option}`,
-          blockData: {
-            blockId: block.id,
-            blockType: block.type,
-            blockOption: block.option,
-            blockName: block.name,
-            executionOrder: blockIndex * 100,
-            isStep: false,
-            parentBlockIndex: blockIndex
-          }
-        }];
-      }
-    }).flat() || [];
+      return {
+        title: step.title || `Step ${stepIndex + 1}`,
+        description: step.description || 'Flow step',
+        execution_order: step.order || stepIndex,
+        blockData: linkedBlock ? {
+          blockId: linkedBlock.id,
+          blockType: linkedBlock.type,
+          blockOption: linkedBlock.option,
+          blockName: linkedBlock.name,
+          stepId: step.id,
+          isFlowStep: true
+        } : undefined
+      };
+    }) || [];
     
     const task = await createUnifiedTask({
       title: `Flow: ${flow.name}`,
@@ -447,15 +435,12 @@ export async function convertFlowToUnifiedTask(flow: any) {
       priority: 'MEDIUM',
       category: 'FLOW',
       task_type: 'flow',
+      execution_order: 0,
       data: { 
         flowId: flow.id, 
         flowTrigger: flow.trigger,
-        blocks: flow.blocks,
-        executionMetadata: {
-          totalBlocks: flow.blocks?.length || 0,
-          totalSteps: childTasks.length,
-          createdAt: new Date().toISOString()
-        }
+        totalSteps: childTasks.length,
+        createdAt: new Date().toISOString()
       }
     }, childTasks);
     

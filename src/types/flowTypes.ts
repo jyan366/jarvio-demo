@@ -5,6 +5,7 @@ export interface FlowStep {
   description?: string;
   completed?: boolean;
   order: number;
+  blockId?: string; // Links step to a specific block
 }
 
 export interface FlowBlock {
@@ -14,8 +15,6 @@ export interface FlowBlock {
   name: string;
   agentId?: string;
   agentName?: string;
-  stepId?: string; // Added to link blocks to steps
-  steps?: FlowStep[];
 }
 
 export interface Flow {
@@ -24,5 +23,5 @@ export interface Flow {
   description: string;
   trigger: 'manual' | 'scheduled' | 'event';
   blocks: FlowBlock[];
-  steps?: FlowStep[]; // Added steps to flow
+  steps: FlowStep[];
 }

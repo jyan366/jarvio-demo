@@ -82,14 +82,13 @@ export type Database = {
           block_type: string
           completed_at: string | null
           error_message: string | null
-          flow_execution_id: string | null
+          execution_order: number | null
           id: string
           input_data: Json | null
           output_data: Json | null
-          requires_user_action: boolean | null
           started_at: string | null
           status: string
-          user_action_response: Json | null
+          task_id: string | null
         }
         Insert: {
           block_id: string
@@ -97,14 +96,13 @@ export type Database = {
           block_type: string
           completed_at?: string | null
           error_message?: string | null
-          flow_execution_id?: string | null
+          execution_order?: number | null
           id?: string
           input_data?: Json | null
           output_data?: Json | null
-          requires_user_action?: boolean | null
           started_at?: string | null
           status?: string
-          user_action_response?: Json | null
+          task_id?: string | null
         }
         Update: {
           block_id?: string
@@ -112,24 +110,71 @@ export type Database = {
           block_type?: string
           completed_at?: string | null
           error_message?: string | null
-          flow_execution_id?: string | null
+          execution_order?: number | null
           id?: string
+          input_data?: Json | null
+          output_data?: Json | null
+          started_at?: string | null
+          status?: string
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "block_executions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      block_executions_backup: {
+        Row: {
+          block_id: string | null
+          block_name: string | null
+          block_type: string | null
+          completed_at: string | null
+          error_message: string | null
+          flow_execution_id: string | null
+          id: string | null
+          input_data: Json | null
+          output_data: Json | null
+          requires_user_action: boolean | null
+          started_at: string | null
+          status: string | null
+          user_action_response: Json | null
+        }
+        Insert: {
+          block_id?: string | null
+          block_name?: string | null
+          block_type?: string | null
+          completed_at?: string | null
+          error_message?: string | null
+          flow_execution_id?: string | null
+          id?: string | null
           input_data?: Json | null
           output_data?: Json | null
           requires_user_action?: boolean | null
           started_at?: string | null
-          status?: string
+          status?: string | null
           user_action_response?: Json | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "block_executions_flow_execution_id_fkey"
-            columns: ["flow_execution_id"]
-            isOneToOne: false
-            referencedRelation: "flow_executions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Update: {
+          block_id?: string | null
+          block_name?: string | null
+          block_type?: string | null
+          completed_at?: string | null
+          error_message?: string | null
+          flow_execution_id?: string | null
+          id?: string | null
+          input_data?: Json | null
+          output_data?: Json | null
+          requires_user_action?: boolean | null
+          started_at?: string | null
+          status?: string | null
+          user_action_response?: Json | null
+        }
+        Relationships: []
       }
       flow_block_configs: {
         Row: {
@@ -170,7 +215,7 @@ export type Database = {
           created_by: string | null
           flow_id: string
           id: string
-          results: Json | null
+          metadata: Json | null
           started_at: string | null
           status: string
           task_id: string | null
@@ -180,7 +225,7 @@ export type Database = {
           created_by?: string | null
           flow_id: string
           id?: string
-          results?: Json | null
+          metadata?: Json | null
           started_at?: string | null
           status?: string
           task_id?: string | null
@@ -190,7 +235,7 @@ export type Database = {
           created_by?: string | null
           flow_id?: string
           id?: string
-          results?: Json | null
+          metadata?: Json | null
           started_at?: string | null
           status?: string
           task_id?: string | null
@@ -229,50 +274,16 @@ export type Database = {
         }
         Relationships: []
       }
-      subtasks: {
-        Row: {
-          category: string | null
-          completed: boolean | null
-          description: string | null
-          id: string
-          priority: string | null
-          status: string | null
-          task_id: string
-          title: string
-        }
-        Insert: {
-          category?: string | null
-          completed?: boolean | null
-          description?: string | null
-          id?: string
-          priority?: string | null
-          status?: string | null
-          task_id: string
-          title: string
-        }
-        Update: {
-          category?: string | null
-          completed?: boolean | null
-          description?: string | null
-          id?: string
-          priority?: string | null
-          status?: string | null
-          task_id?: string
-          title?: string
-        }
-        Relationships: []
-      }
       tasks: {
         Row: {
           category: string | null
           created_at: string | null
           data: Json | null
           description: string | null
+          execution_order: number | null
           id: string
-          insight_id: string | null
           parent_id: string | null
           priority: string | null
-          source: string | null
           status: string | null
           step_execution_log: Json | null
           steps_completed: Json | null
@@ -285,11 +296,10 @@ export type Database = {
           created_at?: string | null
           data?: Json | null
           description?: string | null
+          execution_order?: number | null
           id?: string
-          insight_id?: string | null
           parent_id?: string | null
           priority?: string | null
-          source?: string | null
           status?: string | null
           step_execution_log?: Json | null
           steps_completed?: Json | null
@@ -302,11 +312,10 @@ export type Database = {
           created_at?: string | null
           data?: Json | null
           description?: string | null
+          execution_order?: number | null
           id?: string
-          insight_id?: string | null
           parent_id?: string | null
           priority?: string | null
-          source?: string | null
           status?: string | null
           step_execution_log?: Json | null
           steps_completed?: Json | null
