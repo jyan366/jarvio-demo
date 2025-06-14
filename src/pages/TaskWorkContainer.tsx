@@ -114,7 +114,7 @@ export default function TaskWorkContainer({
     );
   }
 
-  // Convert unified task structure to legacy format for compatibility
+  // Enhanced conversion to legacy format with flow execution data
   const taskState: TaskWorkType = {
     id: task.id,
     title: task.title,
@@ -135,7 +135,7 @@ export default function TaskWorkContainer({
         last30Units: "68",
       }
     ],
-    subtasks: childTasks.map(child => ({
+    subtasks: childTasks.map((child, index) => ({
       id: child.id,
       title: child.title,
       done: child.status === 'Done',
@@ -143,10 +143,19 @@ export default function TaskWorkContainer({
       status: child.status,
       priority: child.priority,
       category: child.category || "",
+      // Include block execution data for flow steps
+      blockData: child.data?.blockData,
+      executionOrder: child.data?.blockData?.executionOrder ?? index,
     })),
     comments: [{ user: "you", text: "Ready to work on this task", ago: "now" }],
     insights: [],
-    data: task.data || {},
+    data: {
+      ...task.data,
+      // Ensure flow data is preserved
+      isFlowTask: task.task_type === 'flow',
+      flowBlocks: task.data?.blocks || [],
+      flowExecutionMetadata: task.data?.executionMetadata || {}
+    },
   };
 
   const isFlowTask = task.task_type === 'flow' || task.category === 'FLOW';

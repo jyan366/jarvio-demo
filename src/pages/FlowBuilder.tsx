@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
 import { Flow, FlowBlock, TriggerType } from '@/components/jarvi-flows/FlowsGrid';
-import { createTask } from '@/lib/supabaseTasks';
+import { convertFlowToUnifiedTask } from '@/lib/unifiedTasks';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -471,7 +471,7 @@ export default function FlowBuilder() {
     return () => clearTimeout(timer);
   }, [flow.blocks]);
   
-  // Add a new function to start the flow
+  // Update the handleStartFlow function to use the unified task system
   const handleStartFlow = async () => {
     try {
       // Validate flow before starting
@@ -511,21 +511,8 @@ export default function FlowBuilder() {
       
       saveAllFlows(allFlows);
       
-      // Create subtasks from flow blocks
-      const subtasks = flow.blocks.map(block => ({
-        title: block.name || `${block.type}: ${block.option}`,
-        description: `Flow step: ${block.option}`
-      }));
-      
-      // Create the main task with subtasks
-      const task = await createTask({
-        title: `Flow: ${flow.name}`,
-        description: flow.description,
-        status: 'In Progress', // Start as In Progress
-        priority: 'MEDIUM',
-        category: 'FLOW',
-        data: { flowId: flow.id, flowTrigger: flow.trigger }
-      }, subtasks);
+      // Use the enhanced convertFlowToUnifiedTask function
+      const task = await convertFlowToUnifiedTask(flow);
       
       if (!task) {
         throw new Error('Failed to create task from flow');
@@ -536,7 +523,7 @@ export default function FlowBuilder() {
         description: "Flow is now running. Opening task view..."
       });
       
-      // Navigate to task view with the new task ID
+      // Navigate to the original task view that supports flow execution
       navigate(`/task/${task.id}`);
       
     } catch (error) {

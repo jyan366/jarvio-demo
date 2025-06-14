@@ -254,7 +254,7 @@ export async function markStepCompleted(taskId: string, stepIndex: number, execu
 // Create a new task
 export async function createUnifiedTask(
   task: Partial<UnifiedTask> & { title: string },
-  childTasks?: { title: string; description?: string }[]
+  childTasks?: { title: string; description?: string; blockData?: any }[]
 ) {
   try {
     await ensureAuthForDemo();
@@ -277,7 +277,7 @@ export async function createUnifiedTask(
       throw new Error(`Failed to create task: ${error.message}`);
     }
     
-    // If child tasks were provided, create them
+    // If child tasks were provided, create them with enhanced data
     if (childTasks && childTasks.length > 0 && data) {
       try {
         const childTasksWithParent = childTasks.map(ct => ({
@@ -290,7 +290,9 @@ export async function createUnifiedTask(
           priority: 'MEDIUM' as const,
           category: data.category || '',
           steps_completed: [],
-          step_execution_log: []
+          step_execution_log: [],
+          // Store block execution data for flow tasks
+          data: ct.blockData ? { blockData: ct.blockData } : undefined
         }));
         
         await supabase
