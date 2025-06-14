@@ -170,7 +170,7 @@ export class FlowExecutionEngine {
       await supabase
         .from('block_executions')
         .insert({
-          flow_execution_id: this.executionId,
+          task_id: this.taskId,
           block_id: block.id,
           block_type: block.type,
           block_name: block.option,
@@ -202,10 +202,9 @@ export class FlowExecutionEngine {
           status: result.success ? 'completed' : 'failed',
           output_data: result.data || {},
           error_message: result.error,
-          requires_user_action: result.requiresUserAction || false,
           completed_at: new Date().toISOString()
         })
-        .eq('flow_execution_id', this.executionId)
+        .eq('task_id', this.taskId)
         .eq('block_id', block.id);
       
       // Handle user action if required
@@ -245,7 +244,7 @@ export class FlowExecutionEngine {
           error_message: (error as Error).message,
           completed_at: new Date().toISOString()
         })
-        .eq('flow_execution_id', this.executionId)
+        .eq('task_id', this.taskId)
         .eq('block_id', block.id);
       
       if (this.options.onError) {
@@ -260,7 +259,7 @@ export class FlowExecutionEngine {
   /**
    * Execute a functional block using real implementation
    */
-  private async executeFunctionalBlock(block: FlowBlock, config: BlockConfig): Promise<BlockExecutionResult> {
+  private async executeFunctionalBlock(block: SimpleFlowBlock, config: BlockConfig): Promise<BlockExecutionResult> {
     try {
       // Call the edge function to execute the block
       const { data, error } = await supabase.functions.invoke('execute-flow-block', {
@@ -295,7 +294,7 @@ export class FlowExecutionEngine {
   /**
    * Execute a demo block with simulated data
    */
-  private async executeDemoBlock(block: FlowBlock): Promise<BlockExecutionResult> {
+  private async executeDemoBlock(block: SimpleFlowBlock): Promise<BlockExecutionResult> {
     // Wait to simulate processing time
     await new Promise(resolve => setTimeout(resolve, 1500));
     
@@ -336,7 +335,7 @@ export class FlowExecutionEngine {
   /**
    * Generate demo results for collect blocks
    */
-  private generateDemoCollectResult(block: FlowBlock): any {
+  private generateDemoCollectResult(block: SimpleFlowBlock): any {
     switch (block.option) {
       case 'User Text':
         return { 
@@ -363,7 +362,7 @@ export class FlowExecutionEngine {
   /**
    * Generate demo results for think blocks
    */
-  private generateDemoThinkResult(block: FlowBlock): any {
+  private generateDemoThinkResult(block: SimpleFlowBlock): any {
     return {
       analysisResults: "Simulated AI analysis of collected data",
       insights: [
@@ -378,7 +377,7 @@ export class FlowExecutionEngine {
   /**
    * Generate demo results for act blocks
    */
-  private generateDemoActResult(block: FlowBlock): any {
+  private generateDemoActResult(block: SimpleFlowBlock): any {
     switch (block.option) {
       case 'Send Email':
         return {
@@ -411,7 +410,7 @@ export class FlowExecutionEngine {
   /**
    * Generate demo results for agent blocks
    */
-  private generateDemoAgentResult(block: FlowBlock): any {
+  private generateDemoAgentResult(block: SimpleFlowBlock): any {
     return {
       agentName: block.agentName || "Simulated Agent",
       actions: [
