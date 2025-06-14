@@ -29,12 +29,13 @@ const predefinedFlows: Flow[] = [
     description: 'Automates the process of launching new product listings with optimized content and keyword strategy',
     trigger: 'manual',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'Upload Sheet', name: 'Import Product Specifications Sheet', steps: [] },
-      { id: 'c2', type: 'collect', option: 'Get Keywords', name: 'Research Competitive Keywords for Category', steps: [] },
-      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Create Optimized Product Description', steps: [] },
-      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Publish New Listings to Amazon', steps: [] },
-      { id: 'a2', type: 'act', option: 'Send Email', name: 'Notify Team of Successful Launch', steps: [] }
-    ]
+      { id: 'c1', type: 'collect', option: 'Upload Sheet', name: 'Import Product Specifications Sheet' },
+      { id: 'c2', type: 'collect', option: 'Get Keywords', name: 'Research Competitive Keywords for Category' },
+      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Create Optimized Product Description' },
+      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Publish New Listings to Amazon' },
+      { id: 'a2', type: 'act', option: 'Send Email', name: 'Notify Team of Successful Launch' }
+    ],
+    steps: []
   },
   {
     id: 'inventory-restock',
@@ -42,12 +43,13 @@ const predefinedFlows: Flow[] = [
     description: 'Analyzes sales velocity and inventory levels to create timely restock recommendations',
     trigger: 'scheduled',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Retrieve Current Inventory Levels', steps: [] },
-      { id: 'c2', type: 'collect', option: 'Estimate Sales', name: 'Calculate 30-Day Sales Projections', steps: [] },
-      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Determine Optimal Restock Quantities', steps: [] },
-      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Inventory Restock Report', steps: [] },
-      { id: 'a2', type: 'act', option: 'Send Email', name: 'Send Restock Alert to Supply Chain Team', steps: [] }
-    ]
+      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Retrieve Current Inventory Levels' },
+      { id: 'c2', type: 'collect', option: 'Estimate Sales', name: 'Calculate 30-Day Sales Projections' },
+      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Determine Optimal Restock Quantities' },
+      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Inventory Restock Report' },
+      { id: 'a2', type: 'act', option: 'Send Email', name: 'Send Restock Alert to Supply Chain Team' }
+    ],
+    steps: []
   },
   {
     id: 'customer-feedback',
@@ -55,12 +57,13 @@ const predefinedFlows: Flow[] = [
     description: 'Aggregates and analyzes customer reviews and feedback across all products',
     trigger: 'scheduled',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'Review Information', name: 'Gather Last 30 Days of Product Reviews', steps: [] },
-      { id: 'c2', type: 'collect', option: 'Seller Account Feedback', name: 'Collect Seller Rating Metrics', steps: [] },
-      { id: 't1', type: 'think', option: 'Review Analysis', name: 'Identify Common Customer Pain Points', steps: [] },
-      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Actionable Feedback Report', steps: [] },
-      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Request Product Manager Review', steps: [] }
-    ]
+      { id: 'c1', type: 'collect', option: 'Review Information', name: 'Gather Last 30 Days of Product Reviews' },
+      { id: 'c2', type: 'collect', option: 'Seller Account Feedback', name: 'Collect Seller Rating Metrics' },
+      { id: 't1', type: 'think', option: 'Review Analysis', name: 'Identify Common Customer Pain Points' },
+      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Actionable Feedback Report' },
+      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Request Product Manager Review' }
+    ],
+    steps: []
   },
   {
     id: 'quarterly-optimization',
@@ -68,12 +71,13 @@ const predefinedFlows: Flow[] = [
     description: 'Performs deep analysis of listing performance and suggests optimizations every quarter',
     trigger: 'scheduled',
     blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Extract Quarterly Performance Data', steps: [] },
-      { id: 'c2', type: 'collect', option: 'Review Information', name: 'Gather Quarterly Customer Feedback', steps: [] },
-      { id: 't1', type: 'think', option: 'Insights Generation', name: 'Create Listing Enhancement Strategy', steps: [] },
-      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Apply Optimizations to Key Listings', steps: [] },
-      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Get Marketing Approval for Changes', steps: [] }
-    ]
+      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Extract Quarterly Performance Data' },
+      { id: 'c2', type: 'collect', option: 'Review Information', name: 'Gather Quarterly Customer Feedback' },
+      { id: 't1', type: 'think', option: 'Insights Generation', name: 'Create Listing Enhancement Strategy' },
+      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Apply Optimizations to Key Listings' },
+      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Get Marketing Approval for Changes' }
+    ],
+    steps: []
   }
 ];
 

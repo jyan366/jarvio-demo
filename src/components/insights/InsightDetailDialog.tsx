@@ -82,7 +82,7 @@ export function InsightDetailDialog({
     const selectedTasks = suggestedTasks.filter(task => task.selected);
     
     try {
-      // Create the main task
+      // Create the main task - removed insight_id reference
       const taskData = await createTask({
         title: insight.title,
         description: insight.description || "",
@@ -90,11 +90,11 @@ export function InsightDetailDialog({
         priority: insight.severity === 'HIGH' ? 'HIGH' : 
                 insight.severity === 'MEDIUM' ? 'MEDIUM' : 'LOW',
         status: "Not Started",
-        insight_id: insight.id,
         data: { 
           insightType: insight.category,
           insightDate: insight.date,
-          insightSeverity: insight.severity
+          insightSeverity: insight.severity,
+          insightId: insight.id
         }
       });
       

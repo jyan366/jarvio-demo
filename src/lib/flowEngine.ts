@@ -1,7 +1,24 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Flow, FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
+
+// Simplified types to avoid circular references
+export interface SimpleFlow {
+  id: string;
+  name: string;
+  description: string;
+  trigger: string;
+  blocks: SimpleFlowBlock[];
+}
+
+export interface SimpleFlowBlock {
+  id: string;
+  type: 'collect' | 'think' | 'act' | 'agent';
+  option: string;
+  name: string;
+  agentId?: string;
+  agentName?: string;
+}
 
 export interface BlockExecutionResult {
   success: boolean;
@@ -21,7 +38,7 @@ export interface BlockConfig {
 }
 
 export interface FlowExecutionOptions {
-  flow: Flow;
+  flow: SimpleFlow;
   taskId: string;
   onBlockStart?: (blockIndex: number) => void;
   onBlockComplete?: (blockIndex: number, result: any) => void;
@@ -35,7 +52,7 @@ export interface FlowExecutionOptions {
 }
 
 export class FlowExecutionEngine {
-  private flow: Flow;
+  private flow: SimpleFlow;
   private taskId: string;
   private currentBlockIndex: number = 0;
   private executionId: string | null = null;
