@@ -274,6 +274,8 @@ export type Database = {
           priority: string | null
           source: string | null
           status: string | null
+          step_execution_log: Json | null
+          steps_completed: Json | null
           task_type: string | null
           title: string
           user_id: string
@@ -289,6 +291,8 @@ export type Database = {
           priority?: string | null
           source?: string | null
           status?: string | null
+          step_execution_log?: Json | null
+          steps_completed?: Json | null
           task_type?: string | null
           title: string
           user_id: string
@@ -304,6 +308,8 @@ export type Database = {
           priority?: string | null
           source?: string | null
           status?: string | null
+          step_execution_log?: Json | null
+          steps_completed?: Json | null
           task_type?: string | null
           title?: string
           user_id?: string

@@ -14,9 +14,17 @@ export interface UnifiedTask {
   created_at: string;
   data?: any;
   
+  // Step execution tracking
+  steps_completed?: number[];
+  step_execution_log?: Array<{
+    stepIndex: number;
+    completedAt: string;
+    log: string;
+  }>;
+  
   // For UI compatibility
   date?: string;
-  subtasks?: UnifiedTask[]; // Child tasks
+  subtasks?: UnifiedTask[]; // Deprecated - kept for backward compatibility
   products?: any[];
   comments?: any[];
   insights?: any[];
