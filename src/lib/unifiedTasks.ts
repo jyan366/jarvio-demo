@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { UnifiedTask, TaskTreeNode, TaskType } from "@/types/unifiedTask";
 
@@ -194,11 +195,26 @@ export function getAllDescendants(task: TaskTreeNode): UnifiedTask[] {
 
 // Parse description into steps for agent execution - FIXED to properly handle flow blocks
 export function parseTaskSteps(task: UnifiedTask): string[] {
+  console.log("Parsing task steps for task:", task.id, "type:", task.task_type, "data:", task.data);
+  
   // For flow tasks, use the blocks from the flow data - THIS IS THE KEY FIX
-  if (task.task_type === 'flow' && task.data?.flowBlocks) {
-    return task.data.flowBlocks.map((block: any) => 
-      block.name || `${block.type}: ${block.option}`
-    );
+  if (task.task_type === 'flow' && task.data?.flowBlocks && Array.isArray(task.data.flowBlocks)) {
+    console.log("Found flow blocks:", task.data.flowBlocks);
+    return task.data.flowBlocks.map((block: any, index: number) => {
+      const stepName = block.name || `${block.type}: ${block.option}`;
+      console.log(`Step ${index + 1}: ${stepName}`);
+      return stepName;
+    });
+  }
+  
+  // FALLBACK: If no flowBlocks, try to use the blocks directly
+  if (task.task_type === 'flow' && task.data?.blocks && Array.isArray(task.data.blocks)) {
+    console.log("Found flow blocks in data.blocks:", task.data.blocks);
+    return task.data.blocks.map((block: any, index: number) => {
+      const stepName = block.name || `${block.type}: ${block.option}`;
+      console.log(`Step ${index + 1}: ${stepName}`);
+      return stepName;
+    });
   }
   
   // For regular tasks, parse from description
@@ -416,6 +432,9 @@ export async function deleteUnifiedTask(taskId: string) {
 // Convert flow to unified task structure - FIXED to create single task with internal steps
 export async function convertFlowToUnifiedTask(flow: any) {
   try {
+    console.log("Converting flow to unified task:", flow);
+    console.log("Flow blocks being stored:", flow.blocks);
+    
     // Create a single flow task with flow blocks stored in data field
     // NO CHILD TASKS - blocks are internal steps only
     const task = await createUnifiedTask({
@@ -429,11 +448,14 @@ export async function convertFlowToUnifiedTask(flow: any) {
       data: { 
         flowId: flow.id, 
         flowTrigger: flow.trigger,
-        flowBlocks: flow.blocks || [], // Store the blocks for step generation
+        flowBlocks: flow.blocks || [], // Store the blocks for step generation - KEY FIX
+        blocks: flow.blocks || [], // Also store as blocks for fallback
         totalSteps: (flow.blocks || []).length,
         createdAt: new Date().toISOString()
       }
     }); // REMOVED: No childTasks parameter - this was the bug!
+    
+    console.log("Created unified task with data:", task.data);
     
     return task;
   } catch (error) {
