@@ -14,6 +14,8 @@ import { useJarvioAutoRun } from "@/components/tasks/hooks/useJarvioAutoRun";
 export default function UnifiedTaskWorkContainer() {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
+  
+  // All hooks must be called at the top, before any conditional logic
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [comments, setComments] = useState<{ user: string; text: string; ago: string; stepId?: string }[]>([]);
   const [commentValue, setCommentValue] = useState("");
@@ -33,17 +35,8 @@ export default function UnifiedTaskWorkContainer() {
   // Auto-run refs
   const autoRunTimerRef = useRef<number | undefined>();
   const autoRunStepInProgressRef = useRef(false);
-  
-  if (!taskId) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-lg text-muted-foreground">No task ID provided</p>
-        </div>
-      </MainLayout>
-    );
-  }
 
+  // Call useUnifiedTaskWork hook (must be before conditional returns)
   const {
     task,
     childTasks,
@@ -53,50 +46,21 @@ export default function UnifiedTaskWorkContainer() {
     addChild,
     removeChild,
     refresh
-  } = useUnifiedTaskWork(taskId);
+  } = useUnifiedTaskWork(taskId || '');
 
-  if (loading) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-lg text-muted-foreground">Loading task...</p>
-        </div>
-      </MainLayout>
-    );
-  }
-
-  if (error || !task) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center space-y-4">
-            <p className="text-lg text-muted-foreground">
-              {error || 'Task not found'}
-            </p>
-            <Button onClick={() => navigate('/tasks')} variant="outline">
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Back to Tasks
-            </Button>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
-
-  // Parse steps from the unified task
-  const steps = parseTaskSteps(task);
-
-  // Convert steps to subtask format for sidebar compatibility
+  // Parse steps and create subtasks (move this logic up so it's available for hooks)
+  const steps = task ? parseTaskSteps(task) : [];
   const subtasks = steps.map((step, index) => ({
     id: `step-${index}`,
     title: step,
     description: "",
-    done: task.steps_completed?.includes(index) || false,
-    status: task.steps_completed?.includes(index) ? 'Done' as const : 'Not Started' as const,
+    done: task?.steps_completed?.includes(index) || false,
+    status: task?.steps_completed?.includes(index) ? 'Done' as const : 'Not Started' as const,
     priority: 'MEDIUM' as const,
     category: 'FLOW'
   }));
 
+  // Helper functions
   const addComment = (text: string) => {
     const newComment = {
       user: "You",
@@ -111,7 +75,7 @@ export default function UnifiedTaskWorkContainer() {
   const handleStepComplete = async (stepIndex: number) => {
     try {
       setIsLoading(true);
-      const currentCompleted = task.steps_completed || [];
+      const currentCompleted = task?.steps_completed || [];
       const updatedCompleted = currentCompleted.includes(stepIndex) 
         ? currentCompleted.filter(idx => idx !== stepIndex)
         : [...currentCompleted, stepIndex];
@@ -165,12 +129,12 @@ export default function UnifiedTaskWorkContainer() {
     }, 1000);
   };
 
-  // Auto-run hook - fix the prop name from currentStepIndex to currentSubtaskIndex
+  // Auto-run hook - now called after all other hooks but before conditional returns
   useJarvioAutoRun({
     autoRunMode,
     autoRunPaused,
     historySubtaskIdx,
-    currentSubtaskIndex: currentStepIndex, // Fix: use currentSubtaskIndex
+    currentSubtaskIndex: currentStepIndex,
     isLoading,
     isTransitioning,
     readyForNextSubtask,
@@ -187,6 +151,45 @@ export default function UnifiedTaskWorkContainer() {
     setMessages,
     handleSendMessage,
   });
+
+  // Now we can have conditional returns after all hooks are called
+  if (!taskId) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-lg text-muted-foreground">No task ID provided</p>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-lg text-muted-foreground">Loading task...</p>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (error || !task) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <p className="text-lg text-muted-foreground">
+              {error || 'Task not found'}
+            </p>
+            <Button onClick={() => navigate('/tasks')} variant="outline">
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back to Tasks
+            </Button>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   // Build breadcrumb navigation
   const breadcrumbs = [];
@@ -273,7 +276,7 @@ export default function UnifiedTaskWorkContainer() {
           </div>
         </div>
 
-        {/* Sidebar - Remove unsupported props */}
+        {/* Sidebar */}
         {sidebarOpen && (
           <div className="w-80 border-l bg-background">
             <TaskWorkSidebar
