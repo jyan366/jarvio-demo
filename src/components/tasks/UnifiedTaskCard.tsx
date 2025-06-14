@@ -11,10 +11,9 @@ interface UnifiedTaskCardProps {
   task: TaskTreeNode;
   onDelete: (taskId: string) => void;
   onUpdate: () => void;
-  showChildren?: boolean;
 }
 
-export function UnifiedTaskCard({ task, onDelete, onUpdate, showChildren = false }: UnifiedTaskCardProps) {
+export function UnifiedTaskCard({ task, onDelete, onUpdate }: UnifiedTaskCardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -59,78 +58,89 @@ export function UnifiedTaskCard({ task, onDelete, onUpdate, showChildren = false
   };
 
   return (
-    <div className="space-y-2">
-      <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={handleClick}>
-        <CardHeader className="pb-2">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge className={getTaskTypeColor()}>
-                  {getTaskTypeIcon()}
-                  <span className="ml-1 capitalize">{task.task_type}</span>
-                </Badge>
-              </div>
-              <h3 className="font-semibold text-sm leading-tight">{task.title}</h3>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(task.id);
-              }}
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="pt-0">
-          <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-            {task.description || 'No description'}
-          </p>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <Badge variant="outline" className={getPriorityColor()}>
-                {task.priority}
+    <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={handleClick}>
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className={getTaskTypeColor()}>
+                {getTaskTypeIcon()}
+                <span className="ml-1 capitalize">{task.task_type}</span>
               </Badge>
-              {task.category && (
-                <Badge variant="secondary" className="text-xs">
-                  {task.category}
-                </Badge>
-              )}
             </div>
-            
-            <div className="flex flex-col items-end gap-1">
-              {task.children.length > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  {task.children.length} subtask{task.children.length !== 1 ? 's' : ''}
-                </div>
-              )}
+            <h3 className="font-semibold text-sm leading-tight">{task.title}</h3>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(task.id);
+            }}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="pt-0">
+        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
+          {task.description || 'No description'}
+        </p>
+        
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex flex-col gap-1">
+            <Badge variant="outline" className={getPriorityColor()}>
+              {task.priority}
+            </Badge>
+            {task.category && (
+              <Badge variant="secondary" className="text-xs">
+                {task.category}
+              </Badge>
+            )}
+          </div>
+          
+          <div className="flex flex-col items-end gap-1">
+            {task.children.length > 0 && (
               <div className="text-xs text-muted-foreground">
-                {task.date}
+                {task.children.length} subtask{task.children.length !== 1 ? 's' : ''}
               </div>
+            )}
+            <div className="text-xs text-muted-foreground">
+              {task.date}
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Show nested child tasks */}
-      {showChildren && task.children.length > 0 && (
-        <div className="ml-6 space-y-2">
-          {task.children.map((child) => (
-            <UnifiedTaskCard
-              key={child.id}
-              task={child}
-              onDelete={onDelete}
-              onUpdate={onUpdate}
-              showChildren={false}
-            />
-          ))}
         </div>
-      )}
-    </div>
+
+        {/* Show nested child tasks within the parent card */}
+        {task.children.length > 0 && (
+          <div className="border-t pt-3 space-y-2">
+            <div className="text-xs font-medium text-muted-foreground mb-2">Subtasks:</div>
+            {task.children.map((child) => (
+              <div
+                key={child.id}
+                className="flex items-center justify-between p-2 bg-muted/50 rounded text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/task/${child.id}`);
+                }}
+              >
+                <div className="flex items-center gap-2 flex-1">
+                  <Badge className="bg-blue-100 text-blue-800" variant="secondary">
+                    <CheckSquare className="h-3 w-3 mr-1" />
+                    Step
+                  </Badge>
+                  <span className="font-medium truncate">{child.title}</span>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  {child.status}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

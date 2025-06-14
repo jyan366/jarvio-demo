@@ -56,7 +56,7 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
     }
   };
 
-  // Group parent tasks by status for display
+  // Group only parent tasks (root-level tasks) by status
   const groupedTasks = {
     'Not Started': taskTree.filter(task => task.status === 'Not Started'),
     'In Progress': taskTree.filter(task => task.status === 'In Progress'),
@@ -98,7 +98,6 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
                   task={task}
                   onDelete={handleDeleteTask}
                   onUpdate={loadTasks}
-                  showChildren={true}
                 />
               ))}
             </div>
