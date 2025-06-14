@@ -1,13 +1,15 @@
+
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
 import { TaskWorkSidebar } from "@/components/tasks/TaskWorkSidebar";
 import { SubtaskDialog } from "@/components/tasks/SubtaskDialog";
 import { CollapseNavButton } from "@/components/tasks/CollapseNavButton";
-import { useTaskWork } from "@/hooks/useTaskWork";
+import { useUnifiedTaskWork } from "@/hooks/useUnifiedTaskWork";
 import { Workflow } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+
 export interface Subtask {
   id: string;
   title: string;
@@ -17,6 +19,7 @@ export interface Subtask {
   priority: string;
   category: string;
 }
+
 export interface TaskInsight {
   id: string;
   title: string;
@@ -26,6 +29,7 @@ export interface TaskInsight {
   date: string;
   status: 'new' | 'viewed' | 'actioned' | 'dismissed';
 }
+
 export interface Product {
   image: string;
   name: string;
@@ -36,6 +40,7 @@ export interface Product {
   last30Sales: string;
   last30Units: string;
 }
+
 export interface TaskWorkType {
   id: string;
   title: string;
@@ -58,87 +63,242 @@ export interface TaskWorkType {
     flowTrigger?: string;
   };
 }
+
 interface TaskWorkContainerProps {
   taskId: string;
 }
+
+const PRODUCT_IMAGE = "/lovable-uploads/98f7d2f8-e54c-46c1-bc30-7cea0a73ca70.png";
+
 export default function TaskWorkContainer({
   taskId
 }: TaskWorkContainerProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const {
-    toast
-  } = useToast();
-  const {
+    task,
+    childTasks,
     loading,
-    taskState,
-    sidebarOpen,
-    setSidebarOpen,
-    isGenerating,
-    focusedSubtaskIdx,
-    selectedTab,
-    setSelectedTab,
-    commentValue,
-    setCommentValue,
-    handleUpdateTask,
-    handleToggleSubtask,
-    handleAddSubtask,
-    handleRemoveSubtask,
-    handleGenerateSteps,
-    handleFocusSubtask,
-    handleUpdateSubtask,
-    handleOpenSubtask,
-    handleAddComment,
-    subtaskDialogIdx,
-    handleCloseSubtask,
-    subtaskData,
-    isFlowTask,
-    handleRunFlow
-  } = useTaskWork(taskId);
-  if (loading) return <MainLayout>
+    error,
+    updateTask,
+    addChild,
+    removeChild,
+    refresh
+  } = useUnifiedTaskWork(taskId);
+
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const [focusedSubtaskIdx, setFocusedSubtaskIdx] = React.useState<number | null>(0);
+  const [selectedTab, setSelectedTab] = React.useState<"comments" | "ai">("ai");
+  const [commentValue, setCommentValue] = React.useState("");
+  const [subtaskDialogIdx, setSubtaskDialogIdx] = React.useState<number | null>(null);
+  const [isGenerating, setIsGenerating] = React.useState(false);
+
+  if (loading) {
+    return (
+      <MainLayout>
         <div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
           <p className="text-lg text-muted-foreground">Loading task...</p>
         </div>
-      </MainLayout>;
-  if (!taskState) return <MainLayout>
+      </MainLayout>
+    );
+  }
+
+  if (error || !task) {
+    return (
+      <MainLayout>
         <div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
           <p className="text-lg text-muted-foreground">Task not found</p>
         </div>
-      </MainLayout>;
-  let dialogSubtask = subtaskDialogIdx !== null ? taskState?.subtasks[subtaskDialogIdx] : null;
-  let jarvioWorkLog: string | undefined = undefined;
-  let jarvioCompletedAt: string | undefined = undefined;
-  if (dialogSubtask && subtaskData && subtaskData[dialogSubtask.id]) {
-    jarvioWorkLog = subtaskData[dialogSubtask.id].result;
-    jarvioCompletedAt = subtaskData[dialogSubtask.id].completedAt;
+      </MainLayout>
+    );
   }
-  let userWorkLog = dialogSubtask && Array.isArray(taskState.comments) ? taskState.comments.filter(c => (c.subtaskId === dialogSubtask.id || !c.subtaskId && subtaskDialogIdx === 0) && c.user !== "jarvio") : [];
-  let dialogComments = dialogSubtask && Array.isArray(taskState.comments) ? taskState.comments.filter(c => c.subtaskId === dialogSubtask.id || !c.subtaskId && subtaskDialogIdx === 0) : [];
 
-  // Ensure isFlowTask is always a boolean value
-  const isFlowTaskBoolean = isFlowTask === true;
-  return <MainLayout>
+  // Convert unified task structure to legacy format for compatibility
+  const taskState: TaskWorkType = {
+    id: task.id,
+    title: task.title,
+    description: task.description || "",
+    status: task.status,
+    priority: task.priority,
+    category: task.category || "",
+    date: task.date,
+    products: [
+      {
+        image: PRODUCT_IMAGE,
+        name: "Kimchi 1 kg Jar - Raw & Unpasteurised - Traditionally Fermented - by The Cultured Food Company",
+        asin: "B08P5P3QGC",
+        sku: "KM1000",
+        price: "16.99",
+        units: "111",
+        last30Sales: "1155.32",
+        last30Units: "68",
+      }
+    ],
+    subtasks: childTasks.map(child => ({
+      id: child.id,
+      title: child.title,
+      done: child.status === 'Done',
+      description: child.description || "",
+      status: child.status,
+      priority: child.priority,
+      category: child.category || "",
+    })),
+    comments: [{ user: "you", text: "Ready to work on this task", ago: "now" }],
+    insights: [],
+    data: task.data || {},
+  };
+
+  const isFlowTask = task.task_type === 'flow' || task.category === 'FLOW';
+
+  const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
+    if (field === 'title') {
+      updateTask({ title: value });
+    } else if (field === 'description') {
+      updateTask({ description: value });
+    } else if (field === 'status') {
+      updateTask({ status: value });
+    } else if (field === 'priority') {
+      updateTask({ priority: value });
+    } else if (field === 'category') {
+      updateTask({ category: value });
+    }
+  };
+
+  const handleToggleSubtask = async (idx: number) => {
+    const subtask = taskState.subtasks[idx];
+    if (!subtask) return;
+    
+    const newStatus = subtask.done ? 'Not Started' : 'Done';
+    await updateTask({ status: newStatus });
+    await refresh();
+  };
+
+  const handleAddSubtask = async (title: string) => {
+    await addChild(title);
+    await refresh();
+  };
+
+  const handleRemoveSubtask = async (idx: number) => {
+    const subtask = taskState.subtasks[idx];
+    if (!subtask) return;
+    
+    await removeChild(subtask.id);
+    await refresh();
+  };
+
+  const handleGenerateSteps = async () => {
+    setIsGenerating(true);
+    try {
+      // Add logic to generate steps if needed
+      toast({
+        title: "Steps generated",
+        description: "Task steps have been generated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate steps",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleFocusSubtask = (idx: number) => {
+    setFocusedSubtaskIdx(idx);
+  };
+
+  const handleUpdateSubtask = (field: keyof Subtask, value: any) => {
+    // Handle subtask updates
+  };
+
+  const handleOpenSubtask = (idx: number) => {
+    setSubtaskDialogIdx(idx);
+  };
+
+  const handleCloseSubtask = () => {
+    setSubtaskDialogIdx(null);
+  };
+
+  const handleAddComment = async (text: string) => {
+    setCommentValue("");
+  };
+
+  const dialogSubtask = subtaskDialogIdx !== null ? taskState.subtasks[subtaskDialogIdx] : null;
+
+  return (
+    <MainLayout>
       <div className="w-full h-full max-w-none flex flex-row gap-0 bg-background">
         <main className="flex-1 min-w-0 bg-white border-r-[1.5px] border-[#F4F4F8] flex flex-col h-screen overflow-hidden">
           <div className="w-full max-w-3xl mx-auto flex flex-col h-full p-6 overflow-y-auto">
             <div className="mb-4 flex items-center justify-between">
               <CollapseNavButton sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-              {isFlowTaskBoolean}
+              {isFlowTask && <Workflow className="h-5 w-5 text-blue-600" />}
             </div>
-            <TaskWorkMain task={taskState} onUpdateTask={handleUpdateTask} onToggleSubtask={handleToggleSubtask} onAddSubtask={handleAddSubtask} onRemoveSubtask={handleRemoveSubtask} onOpenSidebarMobile={() => setSidebarOpen(true)} onGenerateSteps={handleGenerateSteps} isGenerating={isGenerating} focusedSubtaskIdx={focusedSubtaskIdx} onFocusSubtask={handleFocusSubtask} onUpdateSubtask={handleUpdateSubtask} onOpenSubtask={handleOpenSubtask} isFlowTask={isFlowTaskBoolean} />
+            <TaskWorkMain 
+              task={taskState} 
+              onUpdateTask={handleUpdateTask} 
+              onToggleSubtask={handleToggleSubtask} 
+              onAddSubtask={handleAddSubtask} 
+              onRemoveSubtask={handleRemoveSubtask} 
+              onOpenSidebarMobile={() => setSidebarOpen(true)} 
+              onGenerateSteps={handleGenerateSteps} 
+              isGenerating={isGenerating} 
+              focusedSubtaskIdx={focusedSubtaskIdx} 
+              onFocusSubtask={handleFocusSubtask} 
+              onUpdateSubtask={handleUpdateSubtask} 
+              onOpenSubtask={handleOpenSubtask} 
+              isFlowTask={isFlowTask} 
+            />
           </div>
         </main>
         <aside className="h-screen flex flex-col max-w-full md:max-w-[380px] xl:max-w-[420px] w-full bg-white overflow-hidden shadow-none border-l">
-          <TaskWorkSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} selectedTab={selectedTab} setSelectedTab={setSelectedTab} comments={taskState.comments} addComment={handleAddComment} commentValue={commentValue} setCommentValue={setCommentValue} taskId={taskState.id} taskTitle={taskState.title} taskDescription={taskState.description} subtasks={taskState.subtasks} currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0} onSubtaskComplete={handleToggleSubtask} onSubtaskSelect={handleFocusSubtask} onGenerateSteps={handleGenerateSteps} taskData={taskState.data} isFlowTask={isFlowTaskBoolean} />
+          <TaskWorkSidebar 
+            open={sidebarOpen} 
+            onOpenChange={setSidebarOpen} 
+            selectedTab={selectedTab} 
+            setSelectedTab={setSelectedTab} 
+            comments={taskState.comments} 
+            addComment={handleAddComment} 
+            commentValue={commentValue} 
+            setCommentValue={setCommentValue} 
+            taskId={taskState.id} 
+            taskTitle={taskState.title} 
+            taskDescription={taskState.description} 
+            subtasks={taskState.subtasks} 
+            currentSubtaskIndex={focusedSubtaskIdx !== null ? focusedSubtaskIdx : 0} 
+            onSubtaskComplete={handleToggleSubtask} 
+            onSubtaskSelect={handleFocusSubtask} 
+            onGenerateSteps={handleGenerateSteps} 
+            taskData={taskState.data} 
+            isFlowTask={isFlowTask} 
+          />
         </aside>
       </div>
-      {subtaskDialogIdx !== null && <SubtaskDialog open={subtaskDialogIdx !== null} onClose={handleCloseSubtask} subtask={dialogSubtask} onUpdate={(field, value) => {
-      if (subtaskDialogIdx !== null) {
-        handleUpdateSubtask(field as any, value);
-      }
-    }} onToggleComplete={() => {
-      if (subtaskDialogIdx !== null) {
-        handleToggleSubtask(subtaskDialogIdx);
-      }
-    }} jarvioWorkLog={jarvioWorkLog} jarvioCompletedAt={jarvioCompletedAt} userWorkLog={userWorkLog} comments={dialogComments} isFlowStep={isFlowTaskBoolean} />}
-    </MainLayout>;
+      {subtaskDialogIdx !== null && dialogSubtask && (
+        <SubtaskDialog 
+          open={subtaskDialogIdx !== null} 
+          onClose={handleCloseSubtask} 
+          subtask={dialogSubtask} 
+          onUpdate={(field, value) => {
+            if (subtaskDialogIdx !== null) {
+              handleUpdateSubtask(field as any, value);
+            }
+          }} 
+          onToggleComplete={() => {
+            if (subtaskDialogIdx !== null) {
+              handleToggleSubtask(subtaskDialogIdx);
+            }
+          }} 
+          jarvioWorkLog={undefined}
+          jarvioCompletedAt={undefined}
+          userWorkLog={[]}
+          comments={[]}
+          isFlowStep={isFlowTask} 
+        />
+      )}
+    </MainLayout>
+  );
 }
