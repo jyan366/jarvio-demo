@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+
+import React, { useState, useRef } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { UnifiedTaskSteps } from "@/components/tasks/UnifiedTaskSteps";
 import { TaskWorkHeader } from "@/components/tasks/TaskWorkHeader";
@@ -34,9 +35,6 @@ export default function UnifiedTaskWorkContainer() {
   // Auto-run refs
   const autoRunTimerRef = useRef<number | undefined>();
   const autoRunStepInProgressRef = useRef(false);
-  
-  // Add ref to track if we're in the middle of auto-run to prevent state clearing
-  const autoRunActiveRef = useRef(false);
 
   // Call useUnifiedTaskWork hook (must be before conditional returns)
   const {
@@ -77,14 +75,11 @@ export default function UnifiedTaskWorkContainer() {
   const handleStepComplete = async (stepIndex: number) => {
     try {
       setIsLoading(true);
-      console.log("Completing step:", stepIndex);
-      
       const currentCompleted = task?.steps_completed || [];
       const updatedCompleted = currentCompleted.includes(stepIndex) 
         ? currentCompleted.filter(idx => idx !== stepIndex)
         : [...currentCompleted, stepIndex];
       
-      // Update task without triggering a full refresh during auto-run
       await updateTask({ steps_completed: updatedCompleted });
       
       // Store step result data
@@ -96,7 +91,12 @@ export default function UnifiedTaskWorkContainer() {
         }
       }));
       
-      console.log("Step completed successfully:", stepIndex);
+      // If in auto-run mode and not the last step, prepare for next
+      if (autoRunMode && stepIndex < steps.length - 1) {
+        setReadyForNextSubtask(true);
+      }
+      
+      refresh();
     } catch (error) {
       console.error("Error updating step completion:", error);
     } finally {
@@ -105,7 +105,6 @@ export default function UnifiedTaskWorkContainer() {
   };
 
   const handleStepSelect = (stepIndex: number) => {
-    console.log("Selecting step:", stepIndex);
     setCurrentStepIndex(stepIndex);
     setHistorySubtaskIdx(null);
   };
@@ -121,12 +120,14 @@ export default function UnifiedTaskWorkContainer() {
       text: messageText,
       timestamp: new Date()
     }]);
+    
+    // Simulate AI response and step execution
+    setTimeout(() => {
+      if (currentStepIndex < subtasks.length && !subtasks[currentStepIndex]?.done) {
+        handleStepComplete(currentStepIndex);
+      }
+    }, 1000);
   };
-
-  // Track auto-run state changes
-  useEffect(() => {
-    autoRunActiveRef.current = autoRunMode && !autoRunPaused;
-  }, [autoRunMode, autoRunPaused]);
 
   // Auto-run hook - now called after all other hooks but before conditional returns
   useJarvioAutoRun({
@@ -229,36 +230,7 @@ export default function UnifiedTaskWorkContainer() {
                 <div className="flex items-center gap-2">
                   {/* Auto-run controls */}
                   <Button
-                    onClick={() => {
-                      const newAutoRunMode = !autoRunMode;
-                      setAutoRunMode(newAutoRunMode);
-                      if (newAutoRunMode) {
-                        setAutoRunPaused(false);
-                        console.log("Auto-run started");
-                        setMessages(prev => [
-                          ...prev,
-                          {
-                            id: crypto.randomUUID(),
-                            isUser: false,
-                            text: "🚀 Auto-run mode activated! Starting step execution...",
-                            timestamp: new Date()
-                          }
-                        ]);
-                      } else {
-                        setAutoRunPaused(true);
-                        autoRunActiveRef.current = false;
-                        console.log("Auto-run stopped");
-                        setMessages(prev => [
-                          ...prev,
-                          {
-                            id: crypto.randomUUID(),
-                            isUser: false,
-                            text: "⏹️ Auto-run mode deactivated.",
-                            timestamp: new Date()
-                          }
-                        ]);
-                      }
-                    }}
+                    onClick={() => setAutoRunMode(!autoRunMode)}
                     variant={autoRunMode ? "default" : "outline"}
                     size="sm"
                   >
@@ -306,7 +278,7 @@ export default function UnifiedTaskWorkContainer() {
 
         {/* Sidebar */}
         {sidebarOpen && (
-          <div className="w-[420px] border-l bg-background">
+          <div className="w-80 border-l bg-background">
             <TaskWorkSidebar
               open={sidebarOpen}
               onOpenChange={setSidebarOpen}

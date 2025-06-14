@@ -192,30 +192,17 @@ export function getAllDescendants(task: TaskTreeNode): UnifiedTask[] {
   return descendants;
 }
 
-// Parse description into steps for agent execution - ENHANCED to include block information
+// Parse description into steps for agent execution - FIXED to handle flow steps properly
 export function parseTaskSteps(task: UnifiedTask): string[] {
   console.log("Parsing task steps for task:", task.id, "type:", task.task_type, "data:", task.data);
   
-  // For flow tasks, extract steps from the stored flow steps with block information
+  // For flow tasks, extract steps from the stored flow steps
   if (task.task_type === 'flow' && task.data) {
     // Use the actual flow steps that were stored
     if (task.data.flowSteps && Array.isArray(task.data.flowSteps)) {
       console.log("Found flow steps:", task.data.flowSteps);
-      console.log("Found flow blocks:", task.data.flowBlocks);
-      
       return task.data.flowSteps.map((step: any, index: number) => {
         const stepTitle = step.title || `Step ${index + 1}`;
-        
-        // Find the corresponding block for this step
-        const block = task.data.flowBlocks?.find((block: any) => block.id === step.blockId);
-        
-        if (block) {
-          // Include block information in the step title for better context
-          const blockInfo = `${block.type}:${block.option}${block.agentName ? ` (${block.agentName})` : ''}`;
-          console.log(`Step ${index + 1}: ${stepTitle} [${blockInfo}]`);
-          return `${stepTitle} [${blockInfo}]`;
-        }
-        
         console.log(`Step ${index + 1}: ${stepTitle}`);
         return stepTitle;
       });

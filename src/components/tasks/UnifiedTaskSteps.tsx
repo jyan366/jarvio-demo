@@ -1,213 +1,289 @@
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Check, X, Play, Pause, MoreHorizontal, Trash2 } from "lucide-react";
-import { parseTaskSteps } from "@/lib/unifiedTasks";
-import { getFlowStepsWithBlocks } from "@/lib/flowStepHelpers";
-import { FlowStepInfo } from "./FlowStepInfo";
-import { UnifiedTask } from "@/types/unifiedTask";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { 
+  CheckCircle2, 
+  Circle, 
+  Plus, 
+  Trash2, 
+  Play, 
+  Clock,
+  ChevronRight,
+  Workflow
+} from 'lucide-react';
+import { UnifiedTask } from '@/types/unifiedTask';
+import { parseTaskSteps, markStepCompleted } from '@/lib/unifiedTasks';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface UnifiedTaskStepsProps {
   task: UnifiedTask;
   childTasks: UnifiedTask[];
   onTaskUpdate: () => void;
-  onAddChildTask: (title: string, description?: string) => Promise<UnifiedTask>;
-  onRemoveChildTask: (childId: string) => Promise<void>;
+  onAddChildTask: (title: string) => void;
+  onRemoveChildTask: (taskId: string) => void;
 }
 
-export function UnifiedTaskSteps({
-  task,
-  childTasks,
-  onTaskUpdate,
-  onAddChildTask,
-  onRemoveChildTask
+export function UnifiedTaskSteps({ 
+  task, 
+  childTasks, 
+  onTaskUpdate, 
+  onAddChildTask, 
+  onRemoveChildTask 
 }: UnifiedTaskStepsProps) {
+  const [newChildTitle, setNewChildTitle] = useState('');
   const [isAddingChild, setIsAddingChild] = useState(false);
-  const [newChildTitle, setNewChildTitle] = useState("");
-  const [newChildDescription, setNewChildDescription] = useState("");
+  const [executingStep, setExecutingStep] = useState<number | null>(null);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  // Get steps based on task type
-  const getStepsToDisplay = () => {
-    if (task.task_type === 'flow') {
-      // For flow tasks, get steps with block information
-      return getFlowStepsWithBlocks(task);
-    } else {
-      // For regular tasks, parse steps from description or use child tasks
-      const parsedSteps = parseTaskSteps(task);
-      return parsedSteps.map((stepTitle, index) => ({
-        id: `step-${index}`,
-        title: stepTitle,
-        completed: task.steps_completed?.includes(index) || false,
-        order: index,
-        block: undefined
-      }));
+  // Parse steps - unified for all task types
+  const steps = parseTaskSteps(task);
+  const completedSteps = task.steps_completed || [];
+
+  const handleStepExecute = async (stepIndex: number) => {
+    try {
+      setExecutingStep(stepIndex);
+      const stepDescription = steps[stepIndex] || `Step ${stepIndex + 1}`;
+      
+      await markStepCompleted(task.id, stepIndex, `Agent executed step: ${stepDescription}`);
+      onTaskUpdate();
+      toast({
+        title: "Step completed",
+        description: `Step ${stepIndex + 1} has been marked as completed`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to mark step as completed",
+        variant: "destructive"
+      });
+    } finally {
+      setExecutingStep(null);
     }
   };
-
-  const steps = getStepsToDisplay();
-  const isFlowTask = task.task_type === 'flow';
 
   const handleAddChild = async () => {
     if (!newChildTitle.trim()) return;
     
     try {
-      await onAddChildTask(newChildTitle, newChildDescription);
-      setNewChildTitle("");
-      setNewChildDescription("");
+      await onAddChildTask(newChildTitle);
+      setNewChildTitle('');
       setIsAddingChild(false);
-      onTaskUpdate();
+      toast({
+        title: "Child task added",
+        description: "New child task has been created"
+      });
     } catch (error) {
-      console.error("Error adding child task:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add child task",
+        variant: "destructive"
+      });
     }
   };
 
-  const handleRemoveChild = async (childId: string) => {
+  const handleRemoveChild = async (taskId: string) => {
     try {
-      await onRemoveChildTask(childId);
-      onTaskUpdate();
+      await onRemoveChildTask(taskId);
+      toast({
+        title: "Child task removed",
+        description: "Child task has been deleted"
+      });
     } catch (error) {
-      console.error("Error removing child task:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove child task",
+        variant: "destructive"
+      });
     }
   };
+
+  const getStepStatus = (stepIndex: number) => {
+    return completedSteps.includes(stepIndex) ? 'completed' : 'pending';
+  };
+
+  const getTaskStatusColor = (status: string) => {
+    switch (status) {
+      case 'Done':
+        return 'bg-green-100 text-green-800';
+      case 'In Progress':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const hasSteps = steps.length > 0;
+  const hasActualChildTasks = childTasks.length > 0;
+  const isFlowTask = task.task_type === 'flow';
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="steps" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="steps">
-            {isFlowTask ? "Flow Steps" : "Task Steps"} ({steps.length})
-          </TabsTrigger>
-          <TabsTrigger value="subtasks">
-            Child Tasks ({childTasks.length})
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="steps" className="space-y-4">
+      {/* Task Steps - unified handling for all task types */}
+      {hasSteps && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            {isFlowTask && <Workflow className="h-5 w-5 text-purple-600" />}
+            <h3 className="font-semibold text-lg">
+              {isFlowTask ? 'Flow Steps' : 'Task Steps'}
+            </h3>
+            <Badge variant="outline" className="text-xs">
+              {completedSteps.length} / {steps.length} completed
+            </Badge>
+          </div>
           <div className="space-y-3">
-            {steps.length === 0 ? (
-              <Card>
-                <CardContent className="p-6 text-center">
-                  <p className="text-muted-foreground">
-                    {isFlowTask ? "No flow steps defined" : "No steps found in task description"}
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              steps.map((step, index) => (
-                <Card key={step.id} className="transition-all hover:shadow-sm">
+            {steps.map((step, index) => {
+              const status = getStepStatus(index);
+              const isExecuting = executingStep === index;
+              
+              return (
+                <Card key={index} className={`transition-all ${status === 'completed' ? 'bg-green-50 border-green-200' : 'hover:shadow-sm'}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-                        {index + 1}
+                      <div className="flex-shrink-0 mt-1">
+                        {status === 'completed' ? (
+                          <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-gray-400" />
+                        )}
                       </div>
                       
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium">{step.title}</h4>
-                          {step.completed && (
-                            <Badge variant="secondary" className="bg-green-50 text-green-700">
-                              <Check className="w-3 h-3 mr-1" />
-                              Complete
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        {step.description && (
-                          <p className="text-sm text-muted-foreground">{step.description}</p>
-                        )}
-                        
-                        {/* Show block information for flow tasks */}
-                        {isFlowTask && step.block && (
-                          <FlowStepInfo block={step.block} />
-                        )}
+                      <div className="flex-1">
+                        <p className={`text-sm ${status === 'completed' ? 'text-green-800 line-through' : 'text-gray-700'}`}>
+                          {step}
+                        </p>
                       </div>
+                      
+                      {status === 'pending' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleStepExecute(index)}
+                          disabled={isExecuting}
+                          className="flex-shrink-0"
+                        >
+                          {isExecuting ? (
+                            <>
+                              <Clock className="h-4 w-4 mr-1 animate-spin" />
+                              Executing
+                            </>
+                          ) : (
+                            <>
+                              <Play className="h-4 w-4 mr-1" />
+                              Execute
+                            </>
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-              ))
-            )}
+              );
+            })}
           </div>
-        </TabsContent>
+        </div>
+      )}
 
-        <TabsContent value="subtasks" className="space-y-4">
-          <div className="space-y-3">
-            {childTasks.map((child) => (
-              <Card key={child.id} className="transition-all hover:shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-medium">{child.title}</h4>
-                      {child.description && (
-                        <p className="text-sm text-muted-foreground mt-1">{child.description}</p>
-                      )}
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="outline">{child.status}</Badge>
-                        <Badge variant="outline">{child.priority}</Badge>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveChild(child.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {isAddingChild ? (
-              <Card>
-                <CardContent className="p-4 space-y-3">
-                  <Input
-                    value={newChildTitle}
-                    onChange={(e) => setNewChildTitle(e.target.value)}
-                    placeholder="Child task title"
-                    autoFocus
-                  />
-                  <Textarea
-                    value={newChildDescription}
-                    onChange={(e) => setNewChildDescription(e.target.value)}
-                    placeholder="Child task description (optional)"
-                    rows={2}
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={handleAddChild} disabled={!newChildTitle.trim()}>
-                      Add Child Task
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsAddingChild(false);
-                        setNewChildTitle("");
-                        setNewChildDescription("");
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
+      {/* Child Tasks - FIXED: Only show for non-flow tasks or when actual child tasks exist */}
+      {(!isFlowTask || hasActualChildTasks) && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-lg">Child Tasks</h3>
+            {!isFlowTask && (
               <Button
+                size="sm"
                 onClick={() => setIsAddingChild(true)}
-                variant="outline"
-                className="w-full"
+                className="flex items-center gap-1"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4" />
                 Add Child Task
               </Button>
             )}
           </div>
-        </TabsContent>
-      </Tabs>
+
+          {/* Add new child task - only for non-flow tasks */}
+          {!isFlowTask && isAddingChild && (
+            <Card className="mb-4">
+              <CardContent className="p-4">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newChildTitle}
+                    onChange={(e) => setNewChildTitle(e.target.value)}
+                    placeholder="Enter child task title..."
+                    className="flex-1 px-3 py-2 border rounded-md"
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddChild()}
+                    autoFocus
+                  />
+                  <Button onClick={handleAddChild} disabled={!newChildTitle.trim()}>
+                    Add
+                  </Button>
+                  <Button variant="outline" onClick={() => {
+                    setIsAddingChild(false);
+                    setNewChildTitle('');
+                  }}>
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Child tasks list */}
+          <div className="space-y-3">
+            {childTasks.map((childTask) => (
+              <Card key={childTask.id} className="hover:shadow-sm transition-all cursor-pointer group">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div 
+                      className="flex items-center gap-3 flex-1"
+                      onClick={() => navigate(`/task/${childTask.id}`)}
+                    >
+                      <Badge className={getTaskStatusColor(childTask.status)}>
+                        {childTask.status}
+                      </Badge>
+                      <h4 className="font-medium">{childTask.title}</h4>
+                      <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 ml-auto" />
+                    </div>
+                    
+                    {!isFlowTask && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveChild(childTask.id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {childTask.description && (
+                    <p className="text-sm text-gray-600 mt-2 ml-[4.5rem]">
+                      {childTask.description}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+            
+            {childTasks.length === 0 && !isAddingChild && (
+              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                {isFlowTask 
+                  ? "This flow task manages its steps internally. Child tasks are not applicable for flows."
+                  : "No child tasks yet. Click \"Add Child Task\" to create one."
+                }
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

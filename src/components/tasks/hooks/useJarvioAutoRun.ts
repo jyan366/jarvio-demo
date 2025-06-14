@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Message } from "./useJarvioAssistantLogic";
 import { Subtask } from "@/pages/TaskWorkContainer";
 
@@ -46,135 +46,71 @@ export function useJarvioAutoRun({
   setMessages,
   handleSendMessage,
 }: UseJarvioAutoRunProps) {
-  const lastProcessedStepRef = useRef<number>(-1);
-  const isProcessingRef = useRef(false);
-
   useEffect(() => {
     const handleAutoRun = async () => {
-      // Don't run if auto-run is disabled or paused
-      if (!autoRunMode || autoRunPaused) {
-        return;
-      }
+      if (!autoRunMode || autoRunPaused) return;
+      if (historySubtaskIdx !== null && historySubtaskIdx !== currentSubtaskIndex) return;
+      if (isLoading || isTransitioning) return;
       
-      // Don't run if we're viewing history or if operations are in progress
-      if (historySubtaskIdx !== null && historySubtaskIdx !== currentSubtaskIndex) {
-        return;
-      }
-      
-      if (isLoading || isTransitioning || isProcessingRef.current) {
-        return;
-      }
-
-      const currentSubtask = subtasks[currentSubtaskIndex];
-      if (!currentSubtask) {
-        return;
-      }
-
-      console.log("Auto-run checking:", {
-        currentStep: currentSubtaskIndex,
-        isDone: currentSubtask.done,
-        lastProcessed: lastProcessedStepRef.current,
-        totalSteps: subtasks.length
-      });
-
-      // If current step is completed and we haven't moved to the next step yet
-      if (currentSubtask.done && currentSubtaskIndex < subtasks.length - 1) {
-        if (lastProcessedStepRef.current !== currentSubtaskIndex) {
-          console.log("Moving to next step from", currentSubtaskIndex, "to", currentSubtaskIndex + 1);
+      if (readyForNextSubtask && currentSubtaskIndex < subtasks.length - 1) {
+        // Handle transitioning to next subtask
+        setAutoRunPaused(true);
+        setIsTransitioning(true);
+        
+        try {
+          await onSubtaskComplete(currentSubtaskIndex);
+          onSubtaskSelect(currentSubtaskIndex + 1);
+          setReadyForNextSubtask(false);
           
-          lastProcessedStepRef.current = currentSubtaskIndex;
-          setIsTransitioning(true);
-          
-          // Add message about moving to next step
-          const nextSubtask = subtasks[currentSubtaskIndex + 1];
-          if (nextSubtask) {
+          setTimeout(() => {
+            const nextSubtask = subtasks[currentSubtaskIndex + 1];
+            const prevSubtaskData = subtaskData[subtasks[currentSubtaskIndex]?.id]?.result || "No data collected";
+            
             setMessages(prev => [
               ...prev,
               {
                 id: crypto.randomUUID(),
                 isUser: false,
-                text: `✅ Step ${currentSubtaskIndex + 1} completed! Moving to step ${currentSubtaskIndex + 2}: "${nextSubtask.title}"`,
+                text: `Ready to begin next subtask: "${nextSubtask?.title}". Using data from previous step: ${prevSubtaskData.substring(0, 100)}${prevSubtaskData.length > 100 ? '...' : ''}`,
                 timestamp: new Date()
               }
             ]);
-          }
-          
-          // Wait a moment then move to next step
-          setTimeout(() => {
-            onSubtaskSelect(currentSubtaskIndex + 1);
+            
             setIsTransitioning(false);
-          }, 1500);
-        }
-        return;
-      }
-
-      // If current step is not completed and we haven't processed it yet
-      if (!currentSubtask.done && lastProcessedStepRef.current < currentSubtaskIndex) {
-        console.log("Executing step:", currentSubtaskIndex);
-        
-        isProcessingRef.current = true;
-        lastProcessedStepRef.current = currentSubtaskIndex;
-        
-        // Clear any existing timer
-        if (autoRunTimerRef.current) {
-          clearTimeout(autoRunTimerRef.current);
-        }
-        
-        // Add AI message about starting the step
-        setMessages(prev => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            isUser: false,
-            text: `🔄 Executing step ${currentSubtaskIndex + 1}: "${currentSubtask.title}"`,
-            timestamp: new Date()
-          }
-        ]);
-        
-        try {
-          // Complete the current step and wait for it to finish
-          await onSubtaskComplete(currentSubtaskIndex);
-          console.log("Step completed successfully:", currentSubtaskIndex);
-          
+            setAutoRunPaused(false); // Resume auto-run
+          }, 1000);
         } catch (error) {
-          console.error("Error in auto-run step execution:", error);
-          setAutoRunPaused(true);
-          
-          setMessages(prev => [
-            ...prev,
-            {
-              id: crypto.randomUUID(),
-              isUser: false,
-              text: `❌ Error executing step ${currentSubtaskIndex + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-              timestamp: new Date()
-            }
-          ]);
-        } finally {
-          isProcessingRef.current = false;
+          console.error("Error transitioning to next subtask:", error);
+          setIsTransitioning(false);
+          setAutoRunPaused(true); // Pause on error
         }
-      }
-
-      // If we've completed all steps
-      if (currentSubtaskIndex >= subtasks.length - 1 && currentSubtask?.done) {
-        console.log("All steps completed, stopping auto-run");
-        setAutoRunPaused(true);
-        setMessages(prev => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            isUser: false,
-            text: "🎉 Auto-run completed! All steps have been executed successfully.",
-            timestamp: new Date()
+      } else if (!readyForNextSubtask && 
+                !subtasks[currentSubtaskIndex]?.done && 
+                !autoRunStepInProgressRef.current) {
+        // Handle auto-run step processing
+        autoRunStepInProgressRef.current = true;
+        
+        autoRunTimerRef.current = window.setTimeout(async () => {
+          try {
+            // Auto generate a message to continue the task
+            const lastMessage = messages[messages.length - 1];
+            
+            // Only send a message if the last message was from the assistant
+            if (!lastMessage?.isUser) {
+              await handleSendMessage(undefined, "Continue");
+            }
+          } catch (error) {
+            console.error("Error in auto-run step:", error);
+          } finally {
+            autoRunStepInProgressRef.current = false;
           }
-        ]);
+        }, 1500);
       }
     };
     
-    // Add a small delay to allow for state updates and prevent rapid re-execution
-    const timeoutId = setTimeout(handleAutoRun, 500);
+    handleAutoRun();
     
     return () => {
-      clearTimeout(timeoutId);
       if (autoRunTimerRef.current) {
         clearTimeout(autoRunTimerRef.current);
       }
@@ -185,26 +121,10 @@ export function useJarvioAutoRun({
     autoRunPaused, 
     currentSubtaskIndex, 
     isLoading, 
+    readyForNextSubtask, 
+    subtasks, 
+    historySubtaskIdx,
     isTransitioning,
-    subtasks.map(s => s.done).join(','), // Watch completion status changes
-    historySubtaskIdx
+    messages
   ]);
-
-  // Reset refs when auto-run mode changes
-  useEffect(() => {
-    if (!autoRunMode) {
-      lastProcessedStepRef.current = -1;
-      isProcessingRef.current = false;
-    }
-  }, [autoRunMode]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (autoRunTimerRef.current) {
-        clearTimeout(autoRunTimerRef.current);
-      }
-      isProcessingRef.current = false;
-    };
-  }, []);
 }
