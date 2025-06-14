@@ -66,7 +66,7 @@ export default function UnifiedTaskWorkContainer() {
 
   // Build breadcrumb navigation
   const breadcrumbs = [];
-  if (task.parent_id) {
+  if (task?.parent_id) {
     breadcrumbs.push(
       <Button
         key="parent"
