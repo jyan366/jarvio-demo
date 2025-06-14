@@ -262,7 +262,7 @@ export default function TaskWorkContainer({
             />
           </div>
         </main>
-        <aside className="h-screen flex flex-col w-[420px] bg-white overflow-hidden shadow-none border-l">
+        <aside className="h-screen flex flex-col bg-white overflow-hidden shadow-none border-l" style={{ width: '420px', minWidth: '420px', maxWidth: '420px' }}>
           <TaskWorkSidebar 
             open={sidebarOpen} 
             onOpenChange={setSidebarOpen} 
