@@ -93,7 +93,9 @@ export default function UnifiedTaskWorkContainer() {
         }
       }));
       
-      refresh();
+      // Force refresh to get updated task data
+      await refresh();
+      
       console.log("Step completed successfully:", stepIndex);
     } catch (error) {
       console.error("Error updating step completion:", error);
@@ -223,13 +225,32 @@ export default function UnifiedTaskWorkContainer() {
                   {/* Auto-run controls */}
                   <Button
                     onClick={() => {
-                      setAutoRunMode(!autoRunMode);
-                      if (!autoRunMode) {
+                      const newAutoRunMode = !autoRunMode;
+                      setAutoRunMode(newAutoRunMode);
+                      if (newAutoRunMode) {
                         setAutoRunPaused(false);
                         console.log("Auto-run started");
+                        setMessages(prev => [
+                          ...prev,
+                          {
+                            id: crypto.randomUUID(),
+                            isUser: false,
+                            text: "🚀 Auto-run mode activated! Starting step execution...",
+                            timestamp: new Date()
+                          }
+                        ]);
                       } else {
                         setAutoRunPaused(true);
                         console.log("Auto-run stopped");
+                        setMessages(prev => [
+                          ...prev,
+                          {
+                            id: crypto.randomUUID(),
+                            isUser: false,
+                            text: "⏹️ Auto-run mode deactivated.",
+                            timestamp: new Date()
+                          }
+                        ]);
                       }
                     }}
                     variant={autoRunMode ? "default" : "outline"}

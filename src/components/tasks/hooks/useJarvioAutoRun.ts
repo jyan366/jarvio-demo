@@ -58,29 +58,32 @@ export function useJarvioAutoRun({
       const currentSubtask = subtasks[currentSubtaskIndex];
       if (!currentSubtask) return;
 
+      console.log("Auto-run checking step:", currentSubtaskIndex, "done:", currentSubtask.done);
+
       // If current step is already completed, move to next step
       if (currentSubtask.done && currentSubtaskIndex < subtasks.length - 1) {
         console.log("Current step is done, moving to next step");
         setIsTransitioning(true);
         
+        // Add message about moving to next step
+        const nextSubtask = subtasks[currentSubtaskIndex + 1];
+        if (nextSubtask) {
+          setMessages(prev => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: `✅ Step ${currentSubtaskIndex + 1} completed! Moving to step ${currentSubtaskIndex + 2}: "${nextSubtask.title}"`,
+              timestamp: new Date()
+            }
+          ]);
+        }
+        
+        // Wait a moment then move to next step
         setTimeout(() => {
           onSubtaskSelect(currentSubtaskIndex + 1);
           setIsTransitioning(false);
-          
-          // Add message about moving to next step
-          const nextSubtask = subtasks[currentSubtaskIndex + 1];
-          if (nextSubtask) {
-            setMessages(prev => [
-              ...prev,
-              {
-                id: crypto.randomUUID(),
-                isUser: false,
-                text: `Moving to next step: "${nextSubtask.title}"`,
-                timestamp: new Date()
-              }
-            ]);
-          }
-        }, 1000);
+        }, 1500);
         return;
       }
 
@@ -94,42 +97,41 @@ export function useJarvioAutoRun({
           clearTimeout(autoRunTimerRef.current);
         }
         
-        autoRunTimerRef.current = window.setTimeout(async () => {
-          try {
-            console.log("Executing step:", currentSubtaskIndex);
-            
-            // Add AI message about starting the step
-            setMessages(prev => [
-              ...prev,
-              {
-                id: crypto.randomUUID(),
-                isUser: false,
-                text: `Executing step: "${currentSubtask.title}"`,
-                timestamp: new Date()
-              }
-            ]);
-            
-            // Complete the current step
-            await onSubtaskComplete(currentSubtaskIndex);
-            
-            // Add completion message
-            setMessages(prev => [
-              ...prev,
-              {
-                id: crypto.randomUUID(),
-                isUser: false,
-                text: `Completed step: "${currentSubtask.title}"`,
-                timestamp: new Date()
-              }
-            ]);
-            
-          } catch (error) {
-            console.error("Error in auto-run step execution:", error);
-            setAutoRunPaused(true); // Pause on error
-          } finally {
-            autoRunStepInProgressRef.current = false;
+        // Add AI message about starting the step
+        setMessages(prev => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            isUser: false,
+            text: `🔄 Executing step ${currentSubtaskIndex + 1}: "${currentSubtask.title}"`,
+            timestamp: new Date()
           }
-        }, 2000); // 2 second delay between steps
+        ]);
+        
+        try {
+          console.log("Executing step:", currentSubtaskIndex);
+          
+          // Complete the current step
+          await onSubtaskComplete(currentSubtaskIndex);
+          
+          console.log("Step completed successfully:", currentSubtaskIndex);
+          
+        } catch (error) {
+          console.error("Error in auto-run step execution:", error);
+          setAutoRunPaused(true); // Pause on error
+          
+          setMessages(prev => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              isUser: false,
+              text: `❌ Error executing step ${currentSubtaskIndex + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              timestamp: new Date()
+            }
+          ]);
+        } finally {
+          autoRunStepInProgressRef.current = false;
+        }
       }
 
       // If we've completed all steps
@@ -148,10 +150,12 @@ export function useJarvioAutoRun({
       }
     };
     
-    handleAutoRun();
+    // Add a small delay to allow for state updates
+    const timeoutId = setTimeout(handleAutoRun, 100);
     
     // Cleanup function
     return () => {
+      clearTimeout(timeoutId);
       if (autoRunTimerRef.current) {
         clearTimeout(autoRunTimerRef.current);
       }
@@ -163,9 +167,8 @@ export function useJarvioAutoRun({
     currentSubtaskIndex, 
     isLoading, 
     isTransitioning,
-    subtasks,
-    historySubtaskIdx,
-    messages.length // Track messages to trigger re-evaluation
+    subtasks, // Watch the entire subtasks array for changes
+    historySubtaskIdx
   ]);
 
   // Cleanup on unmount
