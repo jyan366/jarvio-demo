@@ -21,6 +21,6 @@ export interface Flow {
   id: string;
   name: string;
   description: string;
-  trigger: 'manual' | 'scheduled';
+  trigger: 'manual' | 'scheduled' | 'event';
   blocks: FlowBlock[];
 }
