@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import TaskBoard from './TaskManager/TaskBoard';
+import { UnifiedTaskBoard } from '@/components/tasks/UnifiedTaskBoard';
 import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,7 +18,6 @@ export default function TaskManager() {
   // Clear any stray dialogs that might be causing issues
   useEffect(() => {
     const cleanup = () => {
-      // Remove any stray dialog overlays that might be causing issues
       const overlays = document.querySelectorAll('[data-radix-portal]');
       overlays.forEach(overlay => {
         if (overlay && overlay.parentNode) {
@@ -27,7 +26,6 @@ export default function TaskManager() {
       });
     };
 
-    // Clean up when component mounts and unmounts
     cleanup();
     return cleanup;
   }, [refreshTrigger]);
@@ -35,14 +33,15 @@ export default function TaskManager() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <TaskBoard 
+        <UnifiedTaskBoard 
           onCreateTask={() => setIsCreateTaskOpen(true)}
-          key={`task-board-${refreshTrigger}`}
+          key={`unified-task-board-${refreshTrigger}`}
           onTaskDeleted={handleTaskOperationComplete}
         />
         <CreateTaskFlow 
           open={isCreateTaskOpen} 
           onOpenChange={setIsCreateTaskOpen} 
+          onSuccess={handleTaskOperationComplete}
         />
       </div>
     </MainLayout>

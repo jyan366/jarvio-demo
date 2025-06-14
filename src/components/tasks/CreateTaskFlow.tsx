@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { createTask } from "@/lib/supabaseTasks";
+import { createUnifiedTask } from "@/lib/unifiedTasks";
 import { useToast } from "@/hooks/use-toast";
 import { X, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -97,13 +97,14 @@ export function CreateTaskFlow({
       // Remove sourceData from the task data before sending to API
       const { sourceData, ...taskDataToSend } = taskData;
       
-      // If source data exists, add it to the data field instead
+      // Create unified task with proper task_type
       const finalTaskData = {
         ...taskDataToSend,
+        task_type: 'task' as const,
         data: sourceData ? { sourceData } : null
       };
       
-      const createdTask = await createTask(finalTaskData);
+      const createdTask = await createUnifiedTask(finalTaskData);
       
       if (createdTask?.id) {
         toast({

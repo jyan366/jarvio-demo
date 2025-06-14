@@ -270,9 +270,11 @@ export type Database = {
           description: string | null
           id: string
           insight_id: string | null
+          parent_id: string | null
           priority: string | null
           source: string | null
           status: string | null
+          task_type: string | null
           title: string
           user_id: string
         }
@@ -283,9 +285,11 @@ export type Database = {
           description?: string | null
           id?: string
           insight_id?: string | null
+          parent_id?: string | null
           priority?: string | null
           source?: string | null
           status?: string | null
+          task_type?: string | null
           title: string
           user_id: string
         }
@@ -296,13 +300,23 @@ export type Database = {
           description?: string | null
           id?: string
           insight_id?: string | null
+          parent_id?: string | null
           priority?: string | null
           source?: string | null
           status?: string | null
+          task_type?: string | null
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

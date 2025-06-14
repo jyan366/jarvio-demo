@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createTask } from '@/lib/supabaseTasks';
+import { convertFlowToUnifiedTask } from '@/lib/unifiedTasks';
 import { supabase } from '@/integrations/supabase/client';
 
 // Predefined flows as fallbacks
@@ -99,32 +99,6 @@ const saveFlowsToStorage = (flows: Flow[]): void => {
   }
 };
 
-// Function to convert a flow to a task
-const convertFlowToTask = async (flow: Flow) => {
-  try {
-    // Create subtasks from flow blocks
-    const subtasks = flow.blocks.map(block => ({
-      title: block.name || `${block.type}: ${block.option}`,
-      description: `Flow step: ${block.option}`
-    }));
-    
-    // Create the main task with subtasks
-    const task = await createTask({
-      title: `Flow: ${flow.name}`,
-      description: flow.description,
-      status: 'In Progress', // Start as In Progress
-      priority: 'MEDIUM',
-      category: 'FLOW',
-      data: { flowId: flow.id, flowTrigger: flow.trigger }
-    }, subtasks); // Pass subtasks directly to createTask
-    
-    return task;
-  } catch (error) {
-    console.error('Error converting flow to task:', error);
-    throw error;
-  }
-};
-
 export default function JarviFlows() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -145,7 +119,7 @@ export default function JarviFlows() {
     navigate(`/jarvi-flows/builder/${flowId}`);
   };
   
-  // Function to handle running a flow
+  // Function to handle running a flow - updated to use unified tasks
   const handleRunFlow = async (flowId: string) => {
     try {
       setIsRunningFlow(true);
@@ -159,11 +133,11 @@ export default function JarviFlows() {
       
       toast({
         title: "Starting flow",
-        description: "Creating tasks from flow steps..."
+        description: "Creating unified task from flow steps..."
       });
       
-      // Convert flow to task and get the task ID
-      const task = await convertFlowToTask(flowToRun);
+      // Convert flow to unified task structure
+      const task = await convertFlowToUnifiedTask(flowToRun);
       
       if (!task) {
         throw new Error('Failed to create task from flow');
@@ -171,7 +145,7 @@ export default function JarviFlows() {
       
       toast({
         title: "Flow started successfully",
-        description: "Flow is now running. Opening task view..."
+        description: "Flow is now running as a unified task. Opening task view..."
       });
       
       // Navigate to task view with the new task ID
