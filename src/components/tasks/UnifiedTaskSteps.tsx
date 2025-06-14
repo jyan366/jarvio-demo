@@ -117,6 +117,8 @@ export function UnifiedTaskSteps({
   };
 
   const hasSteps = steps.length > 0;
+  const hasActualChildTasks = childTasks.length > 0;
+  const isFlowTask = task.task_type === 'flow';
 
   return (
     <div className="space-y-6">
@@ -124,9 +126,9 @@ export function UnifiedTaskSteps({
       {hasSteps && (
         <div>
           <div className="flex items-center gap-2 mb-4">
-            {task.task_type === 'flow' && <Workflow className="h-5 w-5 text-purple-600" />}
+            {isFlowTask && <Workflow className="h-5 w-5 text-purple-600" />}
             <h3 className="font-semibold text-lg">
-              {task.task_type === 'flow' ? 'Flow Steps' : 'Task Steps'}
+              {isFlowTask ? 'Flow Steps' : 'Task Steps'}
             </h3>
             <Badge variant="outline" className="text-xs">
               {completedSteps.length} / {steps.length} completed
@@ -185,94 +187,103 @@ export function UnifiedTaskSteps({
         </div>
       )}
 
-      {/* Child Tasks - only show when actual child tasks exist */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-lg">Child Tasks</h3>
-          <Button
-            size="sm"
-            onClick={() => setIsAddingChild(true)}
-            className="flex items-center gap-1"
-          >
-            <Plus className="h-4 w-4" />
-            Add Child Task
-          </Button>
-        </div>
+      {/* Child Tasks - FIXED: Only show for non-flow tasks or when actual child tasks exist */}
+      {(!isFlowTask || hasActualChildTasks) && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-lg">Child Tasks</h3>
+            {!isFlowTask && (
+              <Button
+                size="sm"
+                onClick={() => setIsAddingChild(true)}
+                className="flex items-center gap-1"
+              >
+                <Plus className="h-4 w-4" />
+                Add Child Task
+              </Button>
+            )}
+          </div>
 
-        {/* Add new child task */}
-        {isAddingChild && (
-          <Card className="mb-4">
-            <CardContent className="p-4">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newChildTitle}
-                  onChange={(e) => setNewChildTitle(e.target.value)}
-                  placeholder="Enter child task title..."
-                  className="flex-1 px-3 py-2 border rounded-md"
-                  onKeyPress={(e) => e.key === 'Enter' && handleAddChild()}
-                  autoFocus
-                />
-                <Button onClick={handleAddChild} disabled={!newChildTitle.trim()}>
-                  Add
-                </Button>
-                <Button variant="outline" onClick={() => {
-                  setIsAddingChild(false);
-                  setNewChildTitle('');
-                }}>
-                  Cancel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Child tasks list */}
-        <div className="space-y-3">
-          {childTasks.map((childTask) => (
-            <Card key={childTask.id} className="hover:shadow-sm transition-all cursor-pointer group">
+          {/* Add new child task - only for non-flow tasks */}
+          {!isFlowTask && isAddingChild && (
+            <Card className="mb-4">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div 
-                    className="flex items-center gap-3 flex-1"
-                    onClick={() => navigate(`/task/${childTask.id}`)}
-                  >
-                    <Badge className={getTaskStatusColor(childTask.status)}>
-                      {childTask.status}
-                    </Badge>
-                    <h4 className="font-medium">{childTask.title}</h4>
-                    <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 ml-auto" />
-                  </div>
-                  
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveChild(childTask.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 className="h-4 w-4 text-red-500" />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newChildTitle}
+                    onChange={(e) => setNewChildTitle(e.target.value)}
+                    placeholder="Enter child task title..."
+                    className="flex-1 px-3 py-2 border rounded-md"
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddChild()}
+                    autoFocus
+                  />
+                  <Button onClick={handleAddChild} disabled={!newChildTitle.trim()}>
+                    Add
+                  </Button>
+                  <Button variant="outline" onClick={() => {
+                    setIsAddingChild(false);
+                    setNewChildTitle('');
+                  }}>
+                    Cancel
                   </Button>
                 </div>
-                
-                {childTask.description && (
-                  <p className="text-sm text-gray-600 mt-2 ml-[4.5rem]">
-                    {childTask.description}
-                  </p>
-                )}
               </CardContent>
             </Card>
-          ))}
-          
-          {childTasks.length === 0 && !isAddingChild && (
-            <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-              No child tasks yet. Click "Add Child Task" to create one.
-            </div>
           )}
+
+          {/* Child tasks list */}
+          <div className="space-y-3">
+            {childTasks.map((childTask) => (
+              <Card key={childTask.id} className="hover:shadow-sm transition-all cursor-pointer group">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div 
+                      className="flex items-center gap-3 flex-1"
+                      onClick={() => navigate(`/task/${childTask.id}`)}
+                    >
+                      <Badge className={getTaskStatusColor(childTask.status)}>
+                        {childTask.status}
+                      </Badge>
+                      <h4 className="font-medium">{childTask.title}</h4>
+                      <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 ml-auto" />
+                    </div>
+                    
+                    {!isFlowTask && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveChild(childTask.id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {childTask.description && (
+                    <p className="text-sm text-gray-600 mt-2 ml-[4.5rem]">
+                      {childTask.description}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+            
+            {childTasks.length === 0 && !isAddingChild && (
+              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                {isFlowTask 
+                  ? "This flow task manages its steps internally. Child tasks are not applicable for flows."
+                  : "No child tasks yet. Click \"Add Child Task\" to create one."
+                }
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

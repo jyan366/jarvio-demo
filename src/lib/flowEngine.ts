@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Flow, FlowBlock } from '@/components/jarvi-flows/FlowsGrid';
@@ -207,7 +208,7 @@ export class FlowExecutionEngine {
         .eq('task_id', this.taskId)
         .eq('block_id', block.id);
 
-      // Update task step completion
+      // FIXED: Update the parent flow task's step completion instead of child tasks
       try {
         const { markStepCompleted } = await import('@/lib/unifiedTasks');
         await markStepCompleted(
@@ -467,7 +468,7 @@ export class FlowExecutionEngine {
       })
       .eq('id', this.executionId);
 
-    // Update the task status to Done
+    // FIXED: Update the flow task itself to Done status
     try {
       const { updateUnifiedTask } = await import('@/lib/unifiedTasks');
       await updateUnifiedTask(this.taskId, { status: 'Done' });

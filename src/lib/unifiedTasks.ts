@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { UnifiedTask, TaskTreeNode, TaskType } from "@/types/unifiedTask";
 
@@ -193,9 +192,9 @@ export function getAllDescendants(task: TaskTreeNode): UnifiedTask[] {
   return descendants;
 }
 
-// Parse description into steps for agent execution - unified for all tasks
+// Parse description into steps for agent execution - FIXED to properly handle flow blocks
 export function parseTaskSteps(task: UnifiedTask): string[] {
-  // For flow tasks, use the blocks from the flow data
+  // For flow tasks, use the blocks from the flow data - THIS IS THE KEY FIX
   if (task.task_type === 'flow' && task.data?.flowBlocks) {
     return task.data.flowBlocks.map((block: any) => 
       block.name || `${block.type}: ${block.option}`
@@ -290,8 +289,9 @@ export async function createUnifiedTask(
       throw new Error(`Failed to create task: ${error.message}`);
     }
     
-    // If child tasks were provided, create them (only for actual parent-child relationships)
-    if (childTasks && childTasks.length > 0 && data) {
+    // IMPORTANT: Only create child tasks for non-flow tasks
+    // Flow blocks are stored in the data field, not as child tasks
+    if (childTasks && childTasks.length > 0 && data && task.task_type !== 'flow') {
       try {
         const childTasksWithParent = childTasks.map((ct, index) => ({
           title: ct.title,
@@ -417,6 +417,7 @@ export async function deleteUnifiedTask(taskId: string) {
 export async function convertFlowToUnifiedTask(flow: any) {
   try {
     // Create a single flow task with flow blocks stored in data field
+    // NO CHILD TASKS - blocks are internal steps only
     const task = await createUnifiedTask({
       title: `Flow: ${flow.name}`,
       description: flow.description,
@@ -432,7 +433,7 @@ export async function convertFlowToUnifiedTask(flow: any) {
         totalSteps: (flow.blocks || []).length,
         createdAt: new Date().toISOString()
       }
-    });
+    }); // REMOVED: No childTasks parameter - this was the bug!
     
     return task;
   } catch (error) {
