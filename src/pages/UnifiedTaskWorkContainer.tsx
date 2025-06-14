@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { UnifiedTaskSteps } from "@/components/tasks/UnifiedTaskSteps";
@@ -307,7 +306,7 @@ export default function UnifiedTaskWorkContainer() {
 
         {/* Sidebar */}
         {sidebarOpen && (
-          <div className="w-80 border-l bg-background">
+          <div className="w-[420px] border-l bg-background">
             <TaskWorkSidebar
               open={sidebarOpen}
               onOpenChange={setSidebarOpen}
