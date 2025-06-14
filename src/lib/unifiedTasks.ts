@@ -192,29 +192,19 @@ export function getAllDescendants(task: TaskTreeNode): UnifiedTask[] {
   return descendants;
 }
 
-// Parse description into steps for agent execution - FIXED to handle flow blocks properly
+// Parse description into steps for agent execution - FIXED to handle flow steps properly
 export function parseTaskSteps(task: UnifiedTask): string[] {
   console.log("Parsing task steps for task:", task.id, "type:", task.task_type, "data:", task.data);
   
-  // For flow tasks, extract steps from the stored blocks
+  // For flow tasks, extract steps from the stored flow steps
   if (task.task_type === 'flow' && task.data) {
-    // Try flowBlocks first (new format)
-    if (task.data.flowBlocks && Array.isArray(task.data.flowBlocks)) {
-      console.log("Found flowBlocks:", task.data.flowBlocks);
-      return task.data.flowBlocks.map((block: any, index: number) => {
-        const stepName = block.name || `${block.type}: ${block.option}`;
-        console.log(`Step ${index + 1}: ${stepName}`);
-        return stepName;
-      });
-    }
-    
-    // Try blocks as fallback
-    if (task.data.blocks && Array.isArray(task.data.blocks)) {
-      console.log("Found blocks:", task.data.blocks);
-      return task.data.blocks.map((block: any, index: number) => {
-        const stepName = block.name || `${block.type}: ${block.option}`;
-        console.log(`Step ${index + 1}: ${stepName}`);
-        return stepName;
+    // Use the actual flow steps that were stored
+    if (task.data.flowSteps && Array.isArray(task.data.flowSteps)) {
+      console.log("Found flow steps:", task.data.flowSteps);
+      return task.data.flowSteps.map((step: any, index: number) => {
+        const stepTitle = step.title || `Step ${index + 1}`;
+        console.log(`Step ${index + 1}: ${stepTitle}`);
+        return stepTitle;
       });
     }
   }
@@ -431,13 +421,13 @@ export async function deleteUnifiedTask(taskId: string) {
   }
 }
 
-// Convert flow to unified task structure - PROPERLY store blocks for step parsing
+// Convert flow to unified task structure - Store the actual flow steps
 export async function convertFlowToUnifiedTask(flow: any) {
   try {
     console.log("Converting flow to unified task:", flow);
-    console.log("Flow blocks being stored:", flow.blocks);
+    console.log("Flow steps being stored:", flow.steps);
     
-    // Create a single flow task with flow blocks stored in data field
+    // Create a single flow task with flow steps stored in data field
     const task = await createUnifiedTask({
       title: `Flow: ${flow.name}`,
       description: flow.description,
@@ -449,10 +439,9 @@ export async function convertFlowToUnifiedTask(flow: any) {
       data: { 
         flowId: flow.id, 
         flowTrigger: flow.trigger,
-        // Store blocks in BOTH locations for compatibility
-        blocks: flow.blocks || [], 
-        flowBlocks: flow.blocks || [],
-        totalSteps: (flow.blocks || []).length,
+        // Store the actual steps from the flow
+        flowSteps: flow.steps || [],
+        totalSteps: (flow.steps || []).length,
         createdAt: new Date().toISOString()
       }
     });

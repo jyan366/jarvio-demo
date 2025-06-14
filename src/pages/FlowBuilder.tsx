@@ -416,7 +416,7 @@ export default function FlowBuilder() {
     }
   };
 
-  // Update the handleStartFlow function to properly pass flow structure
+  // Update the handleStartFlow function to pass the flow steps
   const handleStartFlow = async () => {
     try {
       if (!flow.name.trim()) {
@@ -428,7 +428,7 @@ export default function FlowBuilder() {
         return;
       }
 
-      if (flow.blocks.length === 0) {
+      if (flow.steps.length === 0) {
         toast({
           title: "Validation Error",
           description: "Please add at least one step to your flow",
@@ -455,13 +455,13 @@ export default function FlowBuilder() {
       
       saveAllFlows(allFlows);
       
-      // Convert flow to unified task - pass the complete flow structure
+      // Convert flow to unified task - pass the flow with its steps
       const task = await convertFlowToUnifiedTask({
         id: flow.id,
         name: flow.name,
         description: flow.description,
         trigger: flow.trigger,
-        blocks: flow.blocks // This is the key - pass the actual blocks array
+        steps: flow.steps // Pass the actual steps array
       });
       
       if (!task) {
