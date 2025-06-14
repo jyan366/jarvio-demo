@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -428,7 +429,7 @@ export default function FlowBuilder() {
         return;
       }
 
-      if (flow.steps.length === 0) {
+      if (flow.blocks.length === 0) {
         toast({
           title: "Validation Error",
           description: "Please add at least one step to your flow",
@@ -443,6 +444,7 @@ export default function FlowBuilder() {
         description: "Creating tasks from flow steps..."
       });
 
+      // Save the flow first
       const allFlows = loadSavedFlows();
       const existingFlowIndex = allFlows.findIndex(f => f.id === flow.id);
       
@@ -454,7 +456,14 @@ export default function FlowBuilder() {
       
       saveAllFlows(allFlows);
       
-      const task = await convertFlowToUnifiedTask(flow);
+      // Convert flow to unified task - this now properly handles the blocks
+      const task = await convertFlowToUnifiedTask({
+        id: flow.id,
+        name: flow.name,
+        description: flow.description,
+        trigger: flow.trigger,
+        blocks: flow.blocks // Pass the blocks array
+      });
       
       if (!task) {
         throw new Error('Failed to create task from flow');
