@@ -142,7 +142,7 @@ export function FlowStepsEditor({
           <h2 className="text-xl font-semibold">Steps</h2>
           
         </div>
-        <Button onClick={() => setIsAddingStep(true)} className="flex items-center gap-2 bg-slate-800 text-white hover:bg-slate-700">
+        <Button onClick={() => setIsAddingStep(true)} className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700">
           <Plus className="h-4 w-4" />
           Add Step
         </Button>
