@@ -26,6 +26,8 @@ interface UnifiedTaskStepsProps {
   onTaskUpdate: () => void;
   onAddChildTask: (title: string) => void;
   onRemoveChildTask: (taskId: string) => void;
+  onFlowStepsChange: (steps: FlowStep[]) => void;
+  onFlowBlocksChange: (blocks: FlowBlock[]) => void;
 }
 
 export function UnifiedTaskSteps({ 
@@ -33,7 +35,9 @@ export function UnifiedTaskSteps({
   childTasks, 
   onTaskUpdate, 
   onAddChildTask, 
-  onRemoveChildTask 
+  onRemoveChildTask,
+  onFlowStepsChange,
+  onFlowBlocksChange
 }: UnifiedTaskStepsProps) {
   const [newChildTitle, setNewChildTitle] = useState('');
   const [isAddingChild, setIsAddingChild] = useState(false);
@@ -82,30 +86,6 @@ export function UnifiedTaskSteps({
     } finally {
       setExecutingStep(null);
     }
-  };
-
-  const handleFlowStepsChange = (updatedSteps: FlowStep[]) => {
-    // Update task data with new flow steps
-    const updatedData = {
-      ...task.data,
-      flowSteps: updatedSteps,
-      flowBlocks: flowBlocks // Keep existing blocks
-    };
-    // Note: This would need to be implemented in the hook
-    console.log('Updated flow steps:', updatedSteps);
-    onTaskUpdate();
-  };
-
-  const handleFlowBlocksChange = (updatedBlocks: FlowBlock[]) => {
-    // Update task data with new flow blocks
-    const updatedData = {
-      ...task.data,
-      flowSteps: flowSteps, // Keep existing steps
-      flowBlocks: updatedBlocks
-    };
-    // Note: This would need to be implemented in the hook
-    console.log('Updated flow blocks:', updatedBlocks);
-    onTaskUpdate();
   };
 
   const handleAddChild = async () => {
@@ -177,8 +157,8 @@ export function UnifiedTaskSteps({
         <FlowStepsManager
           steps={flowSteps}
           blocks={flowBlocks}
-          onStepsChange={handleFlowStepsChange}
-          onBlocksChange={handleFlowBlocksChange}
+          onStepsChange={onFlowStepsChange}
+          onBlocksChange={onFlowBlocksChange}
           taskTitle={task.title}
           taskDescription={task.description}
           showAIGenerator={true}

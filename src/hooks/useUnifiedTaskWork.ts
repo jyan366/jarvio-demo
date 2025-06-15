@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { 
   fetchTaskById, 
@@ -8,6 +9,7 @@ import {
   markStepCompleted 
 } from '@/lib/unifiedTasks';
 import { UnifiedTask } from '@/types/unifiedTask';
+import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { useToast } from '@/hooks/use-toast';
 
 export function useUnifiedTaskWork(taskId: string) {
@@ -97,7 +99,57 @@ export function useUnifiedTaskWork(taskId: string) {
     }
   };
 
-  const updateFlowData = async (flowSteps: any[], flowBlocks: any[]) => {
+  const updateFlowSteps = async (flowSteps: FlowStep[]) => {
+    if (!task) return;
+    
+    try {
+      const updatedData = {
+        ...task.data,
+        flowSteps
+      };
+      
+      await updateUnifiedTask(task.id, { data: updatedData });
+      setTask(prev => prev ? { ...prev, data: updatedData } : null);
+      
+      toast({
+        title: "Steps updated",
+        description: "Flow steps have been successfully updated"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update flow steps",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const updateFlowBlocks = async (flowBlocks: FlowBlock[]) => {
+    if (!task) return;
+    
+    try {
+      const updatedData = {
+        ...task.data,
+        flowBlocks
+      };
+      
+      await updateUnifiedTask(task.id, { data: updatedData });
+      setTask(prev => prev ? { ...prev, data: updatedData } : null);
+      
+      toast({
+        title: "Blocks updated",
+        description: "Flow blocks have been successfully updated"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update flow blocks",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const updateFlowData = async (flowSteps: FlowStep[], flowBlocks: FlowBlock[]) => {
     if (!task) return;
     
     try {
@@ -168,6 +220,8 @@ export function useUnifiedTaskWork(taskId: string) {
     error,
     updateTask,
     updateTaskSteps,
+    updateFlowSteps,
+    updateFlowBlocks,
     updateFlowData,
     addChild,
     removeChild,

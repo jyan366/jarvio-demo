@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { UnifiedTaskSteps } from "@/components/tasks/UnifiedTaskSteps";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ArrowUp, MessageCircle } from "lucide-react";
 import { parseTaskSteps } from "@/lib/unifiedTasks";
 import { useJarvioAutoRun } from "@/components/tasks/hooks/useJarvioAutoRun";
+
 export default function UnifiedTaskWorkContainer() {
   const {
     taskId
@@ -50,6 +52,8 @@ export default function UnifiedTaskWorkContainer() {
     loading,
     error,
     updateTask,
+    updateFlowSteps,
+    updateFlowBlocks,
     addChild,
     removeChild,
     refresh
@@ -78,6 +82,7 @@ export default function UnifiedTaskWorkContainer() {
     setComments([...comments, newComment]);
     setCommentValue("");
   };
+  
   const handleStepComplete = async (stepIndex: number) => {
     try {
       setIsLoading(true);
@@ -107,10 +112,12 @@ export default function UnifiedTaskWorkContainer() {
       setIsLoading(false);
     }
   };
+  
   const handleStepSelect = (stepIndex: number) => {
     setCurrentStepIndex(stepIndex);
     setHistorySubtaskIdx(null);
   };
+  
   const handleSendMessage = async (e?: React.FormEvent, autoMessage?: string) => {
     if (e) e.preventDefault();
     const messageText = autoMessage || "Continue with next step";
@@ -191,15 +198,13 @@ export default function UnifiedTaskWorkContainer() {
         Parent Task
       </Button>);
   }
+  
   return <MainLayout>
       <div className="flex h-screen">
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 overflow-auto">
             <div className="max-w-4xl mx-auto p-6 space-y-6">
-              {/* Navigation */}
-              
-
               {/* Task Header */}
               <TaskWorkHeader title={task.title} onTitleChange={newTitle => updateTask({
               title: newTitle
@@ -214,7 +219,15 @@ export default function UnifiedTaskWorkContainer() {
             })} isFlowTask={task.task_type === 'flow'} />
 
               {/* Main Task Content */}
-              <UnifiedTaskSteps task={task} childTasks={childTasks} onTaskUpdate={refresh} onAddChildTask={addChild} onRemoveChildTask={removeChild} />
+              <UnifiedTaskSteps 
+                task={task} 
+                childTasks={childTasks} 
+                onTaskUpdate={refresh} 
+                onAddChildTask={addChild} 
+                onRemoveChildTask={removeChild}
+                onFlowStepsChange={updateFlowSteps}
+                onFlowBlocksChange={updateFlowBlocks}
+              />
             </div>
           </div>
         </div>
