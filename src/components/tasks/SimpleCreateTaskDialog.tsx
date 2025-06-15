@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,11 +8,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { createUnifiedTask } from '@/lib/unifiedTasks';
 import { useToast } from '@/hooks/use-toast';
 import { X, Loader2 } from 'lucide-react';
+
 interface SimpleCreateTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
+
 export function SimpleCreateTaskDialog({
   open,
   onOpenChange,
@@ -20,15 +23,11 @@ export function SimpleCreateTaskDialog({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("=== SIMPLE CREATE TASK DEBUG START ===");
-    console.log("Title:", title);
-    console.log("Description:", description);
-    console.log("About to call createUnifiedTask with skipAutoStepGeneration: true");
+    
     if (!title.trim()) {
       toast({
         title: "Error",
@@ -37,30 +36,25 @@ export function SimpleCreateTaskDialog({
       });
       return;
     }
+
     try {
       setIsLoading(true);
       if (!localStorage.getItem('isAuthenticated')) {
         localStorage.setItem('isAuthenticated', 'true');
       }
 
-      // Create simple task with explicit flags to prevent any step generation
-      // Use default values for category (LISTINGS) and priority (MEDIUM)
+      // Create simple task without any step generation prevention flags
       const taskData = {
         title: title.trim(),
         description: description.trim(),
         category: 'LISTINGS',
         priority: 'MEDIUM' as "CRITICAL" | "HIGH" | "MEDIUM" | "LOW",
         status: "Not Started" as const,
-        task_type: 'task' as const,
-        data: {
-          skipAutoStepGeneration: true,
-          isSimpleTask: true,
-          preventStepGeneration: true
-        }
+        task_type: 'task' as const
       };
-      console.log("Task data being sent:", taskData);
+
       await createUnifiedTask(taskData);
-      console.log("=== SIMPLE CREATE TASK DEBUG END - SUCCESS ===");
+      
       toast({
         title: "Task Created",
         description: "Your task has been created successfully"
@@ -75,7 +69,6 @@ export function SimpleCreateTaskDialog({
       }
     } catch (error) {
       console.error('Error creating simple task:', error);
-      console.log("=== SIMPLE CREATE TASK DEBUG END - ERROR ===");
       toast({
         title: "Error",
         description: "Failed to create task",
@@ -85,21 +78,35 @@ export function SimpleCreateTaskDialog({
       setIsLoading(false);
     }
   };
-  return <Dialog open={open} onOpenChange={onOpenChange}>
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          
+          <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
-            <Input id="title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter task title" required />
+            <Input 
+              id="title" 
+              value={title} 
+              onChange={e => setTitle(e.target.value)} 
+              placeholder="Enter task title" 
+              required 
+            />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Enter task description" rows={3} />
+            <Textarea 
+              id="description" 
+              value={description} 
+              onChange={e => setDescription(e.target.value)} 
+              placeholder="Enter task description" 
+              rows={3} 
+            />
           </div>
           
           <div className="flex justify-end gap-2 mt-6">
@@ -113,5 +120,6 @@ export function SimpleCreateTaskDialog({
           </div>
         </form>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 }
