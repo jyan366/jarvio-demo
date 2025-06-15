@@ -67,6 +67,37 @@ export function useUnifiedTaskWork(taskId: string) {
     }
   };
 
+  const updateTaskSteps = async (steps: string[]) => {
+    if (!task) return;
+    
+    try {
+      const updatedData = {
+        ...task.data,
+        flowSteps: steps.map((step, index) => ({
+          id: crypto.randomUUID(),
+          title: step,
+          description: "",
+          completed: false,
+          order: index
+        }))
+      };
+      
+      await updateUnifiedTask(task.id, { data: updatedData });
+      setTask(prev => prev ? { ...prev, data: updatedData } : null);
+      
+      toast({
+        title: "Steps updated",
+        description: "Task steps have been successfully updated"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update task steps",
+        variant: "destructive"
+      });
+    }
+  };
+
   const addChild = async (title: string, description?: string) => {
     if (!task) return;
     
@@ -111,6 +142,7 @@ export function useUnifiedTaskWork(taskId: string) {
     loading,
     error,
     updateTask,
+    updateTaskSteps,
     addChild,
     removeChild,
     markStepComplete,

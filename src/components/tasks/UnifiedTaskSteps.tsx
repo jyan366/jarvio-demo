@@ -17,6 +17,8 @@ import { UnifiedTask } from '@/types/unifiedTask';
 import { parseTaskSteps, markStepCompleted } from '@/lib/unifiedTasks';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { AIStepGenerator } from '@/components/shared/AIStepGenerator';
+import { StepEditor } from '@/components/shared/StepEditor';
 
 interface UnifiedTaskStepsProps {
   task: UnifiedTask;
@@ -36,6 +38,7 @@ export function UnifiedTaskSteps({
   const [newChildTitle, setNewChildTitle] = useState('');
   const [isAddingChild, setIsAddingChild] = useState(false);
   const [executingStep, setExecutingStep] = useState<number | null>(null);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -64,6 +67,60 @@ export function UnifiedTaskSteps({
       setExecutingStep(null);
     }
   };
+
+  const handleStepsGenerated = async (generatedSteps: string[]) => {
+    try {
+      // Update task data with generated steps
+      const updatedData = {
+        ...task.data,
+        flowSteps: generatedSteps.map((step, index) => ({
+          id: crypto.randomUUID(),
+          title: step,
+          description: "",
+          completed: false,
+          order: index
+        }))
+      };
+      
+      // Update task with new steps data
+      await onTaskUpdate();
+      setShowAIGenerator(false);
+      
+      toast({
+        title: "Steps generated",
+        description: `Generated ${generatedSteps.length} steps for your task`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save generated steps",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleStepsChange = (updatedSteps: any[]) => {
+    // Convert to the format expected by the task system
+    const stepsData = updatedSteps.map(step => ({
+      id: step.id,
+      title: step.title,
+      description: step.description || "",
+      completed: step.completed || false,
+      order: step.order || 0
+    }));
+    
+    // Update task data
+    onTaskUpdate();
+  };
+
+  // Convert parsed steps to editor format
+  const editorSteps = steps.map((step, index) => ({
+    id: `step-${index}`,
+    title: step,
+    description: "",
+    completed: completedSteps.includes(index),
+    order: index
+  }));
 
   const handleAddChild = async () => {
     if (!newChildTitle.trim()) return;
@@ -101,10 +158,6 @@ export function UnifiedTaskSteps({
     }
   };
 
-  const getStepStatus = (stepIndex: number) => {
-    return completedSteps.includes(stepIndex) ? 'completed' : 'pending';
-  };
-
   const getTaskStatusColor = (status: string) => {
     switch (status) {
       case 'Done':
@@ -122,10 +175,20 @@ export function UnifiedTaskSteps({
 
   return (
     <div className="space-y-6">
+      {/* AI Step Generator */}
+      {showAIGenerator && (
+        <AIStepGenerator
+          onStepsGenerated={handleStepsGenerated}
+          taskTitle={task.title}
+          taskDescription={task.description}
+          placeholder="Describe what you want to accomplish, and AI will generate actionable steps..."
+        />
+      )}
+
       {/* Task Steps - unified handling for all task types */}
-      {hasSteps && (
-        <div>
-          <div className="flex items-center gap-2 mb-4">
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
             {isFlowTask && <Workflow className="h-5 w-5 text-purple-600" />}
             <h3 className="font-semibold text-lg">
               {isFlowTask ? 'Flow Steps' : 'Task Steps'}
@@ -134,58 +197,33 @@ export function UnifiedTaskSteps({
               {completedSteps.length} / {steps.length} completed
             </Badge>
           </div>
-          <div className="space-y-3">
-            {steps.map((step, index) => {
-              const status = getStepStatus(index);
-              const isExecuting = executingStep === index;
-              
-              return (
-                <Card key={index} className={`transition-all ${status === 'completed' ? 'bg-green-50 border-green-200' : 'hover:shadow-sm'}`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-1">
-                        {status === 'completed' ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <Circle className="h-5 w-5 text-gray-400" />
-                        )}
-                      </div>
-                      
-                      <div className="flex-1">
-                        <p className={`text-sm ${status === 'completed' ? 'text-green-800 line-through' : 'text-gray-700'}`}>
-                          {step}
-                        </p>
-                      </div>
-                      
-                      {status === 'pending' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleStepExecute(index)}
-                          disabled={isExecuting}
-                          className="flex-shrink-0"
-                        >
-                          {isExecuting ? (
-                            <>
-                              <Clock className="h-4 w-4 mr-1 animate-spin" />
-                              Executing
-                            </>
-                          ) : (
-                            <>
-                              <Play className="h-4 w-4 mr-1" />
-                              Execute
-                            </>
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+          <Button
+            size="sm"
+            onClick={() => setShowAIGenerator(!showAIGenerator)}
+            className="flex items-center gap-2"
+            variant="outline"
+          >
+            Create with AI
+          </Button>
         </div>
-      )}
+
+        {hasSteps ? (
+          <StepEditor
+            steps={editorSteps}
+            onStepsChange={handleStepsChange}
+            onStepExecute={handleStepExecute}
+            completedSteps={completedSteps}
+            executingStep={executingStep}
+            title=""
+            showExecuteButtons={true}
+            showCompletionStatus={true}
+          />
+        ) : (
+          <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+            <p>No steps yet. Click "Create with AI" to generate steps for this task.</p>
+          </div>
+        )}
+      </div>
 
       {/* Child Tasks - FIXED: Only show for non-flow tasks or when actual child tasks exist */}
       {(!isFlowTask || hasActualChildTasks) && (
