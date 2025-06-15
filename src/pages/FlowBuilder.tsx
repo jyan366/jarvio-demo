@@ -18,6 +18,7 @@ import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
 import { agentsData } from '@/data/agentsData';
 import { useFlowBlockConfig } from '@/hooks/useFlowBlockConfig';
 import { FlowBlockDatabaseSync } from '@/components/jarvi-flows/FlowBlockDatabaseSync';
+import { LoadingFlowStartup } from '@/components/jarvi-flows/LoadingFlowStartup';
 
 // Default flow block options to use as fallback
 const defaultFlowBlockOptions = flowBlockOptions;
@@ -69,6 +70,7 @@ export default function FlowBuilder() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [isRunningFlow, setIsRunningFlow] = useState(false);
+  const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const { blockConfigs, updateBlockConfig } = useFlowBlockConfig();
 
@@ -369,7 +371,7 @@ export default function FlowBuilder() {
     }
   };
 
-  // Update the handleStartFlow function to work with unified tasks
+  // Update the handleStartFlow function to show loading state
   const handleStartFlow = async () => {
     try {
       if (!flow.name.trim()) {
@@ -391,25 +393,41 @@ export default function FlowBuilder() {
       }
 
       setIsRunningFlow(true);
-      toast({
-        title: "Starting flow",
-        description: "Preparing flow for execution..."
-      });
+      setIsCreatingTask(true);
 
       // Save the flow first if it hasn't been saved
+      let currentFlowId = flowId;
+      
       if (!flowId) {
-        await saveFlow();
+        const taskData = {
+          title: flow.name,
+          description: flow.description,
+          status: 'Not Started' as const,
+          priority: 'MEDIUM' as const,
+          category: 'FLOW',
+          task_type: 'flow' as const,
+          trigger: flow.trigger,
+          saved_to_flows: true,
+          data: {
+            flowId: flow.id,
+            flowSteps: flow.steps,
+            flowBlocks: flow.blocks,
+            totalSteps: flow.steps.length,
+            createdAt: new Date().toISOString()
+          }
+        };
+
+        const newTask = await createUnifiedTask(taskData);
+        if (newTask) {
+          currentFlowId = newTask.id;
+          setFlow(prev => ({ ...prev, id: newTask.id }));
+        }
       }
       
-      // Use the current flow ID (either existing or newly created)
-      const currentFlowId = flowId || flow.id;
-      
-      toast({
-        title: "Flow started successfully",
-        description: "Opening flow execution view..."
-      });
-      
-      navigate(`/task/${currentFlowId}`);
+      // Navigate to the task with a delay to ensure it's created
+      setTimeout(() => {
+        navigate(`/task/${currentFlowId}`);
+      }, 1000);
       
     } catch (error) {
       console.error('Error running flow:', error);
@@ -418,8 +436,8 @@ export default function FlowBuilder() {
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
-    } finally {
       setIsRunningFlow(false);
+      setIsCreatingTask(false);
     }
   };
 
@@ -478,6 +496,21 @@ export default function FlowBuilder() {
   const updateFlowBlocks = (blocks: FlowBlock[]) => {
     setFlow(prev => ({ ...prev, blocks }));
   };
+
+  // Show loading screen when creating task
+  if (isCreatingTask) {
+    return (
+      <MainLayout>
+        <LoadingFlowStartup 
+          flowName={flow.name} 
+          onCancel={() => {
+            setIsCreatingTask(false);
+            setIsRunningFlow(false);
+          }} 
+        />
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
