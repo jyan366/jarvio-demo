@@ -160,7 +160,11 @@ export function FlowStepsEditor({
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                       <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+                      <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                        step.completed 
+                          ? "bg-green-500 text-white" 
+                          : "bg-blue-500 text-white"
+                      }`}>
                         {index + 1}
                       </div>
                     </div>
