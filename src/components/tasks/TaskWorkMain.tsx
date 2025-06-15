@@ -83,6 +83,10 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   const flowSteps: FlowStep[] = task.data?.flowSteps || [];
   const flowBlocks: FlowBlock[] = task.data?.flowBlocks || [];
 
+  // Determine if this is a flow task (has flow steps or is explicitly marked as flow)
+  const hasFlowSteps = flowSteps.length > 0;
+  const isActualFlowTask = isFlowTask || hasFlowSteps || task.task_type === 'flow';
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <TaskWorkHeader
@@ -98,7 +102,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         category={task.category}
         setCategory={(c: string) => onUpdateTask("category", c)}
         onOpenSidebarMobile={onOpenSidebarMobile}
-        isFlowTask={isFlowTask}
+        isFlowTask={isActualFlowTask}
       />
       
       <TaskInsights
@@ -108,7 +112,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         onAddComment={handleAddComment}
       />
 
-      {/* Show generate steps button for all tasks except flow tasks */}
+      {/* Show generate steps button for all tasks */}
       <div className="flex gap-4 items-center mb-1">
         <Button
           variant="outline"
@@ -118,7 +122,9 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         >
           {isGenerating && <Loader2 className="w-4 h-4 mr-1 animate-spin" />} Generate steps
         </Button>
-        <span className="text-neutral-400 text-xs">Break down this task</span>
+        <span className="text-neutral-400 text-xs">
+          {hasFlowSteps ? "Replace current steps" : "Break down this task"}
+        </span>
       </div>
 
       {task.products && task.products[0] && (
@@ -129,7 +135,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
       )}
 
       <div className="mt-2">
-        {isFlowTask ? (
+        {isActualFlowTask ? (
           <FlowStepsEditor
             steps={flowSteps}
             blocks={flowBlocks}

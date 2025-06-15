@@ -203,16 +203,20 @@ export function getAllDescendants(task: TaskTreeNode): UnifiedTask[] {
 export function parseTaskSteps(task: UnifiedTask): string[] {
   console.log("Parsing task steps for task:", task.id, "type:", task.task_type, "data:", task.data);
   
-  // For flow tasks, extract steps from the stored flow steps
-  if (task.data) {
-    // Use the actual flow steps that were stored
-    if (task.data.flowSteps && Array.isArray(task.data.flowSteps)) {
-      console.log("Found flow steps:", task.data.flowSteps);
-      return task.data.flowSteps.map((step: any, index: number) => {
-        const stepTitle = step.title || `Step ${index + 1}`;
+  // For tasks with flow data, extract steps from the stored flow steps
+  if (task.data && task.data.flowSteps && Array.isArray(task.data.flowSteps)) {
+    console.log("Found flow steps:", task.data.flowSteps);
+    const steps = task.data.flowSteps
+      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0)) // Sort by order
+      .map((step: any, index: number) => {
+        const stepTitle = step.title && step.title.trim() ? step.title.trim() : `Step ${index + 1}`;
         console.log(`Step ${index + 1}: ${stepTitle}`);
         return stepTitle;
-      });
+      })
+      .filter((title: string) => title.length > 0); // Filter out empty titles
+    
+    if (steps.length > 0) {
+      return steps;
     }
   }
   

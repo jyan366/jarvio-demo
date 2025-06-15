@@ -239,22 +239,30 @@ export default function TaskWorkContainer({
       const generatedSteps = response.data.steps;
       console.log("Generated steps:", generatedSteps);
 
-      // Convert generated steps to flow format and update the task
-      const flowSteps = generatedSteps.map((step: any, index: number) => ({
-        id: generateUUID(),
-        title: step.title,
-        description: step.description || "",
-        completed: false,
-        order: index,
-        blockId: generateUUID()
-      }));
+      // Convert generated steps to flow format with matching IDs
+      const flowSteps = generatedSteps.map((step: any, index: number) => {
+        const blockId = generateUUID();
+        return {
+          id: generateUUID(),
+          title: step.title,
+          description: step.description || "",
+          completed: false,
+          order: index,
+          blockId: blockId
+        };
+      });
 
-      const flowBlocks = generatedSteps.map((step: any, index: number) => ({
-        id: flowSteps[index].blockId,
+      const flowBlocks = flowSteps.map((step: any, index: number) => ({
+        id: step.blockId, // Use the same blockId from flowSteps
         type: index === 0 ? 'collect' : index === generatedSteps.length - 1 ? 'act' : 'think',
         option: index === 0 ? 'User Text' : index === generatedSteps.length - 1 ? 'AI Summary' : 'Basic AI Analysis',
         name: step.title
       }));
+
+      // Clear existing child tasks when generating new flow steps
+      for (const child of childTasks) {
+        await removeChild(child.id);
+      }
 
       // Update the task with flow steps and clear any completed steps
       await updateTask({
@@ -263,7 +271,8 @@ export default function TaskWorkContainer({
           flowSteps,
           flowBlocks
         },
-        steps_completed: [] // Clear completed steps when generating new ones
+        steps_completed: [], // Clear completed steps when generating new ones
+        task_type: 'flow' // Ensure task is marked as flow type
       });
       
       // Refresh to get updated data
