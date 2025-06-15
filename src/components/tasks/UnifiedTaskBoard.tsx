@@ -9,25 +9,34 @@ import { SimpleCreateTaskDialog } from './SimpleCreateTaskDialog';
 import { fetchTaskTree, deleteUnifiedTask } from '@/lib/unifiedTasks';
 import { TaskTreeNode } from '@/types/unifiedTask';
 import { useToast } from '@/hooks/use-toast';
-
-const statusColumns = [
-  { id: 'Not Started', title: 'Not Started', color: 'bg-gray-100' },
-  { id: 'In Progress', title: 'In Progress', color: 'bg-blue-100' },
-  { id: 'Done', title: 'Done', color: 'bg-green-100' }
-];
-
+const statusColumns = [{
+  id: 'Not Started',
+  title: 'Not Started',
+  color: 'bg-gray-100'
+}, {
+  id: 'In Progress',
+  title: 'In Progress',
+  color: 'bg-blue-100'
+}, {
+  id: 'Done',
+  title: 'Done',
+  color: 'bg-green-100'
+}];
 interface UnifiedTaskBoardProps {
   onCreateTask?: () => void;
   onTaskDeleted?: () => void;
 }
-
-export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoardProps) {
+export function UnifiedTaskBoard({
+  onCreateTask,
+  onTaskDeleted
+}: UnifiedTaskBoardProps) {
   const [tasks, setTasks] = useState<TaskTreeNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSimpleCreateDialogOpen, setIsSimpleCreateDialogOpen] = useState(false);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const loadTasks = async () => {
     try {
       setLoading(true);
@@ -46,11 +55,9 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
       setLoading(false);
     }
   };
-
   useEffect(() => {
     loadTasks();
   }, []);
-
   const handleDeleteTask = async (taskId: string) => {
     try {
       await deleteUnifiedTask(taskId);
@@ -68,38 +75,28 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
       });
     }
   };
-
   const handleAdvancedCreateTask = () => {
     if (onCreateTask) {
       onCreateTask();
     }
   };
-
   const handleSimpleTaskCreated = async () => {
     await loadTasks();
     setIsSimpleCreateDialogOpen(false);
   };
-
   const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) || task.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
-
   const getTasksByStatus = (status: string) => {
     return filteredTasks.filter(task => task.status === status);
   };
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
+    return <div className="flex items-center justify-center min-h-[400px]">
         <p className="text-muted-foreground">Loading tasks...</p>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
@@ -107,18 +104,11 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
           <p className="text-muted-foreground">Manage and track your tasks</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            onClick={() => setIsSimpleCreateDialogOpen(true)}
-            className="bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
-          >
+          <Button variant="outline" onClick={() => setIsSimpleCreateDialogOpen(true)} className="bg-green-50 border-green-200 hover:bg-green-100 text-green-700">
             <Zap className="h-4 w-4 mr-2" />
             Quick Task
           </Button>
-          <Button onClick={handleAdvancedCreateTask}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Task
-          </Button>
+          
         </div>
       </div>
 
@@ -126,22 +116,15 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search tasks..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Search tasks..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
         </div>
       </div>
 
       {/* Task Board */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {statusColumns.map(column => {
-          const columnTasks = getTasksByStatus(column.id);
-          
-          return (
-            <Card key={column.id} className="h-fit">
+        const columnTasks = getTasksByStatus(column.id);
+        return <Card key={column.id} className="h-fit">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center justify-between text-sm">
                   <span>{column.title}</span>
@@ -151,32 +134,15 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {columnTasks.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground text-sm">
+                {columnTasks.length === 0 ? <div className="text-center py-8 text-muted-foreground text-sm">
                     No tasks in {column.title.toLowerCase()}
-                  </div>
-                ) : (
-                  columnTasks.map(task => (
-                    <UnifiedTaskCard
-                      key={task.id}
-                      task={task}
-                      onDelete={handleDeleteTask}
-                      onUpdate={loadTasks}
-                    />
-                  ))
-                )}
+                  </div> : columnTasks.map(task => <UnifiedTaskCard key={task.id} task={task} onDelete={handleDeleteTask} onUpdate={loadTasks} />)}
               </CardContent>
-            </Card>
-          );
-        })}
+            </Card>;
+      })}
       </div>
 
       {/* Simple Create Task Dialog */}
-      <SimpleCreateTaskDialog
-        open={isSimpleCreateDialogOpen}
-        onOpenChange={setIsSimpleCreateDialogOpen}
-        onSuccess={handleSimpleTaskCreated}
-      />
-    </div>
-  );
+      <SimpleCreateTaskDialog open={isSimpleCreateDialogOpen} onOpenChange={setIsSimpleCreateDialogOpen} onSuccess={handleSimpleTaskCreated} />
+    </div>;
 }
