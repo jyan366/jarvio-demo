@@ -139,9 +139,7 @@ export function FlowStepsEditor({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Steps</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Each step represents an executable action in your flow. Steps are linked to blocks that define the implementation.
-          </p>
+          
         </div>
         <Button onClick={() => setIsAddingStep(true)} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
