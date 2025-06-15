@@ -85,7 +85,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
 
   // Determine if this is a flow task (has flow steps or is explicitly marked as flow)
   const hasFlowSteps = flowSteps.length > 0;
-  const isActualFlowTask = isFlowTask || hasFlowSteps || task.task_type === 'flow';
+  const isActualFlowTask = isFlowTask || hasFlowSteps || task.data?.isFlowTask;
 
   return (
     <div className="flex flex-col gap-4 w-full">
