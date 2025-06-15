@@ -94,8 +94,8 @@ export function CreateTaskFlow({
         localStorage.setItem('isAuthenticated', 'true');
       }
       
-      // Remove sourceData from the task data before sending to API
-      const { sourceData, ...taskDataToSend } = taskData;
+      // Remove source and sourceData from the task data before sending to API
+      const { source, sourceData, ...taskDataToSend } = taskData;
       
       // Create unified task with proper task_type and ensure proper typing
       const finalTaskData = {
