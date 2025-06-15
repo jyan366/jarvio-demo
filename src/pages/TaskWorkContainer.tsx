@@ -253,16 +253,24 @@ export default function TaskWorkContainer({
         }
       });
 
+      console.log("Edge function response:", response);
+
       if (response.error) {
-        throw new Error(response.error.message);
+        console.error("Edge function error:", response.error);
+        throw new Error(response.error.message || "Failed to generate steps");
       }
 
-      if (!response.data || !response.data.steps) {
-        throw new Error("No steps were generated");
+      if (!response.data || !response.data.steps || !Array.isArray(response.data.steps)) {
+        console.error("Invalid response data:", response.data);
+        throw new Error("Invalid response from step generation service");
       }
 
       const generatedSteps = response.data.steps;
       console.log("Generated steps:", generatedSteps);
+
+      if (generatedSteps.length === 0) {
+        throw new Error("No steps were generated");
+      }
 
       // Convert generated steps to flow format with proper block linking
       const newFlowBlocks = generatedSteps.map((step: any, index: number) => ({
@@ -281,6 +289,9 @@ export default function TaskWorkContainer({
         blockId: newFlowBlocks[index].id
       }));
 
+      console.log("Created flow steps:", newFlowSteps);
+      console.log("Created flow blocks:", newFlowBlocks);
+
       // Clear existing child tasks when generating new flow steps
       for (const child of childTasks) {
         await removeChild(child.id);
@@ -291,7 +302,8 @@ export default function TaskWorkContainer({
         data: {
           ...task.data,
           flowSteps: newFlowSteps,
-          flowBlocks: newFlowBlocks
+          flowBlocks: newFlowBlocks,
+          isFlowTask: true
         },
         steps_completed: [],
         task_type: 'flow'
@@ -304,6 +316,7 @@ export default function TaskWorkContainer({
         title: "Steps generated",
         description: `Generated ${generatedSteps.length} steps successfully`,
       });
+      
     } catch (error) {
       console.error("Error generating steps:", error);
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
