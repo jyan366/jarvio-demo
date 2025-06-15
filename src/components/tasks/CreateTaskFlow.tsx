@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { createUnifiedTask } from "@/lib/unifiedTasks";
+import { createUnifiedTask, updateUnifiedTask } from "@/lib/unifiedTasks";
 import { useToast } from "@/hooks/use-toast";
 import { X, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import { CreateTaskStepOne } from "./steps/CreateTaskStepOne";
 import { CreateTaskStepTwo } from "./steps/CreateTaskStepTwo";
 import { CreateTaskStepThree } from "./steps/CreateTaskStepThree";
 import { TaskFormData } from "./types/createTask";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CreateTaskFlowProps {
   open: boolean;
@@ -30,6 +31,7 @@ export function CreateTaskFlow({
   const [step, setStep] = useState<CreateTaskStep>(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuggesting, setIsSuggesting] = useState(false);
+  const [isGeneratingSteps, setIsGeneratingSteps] = useState(false);
   const { toast } = useToast();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [taskData, setTaskData] = useState<TaskFormData>({
@@ -84,6 +86,99 @@ export function CreateTaskFlow({
     }
   };
 
+  const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  };
+
+  const shouldAutoGenerateSteps = (data: TaskFormData): boolean => {
+    // Check if it's a simple task that could benefit from AI-generated steps
+    const hasMinimalContent = data.title.trim().length < 50 && data.description.trim().length < 100;
+    const isGenericTask = data.title.toLowerCase().includes('task') || 
+                         data.title.toLowerCase().includes('work') ||
+                         data.title.toLowerCase().includes('project');
+    
+    return hasMinimalContent || isGenericTask;
+  };
+
+  const generateStepsWithAI = async (taskId: string, prompt: string) => {
+    try {
+      setIsGeneratingSteps(true);
+      
+      console.log("Generating steps for task:", taskId, "with prompt:", prompt);
+      
+      const response = await supabase.functions.invoke('generate-flow', {
+        body: {
+          prompt: prompt,
+          blockOptions: {
+            collect: ['User Text', 'File Upload', 'Data Import', 'Form Input'],
+            think: ['Basic AI Analysis', 'Advanced Reasoning', 'Data Processing', 'Pattern Recognition'],
+            act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call'],
+            agent: ['Agent']
+          }
+        }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      if (!response.data || response.data.success === false) {
+        const errorMsg = response.data?.error || "Unknown error occurred";
+        throw new Error(errorMsg);
+      }
+
+      const generatedFlow = response.data.generatedFlow;
+
+      if (generatedFlow?.blocks && Array.isArray(generatedFlow.blocks)) {
+        // Convert blocks to flow steps and blocks
+        const flowSteps = generatedFlow.blocks.map((block: any, index: number) => ({
+          id: generateUUID(),
+          title: block.name || `Step ${index + 1}`,
+          description: "",
+          completed: false,
+          order: index,
+          blockId: generateUUID()
+        }));
+
+        const flowBlocks = generatedFlow.blocks.map((block: any, index: number) => ({
+          id: flowSteps[index].blockId,
+          type: block.type || 'collect',
+          option: block.option || 'User Text',
+          name: block.name || `Step ${index + 1}`
+        }));
+
+        // Update the task with the generated steps
+        await updateUnifiedTask(taskId, {
+          data: {
+            flowSteps,
+            flowBlocks
+          },
+          task_type: 'flow'
+        });
+
+        console.log("Successfully generated and saved", flowSteps.length, "steps for task");
+        
+        toast({
+          title: "Steps Generated",
+          description: `Generated ${flowSteps.length} steps with AI and saved to your task.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error generating steps:", error);
+      toast({
+        title: "Error Generating Steps",
+        description: "Failed to generate steps with AI, but your task was created successfully.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingSteps(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateStep(3)) return;
 
@@ -109,9 +204,17 @@ export function CreateTaskFlow({
       const createdTask = await createUnifiedTask(finalTaskData);
       
       if (createdTask?.id) {
+        // Check if we should auto-generate steps
+        if (shouldAutoGenerateSteps(taskData)) {
+          const prompt = `${taskData.title}. ${taskData.description}`;
+          await generateStepsWithAI(createdTask.id, prompt);
+        }
+        
         toast({
           title: "Task Created Successfully",
-          description: "Your new task has been created and added to your tasks.",
+          description: isGeneratingSteps 
+            ? "Your task has been created and AI is generating steps." 
+            : "Your new task has been created and added to your tasks.",
         });
         
         onOpenChange(false);
@@ -200,7 +303,7 @@ export function CreateTaskFlow({
 
         <div className="flex justify-between mt-6">
           {step > 1 ? (
-            <Button variant="outline" onClick={handleBack} disabled={isLoading}>
+            <Button variant="outline" onClick={handleBack} disabled={isLoading || isGeneratingSteps}>
               Back
             </Button>
           ) : (
@@ -211,9 +314,9 @@ export function CreateTaskFlow({
               Next
             </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={isLoading}>
-              {isLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {isLoading ? "Creating..." : "Create Task"}
+            <Button onClick={handleSubmit} disabled={isLoading || isGeneratingSteps}>
+              {(isLoading || isGeneratingSteps) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              {isGeneratingSteps ? "Generating Steps..." : isLoading ? "Creating..." : "Create Task"}
             </Button>
           )}
         </div>
