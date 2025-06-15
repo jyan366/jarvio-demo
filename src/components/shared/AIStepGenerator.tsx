@@ -14,11 +14,6 @@ interface AIStepFormValues {
   prompt: string;
 }
 
-interface GeneratedFlow {
-  steps: FlowStep[];
-  blocks: FlowBlock[];
-}
-
 interface AIStepGeneratorProps {
   onStepsGenerated: (steps: FlowStep[], blocks: FlowBlock[]) => void;
   taskTitle?: string;
@@ -59,10 +54,16 @@ export function AIStepGenerator({
       
       console.log("Generating flow for prompt:", data.prompt);
       
-      // Use the same flow generation approach as the flow builder
+      // Call the generate-flow edge function with block options
       const response = await supabase.functions.invoke('generate-flow', {
         body: {
-          prompt: data.prompt
+          prompt: data.prompt,
+          blockOptions: {
+            collect: ['User Text', 'File Upload', 'Data Import', 'Form Input'],
+            think: ['Basic AI Analysis', 'Advanced Reasoning', 'Data Processing', 'Pattern Recognition'],
+            act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call'],
+            agent: ['Agent']
+          }
         }
       });
 
@@ -77,10 +78,14 @@ export function AIStepGenerator({
       }
 
       const generatedFlow = response.data.generatedFlow;
+      console.log("Generated flow data:", generatedFlow);
+
       if (!generatedFlow || !generatedFlow.steps || !generatedFlow.blocks) {
-        throw new Error("No flow was generated");
+        throw new Error("No flow was generated - missing steps or blocks");
       }
 
+      // Call the callback with the generated steps and blocks
+      // This will replace all existing steps
       onStepsGenerated(generatedFlow.steps, generatedFlow.blocks);
       form.reset();
       

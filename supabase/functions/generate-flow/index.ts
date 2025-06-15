@@ -20,6 +20,15 @@ function formatResponse(data: any) {
   });
 }
 
+// Helper to generate UUID (simple version for edge function)
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 serve(async (req) => {
   // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
@@ -113,9 +122,43 @@ serve(async (req) => {
       if (!generatedFlow.name || !generatedFlow.description || !Array.isArray(generatedFlow.blocks)) {
         throw new Error('Invalid flow structure from OpenAI');
       }
+
+      // Convert blocks to steps and blocks format that frontend expects
+      const steps = [];
+      const blocks = [];
+
+      generatedFlow.blocks.forEach((block, index) => {
+        const stepId = generateUUID();
+        const blockId = generateUUID();
+
+        // Create FlowStep
+        steps.push({
+          id: stepId,
+          title: block.name || `Step ${index + 1}`,
+          description: "",
+          completed: false,
+          order: index,
+          blockId: blockId
+        });
+
+        // Create FlowBlock
+        blocks.push({
+          id: blockId,
+          type: block.type || 'collect',
+          option: block.option || 'User Text',
+          name: block.name || `Step ${index + 1}`
+        });
+      });
+
+      const result = {
+        name: generatedFlow.name,
+        description: generatedFlow.description,
+        steps: steps,
+        blocks: blocks
+      };
       
-      console.log('Successfully parsed flow:', generatedFlow);
-      return formatResponse({ success: true, generatedFlow });
+      console.log('Successfully parsed flow with steps and blocks:', result);
+      return formatResponse({ success: true, generatedFlow: result });
       
     } catch (error) {
       console.error('Error parsing OpenAI response:', error);
