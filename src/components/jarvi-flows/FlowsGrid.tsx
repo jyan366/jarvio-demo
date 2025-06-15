@@ -161,18 +161,12 @@ export function FlowsGrid({
                   size="sm"
                   onClick={() => onRunFlow(flow.id)}
                   disabled={isRunningFlow}
-                  className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : ""}
+                  className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : "bg-blue-600 hover:bg-blue-700"}
                 >
                   {isCurrentFlowRunning ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                      Running...
-                    </>
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <>
-                      <Play className="h-4 w-4 mr-1" />
-                      Start Flow
-                    </>
+                    <Play className="h-4 w-4" />
                   )}
                 </Button>
               )}
