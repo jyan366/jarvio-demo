@@ -6,7 +6,7 @@ import { Plus, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { UnifiedTaskCard } from './UnifiedTaskCard';
-import { CreateTaskDialog } from './CreateTaskDialog';
+import { CreateTaskFlow } from './CreateTaskFlow';
 import { fetchTaskTree, deleteUnifiedTask } from '@/lib/unifiedTasks';
 import { TaskTreeNode } from '@/types/unifiedTask';
 import { useToast } from '@/hooks/use-toast';
@@ -165,10 +165,10 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
       </div>
 
       {/* Create Task Dialog */}
-      <CreateTaskDialog
+      <CreateTaskFlow
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
-        onCreateTask={handleTaskCreated}
+        onSuccess={handleTaskCreated}
         disableAutoStepGeneration={true}
       />
     </div>

@@ -17,6 +17,7 @@ interface CreateTaskFlowProps {
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
   initialData?: Partial<TaskFormData>;
+  disableAutoStepGeneration?: boolean;
 }
 
 type CreateTaskStep = 1 | 2 | 3;
@@ -25,7 +26,8 @@ export function CreateTaskFlow({
   open, 
   onOpenChange, 
   onSuccess, 
-  initialData = {} 
+  initialData = {},
+  disableAutoStepGeneration = false
 }: CreateTaskFlowProps) {
   const navigate = useNavigate();
   const [step, setStep] = useState<CreateTaskStep>(1);
@@ -95,6 +97,11 @@ export function CreateTaskFlow({
   };
 
   const shouldAutoGenerateSteps = (data: TaskFormData): boolean => {
+    // If auto generation is disabled, never generate steps
+    if (disableAutoStepGeneration) {
+      return false;
+    }
+    
     // Always auto-generate steps for new tasks unless they explicitly seem like they have predefined steps
     // Only skip if the description already contains numbered steps or bullet points
     const hasStepsInDescription = data.description && (
