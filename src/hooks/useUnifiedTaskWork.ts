@@ -67,6 +67,25 @@ export function useUnifiedTaskWork(taskId: string) {
     }
   };
 
+  const updateTaskDescription = async (description: string) => {
+    if (!task) return;
+    
+    try {
+      await updateUnifiedTask(task.id, { description });
+      setTask(prev => prev ? { ...prev, description } : null);
+      toast({
+        title: "Steps updated",
+        description: "Task steps have been successfully updated"
+      });
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "Failed to update task steps",
+        variant: "destructive"
+      });
+    }
+  };
+
   const addChild = async (title: string, description?: string) => {
     if (!task) return;
     
@@ -111,6 +130,7 @@ export function useUnifiedTaskWork(taskId: string) {
     loading,
     error,
     updateTask,
+    updateTaskDescription,
     addChild,
     removeChild,
     markStepComplete,
