@@ -12,7 +12,7 @@ export interface Message {
   timestamp: Date;
   subtaskIdx?: number;
   systemLog?: boolean;
-  flowAction?: boolean;  // Added this property to fix the type error
+  flowAction?: boolean;
 }
 
 export interface SubtaskData {
@@ -34,26 +34,9 @@ export function useJarvioAssistantLogic(
   onSubtaskComplete: (idx: number) => Promise<void>,
   onSubtaskSelect: (idx: number) => void
 ) {
-  // State management
-  const [messages, setMessages] = useState<Message[]>(() => {
-    // Add initial welcome message
-    if (subtasks && subtasks.length > 0) {
-      return [{
-        id: crypto.randomUUID(),
-        isUser: false,
-        text: `Hello! I'm Jarvio, your AI assistant. I'm here to help you with "${taskTitle}". How can I help you with the current subtask: "${subtasks[currentSubtaskIndex]?.title || 'this task'}"?`,
-        timestamp: new Date(),
-        subtaskIdx: currentSubtaskIndex
-      }];
-    }
-    return [{
-      id: crypto.randomUUID(),
-      isUser: false,
-      text: `Hello! I'm Jarvio, your AI assistant. I'm here to help you with "${taskTitle}". How can I help you?`,
-      timestamp: new Date()
-    }];
-  });
-  
+  // State management - use useRef to persist messages across re-renders
+  const messagesRef = useRef<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [autoRunMode, setAutoRunMode] = useState(false);
@@ -62,11 +45,35 @@ export function useJarvioAssistantLogic(
   const [subtaskData, setSubtaskData] = useState<SubtaskDataMap>({});
   const [historySubtaskIdx, setHistorySubtaskIdx] = useState<number | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [initializedRef, setInitializedRef] = useState(false);
   
   // References for auto-run functionality
   const autoRunTimerRef = useRef<number>();
   const autoRunStepInProgressRef = useRef(false);
   const { toast } = useToast();
+
+  // Initialize messages only once
+  useEffect(() => {
+    if (!initializedRef && subtasks && subtasks.length > 0) {
+      const initialMessage = {
+        id: crypto.randomUUID(),
+        isUser: false,
+        text: `Hello! I'm Jarvio, your AI assistant. I'm here to help you with "${taskTitle}". How can I help you with the current subtask: "${subtasks[currentSubtaskIndex]?.title || 'this task'}"?`,
+        timestamp: new Date(),
+        subtaskIdx: currentSubtaskIndex
+      };
+      
+      messagesRef.current = [initialMessage];
+      setMessages([initialMessage]);
+      setInitializedRef(true);
+    }
+  }, [subtasks, taskTitle, currentSubtaskIndex, initializedRef]);
+
+  // Update messages state when messagesRef changes
+  const updateMessages = useCallback((newMessages: Message[]) => {
+    messagesRef.current = newMessages;
+    setMessages([...newMessages]);
+  }, []);
 
   // Get context from previous subtasks
   const getPreviousSubtasksContext = useCallback(() => {
@@ -122,7 +129,8 @@ export function useJarvioAssistantLogic(
 
     // Create and add user message
     const userMessage = formatUserMessage(messageToSend, currentSubtaskIndex);
-    setMessages(prev => [...prev, userMessage]);
+    const currentMessages = [...messagesRef.current, userMessage];
+    updateMessages(currentMessages);
     
     setInputValue("");
     setIsLoading(true);
@@ -136,13 +144,14 @@ export function useJarvioAssistantLogic(
           taskDescription,
           subtasks,
           currentSubtaskIndex,
-          messages,
+          messagesRef.current,
           getPreviousSubtasksContext()
         );
 
       // Add AI response
       const aiMessage = formatJarvioResponse(crypto.randomUUID(), reply, currentSubtaskIndex);
-      setMessages(prev => [...prev, aiMessage]);
+      const updatedMessages = [...currentMessages, aiMessage];
+      updateMessages(updatedMessages);
 
       // Handle collected data
       if (collectedData && subtasks[currentSubtaskIndex]) {
@@ -151,6 +160,17 @@ export function useJarvioAssistantLogic(
 
       // Handle subtask completion
       if (subtaskComplete && !approvalNeeded) {
+        // Mark step as complete and add transition message
+        await onSubtaskComplete(currentSubtaskIndex);
+        
+        // Add system message about step completion
+        const systemMessage = formatSystemMessage(
+          `Step ${currentSubtaskIndex + 1} completed. ${currentSubtaskIndex + 1 < subtasks.length ? 'Moving to next step...' : 'All steps completed!'}`,
+          currentSubtaskIndex
+        );
+        const finalMessages = [...updatedMessages, systemMessage];
+        updateMessages(finalMessages);
+        
         setReadyForNextSubtask(true);
       }
     } catch (error) {
@@ -163,11 +183,11 @@ export function useJarvioAssistantLogic(
     } finally {
       setIsLoading(false);
     }
-  }, [messages, inputValue, isLoading, currentSubtaskIndex, taskTitle, taskDescription, subtasks, getPreviousSubtasksContext, handleSaveSubtaskResult, toast]);
+  }, [inputValue, isLoading, currentSubtaskIndex, taskTitle, taskDescription, subtasks, getPreviousSubtasksContext, handleSaveSubtaskResult, toast, onSubtaskComplete, updateMessages]);
 
   return {
     messages,
-    setMessages,
+    setMessages: updateMessages,
     inputValue,
     setInputValue,
     isLoading,
