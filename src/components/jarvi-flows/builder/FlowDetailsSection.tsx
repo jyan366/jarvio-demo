@@ -67,12 +67,14 @@ export function FlowDetailsSection({
             <SelectContent>
               <SelectItem value="manual">Manual Trigger</SelectItem>
               <SelectItem value="scheduled">Scheduled</SelectItem>
+              <SelectItem value="webhook">Webhook</SelectItem>
               <SelectItem value="event">Event-Based</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-sm text-muted-foreground mt-2">
             {trigger === 'manual' && "This flow will need to be manually triggered by a user."}
             {trigger === 'scheduled' && "This flow will run automatically based on a schedule."}
+            {trigger === 'webhook' && "This flow will be triggered by webhook calls."}
             {trigger === 'event' && "This flow will be triggered when specific events occur."}
           </p>
         </div>

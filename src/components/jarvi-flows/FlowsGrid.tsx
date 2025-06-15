@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Flow, FlowBlock } from '@/types/flowTypes';
 
 // Define the flow types and their properties
-export type TriggerType = 'manual' | 'scheduled' | 'event';
+export type TriggerType = 'manual' | 'scheduled' | 'webhook' | 'event';
 
 // Re-export types for backward compatibility
 export type { Flow, FlowBlock };
@@ -29,6 +28,8 @@ const getTriggerIcon = (trigger: TriggerType) => {
       return <Play className="h-4 w-4" />;
     case 'scheduled':
       return <Clock className="h-4 w-4" />;
+    case 'webhook':
+      return <Zap className="h-4 w-4" />;
     case 'event':
       return <Zap className="h-4 w-4" />;
     default:
