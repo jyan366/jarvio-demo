@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -217,9 +218,8 @@ export function CreateTaskFlow({
       const createdTask = await createUnifiedTask(finalTaskData);
       
       if (createdTask?.id) {
-        // Only generate steps if auto generation is enabled
-        const shouldGenerate = shouldAutoGenerateSteps(taskData);
-        if (shouldGenerate) {
+        // Only generate steps if auto generation is NOT disabled
+        if (!disableAutoStepGeneration && shouldAutoGenerateSteps(taskData)) {
           setIsGeneratingSteps(true);
           const prompt = `${taskData.title}. ${taskData.description}`;
           await generateStepsWithAI(createdTask.id, prompt);
@@ -227,7 +227,7 @@ export function CreateTaskFlow({
         
         toast({
           title: "Task Created Successfully",
-          description: shouldGenerate && !disableAutoStepGeneration
+          description: (!disableAutoStepGeneration && shouldAutoGenerateSteps(taskData))
             ? "Your task has been created and AI is generating steps." 
             : "Your new task has been created and added to your tasks.",
         });
@@ -319,7 +319,7 @@ export function CreateTaskFlow({
 
         <div className="flex justify-between mt-6">
           {step > 1 ? (
-            <Button variant="outline" onClick={handleBack} disabled={isLoading || isGeneratingSteps}>
+            <Button variant="outline" onClick={handleBack} disabled={isLoading || (!disableAutoStepGeneration && isGeneratingSteps)}>
               Back
             </Button>
           ) : (
@@ -330,9 +330,9 @@ export function CreateTaskFlow({
               Next
             </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={isLoading || isGeneratingSteps}>
-              {(isLoading || isGeneratingSteps) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {isGeneratingSteps && !disableAutoStepGeneration ? "Generating Steps..." : isLoading ? "Creating..." : "Create Task"}
+            <Button onClick={handleSubmit} disabled={isLoading || (!disableAutoStepGeneration && isGeneratingSteps)}>
+              {(isLoading || (!disableAutoStepGeneration && isGeneratingSteps)) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              {(!disableAutoStepGeneration && isGeneratingSteps) ? "Generating Steps..." : isLoading ? "Creating..." : "Create Task"}
             </Button>
           )}
         </div>
