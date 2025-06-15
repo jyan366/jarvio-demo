@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search, Filter, Zap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { UnifiedTaskCard } from './UnifiedTaskCard';
@@ -25,7 +25,7 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
   const [tasks, setTasks] = useState<TaskTreeNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isSimpleCreateDialogOpen, setIsSimpleCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const loadTasks = async () => {
@@ -69,17 +69,15 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
     }
   };
 
-  const handleCreateTask = () => {
+  const handleAdvancedCreateTask = () => {
     if (onCreateTask) {
       onCreateTask();
-    } else {
-      setIsCreateDialogOpen(true);
     }
   };
 
-  const handleTaskCreated = async () => {
+  const handleSimpleTaskCreated = async () => {
     await loadTasks();
-    setIsCreateDialogOpen(false);
+    setIsSimpleCreateDialogOpen(false);
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -108,10 +106,20 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
           <h1 className="text-2xl font-bold">Task Manager</h1>
           <p className="text-muted-foreground">Manage and track your tasks</p>
         </div>
-        <Button onClick={handleCreateTask}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Task
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => setIsSimpleCreateDialogOpen(true)}
+            className="bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
+          >
+            <Zap className="h-4 w-4 mr-2" />
+            Quick Task
+          </Button>
+          <Button onClick={handleAdvancedCreateTask}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Task
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
@@ -165,9 +173,9 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
 
       {/* Simple Create Task Dialog */}
       <SimpleCreateTaskDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        onSuccess={handleTaskCreated}
+        open={isSimpleCreateDialogOpen}
+        onOpenChange={setIsSimpleCreateDialogOpen}
+        onSuccess={handleSimpleTaskCreated}
       />
     </div>
   );
