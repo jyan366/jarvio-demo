@@ -8,6 +8,7 @@ import { useUnifiedTaskWork } from "@/hooks/useUnifiedTaskWork";
 import { Workflow } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Subtask {
   id: string;
@@ -196,17 +197,50 @@ export default function TaskWorkContainer({
   };
 
   const handleGenerateSteps = async () => {
+    if (!task) return;
+    
     setIsGenerating(true);
     try {
-      // Add logic to generate steps if needed
+      console.log("Generating steps for task:", task.title, task.description);
+      
+      // Call the generate-task-steps edge function
+      const response = await supabase.functions.invoke('generate-task-steps', {
+        body: {
+          title: task.title,
+          description: task.description || ""
+        }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      if (!response.data || !response.data.steps) {
+        throw new Error("No steps were generated");
+      }
+
+      const generatedSteps = response.data.steps;
+      console.log("Generated steps:", generatedSteps);
+
+      // Create child tasks for each generated step
+      for (let i = 0; i < generatedSteps.length; i++) {
+        const step = generatedSteps[i];
+        await addChild(step.title, step.description || "");
+      }
+
+      // Refresh to get the updated child tasks
+      await refresh();
+      
       toast({
         title: "Steps generated",
-        description: "Task steps have been generated successfully",
+        description: `Generated ${generatedSteps.length} steps successfully`,
       });
     } catch (error) {
+      console.error("Error generating steps:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
       toast({
-        title: "Error",
-        description: "Failed to generate steps",
+        title: "Error generating steps",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
