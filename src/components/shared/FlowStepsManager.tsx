@@ -14,7 +14,8 @@ interface FlowStepsManagerProps {
   taskDescription?: string;
   showAIGenerator?: boolean;
   availableBlockOptions?: Record<string, string[]>;
-  task?: UnifiedTask; // Add task prop
+  task?: UnifiedTask;
+  onClearCompletions?: () => void; // Add callback to clear completion data
 }
 
 export function FlowStepsManager({
@@ -31,7 +32,8 @@ export function FlowStepsManager({
     act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call'],
     agent: ['Agent']
   },
-  task
+  task,
+  onClearCompletions
 }: FlowStepsManagerProps) {
   const [showAIPrompt, setShowAIPrompt] = useState(false);
 
@@ -53,6 +55,7 @@ export function FlowStepsManager({
           taskTitle={taskTitle}
           taskDescription={taskDescription}
           placeholder="E.g.: Create a flow that analyzes customer reviews weekly, identifies common issues, and sends a summary email to the team."
+          onClearCompletions={onClearCompletions}
         />
       )}
 

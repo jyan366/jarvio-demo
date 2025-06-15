@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { FlowStepsManager } from '@/components/shared/FlowStepsManager';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
+import { updateUnifiedTask } from '@/lib/unifiedTasks';
 
 interface UnifiedTaskStepsProps {
   task: UnifiedTask;
@@ -56,6 +57,19 @@ export function UnifiedTaskSteps({
     option: 'User Text',
     name: step.title
   }));
+
+  const handleClearCompletions = async () => {
+    try {
+      // Clear steps_completed and step_execution_log when generating new steps
+      await updateUnifiedTask(task.id, {
+        steps_completed: [],
+        step_execution_log: []
+      });
+      onTaskUpdate(); // Refresh the task data
+    } catch (error) {
+      console.error('Error clearing completions:', error);
+    }
+  };
 
   const handleStepExecute = async (stepIndex: number) => {
     try {
@@ -144,6 +158,7 @@ export function UnifiedTaskSteps({
           taskDescription={task.description} 
           showAIGenerator={true} 
           task={task}
+          onClearCompletions={handleClearCompletions}
         />
       </div>
 

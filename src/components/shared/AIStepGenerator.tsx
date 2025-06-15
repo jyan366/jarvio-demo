@@ -20,6 +20,7 @@ interface AIStepGeneratorProps {
   taskDescription?: string;
   placeholder?: string;
   className?: string;
+  onClearCompletions?: () => void; // Add callback to clear completion data
 }
 
 export function AIStepGenerator({ 
@@ -27,7 +28,8 @@ export function AIStepGenerator({
   taskTitle, 
   taskDescription,
   placeholder = "E.g.: Create a flow that analyzes customer reviews weekly, identifies common issues, and sends a summary email to the team.",
-  className = ""
+  className = "",
+  onClearCompletions
 }: AIStepGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
@@ -98,12 +100,12 @@ export function AIStepGenerator({
           const stepId = generateUUID();
           const blockId = generateUUID();
 
-          // Create FlowStep
+          // Create FlowStep - explicitly set completed to false
           steps.push({
             id: stepId,
             title: block.name || `Step ${index + 1}`,
             description: "",
-            completed: false,
+            completed: false, // Explicitly ensure new steps are not completed
             order: index,
             blockId: blockId
           });
@@ -118,7 +120,11 @@ export function AIStepGenerator({
         });
       } else if (generatedFlow?.steps && generatedFlow?.blocks) {
         // Use the steps and blocks directly if they're already in the right format
-        steps = generatedFlow.steps;
+        // But ensure all steps are marked as not completed
+        steps = generatedFlow.steps.map((step: FlowStep) => ({
+          ...step,
+          completed: false // Explicitly ensure new steps are not completed
+        }));
         blocks = generatedFlow.blocks;
       } else {
         throw new Error("Invalid response format - no blocks or steps found");
@@ -130,6 +136,11 @@ export function AIStepGenerator({
 
       console.log("Converted to steps:", steps);
       console.log("Converted to blocks:", blocks);
+
+      // Clear completion data before generating new steps
+      if (onClearCompletions) {
+        onClearCompletions();
+      }
 
       // Call the callback with the generated steps and blocks
       // This will replace all existing steps
