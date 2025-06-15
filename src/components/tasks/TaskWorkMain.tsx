@@ -81,7 +81,29 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
 
   // Determine if this is a flow task (has flow steps or is explicitly marked as flow)
   const hasFlowSteps = flowSteps.length > 0;
-  const isActualFlowTask = isFlowTask || hasFlowSteps || task.data?.isFlowTask;
+  const isActualFlowTask = isFlowTask || hasFlowSteps || task.data?.isFlowTask || task.task_type === 'flow';
+
+  // Handle flow steps update with proper persistence
+  const handleFlowStepsChange = async (steps: FlowStep[]) => {
+    if (onUpdateFlowSteps) {
+      await onUpdateFlowSteps(steps);
+      toast({
+        title: "Steps updated",
+        description: "Task steps have been saved successfully.",
+      });
+    }
+  };
+
+  // Handle flow blocks update with proper persistence
+  const handleFlowBlocksChange = async (blocks: FlowBlock[]) => {
+    if (onUpdateFlowBlocks) {
+      await onUpdateFlowBlocks(blocks);
+      toast({
+        title: "Steps updated", 
+        description: "Task step blocks have been saved successfully.",
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -135,8 +157,8 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
           <FlowStepsEditor
             steps={flowSteps}
             blocks={flowBlocks}
-            onStepsChange={onUpdateFlowSteps || (() => {})}
-            onBlocksChange={onUpdateFlowBlocks || (() => {})}
+            onStepsChange={handleFlowStepsChange}
+            onBlocksChange={handleFlowBlocksChange}
             availableBlockOptions={{
               collect: ['User Text', 'File Upload', 'Data Import', 'Form Input'],
               think: ['Basic AI Analysis', 'Advanced Reasoning', 'Data Processing', 'Pattern Recognition'],
