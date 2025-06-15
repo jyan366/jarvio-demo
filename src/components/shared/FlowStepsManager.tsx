@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { FlowStepsEditor } from '@/components/jarvi-flows/builder/FlowStepsEditor';
 import { AIStepGenerator } from '@/components/shared/AIStepGenerator';
+import { UnifiedTask } from '@/types/unifiedTask';
 
 interface FlowStepsManagerProps {
   steps: FlowStep[];
@@ -13,6 +14,7 @@ interface FlowStepsManagerProps {
   taskDescription?: string;
   showAIGenerator?: boolean;
   availableBlockOptions?: Record<string, string[]>;
+  task?: UnifiedTask; // Add task prop
 }
 
 export function FlowStepsManager({
@@ -28,7 +30,8 @@ export function FlowStepsManager({
     think: ['Basic AI Analysis', 'Advanced Reasoning', 'Data Processing', 'Pattern Recognition'],
     act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call'],
     agent: ['Agent']
-  }
+  },
+  task
 }: FlowStepsManagerProps) {
   const [showAIPrompt, setShowAIPrompt] = useState(false);
 
@@ -59,6 +62,7 @@ export function FlowStepsManager({
         onStepsChange={onStepsChange}
         onBlocksChange={onBlocksChange}
         availableBlockOptions={availableBlockOptions}
+        task={task}
       />
 
       {showAIGenerator && !showAIPrompt && (

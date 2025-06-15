@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +10,7 @@ import { Plus, Trash2, GripVertical, ChevronRight, ChevronDown, Database, Brain,
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { v4 as uuidv4 } from 'uuid';
 import { agentsData } from '@/data/agentsData';
+import { UnifiedTask } from '@/types/unifiedTask';
 
 interface FlowStepsEditorProps {
   steps: FlowStep[];
@@ -16,18 +18,40 @@ interface FlowStepsEditorProps {
   onStepsChange: (steps: FlowStep[]) => void;
   onBlocksChange: (blocks: FlowBlock[]) => void;
   availableBlockOptions?: Record<string, string[]>;
+  task?: UnifiedTask; // Add task prop to get completion data
 }
+
 export function FlowStepsEditor({
   steps,
   blocks,
   onStepsChange,
   onBlocksChange,
-  availableBlockOptions
+  availableBlockOptions,
+  task
 }: FlowStepsEditorProps) {
   const [isAddingStep, setIsAddingStep] = useState(false);
   const [newStepTitle, setNewStepTitle] = useState('');
   const [newStepDescription, setNewStepDescription] = useState('');
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set());
+
+  // Sync steps completion status with task data
+  useEffect(() => {
+    if (task && task.steps_completed && steps.length > 0) {
+      const updatedSteps = steps.map((step, index) => ({
+        ...step,
+        completed: task.steps_completed?.includes(index) || false
+      }));
+      
+      // Only update if there's a difference to avoid infinite loops
+      const hasChanges = updatedSteps.some((step, index) => 
+        step.completed !== steps[index]?.completed
+      );
+      
+      if (hasChanges) {
+        onStepsChange(updatedSteps);
+      }
+    }
+  }, [task?.steps_completed, steps.length]);
 
   const getBlockIcon = (type: string) => {
     switch (type) {
@@ -146,6 +170,11 @@ export function FlowStepsEditor({
     return step?.blockId ? blocks.find(b => b.id === step.blockId) : null;
   };
 
+  // Helper function to check if step is completed based on task data
+  const isStepCompleted = (stepIndex: number) => {
+    return task?.steps_completed?.includes(stepIndex) || false;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -171,6 +200,7 @@ export function FlowStepsEditor({
           {steps.map((step, index) => {
             const stepBlock = getStepBlock(step.id);
             const isExpanded = expandedSteps.has(step.id);
+            const completed = isStepCompleted(index); // Use task completion data
             
             return (
               <Card key={step.id} className="overflow-hidden">
@@ -179,11 +209,11 @@ export function FlowStepsEditor({
                     <div className="flex items-center gap-2">
                       <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
                       <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                        step.completed 
+                        completed 
                           ? "bg-green-500 text-white" 
                           : "bg-blue-500 text-white"
                       }`}>
-                        {step.completed ? <Check className="w-4 h-4" /> : (index + 1)}
+                        {completed ? <Check className="w-4 h-4" /> : (index + 1)}
                       </div>
                     </div>
                     
@@ -213,6 +243,12 @@ export function FlowStepsEditor({
                             {stepBlock.type}
                           </Badge>
                         </div>
+                      )}
+                      
+                      {completed && (
+                        <Badge className="bg-green-100 text-green-700 text-xs">
+                          Completed
+                        </Badge>
                       )}
                       
                       <Button

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { FlowStepsManager } from '@/components/shared/FlowStepsManager';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
+
 interface UnifiedTaskStepsProps {
   task: UnifiedTask;
   childTasks: UnifiedTask[];
@@ -18,6 +20,7 @@ interface UnifiedTaskStepsProps {
   onFlowStepsChange: (steps: FlowStep[]) => void;
   onFlowBlocksChange: (blocks: FlowBlock[]) => void;
 }
+
 export function UnifiedTaskSteps({
   task,
   childTasks,
@@ -30,9 +33,7 @@ export function UnifiedTaskSteps({
   const [newChildTitle, setNewChildTitle] = useState('');
   const [isAddingChild, setIsAddingChild] = useState(false);
   const [executingStep, setExecutingStep] = useState<number | null>(null);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   // Parse steps - unified for all task types
@@ -48,12 +49,14 @@ export function UnifiedTaskSteps({
     order: index,
     blockId: `block-${index}`
   }));
+
   const flowBlocks: FlowBlock[] = task.data?.flowBlocks || flowSteps.map((step, index) => ({
     id: step.blockId || `block-${index}`,
     type: 'collect' as const,
     option: 'User Text',
     name: step.title
   }));
+
   const handleStepExecute = async (stepIndex: number) => {
     try {
       setExecutingStep(stepIndex);
@@ -74,6 +77,7 @@ export function UnifiedTaskSteps({
       setExecutingStep(null);
     }
   };
+
   const handleAddChild = async () => {
     if (!newChildTitle.trim()) return;
     try {
@@ -92,6 +96,7 @@ export function UnifiedTaskSteps({
       });
     }
   };
+
   const handleRemoveChild = async (taskId: string) => {
     try {
       await onRemoveChildTask(taskId);
@@ -107,6 +112,7 @@ export function UnifiedTaskSteps({
       });
     }
   };
+
   const getTaskStatusColor = (status: string) => {
     switch (status) {
       case 'Done':
@@ -117,19 +123,128 @@ export function UnifiedTaskSteps({
         return 'bg-gray-100 text-gray-800';
     }
   };
+
   const hasActualChildTasks = childTasks.length > 0;
   const isFlowTask = task.task_type === 'flow';
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       {/* Flow Steps Manager - identical to flow builder */}
       <div>
         <div className="flex items-center justify-between mb-4">
           
         </div>
 
-        <FlowStepsManager steps={flowSteps} blocks={flowBlocks} onStepsChange={onFlowStepsChange} onBlocksChange={onFlowBlocksChange} taskTitle={task.title} taskDescription={task.description} showAIGenerator={true} />
+        <FlowStepsManager 
+          steps={flowSteps} 
+          blocks={flowBlocks} 
+          onStepsChange={onFlowStepsChange} 
+          onBlocksChange={onFlowBlocksChange} 
+          taskTitle={task.title} 
+          taskDescription={task.description} 
+          showAIGenerator={true} 
+          task={task}
+        />
       </div>
 
       {/* Child Tasks - only show for non-flow tasks or when actual child tasks exist */}
-      {!isFlowTask || hasActualChildTasks}
-    </div>;
+      {(!isFlowTask || hasActualChildTasks) && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Child Tasks</h3>
+            <Button
+              onClick={() => setIsAddingChild(true)}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add Child Task
+            </Button>
+          </div>
+
+          {childTasks.length === 0 && !isAddingChild ? (
+            <div className="text-center py-8 border-2 border-dashed rounded-lg">
+              <p className="text-muted-foreground">No child tasks yet</p>
+              <p className="text-xs text-gray-500 mt-1">Break down this task into smaller subtasks</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {childTasks.map((childTask) => (
+                <Card key={childTask.id} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        {childTask.status === 'Done' ? (
+                          <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-gray-400" />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{childTask.title}</h4>
+                        {childTask.description && (
+                          <p className="text-sm text-gray-600 mt-1">{childTask.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className={getTaskStatusColor(childTask.status)}>
+                        {childTask.status}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate(`/task/${childTask.id}`)}
+                        className="flex items-center gap-1"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveChild(childTask.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {/* Add Child Task Form */}
+          {isAddingChild && (
+            <Card className="p-4">
+              <div className="space-y-3">
+                <input
+                  value={newChildTitle}
+                  onChange={(e) => setNewChildTitle(e.target.value)}
+                  placeholder="Enter child task title"
+                  className="w-full px-3 py-2 border rounded-md"
+                  autoFocus
+                />
+                <div className="flex gap-2">
+                  <Button onClick={handleAddChild} disabled={!newChildTitle.trim()}>
+                    Add Child Task
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsAddingChild(false);
+                      setNewChildTitle('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
