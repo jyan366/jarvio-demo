@@ -151,6 +151,9 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
               category: task.category,
               date: task.date,
               task_type: 'flow',
+              user_id: "00000000-0000-0000-0000-000000000000", // Demo user ID
+              created_at: new Date().toISOString(),
+              execution_order: 0,
               steps_completed: task.data?.steps_completed || [],
               data: task.data
             }}
