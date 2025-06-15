@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   fetchTaskById, 
@@ -113,12 +112,12 @@ export function useUnifiedTaskWork(taskId: string) {
       
       toast({
         title: "Steps updated",
-        description: "Flow steps have been successfully updated"
+        description: "Task steps have been successfully updated"
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update flow steps",
+        description: "Failed to update task steps",
         variant: "destructive"
       });
     }
@@ -137,13 +136,13 @@ export function useUnifiedTaskWork(taskId: string) {
       setTask(prev => prev ? { ...prev, data: updatedData } : null);
       
       toast({
-        title: "Blocks updated",
-        description: "Flow blocks have been successfully updated"
+        title: "Steps updated",
+        description: "Task configuration has been successfully updated"
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update flow blocks",
+        description: "Failed to update task configuration",
         variant: "destructive"
       });
     }
