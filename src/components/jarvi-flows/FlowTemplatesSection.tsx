@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -259,7 +260,7 @@ export function FlowTemplatesSection() {
                 <Button variant="outline" size="sm" className="flex-1 mr-2">
                   View Template
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
                   Use Template
                 </Button>
               </CardFooter>
