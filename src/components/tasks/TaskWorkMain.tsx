@@ -59,17 +59,13 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
     try {
       await onAddSubtask(insight.title);
       toast({
-        title: isFlowTask ? "Step created" : "Subtask created",
-        description: isFlowTask 
-          ? "The insight has been converted to a flow step." 
-          : "The insight has been converted to a subtask.",
+        title: "Step created",
+        description: "The insight has been converted to a step.",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: isFlowTask 
-          ? "Failed to create step from insight."
-          : "Failed to create subtask from insight.",
+        description: "Failed to create step from insight.",
         variant: "destructive",
       });
     }
@@ -120,7 +116,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
           disabled={isGenerating}
           className="text-xs"
         >
-          {isGenerating && <Loader2 className="w-4 h-4 mr-1 animate-spin" />} Generate steps
+          {isGenerating && <Loader2 className="w-4 h-4 mr-1 animate-spin" />} Generate steps with AI
         </Button>
         <span className="text-neutral-400 text-xs">
           {hasFlowSteps ? "Replace current steps" : "Break down this task"}

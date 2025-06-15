@@ -50,6 +50,7 @@ export interface TaskWorkType {
   priority: string;
   category: string;
   date: string;
+  task_type?: string;
   products: Product[];
   subtasks: Subtask[];
   comments: {
@@ -132,6 +133,7 @@ export default function TaskWorkContainer({
     priority: task.priority,
     category: task.category || "",
     date: task.date,
+    task_type: task.task_type,
     products: [
       {
         image: PRODUCT_IMAGE,
@@ -253,7 +255,7 @@ export default function TaskWorkContainer({
       });
 
       const flowBlocks = flowSteps.map((step: any, index: number) => ({
-        id: step.blockId, // Use the same blockId from flowSteps
+        id: step.blockId,
         type: index === 0 ? 'collect' : index === generatedSteps.length - 1 ? 'act' : 'think',
         option: index === 0 ? 'User Text' : index === generatedSteps.length - 1 ? 'AI Summary' : 'Basic AI Analysis',
         name: step.title
@@ -271,8 +273,8 @@ export default function TaskWorkContainer({
           flowSteps,
           flowBlocks
         },
-        steps_completed: [], // Clear completed steps when generating new ones
-        task_type: 'flow' // Ensure task is marked as flow type
+        steps_completed: [],
+        task_type: 'flow'
       });
       
       // Refresh to get updated data
