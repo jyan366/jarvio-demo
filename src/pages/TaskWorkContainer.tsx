@@ -253,7 +253,7 @@ export default function TaskWorkContainer({
       });
 
       const flowBlocks = flowSteps.map((step: any, index: number) => ({
-        id: step.blockId,
+        id: step.blockId, // Use the same blockId from flowSteps
         type: index === 0 ? 'collect' : index === generatedSteps.length - 1 ? 'act' : 'think',
         option: index === 0 ? 'User Text' : index === generatedSteps.length - 1 ? 'AI Summary' : 'Basic AI Analysis',
         name: step.title
@@ -271,8 +271,8 @@ export default function TaskWorkContainer({
           flowSteps,
           flowBlocks
         },
-        steps_completed: [],
-        task_type: 'flow'
+        steps_completed: [], // Clear completed steps when generating new ones
+        task_type: 'flow' // Ensure task is marked as flow type
       });
       
       // Refresh to get updated data
@@ -280,7 +280,7 @@ export default function TaskWorkContainer({
       
       toast({
         title: "Steps generated",
-        description: `Generated ${generatedSteps.length} task steps successfully`,
+        description: `Generated ${generatedSteps.length} steps successfully`,
       });
     } catch (error) {
       console.error("Error generating steps:", error);
