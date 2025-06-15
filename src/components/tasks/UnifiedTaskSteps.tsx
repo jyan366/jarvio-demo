@@ -41,22 +41,26 @@ export function UnifiedTaskSteps({
   const steps = parseTaskSteps(task);
   const completedSteps = task.steps_completed || [];
 
-  // Convert task data to flow format
-  const flowSteps: FlowStep[] = task.data?.flowSteps || steps.map((step, index) => ({
-    id: `step-${index}`,
-    title: step,
-    description: "",
-    completed: completedSteps.includes(index),
-    order: index,
-    blockId: `block-${index}`
-  }));
+  // Convert task data to flow format - ensure we always have valid flow data
+  const flowSteps: FlowStep[] = task.data?.flowSteps && Array.isArray(task.data.flowSteps) 
+    ? task.data.flowSteps 
+    : steps.map((step, index) => ({
+        id: `step-${index}`,
+        title: step,
+        description: "",
+        completed: completedSteps.includes(index),
+        order: index,
+        blockId: `block-${index}`
+      }));
 
-  const flowBlocks: FlowBlock[] = task.data?.flowBlocks || flowSteps.map((step, index) => ({
-    id: step.blockId || `block-${index}`,
-    type: 'collect' as const,
-    option: 'User Text',
-    name: step.title
-  }));
+  const flowBlocks: FlowBlock[] = task.data?.flowBlocks && Array.isArray(task.data.flowBlocks)
+    ? task.data.flowBlocks 
+    : flowSteps.map((step, index) => ({
+        id: step.blockId || `block-${index}`,
+        type: 'collect' as const,
+        option: 'User Text',
+        name: step.title
+      }));
 
   const handleClearCompletions = async () => {
     try {
@@ -138,19 +142,79 @@ export function UnifiedTaskSteps({
     }
   };
 
+  // Enhanced flow steps change handler that properly updates the task
+  const handleFlowStepsChange = async (newSteps: FlowStep[]) => {
+    try {
+      const updatedData = {
+        ...task.data,
+        flowSteps: newSteps
+      };
+      
+      await updateUnifiedTask(task.id, { 
+        data: updatedData,
+        task_type: 'flow' // Mark as flow when steps are added
+      });
+      
+      onFlowStepsChange(newSteps);
+      onTaskUpdate();
+      
+      toast({
+        title: "Steps updated",
+        description: "Task steps have been successfully updated"
+      });
+    } catch (error) {
+      console.error('Error updating flow steps:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update steps",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Enhanced flow blocks change handler that properly updates the task
+  const handleFlowBlocksChange = async (newBlocks: FlowBlock[]) => {
+    try {
+      const updatedData = {
+        ...task.data,
+        flowBlocks: newBlocks
+      };
+      
+      await updateUnifiedTask(task.id, { 
+        data: updatedData,
+        task_type: 'flow' // Mark as flow when blocks are added
+      });
+      
+      onFlowBlocksChange(newBlocks);
+      onTaskUpdate();
+      
+      toast({
+        title: "Blocks updated",
+        description: "Task blocks have been successfully updated"
+      });
+    } catch (error) {
+      console.error('Error updating flow blocks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update blocks",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Flow Steps Manager - identical to flow builder */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          
+          <h3 className="text-lg font-semibold">Task Steps</h3>
         </div>
 
         <FlowStepsManager 
           steps={flowSteps} 
           blocks={flowBlocks} 
-          onStepsChange={onFlowStepsChange} 
-          onBlocksChange={onFlowBlocksChange} 
+          onStepsChange={handleFlowStepsChange} 
+          onBlocksChange={handleFlowBlocksChange} 
           taskTitle={task.title} 
           taskDescription={task.description} 
           showAIGenerator={true} 
