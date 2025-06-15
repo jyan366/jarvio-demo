@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { UnifiedTask, TaskTreeNode, TaskType, TriggerType } from "@/types/unifiedTask";
 
@@ -282,6 +283,13 @@ export async function createUnifiedTask(
   childTasks?: { title: string; description?: string; execution_order?: number }[]
 ) {
   try {
+    console.log("=== CREATE UNIFIED TASK DEBUG START ===");
+    console.log("Task input:", task);
+    console.log("Child tasks:", childTasks);
+    console.log("Skip auto step generation flag:", task.data?.skipAutoStepGeneration);
+    console.log("Is simple task flag:", task.data?.isSimpleTask);
+    console.log("Prevent step generation flag:", task.data?.preventStepGeneration);
+    
     await ensureAuthForDemo();
     const user = { id: "00000000-0000-0000-0000-000000000000" };
     
@@ -305,14 +313,24 @@ export async function createUnifiedTask(
       throw new Error(`Failed to create task: ${error.message}`);
     }
     
-    // Skip any step generation if explicitly disabled
-    if (task.data?.skipAutoStepGeneration) {
-      console.log("Skipping step generation as requested");
+    console.log("Task created successfully:", data);
+    
+    // Check ALL conditions that could trigger step generation
+    const shouldSkipSteps = task.data?.skipAutoStepGeneration || 
+                           task.data?.isSimpleTask || 
+                           task.data?.preventStepGeneration;
+    
+    console.log("Should skip steps:", shouldSkipSteps);
+    
+    if (shouldSkipSteps) {
+      console.log("SKIPPING all step generation - task creation complete");
+      console.log("=== CREATE UNIFIED TASK DEBUG END - NO STEPS ===");
       return data;
     }
     
     // Create child tasks if provided and not a flow task
     if (childTasks && childTasks.length > 0 && data && !task.saved_to_flows) {
+      console.log("Creating child tasks...");
       try {
         const childTasksWithParent = childTasks.map((ct, index) => ({
           title: ct.title,
@@ -333,14 +351,18 @@ export async function createUnifiedTask(
         await supabase
           .from("tasks")
           .insert(childTasksWithParent);
+          
+        console.log("Child tasks created successfully");
       } catch (subtaskError) {
         console.error("Error creating child tasks for new task:", subtaskError);
       }
     }
     
+    console.log("=== CREATE UNIFIED TASK DEBUG END - SUCCESS ===");
     return data;
   } catch (error) {
     console.error("Error in createUnifiedTask:", error);
+    console.log("=== CREATE UNIFIED TASK DEBUG END - ERROR ===");
     throw error;
   }
 }
@@ -348,6 +370,10 @@ export async function createUnifiedTask(
 // Add a child task to an existing task
 export async function addChildTask(parentId: string, title: string, description?: string, execution_order?: number) {
   try {
+    console.log("=== ADD CHILD TASK DEBUG START ===");
+    console.log("Parent ID:", parentId);
+    console.log("Child title:", title);
+    
     const user = await ensureAuthForDemo();
     
     const { data, error } = await supabase
@@ -365,23 +391,16 @@ export async function addChildTask(parentId: string, title: string, description?
         trigger: 'manual' as TriggerType,
         saved_to_flows: false,
         steps_completed: [],
-        step_execution_log: []
+        step_execution_log: [],
+        data: { skipAutoStepGeneration: true, isChildTask: true } // Prevent step generation for child tasks
       })
       .select()
       .single();
       
     if (error) throw error;
     
-    // Generate steps with AI for the child task
-    if (data?.id) {
-      const prompt = `${title}. ${description || ''}`;
-      try {
-        await generateStepsWithAI(data.id, prompt);
-      } catch (stepError) {
-        console.error("Error generating steps for child task:", stepError);
-        // Don't throw here, the task was created successfully
-      }
-    }
+    console.log("Child task created, SKIPPING step generation");
+    console.log("=== ADD CHILD TASK DEBUG END ===");
     
     return {
       id: data.id,

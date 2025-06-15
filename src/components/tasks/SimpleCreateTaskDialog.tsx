@@ -27,6 +27,11 @@ export function SimpleCreateTaskDialog({ open, onOpenChange, onSuccess }: Simple
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log("=== SIMPLE CREATE TASK DEBUG START ===");
+    console.log("Title:", title);
+    console.log("Description:", description);
+    console.log("About to call createUnifiedTask with skipAutoStepGeneration: true");
+    
     if (!title.trim()) {
       toast({
         title: "Error",
@@ -43,16 +48,26 @@ export function SimpleCreateTaskDialog({ open, onOpenChange, onSuccess }: Simple
         localStorage.setItem('isAuthenticated', 'true');
       }
       
-      // Create simple task without any step generation
-      await createUnifiedTask({
+      // Create simple task with explicit flags to prevent any step generation
+      const taskData = {
         title: title.trim(),
         description: description.trim(),
         category,
         priority: priority as "CRITICAL" | "HIGH" | "MEDIUM" | "LOW",
-        status: "Not Started",
-        task_type: 'task',
-        data: { skipAutoStepGeneration: true } // Explicit flag to skip any step generation
-      });
+        status: "Not Started" as const,
+        task_type: 'task' as const,
+        data: { 
+          skipAutoStepGeneration: true,
+          isSimpleTask: true,
+          preventStepGeneration: true
+        }
+      };
+      
+      console.log("Task data being sent:", taskData);
+      
+      await createUnifiedTask(taskData);
+      
+      console.log("=== SIMPLE CREATE TASK DEBUG END - SUCCESS ===");
       
       toast({
         title: "Task Created",
@@ -70,7 +85,8 @@ export function SimpleCreateTaskDialog({ open, onOpenChange, onSuccess }: Simple
         onSuccess();
       }
     } catch (error) {
-      console.error('Error creating task:', error);
+      console.error('Error creating simple task:', error);
+      console.log("=== SIMPLE CREATE TASK DEBUG END - ERROR ===");
       toast({
         title: "Error",
         description: "Failed to create task",
