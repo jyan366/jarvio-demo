@@ -108,6 +108,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
         onAddComment={handleAddComment}
       />
 
+      {/* Show generate steps button for all tasks except flow tasks */}
       {!isFlowTask && (
         <div className="flex gap-4 items-center mb-1">
           <Button
