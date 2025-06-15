@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       case 'HIGH':
         return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'MEDIUM':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'LOW':
         return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
@@ -73,7 +74,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   return (
     <div className="space-y-3">
-      {/* Category Badge */}
+      {/* Category Badge and Delete Button Row */}
       <div className="flex items-center justify-between">
         <Badge variant="outline" className={`text-xs ${getCategoryColor(task.category)} capitalize`}>
           {task.category.toLowerCase()}
@@ -105,12 +106,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </p>
       )}
 
-      {/* Status and Priority Badges */}
+      {/* Priority Badge */}
       <div className="flex flex-wrap gap-2">
-        <Badge variant="outline" className={`text-xs ${getStatusColor(task.status)} uppercase`}>
-          {task.status === 'Not Started' ? 'TODO' : 
-           task.status === 'In Progress' ? 'INPROGRESS' : 'DONE'}
-        </Badge>
         <Badge variant="outline" className={`text-xs ${getPriorityColor(task.priority)} uppercase`}>
           {task.priority}
         </Badge>
@@ -162,21 +159,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           </Button>
         )}
       </div>
-
-      {/* Run Flow Button for flow tasks */}
-      {task.data?.flowId && !hideFlowTag && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
-          onClick={(e) => {
-            e.stopPropagation();
-            // Handle run flow action
-          }}
-        >
-          🔄 Run Flow
-        </Button>
-      )}
     </div>
   );
 };
