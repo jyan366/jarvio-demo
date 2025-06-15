@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { UnifiedTask, TaskTreeNode, TaskType } from "@/types/unifiedTask";
+import { UnifiedTask, TaskTreeNode, TaskType, TriggerType } from "@/types/unifiedTask";
 
 // Helper function to ensure we have a demo user for the app
 const ensureAuthForDemo = async () => {
@@ -38,6 +38,8 @@ export async function fetchTaskTree(): Promise<TaskTreeNode[]> {
       created_at: task.created_at || new Date().toISOString(),
       execution_order: task.execution_order || 0,
       data: task.data || undefined,
+      trigger: (task.trigger as TriggerType) || 'manual',
+      saved_to_flows: task.saved_to_flows || false,
       steps_completed: Array.isArray(task.steps_completed) ? task.steps_completed as number[] : [],
       step_execution_log: Array.isArray(task.step_execution_log) ? task.step_execution_log as Array<{
         stepIndex: number;
@@ -87,6 +89,8 @@ export async function fetchTaskById(taskId: string): Promise<UnifiedTask | null>
       created_at: data.created_at || new Date().toISOString(),
       execution_order: data.execution_order || 0,
       data: data.data || undefined,
+      trigger: (data.trigger as TriggerType) || 'manual',
+      saved_to_flows: data.saved_to_flows || false,
       steps_completed: Array.isArray(data.steps_completed) ? data.steps_completed as number[] : [],
       step_execution_log: Array.isArray(data.step_execution_log) ? data.step_execution_log as Array<{
         stepIndex: number;
@@ -131,6 +135,8 @@ export async function fetchChildTasks(parentId: string): Promise<UnifiedTask[]> 
       created_at: task.created_at || new Date().toISOString(),
       execution_order: task.execution_order || 0,
       data: task.data || undefined,
+      trigger: (task.trigger as TriggerType) || 'manual',
+      saved_to_flows: task.saved_to_flows || false,
       steps_completed: Array.isArray(task.steps_completed) ? task.steps_completed as number[] : [],
       step_execution_log: Array.isArray(task.step_execution_log) ? task.step_execution_log as Array<{
         stepIndex: number;
@@ -197,7 +203,7 @@ export function parseTaskSteps(task: UnifiedTask): string[] {
   console.log("Parsing task steps for task:", task.id, "type:", task.task_type, "data:", task.data);
   
   // For flow tasks, extract steps from the stored flow steps
-  if (task.task_type === 'flow' && task.data) {
+  if (task.data) {
     // Use the actual flow steps that were stored
     if (task.data.flowSteps && Array.isArray(task.data.flowSteps)) {
       console.log("Found flow steps:", task.data.flowSteps);
@@ -286,6 +292,8 @@ export async function createUnifiedTask(
         user_id: user.id,
         task_type: task.task_type || 'task',
         execution_order: task.execution_order || 0,
+        trigger: task.trigger || 'manual',
+        saved_to_flows: task.saved_to_flows || false,
         steps_completed: [],
         step_execution_log: []
       })
@@ -297,9 +305,8 @@ export async function createUnifiedTask(
       throw new Error(`Failed to create task: ${error.message}`);
     }
     
-    // IMPORTANT: Only create child tasks for non-flow tasks
-    // Flow blocks are stored in the data field, not as child tasks
-    if (childTasks && childTasks.length > 0 && data && task.task_type !== 'flow') {
+    // Create child tasks if provided and not a flow task
+    if (childTasks && childTasks.length > 0 && data && !task.saved_to_flows) {
       try {
         const childTasksWithParent = childTasks.map((ct, index) => ({
           title: ct.title,
@@ -311,6 +318,8 @@ export async function createUnifiedTask(
           priority: 'MEDIUM' as const,
           category: data.category || '',
           execution_order: ct.execution_order || index,
+          trigger: 'manual' as TriggerType,
+          saved_to_flows: false,
           steps_completed: [],
           step_execution_log: []
         }));
@@ -347,6 +356,8 @@ export async function addChildTask(parentId: string, title: string, description?
         priority: 'MEDIUM',
         category: '',
         execution_order: execution_order || 0,
+        trigger: 'manual' as TriggerType,
+        saved_to_flows: false,
         steps_completed: [],
         step_execution_log: []
       })
@@ -368,6 +379,8 @@ export async function addChildTask(parentId: string, title: string, description?
       created_at: data.created_at || new Date().toISOString(),
       execution_order: data.execution_order || 0,
       data: data.data || undefined,
+      trigger: (data.trigger as TriggerType) || 'manual',
+      saved_to_flows: data.saved_to_flows || false,
       steps_completed: Array.isArray(data.steps_completed) ? data.steps_completed as number[] : [],
       step_execution_log: Array.isArray(data.step_execution_log) ? data.step_execution_log as Array<{
         stepIndex: number;
@@ -421,26 +434,75 @@ export async function deleteUnifiedTask(taskId: string) {
   }
 }
 
-// Convert flow to unified task structure - Store the actual flow steps
+// Fetch tasks saved to flows (for "Your Flows" page)
+export async function fetchSavedFlows(): Promise<UnifiedTask[]> {
+  try {
+    const user = await ensureAuthForDemo();
+    
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("saved_to_flows", true)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    
+    return (data || []).map(task => ({
+      id: task.id,
+      title: task.title,
+      description: task.description || "",
+      status: (task.status as UnifiedTask['status']) || 'Not Started',
+      priority: (task.priority as UnifiedTask['priority']) || 'MEDIUM',
+      category: task.category || "",
+      task_type: (task.task_type as TaskType) || 'task',
+      parent_id: task.parent_id || undefined,
+      user_id: task.user_id,
+      created_at: task.created_at || new Date().toISOString(),
+      execution_order: task.execution_order || 0,
+      data: task.data || undefined,
+      trigger: (task.trigger as TriggerType) || 'manual',
+      saved_to_flows: task.saved_to_flows || false,
+      steps_completed: Array.isArray(task.steps_completed) ? task.steps_completed as number[] : [],
+      step_execution_log: Array.isArray(task.step_execution_log) ? task.step_execution_log as Array<{
+        stepIndex: number;
+        completedAt: string;
+        log: string;
+      }> : [],
+      date: new Date(task.created_at || Date.now()).toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      })
+    }));
+  } catch (error) {
+    console.error("Error fetching saved flows:", error);
+    return [];
+  }
+}
+
+// Convert flow to unified task structure - Now creates a task with saved_to_flows = true
 export async function convertFlowToUnifiedTask(flow: any) {
   try {
     console.log("Converting flow to unified task:", flow);
     console.log("Flow steps being stored:", flow.steps);
     
-    // Create a single flow task with flow steps stored in data field
+    // Create a single task with flow steps stored in data field and marked as saved to flows
     const task = await createUnifiedTask({
-      title: `Flow: ${flow.name}`,
+      title: flow.name,
       description: flow.description,
       status: 'In Progress',
       priority: 'MEDIUM',
       category: 'FLOW',
-      task_type: 'flow',
+      task_type: 'task', // Now everything is a task
+      trigger: flow.trigger || 'manual',
+      saved_to_flows: true, // This makes it appear in "Your Flows"
       execution_order: 0,
       data: { 
         flowId: flow.id, 
         flowTrigger: flow.trigger,
         // Store the actual steps from the flow
         flowSteps: flow.steps || [],
+        flowBlocks: flow.blocks || [],
         totalSteps: (flow.steps || []).length,
         createdAt: new Date().toISOString()
       }

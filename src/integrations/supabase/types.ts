@@ -284,11 +284,13 @@ export type Database = {
           id: string
           parent_id: string | null
           priority: string | null
+          saved_to_flows: boolean | null
           status: string | null
           step_execution_log: Json | null
           steps_completed: Json | null
           task_type: string | null
           title: string
+          trigger: string | null
           user_id: string
         }
         Insert: {
@@ -300,11 +302,13 @@ export type Database = {
           id?: string
           parent_id?: string | null
           priority?: string | null
+          saved_to_flows?: boolean | null
           status?: string | null
           step_execution_log?: Json | null
           steps_completed?: Json | null
           task_type?: string | null
           title: string
+          trigger?: string | null
           user_id: string
         }
         Update: {
@@ -316,11 +320,13 @@ export type Database = {
           id?: string
           parent_id?: string | null
           priority?: string | null
+          saved_to_flows?: boolean | null
           status?: string | null
           step_execution_log?: Json | null
           steps_completed?: Json | null
           task_type?: string | null
           title?: string
+          trigger?: string | null
           user_id?: string
         }
         Relationships: [

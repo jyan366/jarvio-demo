@@ -1,5 +1,6 @@
 
 export type TaskType = 'task' | 'flow' | 'step';
+export type TriggerType = 'manual' | 'scheduled' | 'webhook' | 'event';
 
 export interface UnifiedTask {
   id: string;
@@ -14,6 +15,10 @@ export interface UnifiedTask {
   created_at: string;
   execution_order: number;
   data?: any;
+  
+  // Unified flow/task fields
+  trigger?: TriggerType;
+  saved_to_flows?: boolean;
   
   // Step execution tracking - simplified
   steps_completed?: number[];

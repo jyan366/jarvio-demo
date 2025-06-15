@@ -218,30 +218,44 @@ export default function FlowBuilder() {
         });
       }
     } else if (flowId) {
-      // Load existing flow if editing
-      const allFlows = loadSavedFlows();
-      const existingFlow = allFlows.find(f => f.id === flowId);
-      
-      if (existingFlow) {
-        setFlow(existingFlow);
-      } else {
-        const predefinedFlow = predefinedFlows.find(f => f.id === flowId);
-        if (predefinedFlow) {
-          setFlow(predefinedFlow);
-        } else {
+      // Load existing flow from unified tasks
+      const loadFlowFromTask = async () => {
+        try {
+          const task = await fetchTaskById(flowId);
+          if (task && task.saved_to_flows) {
+            setFlow({
+              id: task.id,
+              name: task.title,
+              description: task.description,
+              trigger: task.trigger || 'manual',
+              blocks: task.data?.flowBlocks || [],
+              steps: task.data?.flowSteps || []
+            });
+          } else {
+            toast({
+              title: "Flow not found",
+              description: "The requested flow could not be found",
+              variant: "destructive"
+            });
+            navigate('/jarvi-flows');
+          }
+        } catch (error) {
+          console.error('Error loading flow:', error);
           toast({
-            title: "Flow not found",
-            description: "The requested flow could not be found",
+            title: "Error loading flow",
+            description: "Failed to load the flow",
             variant: "destructive"
           });
           navigate('/jarvi-flows');
         }
-      }
+      };
+      
+      loadFlowFromTask();
     } else {
       // New flow - initialize with a default ID
       setFlow(prev => ({ ...prev, id: uuidv4() }));
     }
-  }, [flowId, location.search, availableBlockOptions]);
+  }, [flowId, location.search, availableBlockOptions, navigate, toast]);
 
   // Handle agent selection
   const handleAgentSelection = (blockId: string, agentId: string) => {
@@ -290,8 +304,8 @@ export default function FlowBuilder() {
     setShowAIPrompt(false);
   };
 
-  // Save flow
-  const saveFlow = () => {
+  // Save flow - now saves as unified task with saved_to_flows = true
+  const saveFlow = async () => {
     if (!flow.name.trim()) {
       toast({
         title: "Validation Error",
@@ -311,18 +325,35 @@ export default function FlowBuilder() {
     }
 
     try {
-      const allFlows = loadSavedFlows();
-      const existingFlowIndex = allFlows.findIndex(f => f.id === flow.id);
-      
-      if (existingFlowIndex >= 0) {
-        allFlows[existingFlowIndex] = {...flow};
+      const taskData = {
+        title: flow.name,
+        description: flow.description,
+        status: 'Not Started' as const,
+        priority: 'MEDIUM' as const,
+        category: 'FLOW',
+        task_type: 'task' as const,
+        trigger: flow.trigger,
+        saved_to_flows: true,
+        data: {
+          flowId: flow.id,
+          flowSteps: flow.steps,
+          flowBlocks: flow.blocks,
+          totalSteps: flow.steps.length,
+          createdAt: new Date().toISOString()
+        }
+      };
+
+      if (flowId) {
+        // Update existing flow
+        await updateUnifiedTask(flowId, taskData);
       } else {
-        allFlows.push({...flow});
+        // Create new flow
+        const newTask = await createUnifiedTask(taskData);
+        if (newTask) {
+          setFlow(prev => ({ ...prev, id: newTask.id }));
+          navigate(`/jarvi-flows/builder/${newTask.id}`, { replace: true });
+        }
       }
-      
-      saveAllFlows(allFlows);
-      
-      console.log('Flow saved:', flow);
       
       toast({
         title: "Flow saved successfully",
@@ -338,7 +369,7 @@ export default function FlowBuilder() {
     }
   };
 
-  // Update the handleStartFlow function to pass the flow steps
+  // Update the handleStartFlow function to work with unified tasks
   const handleStartFlow = async () => {
     try {
       if (!flow.name.trim()) {
@@ -362,40 +393,23 @@ export default function FlowBuilder() {
       setIsRunningFlow(true);
       toast({
         title: "Starting flow",
-        description: "Creating tasks from flow steps..."
+        description: "Preparing flow for execution..."
       });
 
-      // Save the flow first
-      const allFlows = loadSavedFlows();
-      const existingFlowIndex = allFlows.findIndex(f => f.id === flow.id);
-      
-      if (existingFlowIndex >= 0) {
-        allFlows[existingFlowIndex] = {...flow};
-      } else {
-        allFlows.push({...flow});
+      // Save the flow first if it hasn't been saved
+      if (!flowId) {
+        await saveFlow();
       }
       
-      saveAllFlows(allFlows);
-      
-      // Convert flow to unified task - pass the flow with its steps
-      const task = await convertFlowToUnifiedTask({
-        id: flow.id,
-        name: flow.name,
-        description: flow.description,
-        trigger: flow.trigger,
-        steps: flow.steps // Pass the actual steps array
-      });
-      
-      if (!task) {
-        throw new Error('Failed to create task from flow');
-      }
+      // Use the current flow ID (either existing or newly created)
+      const currentFlowId = flowId || flow.id;
       
       toast({
         title: "Flow started successfully",
-        description: "Flow is now running. Opening task view..."
+        description: "Opening flow execution view..."
       });
       
-      navigate(`/task/${task.id}`);
+      navigate(`/task/${currentFlowId}`);
       
     } catch (error) {
       console.error('Error running flow:', error);

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useNavigate } from 'react-router-dom';
@@ -18,90 +19,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { convertFlowToUnifiedTask } from '@/lib/unifiedTasks';
+import { convertFlowToUnifiedTask, fetchSavedFlows, deleteUnifiedTask } from '@/lib/unifiedTasks';
 import { supabase } from '@/integrations/supabase/client';
-
-// Predefined flows as fallbacks
-const predefinedFlows: Flow[] = [
-  {
-    id: 'listing-launch',
-    name: 'Listing Launch',
-    description: 'Automates the process of launching new product listings with optimized content and keyword strategy',
-    trigger: 'manual',
-    blocks: [
-      { id: 'c1', type: 'collect', option: 'Upload Sheet', name: 'Import Product Specifications Sheet' },
-      { id: 'c2', type: 'collect', option: 'Get Keywords', name: 'Research Competitive Keywords for Category' },
-      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Create Optimized Product Description' },
-      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Publish New Listings to Amazon' },
-      { id: 'a2', type: 'act', option: 'Send Email', name: 'Notify Team of Successful Launch' }
-    ],
-    steps: []
-  },
-  {
-    id: 'inventory-restock',
-    name: 'Inventory Restock',
-    description: 'Analyzes sales velocity and inventory levels to create timely restock recommendations',
-    trigger: 'scheduled',
-    blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Retrieve Current Inventory Levels' },
-      { id: 'c2', type: 'collect', option: 'Estimate Sales', name: 'Calculate 30-Day Sales Projections' },
-      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Determine Optimal Restock Quantities' },
-      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Inventory Restock Report' },
-      { id: 'a2', type: 'act', option: 'Send Email', name: 'Send Restock Alert to Supply Chain Team' }
-    ],
-    steps: []
-  },
-  {
-    id: 'customer-feedback',
-    name: 'Customer Feedback Report',
-    description: 'Aggregates and analyzes customer reviews and feedback across all products',
-    trigger: 'scheduled',
-    blocks: [
-      { id: 'c1', type: 'collect', option: 'Review Information', name: 'Gather Last 30 Days of Product Reviews' },
-      { id: 'c2', type: 'collect', option: 'Seller Account Feedback', name: 'Collect Seller Rating Metrics' },
-      { id: 't1', type: 'think', option: 'Review Analysis', name: 'Identify Common Customer Pain Points' },
-      { id: 'a1', type: 'act', option: 'AI Summary', name: 'Generate Actionable Feedback Report' },
-      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Request Product Manager Review' }
-    ],
-    steps: []
-  },
-  {
-    id: 'quarterly-optimization',
-    name: 'Quarterly Listing Optimisation',
-    description: 'Performs deep analysis of listing performance and suggests optimizations every quarter',
-    trigger: 'scheduled',
-    blocks: [
-      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Extract Quarterly Performance Data' },
-      { id: 'c2', type: 'collect', option: 'Review Information', name: 'Gather Quarterly Customer Feedback' },
-      { id: 't1', type: 'think', option: 'Insights Generation', name: 'Create Listing Enhancement Strategy' },
-      { id: 'a1', type: 'act', option: 'Push to Amazon', name: 'Apply Optimizations to Key Listings' },
-      { id: 'a2', type: 'act', option: 'Human in the Loop', name: 'Get Marketing Approval for Changes' }
-    ],
-    steps: []
-  }
-];
-
-// Load flows from localStorage or use predefined ones
-const loadSavedFlows = (): Flow[] => {
-  const savedFlowsString = localStorage.getItem('jarviFlows');
-  if (savedFlowsString) {
-    try {
-      return JSON.parse(savedFlowsString);
-    } catch (error) {
-      console.error("Error parsing saved flows:", error);
-    }
-  }
-  return predefinedFlows; // Default to predefined flows if none are saved
-};
-
-// Save flows to localStorage
-const saveFlowsToStorage = (flows: Flow[]): void => {
-  try {
-    localStorage.setItem('jarviFlows', JSON.stringify(flows));
-  } catch (error) {
-    console.error("Error saving flows:", error);
-  }
-};
 
 export default function JarviFlows() {
   const navigate = useNavigate();
@@ -112,11 +31,35 @@ export default function JarviFlows() {
   const [isRunningFlow, setIsRunningFlow] = useState(false);
   const [runningFlowId, setRunningFlowId] = useState<string | null>(null);
   
-  // Load flows on component mount
+  // Load flows from unified tasks that are saved to flows
   useEffect(() => {
-    const savedFlows = loadSavedFlows();
-    setFlows(savedFlows);
-  }, []);
+    const loadFlows = async () => {
+      try {
+        const savedFlows = await fetchSavedFlows();
+        
+        // Convert unified tasks back to Flow format for the UI
+        const flowsData = savedFlows.map(task => ({
+          id: task.id,
+          name: task.title,
+          description: task.description,
+          trigger: task.trigger || 'manual',
+          blocks: task.data?.flowBlocks || [],
+          steps: task.data?.flowSteps || []
+        }));
+        
+        setFlows(flowsData);
+      } catch (error) {
+        console.error('Error loading flows:', error);
+        toast({
+          title: "Error loading flows",
+          description: "Failed to load your saved flows",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    loadFlows();
+  }, [toast]);
   
   // Function to handle editing a flow
   const handleEditFlow = (flowId: string) => {
@@ -140,20 +83,8 @@ export default function JarviFlows() {
         description: "Creating unified task from flow steps..."
       });
       
-      // Convert flow to unified task structure
-      const task = await convertFlowToUnifiedTask(flowToRun);
-      
-      if (!task) {
-        throw new Error('Failed to create task from flow');
-      }
-      
-      toast({
-        title: "Flow started successfully",
-        description: "Flow is now running as a unified task. Opening task view..."
-      });
-      
-      // Navigate to task view with the new task ID
-      navigate(`/task/${task.id}`);
+      // Since the flow is already a unified task, just navigate to it
+      navigate(`/task/${flowId}`);
       
     } catch (error) {
       console.error('Error running flow:', error);
@@ -175,19 +106,31 @@ export default function JarviFlows() {
   };
   
   // Function to confirm deletion of a flow
-  const confirmDeleteFlow = () => {
+  const confirmDeleteFlow = async () => {
     if (flowToDelete) {
-      const flowName = flows.find(f => f.id === flowToDelete)?.name || "Flow";
-      const updatedFlows = flows.filter(flow => flow.id !== flowToDelete);
-      setFlows(updatedFlows);
-      saveFlowsToStorage(updatedFlows);
-      
-      toast({
-        title: "Flow deleted",
-        description: `${flowName} has been removed.`
-      });
-      
-      setFlowToDelete(null);
+      try {
+        const flowName = flows.find(f => f.id === flowToDelete)?.name || "Flow";
+        
+        // Delete the unified task
+        await deleteUnifiedTask(flowToDelete);
+        
+        // Update local state
+        const updatedFlows = flows.filter(flow => flow.id !== flowToDelete);
+        setFlows(updatedFlows);
+        
+        toast({
+          title: "Flow deleted",
+          description: `${flowName} has been removed.`
+        });
+        
+        setFlowToDelete(null);
+      } catch (error) {
+        toast({
+          title: "Error deleting flow",
+          description: "Failed to delete the flow",
+          variant: "destructive"
+        });
+      }
     }
   };
   
