@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
@@ -63,6 +62,12 @@ export function AIStepGenerator({
       setAiError(null);
       
       console.log("Generating flow for prompt:", data.prompt);
+      
+      // Clear completion data BEFORE generating new steps
+      if (onClearCompletions) {
+        console.log("Clearing existing completions before generating new steps");
+        await onClearCompletions();
+      }
       
       // Call the generate-flow edge function with block options
       const response = await supabase.functions.invoke('generate-flow', {
@@ -136,11 +141,6 @@ export function AIStepGenerator({
 
       console.log("Converted to steps:", steps);
       console.log("Converted to blocks:", blocks);
-
-      // Clear completion data before generating new steps
-      if (onClearCompletions) {
-        onClearCompletions();
-      }
 
       // Call the callback with the generated steps and blocks
       // This will replace all existing steps
