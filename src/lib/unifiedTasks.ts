@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { UnifiedTask, TaskTreeNode, TaskType, TriggerType } from "@/types/unifiedTask";
 
@@ -199,31 +198,70 @@ export function getAllDescendants(task: TaskTreeNode): UnifiedTask[] {
   return descendants;
 }
 
-// Simplified: Just return child task titles as steps
-export function parseTaskSteps(task: UnifiedTask, childTasks: UnifiedTask[]): string[] {
-  console.log("Parsing task steps - using child tasks only");
+// Parse description into steps for agent execution - UPDATED to handle flow steps properly and NOT parse regular task descriptions
+export function parseTaskSteps(task: UnifiedTask): string[] {
+  console.log("Parsing task steps for task:", task.id, "type:", task.task_type, "data:", task.data);
   
-  // Simply return the titles of child tasks in execution order
-  return childTasks
-    .sort((a, b) => (a.execution_order || 0) - (b.execution_order || 0))
-    .map(child => child.title);
+  // For tasks with flow data, extract steps from the stored flow steps
+  if (task.data && task.data.flowSteps && Array.isArray(task.data.flowSteps)) {
+    console.log("Found flow steps:", task.data.flowSteps);
+    const steps = task.data.flowSteps
+      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0)) // Sort by order
+      .map((step: any, index: number) => {
+        const stepTitle = step.title && step.title.trim() ? step.title.trim() : `Step ${index + 1}`;
+        console.log(`Step ${index + 1}: ${stepTitle}`);
+        return stepTitle;
+      })
+      .filter((title: string) => title.length > 0); // Filter out empty titles
+    
+    if (steps.length > 0) {
+      return steps;
+    }
+  }
+  
+  // For regular tasks (not flow tasks), do NOT parse steps from description
+  // This prevents the description from being treated as steps
+  console.log("Regular task - not parsing steps from description");
+  return [];
 }
 
-// Mark a step as completed - now works with child task completion
+// Mark a step as completed
 export async function markStepCompleted(taskId: string, stepIndex: number, executionLog?: string) {
   try {
-    // Get child tasks to find the one at stepIndex
-    const childTasks = await fetchChildTasks(taskId);
-    const childTask = childTasks[stepIndex];
+    // First, fetch current task to get existing completed steps
+    const task = await fetchTaskById(taskId);
+    if (!task) throw new Error("Task not found");
     
-    if (!childTask) throw new Error("Child task not found at index");
+    const currentCompleted = task.steps_completed || [];
+    const currentLog = task.step_execution_log || [];
     
-    // Update the child task status
-    await updateUnifiedTask(childTask.id, {
-      status: 'Done'
-    });
+    // Add step index if not already completed
+    const updatedCompleted = currentCompleted.includes(stepIndex) 
+      ? currentCompleted 
+      : [...currentCompleted, stepIndex];
     
-    return true;
+    // Add execution log entry
+    const updatedLog = [
+      ...currentLog,
+      {
+        stepIndex,
+        completedAt: new Date().toISOString(),
+        log: executionLog || `Step ${stepIndex + 1} completed`
+      }
+    ];
+    
+    const { data, error } = await supabase
+      .from("tasks")
+      .update({
+        steps_completed: updatedCompleted,
+        step_execution_log: updatedLog
+      })
+      .eq("id", taskId)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    return data;
   } catch (error) {
     console.error("Error marking step completed:", error);
     throw error;
@@ -239,6 +277,9 @@ export async function createUnifiedTask(
     console.log("=== CREATE UNIFIED TASK DEBUG START ===");
     console.log("Task input:", task);
     console.log("Child tasks:", childTasks);
+    console.log("Skip auto step generation flag:", task.data?.skipAutoStepGeneration);
+    console.log("Is simple task flag:", task.data?.isSimpleTask);
+    console.log("Prevent step generation flag:", task.data?.preventStepGeneration);
     
     await ensureAuthForDemo();
     const user = { id: "00000000-0000-0000-0000-000000000000" };
@@ -265,8 +306,21 @@ export async function createUnifiedTask(
     
     console.log("Task created successfully:", data);
     
-    // Create child tasks if provided
-    if (childTasks && childTasks.length > 0 && data) {
+    // Check ALL conditions that could trigger step generation
+    const shouldSkipSteps = task.data?.skipAutoStepGeneration || 
+                           task.data?.isSimpleTask || 
+                           task.data?.preventStepGeneration;
+    
+    console.log("Should skip steps:", shouldSkipSteps);
+    
+    if (shouldSkipSteps) {
+      console.log("SKIPPING all step generation - task creation complete");
+      console.log("=== CREATE UNIFIED TASK DEBUG END - NO STEPS ===");
+      return data;
+    }
+    
+    // Create child tasks if provided and not a flow task
+    if (childTasks && childTasks.length > 0 && data && !task.saved_to_flows) {
       console.log("Creating child tasks...");
       try {
         const childTasksWithParent = childTasks.map((ct, index) => ({
@@ -328,14 +382,15 @@ export async function addChildTask(parentId: string, title: string, description?
         trigger: 'manual' as TriggerType,
         saved_to_flows: false,
         steps_completed: [],
-        step_execution_log: []
+        step_execution_log: [],
+        data: { skipAutoStepGeneration: true, isChildTask: true } // Prevent step generation for child tasks
       })
       .select()
       .single();
       
     if (error) throw error;
     
-    console.log("Child task created successfully");
+    console.log("Child task created, SKIPPING step generation");
     console.log("=== ADD CHILD TASK DEBUG END ===");
     
     return {
@@ -370,6 +425,69 @@ export async function addChildTask(parentId: string, title: string, description?
     throw error;
   }
 }
+
+// Add the generateStepsWithAI function that was in CreateTaskFlow
+const generateStepsWithAI = async (taskId: string, prompt: string) => {
+  try {
+    console.log("Generating steps for task:", taskId, "with prompt:", prompt);
+    
+    const response = await supabase.functions.invoke('generate-flow', {
+      body: {
+        prompt: prompt,
+        blockOptions: {
+          collect: ['User Text', 'File Upload', 'Data Import', 'Form Input'],
+          think: ['Basic AI Analysis', 'Advanced Reasoning', 'Data Processing', 'Pattern Recognition'],
+          act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call'],
+          agent: ['Agent']
+        }
+      }
+    });
+
+    if (response.error) {
+      throw new Error(response.error.message);
+    }
+
+    if (!response.data || response.data.success === false) {
+      const errorMsg = response.data?.error || "Unknown error occurred";
+      throw new Error(errorMsg);
+    }
+
+    const generatedFlow = response.data.generatedFlow;
+
+    if (generatedFlow?.blocks && Array.isArray(generatedFlow.blocks)) {
+      // Convert blocks to flow steps and blocks
+      const flowSteps = generatedFlow.blocks.map((block: any, index: number) => ({
+        id: generateUUID(),
+        title: block.name || `Step ${index + 1}`,
+        description: "",
+        completed: false,
+        order: index,
+        blockId: generateUUID()
+      }));
+
+      const flowBlocks = generatedFlow.blocks.map((block: any, index: number) => ({
+        id: flowSteps[index].blockId,
+        type: block.type || 'collect',
+        option: block.option || 'User Text',
+        name: block.name || `Step ${index + 1}`
+      }));
+
+      // Update the task with the generated steps
+      await updateUnifiedTask(taskId, {
+        data: {
+          flowSteps,
+          flowBlocks
+        },
+        task_type: 'flow'
+      });
+
+      console.log("Successfully generated and saved", flowSteps.length, "steps for task");
+    }
+  } catch (error) {
+    console.error("Error generating steps:", error);
+    throw error;
+  }
+};
 
 const generateUUID = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -464,32 +582,31 @@ export async function fetchSavedFlows(): Promise<UnifiedTask[]> {
 export async function convertFlowToUnifiedTask(flow: any) {
   try {
     console.log("Converting flow to unified task:", flow);
+    console.log("Flow steps being stored:", flow.steps);
     
-    // Create a single task with flow steps stored as child tasks
+    // Create a single task with flow steps stored in data field and marked as saved to flows
     const task = await createUnifiedTask({
       title: flow.name,
       description: flow.description,
       status: 'In Progress',
       priority: 'MEDIUM',
       category: 'FLOW',
-      task_type: 'task',
+      task_type: 'task', // Now everything is a task
       trigger: flow.trigger || 'manual',
-      saved_to_flows: true,
+      saved_to_flows: true, // This makes it appear in "Your Flows"
       execution_order: 0,
       data: { 
         flowId: flow.id, 
         flowTrigger: flow.trigger,
+        // Store the actual steps from the flow
+        flowSteps: flow.steps || [],
+        flowBlocks: flow.blocks || [],
+        totalSteps: (flow.steps || []).length,
         createdAt: new Date().toISOString()
       }
-    }, 
-    // Create child tasks from flow steps
-    flow.steps?.map((step: any, index: number) => ({
-      title: step.title || `Step ${index + 1}`,
-      description: step.description || "",
-      execution_order: index
-    })) || []);
+    });
     
-    console.log("Created unified task with child tasks");
+    console.log("Created unified task with data:", task.data);
     
     return task;
   } catch (error) {
