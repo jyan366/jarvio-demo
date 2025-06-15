@@ -112,6 +112,13 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
             </Button>
             <div className="flex-1 min-w-0">
               <div className="flex items-center">
+                <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium border-2 mr-2 ${
+                  sub.done 
+                    ? "bg-green-500 text-white border-green-500" 
+                    : "bg-white text-black border-black"
+                }`}>
+                  {idx + 1}
+                </span>
                 <span className={`text-base font-medium ${sub.done ? "line-through text-gray-400" : ""}`}>
                   {sub.title}
                 </span>

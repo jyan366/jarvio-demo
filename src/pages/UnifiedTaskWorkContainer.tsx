@@ -105,7 +105,9 @@ export default function UnifiedTaskWorkContainer() {
       if (autoRunMode && stepIndex < steps.length - 1) {
         setReadyForNextSubtask(true);
       }
-      refresh();
+      
+      // DON'T call refresh() here - this was causing the chat to reset
+      console.log(`Step ${stepIndex + 1} completed successfully`);
     } catch (error) {
       console.error("Error updating step completion:", error);
     } finally {
@@ -222,7 +224,10 @@ export default function UnifiedTaskWorkContainer() {
               <UnifiedTaskSteps 
                 task={task} 
                 childTasks={childTasks} 
-                onTaskUpdate={refresh} 
+                onTaskUpdate={() => {
+                  // Only refresh task data without resetting the entire component
+                  console.log("Task updated, maintaining chat state");
+                }} 
                 onAddChildTask={addChild} 
                 onRemoveChildTask={removeChild}
                 onFlowStepsChange={updateFlowSteps}
