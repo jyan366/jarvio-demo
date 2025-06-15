@@ -124,12 +124,19 @@ export default function TaskWorkContainer({
     );
   }
 
-  // Fix data conversion - create flowSteps from flowBlocks if missing
+  // Get flow data from task
   let flowSteps: FlowStep[] = task.data?.flowSteps || [];
   let flowBlocks: FlowBlock[] = task.data?.flowBlocks || [];
 
-  // If we have blocks but no steps, create steps from blocks
-  if (flowBlocks.length > 0 && flowSteps.length === 0) {
+  // Ensure proper linking between steps and blocks
+  if (flowSteps.length > 0 && flowBlocks.length > 0) {
+    // Make sure each step has the correct blockId
+    flowSteps = flowSteps.map((step, index) => ({
+      ...step,
+      blockId: flowBlocks[index]?.id || step.blockId
+    }));
+  } else if (flowBlocks.length > 0 && flowSteps.length === 0) {
+    // Create steps from blocks with proper linking
     flowSteps = flowBlocks.map((block, index) => ({
       id: `step-${block.id}`,
       title: block.name,
@@ -257,24 +264,21 @@ export default function TaskWorkContainer({
       const generatedSteps = response.data.steps;
       console.log("Generated steps:", generatedSteps);
 
-      // Convert generated steps to flow format with matching IDs
-      const newFlowSteps = generatedSteps.map((step: any, index: number) => {
-        const blockId = generateUUID();
-        return {
-          id: generateUUID(),
-          title: step.title,
-          description: step.description || "",
-          completed: false,
-          order: index,
-          blockId: blockId
-        };
-      });
-
-      const newFlowBlocks = newFlowSteps.map((step: any, index: number) => ({
-        id: step.blockId,
+      // Convert generated steps to flow format with proper block linking
+      const newFlowBlocks = generatedSteps.map((step: any, index: number) => ({
+        id: generateUUID(),
         type: index === 0 ? 'collect' : index === generatedSteps.length - 1 ? 'act' : 'think',
         option: index === 0 ? 'User Text' : index === generatedSteps.length - 1 ? 'AI Summary' : 'Basic AI Analysis',
         name: step.title
+      }));
+
+      const newFlowSteps = generatedSteps.map((step: any, index: number) => ({
+        id: generateUUID(),
+        title: step.title,
+        description: step.description || "",
+        completed: false,
+        order: index,
+        blockId: newFlowBlocks[index].id
       }));
 
       // Clear existing child tasks when generating new flow steps
