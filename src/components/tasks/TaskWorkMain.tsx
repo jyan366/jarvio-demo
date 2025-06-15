@@ -109,19 +109,17 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
       />
 
       {/* Show generate steps button for all tasks except flow tasks */}
-      {!isFlowTask && (
-        <div className="flex gap-4 items-center mb-1">
-          <Button
-            variant="outline"
-            onClick={onGenerateSteps}
-            disabled={isGenerating}
-            className="text-xs"
-          >
-            {isGenerating && <Loader2 className="w-4 h-4 mr-1 animate-spin" />} Generate steps
-          </Button>
-          <span className="text-neutral-400 text-xs">Break down this task</span>
-        </div>
-      )}
+      <div className="flex gap-4 items-center mb-1">
+        <Button
+          variant="outline"
+          onClick={onGenerateSteps}
+          disabled={isGenerating}
+          className="text-xs"
+        >
+          {isGenerating && <Loader2 className="w-4 h-4 mr-1 animate-spin" />} Generate steps
+        </Button>
+        <span className="text-neutral-400 text-xs">Break down this task</span>
+      </div>
 
       {task.products && task.products[0] && (
         <div className="mb-1">
@@ -152,7 +150,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
               category: task.category,
               date: task.date,
               task_type: 'flow',
-              user_id: "00000000-0000-0000-0000-000000000000", // Demo user ID
+              user_id: "00000000-0000-0000-0000-000000000000",
               created_at: new Date().toISOString(),
               execution_order: 0,
               steps_completed: task.data?.steps_completed || [],

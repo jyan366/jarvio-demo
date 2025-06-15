@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -219,12 +218,13 @@ export default function TaskWorkContainer({
     
     setIsGenerating(true);
     try {
-      console.log("Generating flow steps for task:", task.title, task.description);
+      console.log("Generating steps for task:", task.title, task.description);
       
-      // Call the generate-flow edge function (same as Jarvi-flows)
-      const response = await supabase.functions.invoke('generate-flow', {
+      // Call the generate-task-steps edge function for regular subtask generation
+      const response = await supabase.functions.invoke('generate-task-steps', {
         body: {
-          prompt: `${task.title}. ${task.description || ""}`
+          title: task.title,
+          description: task.description || ""
         }
       });
 
@@ -232,25 +232,35 @@ export default function TaskWorkContainer({
         throw new Error(response.error.message);
       }
 
-      if (!response.data || !response.data.generatedFlow) {
-        throw new Error("No flow was generated");
+      if (!response.data || !response.data.steps) {
+        throw new Error("No steps were generated");
       }
 
-      const generatedFlow = response.data.generatedFlow;
-      console.log("Generated flow:", generatedFlow);
+      const generatedSteps = response.data.steps;
+      console.log("Generated steps:", generatedSteps);
 
-      // Update the task with the generated flow steps and blocks
-      await updateFlowData(generatedFlow.steps || [], generatedFlow.blocks || []);
+      // Clear existing child tasks first
+      for (const child of childTasks) {
+        await removeChild(child.id);
+      }
+
+      // Add new subtasks based on generated steps
+      for (const step of generatedSteps) {
+        await addChild(step.title, step.description);
+      }
+      
+      // Refresh to get updated data
+      await refresh();
       
       toast({
-        title: "Flow steps generated",
-        description: `Generated ${generatedFlow.steps?.length || 0} flow steps successfully`,
+        title: "Steps generated",
+        description: `Generated ${generatedSteps.length} steps successfully`,
       });
     } catch (error) {
-      console.error("Error generating flow steps:", error);
+      console.error("Error generating steps:", error);
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
       toast({
-        title: "Error generating flow steps",
+        title: "Error generating steps",
         description: errorMessage,
         variant: "destructive"
       });
