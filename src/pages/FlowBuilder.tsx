@@ -268,104 +268,26 @@ export default function FlowBuilder() {
     }
   };
 
-  // Enhanced AI generation to include steps
-  const generateFlowFromPrompt = async (data: AIPromptFormValues) => {
-    setIsGenerating(true);
-    setAiError(null);
+  // Handle AI-generated steps and blocks
+  const handleAIStepsGenerated = async (steps: FlowStep[], blocks: FlowBlock[]) => {
+    // Extract flow name and description from the first step's title or use defaults
+    const flowName = steps.length > 0 ? `Generated Flow - ${steps[0].title}` : "New AI Flow";
+    const flowDescription = steps.length > 0 ? `AI-generated flow with ${steps.length} steps` : "Flow created from AI prompt";
     
-    try {
-      console.log("Sending prompt to AI:", data.prompt);
-      
-      const response = await supabase.functions.invoke("generate-flow", {
-        body: {
-          prompt: data.prompt,
-          blockOptions: availableBlockOptions,
-          generateSteps: true
-        }
-      });
-
-      console.log("Raw API response:", response);
-
-      if (response.error) {
-        console.error("API Error:", response.error);
-        throw new Error(`API Error: ${response.error.message || "Unknown API error"}`);
-      }
-      
-      if (!response.data || response.data.success === false) {
-        console.error("Function returned error:", response.data?.error);
-        throw new Error(`Error: ${response.data?.error || "Unknown error in flow generation"}`);
-      }
-      
-      const generatedFlow = response.data.generatedFlow;
-      
-      if (!generatedFlow || !generatedFlow.name || !generatedFlow.description || !Array.isArray(generatedFlow.blocks)) {
-        console.error("Invalid flow structure:", generatedFlow);
-        throw new Error("Invalid flow structure: missing required properties");
-      }
-
-      // Convert AI-generated blocks to steps and blocks structure
-      const newSteps: FlowStep[] = [];
-      const newBlocks: FlowBlock[] = [];
-      
-      generatedFlow.blocks.forEach((block: any, index: number) => {
-        const blockId = uuidv4();
-        const stepId = uuidv4();
-        
-        // Create step
-        newSteps.push({
-          id: stepId,
-          title: block.name || `Step ${index + 1}`,
-          description: block.description || '',
-          completed: false,
-          order: index,
-          blockId: blockId
-        });
-        
-        // Create block
-        const blockType = block.type && ['collect', 'think', 'act', 'agent'].includes(block.type) 
-          ? block.type 
-          : 'collect';
-        
-        const validOptions = availableBlockOptions[blockType] || defaultFlowBlockOptions[blockType as BlockCategory];
-        let blockOption = block.option;
-        if (!validOptions.includes(blockOption)) {
-          console.warn(`Invalid block option: ${blockOption} for type ${blockType}, using fallback`);
-          blockOption = validOptions[0] || '';
-        }
-        
-        newBlocks.push({
-          id: blockId,
-          type: blockType,
-          option: blockOption,
-          name: block.name || getDescriptiveBlockName(blockType, blockOption)
-        });
-      });
-      
-      setFlow(prev => ({
-        ...prev,
-        name: generatedFlow.name || "New Flow",
-        description: generatedFlow.description || "Flow created from AI prompt",
-        blocks: newBlocks,
-        steps: newSteps
-      }));
-      
-      toast({
-        title: "Flow created successfully",
-        description: `${newSteps.length} steps have been added to your flow.`
-      });
-      
-      setShowAIPrompt(false);
-    } catch (error) {
-      console.error("Error generating flow:", error);
-      setAiError(error instanceof Error ? error.message : "Unknown error occurred");
-      toast({
-        title: "Error generating flow",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive"
-      });
-    } finally {
-      setIsGenerating(false);
-    }
+    setFlow(prev => ({
+      ...prev,
+      name: flowName,
+      description: flowDescription,
+      blocks: blocks,
+      steps: steps
+    }));
+    
+    toast({
+      title: "Flow created successfully",
+      description: `${steps.length} steps have been added to your flow.`
+    });
+    
+    setShowAIPrompt(false);
   };
 
   // Save flow
@@ -561,7 +483,7 @@ export default function FlowBuilder() {
         {showAIPrompt && (
           <AIPromptSection
             form={aiPromptForm}
-            onSubmit={generateFlowFromPrompt}
+            onSubmit={handleAIStepsGenerated}
             isGenerating={isGenerating}
             aiError={aiError}
           />
