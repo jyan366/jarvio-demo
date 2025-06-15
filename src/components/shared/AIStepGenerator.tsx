@@ -38,6 +38,14 @@ export function AIStepGenerator({
     }
   });
 
+  const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  };
+
   const handleSubmit = async (data: AIStepFormValues) => {
     try {
       if (!data.prompt.trim()) {
@@ -80,18 +88,57 @@ export function AIStepGenerator({
       const generatedFlow = response.data.generatedFlow;
       console.log("Generated flow data:", generatedFlow);
 
-      if (!generatedFlow || !generatedFlow.steps || !generatedFlow.blocks) {
-        throw new Error("No flow was generated - missing steps or blocks");
+      // Handle the case where we get blocks instead of steps/blocks
+      let steps: FlowStep[] = [];
+      let blocks: FlowBlock[] = [];
+
+      if (generatedFlow?.blocks && Array.isArray(generatedFlow.blocks)) {
+        // Convert the generated blocks into steps and blocks format
+        generatedFlow.blocks.forEach((block: any, index: number) => {
+          const stepId = generateUUID();
+          const blockId = generateUUID();
+
+          // Create FlowStep
+          steps.push({
+            id: stepId,
+            title: block.name || `Step ${index + 1}`,
+            description: "",
+            completed: false,
+            order: index,
+            blockId: blockId
+          });
+
+          // Create FlowBlock
+          blocks.push({
+            id: blockId,
+            type: block.type || 'collect',
+            option: block.option || 'User Text',
+            name: block.name || `Step ${index + 1}`
+          });
+        });
+      } else if (generatedFlow?.steps && generatedFlow?.blocks) {
+        // Use the steps and blocks directly if they're already in the right format
+        steps = generatedFlow.steps;
+        blocks = generatedFlow.blocks;
+      } else {
+        throw new Error("Invalid response format - no blocks or steps found");
       }
+
+      if (steps.length === 0) {
+        throw new Error("No steps were generated");
+      }
+
+      console.log("Converted to steps:", steps);
+      console.log("Converted to blocks:", blocks);
 
       // Call the callback with the generated steps and blocks
       // This will replace all existing steps
-      onStepsGenerated(generatedFlow.steps, generatedFlow.blocks);
+      onStepsGenerated(steps, blocks);
       form.reset();
       
       toast({
         title: "Flow generated",
-        description: `Generated ${generatedFlow.steps.length} steps with linked blocks`
+        description: `Generated ${steps.length} steps with linked blocks`
       });
       
     } catch (error) {
