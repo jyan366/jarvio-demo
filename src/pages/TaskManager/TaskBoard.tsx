@@ -22,7 +22,7 @@ interface TaskBoardProps {
 }
 
 export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProps) {
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   const [tasksByStatus, setTasksByStatus] = useState<{ [key: string]: Task[] }>({ todo: [], inProgress: [], done: [] });
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -40,40 +40,28 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
         {
           id: 'suggested',
           label: 'Suggested Tasks',
-          bg: 'bg-[#F1F0FB]',
-          headerColor: 'text-[#3527A0]',
         },
         {
           id: 'todo',
           label: 'To Do',
-          bg: 'bg-[#F1F0FB]',
-          headerColor: 'text-[#3527A0]',
         },
         {
           id: 'inProgress',
           label: 'In Progress',
-          bg: 'bg-[#FFF8E8]',
-          headerColor: 'text-[#AB860B]',
         },
       ]
     : [
         {
           id: 'todo',
           label: 'To Do',
-          bg: 'bg-[#F1F0FB]',
-          headerColor: 'text-[#3527A0]',
         },
         {
           id: 'inProgress',
           label: 'In Progress',
-          bg: 'bg-[#FFF8E8]',
-          headerColor: 'text-[#AB860B]',
         },
         {
           id: 'done',
           label: 'Done',
-          bg: 'bg-[#F1FBF5]',
-          headerColor: 'text-[#199255]',
         },
       ];
 
@@ -315,135 +303,156 @@ export default function TaskBoard({ onCreateTask, onTaskDeleted }: TaskBoardProp
     task => !handledTasks.includes(task.id)
   );
 
+  const getColumnColor = (columnId: string) => {
+    switch (columnId) {
+      case 'todo':
+        return { bg: 'text-blue-600', count: tasksByStatus[columnId]?.length || 0 };
+      case 'inProgress':
+        return { bg: 'text-orange-600', count: tasksByStatus[columnId]?.length || 0 };
+      case 'done':
+        return { bg: 'text-green-600', count: tasksByStatus[columnId]?.length || 0 };
+      case 'suggested':
+        return { bg: 'text-purple-600', count: filteredSuggestedTasks.length };
+      default:
+        return { bg: 'text-gray-600', count: 0 };
+    }
+  };
+
   return (
-    <div className="space-y-6" onClick={(e) => e.stopPropagation()}>
+    <div className="space-y-6 p-6" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold">Task Manager</h1>
-          <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+          <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
             <Button
-              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-              size="icon"
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setViewMode('list')}
+              className="text-xs px-3 py-1"
             >
-              <List className="h-4 w-4" />
+              <List className="h-4 w-4 mr-1" />
+              List
             </Button>
             <Button
-              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-              size="icon"
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setViewMode('grid')}
+              className="text-xs px-3 py-1"
             >
-              <Grid className="h-4 w-4" />
+              <Grid className="h-4 w-4 mr-1" />
+              Grid
             </Button>
           </div>
-        </div>
-        <div className="flex gap-2">
           <Button
             variant="outline"
             onClick={() => setShowSuggestedTasks(!showSuggestedTasks)}
-            className="flex items-center gap-2"
+            className="text-sm"
           >
-            <span>{showSuggestedTasks ? 'Hide' : 'View'} Suggested Tasks</span>
-          </Button>
-          <Button 
-            onClick={onCreateTask}
-            className="bg-[#4457ff] hover:bg-[#4457ff]/90"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Task
+            Suggested Tasks
           </Button>
         </div>
+        <Button 
+          onClick={onCreateTask}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Create Task
+        </Button>
       </div>
+
       {loading ? (
         <div className="py-12 text-center text-muted-foreground text-lg">Loading your tasks…</div>
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-            {columns.map((col) => (
-              <div key={col.id} className="rounded-xl p-3 md:p-2">
-                <Card className={`p-0 bg-transparent shadow-none border-0`}>
-                  <div className={`px-3 pt-2 pb-4 ${col.bg} rounded-xl`}>
-                    <h2 className={`font-semibold mb-4 text-lg flex items-center gap-2 ${col.headerColor}`}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {columns.map((col) => {
+              const colorInfo = getColumnColor(col.id);
+              
+              return (
+                <div key={col.id}>
+                  <div className="mb-4">
+                    <h2 className={`font-medium text-sm ${colorInfo.bg} flex items-center gap-2`}>
                       {col.label}
-                      <span className="ml-2 text-base text-gray-400 font-medium">
-                        {col.id === 'suggested' 
-                          ? filteredSuggestedTasks.length 
-                          : tasksByStatus[col.id]?.length || 0}
+                      <span className="text-gray-500 font-normal">
+                        {colorInfo.count}
                       </span>
                     </h2>
-                    <Droppable droppableId={col.id}>
-                      {(provided) => (
-                        <div
-                          {...provided.droppableProps}
-                          ref={provided.innerRef}
-                          className="space-y-4"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {col.id === 'suggested' 
-                            ? filteredSuggestedTasks.map((task, index) => (
-                                <Draggable
-                                  key={task.id}
-                                  draggableId={task.id}
-                                  index={index}
-                                >
-                                  {(provided) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <TaskCard
-                                        task={task}
-                                        onClick={() => {
-                                          setSelectedTask(task);
-                                          setIsPreviewOpen(true);
-                                        }}
-                                        cardBg={col.bg}
-                                        isSuggested={true}
-                                        onAccept={() => handleCreateTask(task)}
-                                        onReject={() => handleDismissTask(task.id)}
-                                      />
-                                    </div>
-                                  )}
-                                </Draggable>
-                              ))
-                            : tasksByStatus[col.id]?.map((task, index) => (
-                                <Draggable
-                                  key={task.id}
-                                  draggableId={task.id}
-                                  index={index}
-                                >
-                                  {(provided) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <TaskCard
-                                        task={task}
-                                        onClick={() => {
-                                          setSelectedTask(task);
-                                          setIsPreviewOpen(true);
-                                        }}
-                                        cardBg={col.bg}
-                                      />
-                                    </div>
-                                  )}
-                                </Draggable>
-                              ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
                   </div>
-                </Card>
-              </div>
-            ))}
+                  
+                  <Droppable droppableId={col.id}>
+                    {(provided) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="space-y-3 min-h-[200px]"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {col.id === 'suggested' 
+                          ? filteredSuggestedTasks.map((task, index) => (
+                              <Draggable
+                                key={task.id}
+                                draggableId={task.id}
+                                index={index}
+                              >
+                                {(provided) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
+                                  >
+                                    <TaskCard
+                                      task={task}
+                                      onClick={() => {
+                                        setSelectedTask(task);
+                                        setIsPreviewOpen(true);
+                                      }}
+                                      isSuggested={true}
+                                      onAccept={() => handleCreateTask(task)}
+                                      onReject={() => handleDismissTask(task.id)}
+                                      hideFlowTag={true}
+                                    />
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))
+                          : tasksByStatus[col.id]?.map((task, index) => (
+                              <Draggable
+                                key={task.id}
+                                draggableId={task.id}
+                                index={index}
+                              >
+                                {(provided) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                                  >
+                                    <TaskCard
+                                      task={task}
+                                      onClick={() => {
+                                        setSelectedTask(task);
+                                        setIsPreviewOpen(true);
+                                      }}
+                                      hideFlowTag={true}
+                                    />
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              );
+            })}
           </div>
         </DragDropContext>
       )}
+      
       <TaskPreviewDialog
         open={isPreviewOpen}
         onOpenChange={(open) => {

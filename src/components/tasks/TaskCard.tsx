@@ -1,236 +1,182 @@
-import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Check, X, ExternalLink, Star, MessageSquare, TrendingDown, Flag, Trash2, PencilLine, Workflow } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useNavigate } from 'react-router-dom';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Check, X, Trash2 } from 'lucide-react';
+import { Task } from '@/pages/TaskManager/types';
+
 interface TaskCardProps {
-  task: {
-    id: string;
-    title: string;
-    description: string;
-    status: 'Not Started' | 'In Progress' | 'Done';
-    priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-    category: string;
-    commentsCount?: number;
-    date: string;
-    fromInsight?: boolean;
-    data?: {
-      flowId?: string;
-      flowTrigger?: string;
-    };
-  };
+  task: Task;
   onClick?: () => void;
   cardBg?: string;
+  isSuggested?: boolean;
   onAccept?: () => void;
   onReject?: () => void;
-  isSuggested?: boolean;
+  onDelete?: () => void;
+  hideFlowTag?: boolean;
 }
-const statusColors = {
-  'Not Started': 'bg-[#EFEFFD] text-[#6271F3] font-medium',
-  'In Progress': 'bg-[#FFF1D6] text-[#EEAF57] font-medium',
-  'Done': 'bg-[#D9F2E5] text-[#27B36B] font-medium'
-};
-const priorityColors = {
-  'CRITICAL': 'bg-purple-100 text-purple-800 border-purple-200',
-  'HIGH': 'bg-[#FEF2E3] text-[#FFA833] font-medium',
-  'MEDIUM': 'bg-yellow-50 text-yellow-700',
-  'LOW': 'bg-blue-50 text-blue-700'
-};
-const categoryIcons = {
-  'LISTINGS': 'PencilLine',
-  'SUPPORT': 'MessageSquare',
-  'REVIEWS': 'MessageSquare',
-  'KEYWORDS': 'PencilLine',
-  'INVENTORY': 'PencilLine',
-  'PRICING': 'PencilLine',
-  'FLOW': 'Workflow'
-};
-const categoryColors = {
-  'LISTINGS': 'bg-[#FDF6ED] text-[#EEAF57]',
-  'SUPPORT': 'bg-[#F0F4FF] text-[#6271F3]',
-  'REVIEWS': 'bg-[#F0F9F5] text-[#27B36B]',
-  'KEYWORDS': 'bg-[#FDF6ED] text-[#EEAF57]',
-  'INVENTORY': 'bg-[#F0F4FF] text-[#6271F3]',
-  'PRICING': 'bg-[#FDF6ED] text-[#EEAF57]',
-  'FLOW': 'bg-blue-100 text-blue-700',
-  'PROCESS': 'bg-amber-100 text-amber-700'
-};
-export function TaskCard({
+
+export const TaskCard: React.FC<TaskCardProps> = ({
   task,
   onClick,
   cardBg,
+  isSuggested = false,
   onAccept,
   onReject,
-  isSuggested = false
-}: TaskCardProps) {
-  const navigate = useNavigate();
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const {
-    toast
-  } = useToast();
-  const handleCardClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onClick) {
-      onClick();
-    }
-  };
-  const handleWorkOnClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // Make sure we have a valid task ID
-    if (task && task.id) {
-      navigate(`/task/${task.id}`);
-    } else {
-      toast({
-        title: "Error",
-        description: "Could not open task: missing task ID",
-        variant: "destructive"
-      });
-    }
-  };
-  const handleAccept = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onAccept) {
-      onAccept();
-    }
-  };
-  const handleReject = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onReject) {
-      onReject();
-    }
-  };
-  const renderCategoryIcon = () => {
-    switch (task.category) {
-      case 'REVIEWS':
-        return <Star className="w-3 h-3 mr-1 opacity-75" />;
-      case 'SUPPORT':
-        return <MessageSquare className="w-3 h-3 mr-1 opacity-75" />;
-      case 'PRICING':
-        return <TrendingDown className="w-3 h-3 mr-1 opacity-75" />;
-      case 'LISTINGS':
-        return <Flag className="w-3 h-3 mr-1 opacity-75" />;
-      case 'FLOW':
-        return <Workflow className="w-3 h-3 mr-1 opacity-75" />;
-      case 'PROCESS':
-        return <Workflow className="w-3 h-3 mr-1 opacity-75" />;
+  onDelete,
+  hideFlowTag = false,
+}) => {
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'CRITICAL':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'HIGH':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'MEDIUM':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'LOW':
+        return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
-        return <PencilLine className="w-3 h-3 mr-1 opacity-75" />;
-    }
-  };
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowDeleteDialog(true);
-  };
-  const handleDeleteConfirm = async () => {
-    try {
-      const {
-        error
-      } = await supabase.from('tasks').delete().eq('id', task.id);
-      if (error) throw error;
-      toast({
-        title: "Task Deleted",
-        description: "The task has been successfully deleted."
-      });
-
-      // Close the dialog
-      setShowDeleteDialog(false);
-
-      // Refresh the task list
-      window.location.reload();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete the task. Please try again.",
-        variant: "destructive"
-      });
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  // Check if this task is a flow
-  const isFlow = task.category === 'FLOW' || task.data && task.data.flowId;
+  const getCategoryColor = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'listings':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'other':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
-  // Check if this task is from insight
-  const isFromInsight = task.fromInsight;
-  return <div className="relative" onClick={e => e.stopPropagation()}>
-      <Card className={cn("p-4 cursor-pointer hover:shadow-xl transition-shadow rounded-xl", cardBg ? "" : "bg-white", isFlow && "border-2 border-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.2)]", isFromInsight && !isFlow && "border-l-4 border-l-blue-500")} style={cardBg ? {
-      background: 'white'
-    } : {}} onClick={handleCardClick}>
-        <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2 mb-2">
-            <span className={cn("rounded-md px-2 py-1 flex items-center text-xs font-medium", categoryColors[task.category as keyof typeof categoryColors] || 'bg-[#FDF6ED] text-[#EEAF57]')}>
-              {renderCategoryIcon()}
-              {task.category}
-            </span>
-            
-            {isFromInsight && <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-                From Insight
-              </Badge>}
-            
-            {isFlow}
-          </div>
-        </div>
-        
-        <h3 className="font-semibold text-base mb-1 leading-snug flex gap-1">
-          {task.title}
-        </h3>
-        <p className="text-sm text-gray-500 leading-snug line-clamp-2 mb-3">{task.description}</p>
-        
-        <div className="flex flex-wrap gap-2 mb-3">
-          <Badge variant="secondary" className={cn(statusColors[task.status])}>
-            {task.status}
-          </Badge>
-          <Badge variant="secondary" className={cn(priorityColors[task.priority])}>
-            {task.priority}
-          </Badge>
-        </div>
-        
-        <div className="flex items-center justify-between gap-2">
-          <div className="text-xs text-gray-400 flex items-center gap-1">
-            <span className="inline-block">📅</span>
-            <span>{task.date}</span>
-          </div>
-          {isSuggested ? <div className="flex gap-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-green-100 text-green-600 hover:text-green-700" onClick={handleAccept}>
-                <Check className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700" onClick={handleReject}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div> : <div className="flex items-center gap-2">
-              <Button onClick={handleWorkOnClick} size="sm" variant={isFlow ? "default" : "outline"} className={cn("text-xs px-2 py-1 h-7 rounded font-medium transition", isFlow ? "bg-blue-500 text-white hover:bg-blue-600 border-0" : "bg-primary/10 text-primary hover:bg-primary/20 border-0")}>
-                <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                {isFlow ? "Run Flow" : "Work on"}
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-red-100 text-red-600 hover:text-red-700" onClick={handleDelete}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>}
-        </div>
-      </Card>
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Done':
+        return 'bg-green-100 text-green-800';
+      case 'In Progress':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-blue-100 text-blue-800';
+    }
+  };
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent onClick={e => e.stopPropagation()}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Task</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this task? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={e => e.stopPropagation()}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>;
-}
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Category Badge */}
+      <div className="flex items-center justify-between">
+        <Badge variant="outline" className={`text-xs ${getCategoryColor(task.category)} capitalize`}>
+          {task.category.toLowerCase()}
+        </Badge>
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
+
+      {/* Task Title */}
+      <h3 className="font-medium text-sm text-gray-900 leading-tight">
+        {task.title}
+      </h3>
+
+      {/* Task Description */}
+      {task.description && (
+        <p className="text-xs text-gray-600 line-clamp-2">
+          {task.description}
+        </p>
+      )}
+
+      {/* Status and Priority Badges */}
+      <div className="flex flex-wrap gap-2">
+        <Badge variant="outline" className={`text-xs ${getStatusColor(task.status)} uppercase`}>
+          {task.status === 'Not Started' ? 'TODO' : 
+           task.status === 'In Progress' ? 'INPROGRESS' : 'DONE'}
+        </Badge>
+        <Badge variant="outline" className={`text-xs ${getPriorityColor(task.priority)} uppercase`}>
+          {task.priority}
+        </Badge>
+      </div>
+
+      {/* Date and Action */}
+      <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center text-xs text-gray-500">
+          <span className="mr-1">📅</span>
+          {formatDate(task.date)}
+        </div>
+        
+        {isSuggested ? (
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-green-600 hover:text-green-700 hover:bg-green-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAccept?.();
+              }}
+            >
+              <Check className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                onReject?.();
+              }}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-6 text-xs px-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.();
+            }}
+          >
+            {task.status === 'Done' ? 'Work on' : 'Work on'}
+          </Button>
+        )}
+      </div>
+
+      {/* Run Flow Button for flow tasks */}
+      {task.data?.flowId && !hideFlowTag && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+          onClick={(e) => {
+            e.stopPropagation();
+            // Handle run flow action
+          }}
+        >
+          🔄 Run Flow
+        </Button>
+      )}
+    </div>
+  );
+};
