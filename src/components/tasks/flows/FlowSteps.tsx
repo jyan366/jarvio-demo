@@ -76,7 +76,7 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
             value={newStep}
             onChange={(e) => setNewStep(e.target.value)}
           />
-          <Button type="submit" variant="outline" className="h-8 text-xs px-3 py-1 whitespace-nowrap">
+          <Button type="submit" variant="outline" className="h-8 text-xs px-3 py-1 whitespace-nowrap bg-slate-800 text-white border-slate-800 hover:bg-slate-700 hover:border-slate-700">
             <Plus className="h-3 w-3 mr-1" /> Add Step
           </Button>
         </form>
@@ -115,7 +115,7 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
                 <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium border mr-2 ${
                   sub.done 
                     ? "bg-green-500 text-white border-green-500" 
-                    : "bg-white text-gray-700 border-gray-300"
+                    : "bg-slate-800 text-white border-slate-800"
                 }`}>
                   {sub.done ? <Check className="w-3 h-3" /> : (idx + 1)}
                 </span>
