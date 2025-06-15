@@ -95,13 +95,20 @@ export function CreateTaskFlow({
   };
 
   const shouldAutoGenerateSteps = (data: TaskFormData): boolean => {
-    // Check if it's a simple task that could benefit from AI-generated steps
-    const hasMinimalContent = data.title.trim().length < 50 && data.description.trim().length < 100;
-    const isGenericTask = data.title.toLowerCase().includes('task') || 
-                         data.title.toLowerCase().includes('work') ||
-                         data.title.toLowerCase().includes('project');
+    // Always auto-generate steps for new tasks unless they explicitly seem like they have predefined steps
+    // Only skip if the description already contains numbered steps or bullet points
+    const hasStepsInDescription = data.description && (
+      data.description.includes('1.') || 
+      data.description.includes('2.') ||
+      data.description.includes('•') ||
+      data.description.includes('-') ||
+      data.description.includes('Step 1') ||
+      data.description.includes('First,') ||
+      data.description.includes('Then,') ||
+      data.description.includes('Finally,')
+    );
     
-    return hasMinimalContent || isGenericTask;
+    return !hasStepsInDescription;
   };
 
   const generateStepsWithAI = async (taskId: string, prompt: string) => {
