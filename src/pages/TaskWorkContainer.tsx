@@ -124,6 +124,22 @@ export default function TaskWorkContainer({
     );
   }
 
+  // Fix data conversion - create flowSteps from flowBlocks if missing
+  let flowSteps: FlowStep[] = task.data?.flowSteps || [];
+  let flowBlocks: FlowBlock[] = task.data?.flowBlocks || [];
+
+  // If we have blocks but no steps, create steps from blocks
+  if (flowBlocks.length > 0 && flowSteps.length === 0) {
+    flowSteps = flowBlocks.map((block, index) => ({
+      id: `step-${block.id}`,
+      title: block.name,
+      description: "",
+      completed: task.steps_completed?.includes(index) || false,
+      order: index,
+      blockId: block.id
+    }));
+  }
+
   // Enhanced conversion to legacy format with flow execution data
   const taskState: TaskWorkType = {
     id: task.id,
@@ -162,8 +178,8 @@ export default function TaskWorkContainer({
     data: {
       ...task.data,
       isFlowTask: task.task_type === 'flow',
-      flowSteps: task.data?.flowSteps || [],
-      flowBlocks: task.data?.flowBlocks || [],
+      flowSteps: flowSteps,
+      flowBlocks: flowBlocks,
       steps_completed: task.steps_completed || [],
       flowExecutionMetadata: task.data?.executionMetadata || {}
     },
@@ -242,7 +258,7 @@ export default function TaskWorkContainer({
       console.log("Generated steps:", generatedSteps);
 
       // Convert generated steps to flow format with matching IDs
-      const flowSteps = generatedSteps.map((step: any, index: number) => {
+      const newFlowSteps = generatedSteps.map((step: any, index: number) => {
         const blockId = generateUUID();
         return {
           id: generateUUID(),
@@ -254,7 +270,7 @@ export default function TaskWorkContainer({
         };
       });
 
-      const flowBlocks = flowSteps.map((step: any, index: number) => ({
+      const newFlowBlocks = newFlowSteps.map((step: any, index: number) => ({
         id: step.blockId,
         type: index === 0 ? 'collect' : index === generatedSteps.length - 1 ? 'act' : 'think',
         option: index === 0 ? 'User Text' : index === generatedSteps.length - 1 ? 'AI Summary' : 'Basic AI Analysis',
@@ -270,8 +286,8 @@ export default function TaskWorkContainer({
       await updateTask({
         data: {
           ...task.data,
-          flowSteps,
-          flowBlocks
+          flowSteps: newFlowSteps,
+          flowBlocks: newFlowBlocks
         },
         steps_completed: [],
         task_type: 'flow'
