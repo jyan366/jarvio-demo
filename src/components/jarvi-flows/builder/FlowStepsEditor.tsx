@@ -9,6 +9,7 @@ import { Plus, Trash2, GripVertical, ChevronRight, ChevronDown, Database, Brain,
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { v4 as uuidv4 } from 'uuid';
 import { agentsData } from '@/data/agentsData';
+
 interface FlowStepsEditorProps {
   steps: FlowStep[];
   blocks: FlowBlock[];
@@ -141,7 +142,7 @@ export function FlowStepsEditor({
           <h2 className="text-xl font-semibold">Steps</h2>
           
         </div>
-        <Button onClick={() => setIsAddingStep(true)} className="flex items-center gap-2">
+        <Button onClick={() => setIsAddingStep(true)} className="flex items-center gap-2 bg-slate-800 text-white hover:bg-slate-700">
           <Plus className="h-4 w-4" />
           Add Step
         </Button>
