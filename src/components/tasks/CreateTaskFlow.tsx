@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -218,15 +217,17 @@ export function CreateTaskFlow({
       const createdTask = await createUnifiedTask(finalTaskData);
       
       if (createdTask?.id) {
-        // Check if we should auto-generate steps
-        if (shouldAutoGenerateSteps(taskData)) {
+        // Only generate steps if auto generation is enabled
+        const shouldGenerate = shouldAutoGenerateSteps(taskData);
+        if (shouldGenerate) {
+          setIsGeneratingSteps(true);
           const prompt = `${taskData.title}. ${taskData.description}`;
           await generateStepsWithAI(createdTask.id, prompt);
         }
         
         toast({
           title: "Task Created Successfully",
-          description: isGeneratingSteps 
+          description: shouldGenerate && !disableAutoStepGeneration
             ? "Your task has been created and AI is generating steps." 
             : "Your new task has been created and added to your tasks.",
         });
@@ -246,6 +247,7 @@ export function CreateTaskFlow({
       });
     } finally {
       setIsLoading(false);
+      setIsGeneratingSteps(false);
     }
   };
 
@@ -330,7 +332,7 @@ export function CreateTaskFlow({
           ) : (
             <Button onClick={handleSubmit} disabled={isLoading || isGeneratingSteps}>
               {(isLoading || isGeneratingSteps) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {isGeneratingSteps ? "Generating Steps..." : isLoading ? "Creating..." : "Create Task"}
+              {isGeneratingSteps && !disableAutoStepGeneration ? "Generating Steps..." : isLoading ? "Creating..." : "Create Task"}
             </Button>
           )}
         </div>
