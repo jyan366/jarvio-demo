@@ -220,7 +220,7 @@ export default function TaskWorkContainer({
     try {
       console.log("Generating steps for task:", task.title, task.description);
       
-      // Call the generate-task-steps edge function for regular subtask generation
+      // Call the generate-task-steps edge function for step generation
       const response = await supabase.functions.invoke('generate-task-steps', {
         body: {
           title: task.title,
@@ -239,15 +239,32 @@ export default function TaskWorkContainer({
       const generatedSteps = response.data.steps;
       console.log("Generated steps:", generatedSteps);
 
-      // Clear existing child tasks first
-      for (const child of childTasks) {
-        await removeChild(child.id);
-      }
+      // Convert generated steps to flow format and update the task
+      const flowSteps = generatedSteps.map((step: any, index: number) => ({
+        id: generateUUID(),
+        title: step.title,
+        description: step.description || "",
+        completed: false,
+        order: index,
+        blockId: generateUUID()
+      }));
 
-      // Add new subtasks based on generated steps
-      for (const step of generatedSteps) {
-        await addChild(step.title, step.description);
-      }
+      const flowBlocks = generatedSteps.map((step: any, index: number) => ({
+        id: flowSteps[index].blockId,
+        type: index === 0 ? 'collect' : index === generatedSteps.length - 1 ? 'act' : 'think',
+        option: index === 0 ? 'User Text' : index === generatedSteps.length - 1 ? 'AI Summary' : 'Basic AI Analysis',
+        name: step.title
+      }));
+
+      // Update the task with flow steps and clear any completed steps
+      await updateTask({
+        data: {
+          ...task.data,
+          flowSteps,
+          flowBlocks
+        },
+        steps_completed: [] // Clear completed steps when generating new ones
+      });
       
       // Refresh to get updated data
       await refresh();
