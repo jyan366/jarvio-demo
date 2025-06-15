@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { createUnifiedTask } from '@/lib/unifiedTasks';
 import { useToast } from '@/hooks/use-toast';
 import { X, Loader2 } from 'lucide-react';
@@ -19,8 +18,6 @@ interface SimpleCreateTaskDialogProps {
 export function SimpleCreateTaskDialog({ open, onOpenChange, onSuccess }: SimpleCreateTaskDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('LISTINGS');
-  const [priority, setPriority] = useState('MEDIUM');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -49,11 +46,12 @@ export function SimpleCreateTaskDialog({ open, onOpenChange, onSuccess }: Simple
       }
       
       // Create simple task with explicit flags to prevent any step generation
+      // Use default values for category (LISTINGS) and priority (MEDIUM)
       const taskData = {
         title: title.trim(),
         description: description.trim(),
-        category,
-        priority: priority as "CRITICAL" | "HIGH" | "MEDIUM" | "LOW",
+        category: 'LISTINGS',
+        priority: 'MEDIUM' as "CRITICAL" | "HIGH" | "MEDIUM" | "LOW",
         status: "Not Started" as const,
         task_type: 'task' as const,
         data: { 
@@ -77,8 +75,6 @@ export function SimpleCreateTaskDialog({ open, onOpenChange, onSuccess }: Simple
       // Reset form
       setTitle('');
       setDescription('');
-      setCategory('LISTINGS');
-      setPriority('MEDIUM');
       
       onOpenChange(false);
       if (onSuccess) {
@@ -134,38 +130,6 @@ export function SimpleCreateTaskDialog({ open, onOpenChange, onSuccess }: Simple
               placeholder="Enter task description"
               rows={3}
             />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="LISTINGS">Listings</SelectItem>
-                <SelectItem value="INVENTORY">Inventory</SelectItem>
-                <SelectItem value="MARKETING">Marketing</SelectItem>
-                <SelectItem value="CUSTOMER_SERVICE">Customer Service</SelectItem>
-                <SelectItem value="ANALYTICS">Analytics</SelectItem>
-                <SelectItem value="OTHER">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="priority">Priority</Label>
-            <Select value={priority} onValueChange={setPriority}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="CRITICAL">Critical</SelectItem>
-                <SelectItem value="HIGH">High</SelectItem>
-                <SelectItem value="MEDIUM">Medium</SelectItem>
-                <SelectItem value="LOW">Low</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
           
           <div className="flex justify-end gap-2 mt-6">
