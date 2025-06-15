@@ -10,6 +10,7 @@ import { Workflow } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { FlowStep, FlowBlock } from "@/types/flowTypes";
 
 export interface Subtask {
   id: string;
@@ -62,6 +63,11 @@ export interface TaskWorkType {
   data?: {
     flowId?: string;
     flowTrigger?: string;
+    flowSteps?: FlowStep[];
+    flowBlocks?: FlowBlock[];
+    steps_completed?: number[];
+    isFlowTask?: boolean;
+    flowExecutionMetadata?: any;
   };
 }
 
@@ -155,7 +161,9 @@ export default function TaskWorkContainer({
     data: {
       ...task.data,
       isFlowTask: task.task_type === 'flow',
+      flowSteps: task.data?.flowSteps || [],
       flowBlocks: task.data?.flowBlocks || [],
+      steps_completed: task.steps_completed || [],
       flowExecutionMetadata: task.data?.executionMetadata || {}
     },
   };
