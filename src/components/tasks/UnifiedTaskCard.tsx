@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash, GitBranch, Workflow, CheckSquare } from 'lucide-react';
+import { Trash } from 'lucide-react';
 import { TaskTreeNode } from '@/types/unifiedTask';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,28 +18,6 @@ export function UnifiedTaskCard({ task, onDelete, onUpdate }: UnifiedTaskCardPro
 
   const handleClick = () => {
     navigate(`/task/${task.id}`);
-  };
-
-  const getTaskTypeIcon = () => {
-    switch (task.task_type) {
-      case 'flow':
-        return <Workflow className="h-4 w-4" />;
-      case 'step':
-        return <CheckSquare className="h-4 w-4" />;
-      default:
-        return <GitBranch className="h-4 w-4" />;
-    }
-  };
-
-  const getTaskTypeColor = () => {
-    switch (task.task_type) {
-      case 'flow':
-        return 'bg-purple-100 text-purple-800';
-      case 'step':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
   };
 
   const getPriorityColor = () => {
@@ -62,12 +40,6 @@ export function UnifiedTaskCard({ task, onDelete, onUpdate }: UnifiedTaskCardPro
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <Badge className={getTaskTypeColor()}>
-                {getTaskTypeIcon()}
-                <span className="ml-1 capitalize">{task.task_type}</span>
-              </Badge>
-            </div>
             <h3 className="font-semibold text-sm leading-tight">{task.title}</h3>
           </div>
           <Button
