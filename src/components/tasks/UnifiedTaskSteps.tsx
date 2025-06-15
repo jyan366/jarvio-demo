@@ -1,8 +1,8 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { 
   CheckCircle2, 
   Circle, 
@@ -11,11 +11,7 @@ import {
   Play, 
   Clock,
   ChevronRight,
-  Workflow,
-  Sparkles,
-  Edit3,
-  Save,
-  X
+  Workflow
 } from 'lucide-react';
 import { UnifiedTask } from '@/types/unifiedTask';
 import { parseTaskSteps, markStepCompleted } from '@/lib/unifiedTasks';
@@ -28,7 +24,6 @@ interface UnifiedTaskStepsProps {
   onTaskUpdate: () => void;
   onAddChildTask: (title: string) => void;
   onRemoveChildTask: (taskId: string) => void;
-  updateTaskDescription?: (description: string) => Promise<void>;
 }
 
 export function UnifiedTaskSteps({ 
@@ -36,15 +31,11 @@ export function UnifiedTaskSteps({
   childTasks, 
   onTaskUpdate, 
   onAddChildTask, 
-  onRemoveChildTask,
-  updateTaskDescription 
+  onRemoveChildTask 
 }: UnifiedTaskStepsProps) {
   const [newChildTitle, setNewChildTitle] = useState('');
   const [isAddingChild, setIsAddingChild] = useState(false);
   const [executingStep, setExecutingStep] = useState<number | null>(null);
-  const [editingSteps, setEditingSteps] = useState(false);
-  const [editedDescription, setEditedDescription] = useState(task.description || '');
-  const [isGeneratingSteps, setIsGeneratingSteps] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -71,55 +62,6 @@ export function UnifiedTaskSteps({
       });
     } finally {
       setExecutingStep(null);
-    }
-  };
-
-  const handleCreateWithAI = async () => {
-    setIsGeneratingSteps(true);
-    try {
-      // Simulate AI step generation - in a real app, this would call an AI service
-      const aiGeneratedSteps = [
-        "Research and analyze the requirements",
-        "Plan the implementation approach", 
-        "Set up the development environment",
-        "Implement the core functionality",
-        "Test and validate the implementation",
-        "Document the solution",
-        "Deploy and monitor"
-      ];
-      
-      const newDescription = aiGeneratedSteps.map((step, index) => `${index + 1}. ${step}`).join('\n');
-      setEditedDescription(newDescription);
-      setEditingSteps(true);
-      
-      toast({
-        title: "AI Steps Generated",
-        description: "AI has generated task steps. Review and save them."
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate AI steps",
-        variant: "destructive"
-      });
-    } finally {
-      setIsGeneratingSteps(false);
-    }
-  };
-
-  const handleSaveSteps = async () => {
-    try {
-      if (updateTaskDescription) {
-        await updateTaskDescription(editedDescription);
-      }
-      setEditingSteps(false);
-      onTaskUpdate();
-    } catch (error) {
-      toast({
-        title: "Error", 
-        description: "Failed to update steps",
-        variant: "destructive"
-      });
     }
   };
 
@@ -181,96 +123,17 @@ export function UnifiedTaskSteps({
   return (
     <div className="space-y-6">
       {/* Task Steps - unified handling for all task types */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
+      {hasSteps && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
             {isFlowTask && <Workflow className="h-5 w-5 text-purple-600" />}
             <h3 className="font-semibold text-lg">
               {isFlowTask ? 'Flow Steps' : 'Task Steps'}
             </h3>
-            {hasSteps && (
-              <Badge variant="outline" className="text-xs">
-                {completedSteps.length} / {steps.length} completed
-              </Badge>
-            )}
+            <Badge variant="outline" className="text-xs">
+              {completedSteps.length} / {steps.length} completed
+            </Badge>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleCreateWithAI}
-              disabled={isGeneratingSteps}
-              className="flex items-center gap-2"
-            >
-              {isGeneratingSteps ? (
-                <>
-                  <Clock className="h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  Create with AI
-                </>
-              )}
-            </Button>
-            {hasSteps && !editingSteps && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setEditingSteps(true);
-                  setEditedDescription(task.description || '');
-                }}
-                className="flex items-center gap-2"
-              >
-                <Edit3 className="h-4 w-4" />
-                Edit Steps
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Step editing mode */}
-        {editingSteps && (
-          <Card className="mb-4">
-            <CardContent className="p-4">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Edit Task Steps (one per line or numbered list)
-                  </label>
-                  <Textarea
-                    value={editedDescription}
-                    onChange={(e) => setEditedDescription(e.target.value)}
-                    placeholder="Enter task steps, one per line or as a numbered list..."
-                    className="min-h-[200px]"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={handleSaveSteps} className="flex items-center gap-2">
-                    <Save className="h-4 w-4" />
-                    Save Steps
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setEditingSteps(false);
-                      setEditedDescription(task.description || '');
-                    }}
-                    className="flex items-center gap-2"
-                  >
-                    <X className="h-4 w-4" />
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Steps display */}
-        {hasSteps && !editingSteps && (
           <div className="space-y-3">
             {steps.map((step, index) => {
               const status = getStepStatus(index);
@@ -321,32 +184,8 @@ export function UnifiedTaskSteps({
               );
             })}
           </div>
-        )}
-
-        {/* Empty state for no steps */}
-        {!hasSteps && !editingSteps && (
-          <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-            <p className="mb-4">No steps defined for this task yet.</p>
-            <Button
-              onClick={handleCreateWithAI}
-              disabled={isGeneratingSteps}
-              className="flex items-center gap-2"
-            >
-              {isGeneratingSteps ? (
-                <>
-                  <Clock className="h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  Create with AI
-                </>
-              )}
-            </Button>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Child Tasks - FIXED: Only show for non-flow tasks or when actual child tasks exist */}
       {(!isFlowTask || hasActualChildTasks) && (

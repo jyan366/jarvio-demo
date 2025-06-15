@@ -43,7 +43,6 @@ export default function UnifiedTaskWorkContainer() {
     loading,
     error,
     updateTask,
-    updateTaskDescription,
     addChild,
     removeChild,
     refresh
@@ -129,18 +128,6 @@ export default function UnifiedTaskWorkContainer() {
       }
     }, 1000);
   };
-
-  // Enhanced UnifiedTaskSteps component with AI integration
-  const EnhancedUnifiedTaskSteps = () => (
-    <UnifiedTaskSteps
-      task={task!}
-      childTasks={childTasks}
-      onTaskUpdate={refresh}
-      onAddChildTask={addChild}
-      onRemoveChildTask={removeChild}
-      updateTaskDescription={updateTaskDescription}
-    />
-  );
 
   // Auto-run hook - now called after all other hooks but before conditional returns
   useJarvioAutoRun({
@@ -277,8 +264,14 @@ export default function UnifiedTaskWorkContainer() {
                 isFlowTask={task.task_type === 'flow'}
               />
 
-              {/* Main Task Content with AI Integration */}
-              <EnhancedUnifiedTaskSteps />
+              {/* Main Task Content */}
+              <UnifiedTaskSteps
+                task={task}
+                childTasks={childTasks}
+                onTaskUpdate={refresh}
+                onAddChildTask={addChild}
+                onRemoveChildTask={removeChild}
+              />
             </div>
           </div>
         </div>
