@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
 import { Flow, FlowBlock, FlowStep } from '@/types/flowTypes';
 import { TriggerType } from '@/components/jarvi-flows/FlowsGrid';
-import { convertFlowToUnifiedTask } from '@/lib/unifiedTasks';
+import { fetchTaskById, updateUnifiedTask, createUnifiedTask } from '@/lib/unifiedTasks';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 
