@@ -94,8 +94,8 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
           <div
             key={sub.id || idx}
             className={`flex items-center border rounded-lg px-3 py-3 bg-white group cursor-pointer transition 
-              ${focusedSubtaskIdx === idx ? "ring-2 ring-blue-400 border-blue-400" : "border-gray-200"}
-              hover:bg-gray-50 ${sub.done ? "opacity-60" : ""}`}
+              ${focusedSubtaskIdx === idx ? "ring-2 ring-blue-200 border-blue-200" : "border-gray-100"}
+              hover:bg-gray-50 ${sub.done ? "opacity-75 bg-green-50" : ""}`}
             tabIndex={0}
             onClick={() => onFocusSubtask(idx)}
             role="button"
@@ -104,25 +104,29 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
             <Button
               variant={sub.done ? "default" : "outline"}
               size="icon"
-              className={`mr-3 ${sub.done ? "bg-blue-500 hover:bg-blue-600" : ""}`}
+              className={`mr-3 h-6 w-6 ${sub.done ? "bg-green-500 hover:bg-green-600 border-green-500" : "border-gray-200 hover:border-gray-300"}`}
               onClick={e => { e.stopPropagation(); onToggleSubtask(idx); }}
               aria-label={sub.done ? "Mark incomplete" : "Mark complete"}
             >
-              {sub.done ? <Check className="w-4 h-4" /> : <div className="w-4 h-4 border rounded-full"></div>}
+              {sub.done ? <Check className="w-3 h-3" /> : <div className="w-3 h-3"></div>}
             </Button>
             <div className="flex-1 min-w-0">
               <div className="flex items-center">
-                <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium border-2 mr-2 ${
+                <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium border mr-2 ${
                   sub.done 
                     ? "bg-green-500 text-white border-green-500" 
-                    : "bg-white text-black border-black"
+                    : "bg-white text-gray-700 border-gray-300"
                 }`}>
-                  {idx + 1}
+                  {sub.done ? <Check className="w-3 h-3" /> : (idx + 1)}
                 </span>
-                <span className={`text-base font-medium ${sub.done ? "line-through text-gray-400" : ""}`}>
+                <span className={`text-base font-medium ${sub.done ? "line-through text-gray-500" : "text-gray-900"}`}>
                   {sub.title}
                 </span>
-                <div className="ml-2 bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs font-medium">
+                <div className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${
+                  sub.done 
+                    ? "bg-green-100 text-green-700" 
+                    : "bg-blue-50 text-blue-600"
+                }`}>
                   {sub.category || "think"} 
                 </div>
               </div>
@@ -141,18 +145,18 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="opacity-70 hover:text-blue-800"
+                className="h-8 w-8 opacity-70 hover:opacity-100 hover:text-blue-600"
                 onClick={e => { e.stopPropagation(); onOpenSubtask(idx); }}
                 aria-label="Open step details"
                 title="Open details"
               >
-                <ArrowRight className="h-5 w-5" />
+                <ArrowRight className="h-4 w-4" />
               </Button>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="opacity-60 hover:text-red-600 transition"
+                className="h-8 w-8 opacity-60 hover:opacity-100 hover:text-red-500 transition"
                 onClick={e => { e.stopPropagation(); onRemoveSubtask(idx); }}
                 aria-label="Delete step"
                 title="Delete"
