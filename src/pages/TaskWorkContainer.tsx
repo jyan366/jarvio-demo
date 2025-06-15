@@ -124,27 +124,33 @@ export default function TaskWorkContainer({
     );
   }
 
-  // Get flow data from task
-  let flowSteps: FlowStep[] = task.data?.flowSteps || [];
-  let flowBlocks: FlowBlock[] = task.data?.flowBlocks || [];
+  // Get flow data from task - only for tasks that actually have flow steps
+  let flowSteps: FlowStep[] = [];
+  let flowBlocks: FlowBlock[] = [];
 
-  // Ensure proper linking between steps and blocks
-  if (flowSteps.length > 0 && flowBlocks.length > 0) {
-    // Make sure each step has the correct blockId
-    flowSteps = flowSteps.map((step, index) => ({
-      ...step,
-      blockId: flowBlocks[index]?.id || step.blockId
-    }));
-  } else if (flowBlocks.length > 0 && flowSteps.length === 0) {
-    // Create steps from blocks with proper linking
-    flowSteps = flowBlocks.map((block, index) => ({
-      id: `step-${block.id}`,
-      title: block.name,
-      description: "",
-      completed: task.steps_completed?.includes(index) || false,
-      order: index,
-      blockId: block.id
-    }));
+  // Only process flow data if the task actually has flow steps (not from description parsing)
+  if (task.data?.flowSteps && Array.isArray(task.data.flowSteps) && task.data.flowSteps.length > 0) {
+    flowSteps = task.data.flowSteps;
+    flowBlocks = task.data.flowBlocks || [];
+
+    // Ensure proper linking between steps and blocks
+    if (flowSteps.length > 0 && flowBlocks.length > 0) {
+      // Make sure each step has the correct blockId
+      flowSteps = flowSteps.map((step, index) => ({
+        ...step,
+        blockId: flowBlocks[index]?.id || step.blockId
+      }));
+    } else if (flowBlocks.length > 0 && flowSteps.length === 0) {
+      // Create steps from blocks with proper linking
+      flowSteps = flowBlocks.map((block, index) => ({
+        id: `step-${block.id}`,
+        title: block.name,
+        description: "",
+        completed: task.steps_completed?.includes(index) || false,
+        order: index,
+        blockId: block.id
+      }));
+    }
   }
 
   // Enhanced conversion to legacy format with flow execution data
@@ -169,6 +175,7 @@ export default function TaskWorkContainer({
         last30Units: "68",
       }
     ],
+    // Only include subtasks if there are actual child tasks, not from flow steps
     subtasks: childTasks.map((child, index) => ({
       id: child.id,
       title: child.title,
@@ -184,7 +191,7 @@ export default function TaskWorkContainer({
     insights: [],
     data: {
       ...task.data,
-      isFlowTask: task.task_type === 'flow',
+      isFlowTask: task.task_type === 'flow' || (flowSteps.length > 0),
       flowSteps: flowSteps,
       flowBlocks: flowBlocks,
       steps_completed: task.steps_completed || [],
@@ -192,7 +199,7 @@ export default function TaskWorkContainer({
     },
   };
 
-  const isFlowTask = task.task_type === 'flow' || task.category === 'FLOW';
+  const isFlowTask = task.task_type === 'flow' || task.category === 'FLOW' || flowSteps.length > 0;
 
   const handleUpdateTask = (field: keyof TaskWorkType, value: any) => {
     if (field === 'title') {

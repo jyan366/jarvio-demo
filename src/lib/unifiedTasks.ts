@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { UnifiedTask, TaskTreeNode, TaskType, TriggerType } from "@/types/unifiedTask";
 
@@ -199,7 +198,7 @@ export function getAllDescendants(task: TaskTreeNode): UnifiedTask[] {
   return descendants;
 }
 
-// Parse description into steps for agent execution - FIXED to handle flow steps properly
+// Parse description into steps for agent execution - UPDATED to handle flow steps properly and NOT parse regular task descriptions
 export function parseTaskSteps(task: UnifiedTask): string[] {
   console.log("Parsing task steps for task:", task.id, "type:", task.task_type, "data:", task.data);
   
@@ -220,22 +219,10 @@ export function parseTaskSteps(task: UnifiedTask): string[] {
     }
   }
   
-  // For regular tasks, parse from description
-  const description = task.description || '';
-  if (!description.trim()) return [];
-  
-  // Split by common step indicators
-  const steps = description
-    .split(/(?:\n|^)(?:\d+\.|[-*•]|\w+\))\s+/)
-    .filter(step => step.trim().length > 0)
-    .map(step => step.trim());
-  
-  // If no clear steps found, treat entire description as one step
-  if (steps.length <= 1) {
-    return [description.trim()];
-  }
-  
-  return steps;
+  // For regular tasks (not flow tasks), do NOT parse steps from description
+  // This prevents the description from being treated as steps
+  console.log("Regular task - not parsing steps from description");
+  return [];
 }
 
 // Mark a step as completed
