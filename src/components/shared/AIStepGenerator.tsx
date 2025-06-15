@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
@@ -19,7 +20,7 @@ interface AIStepGeneratorProps {
   taskDescription?: string;
   placeholder?: string;
   className?: string;
-  onClearCompletions?: () => void; // Add callback to clear completion data
+  onClearCompletions?: () => void;
 }
 
 export function AIStepGenerator({ 
@@ -61,7 +62,7 @@ export function AIStepGenerator({
       setIsGenerating(true);
       setAiError(null);
       
-      console.log("Generating flow for prompt:", data.prompt);
+      console.log("Generating steps for prompt:", data.prompt);
       
       // Clear completion data BEFORE generating new steps
       if (onClearCompletions) {
@@ -69,16 +70,11 @@ export function AIStepGenerator({
         await onClearCompletions();
       }
       
-      // Call the generate-flow edge function with block options
-      const response = await supabase.functions.invoke('generate-flow', {
+      // Call the generate-task-steps edge function directly
+      const response = await supabase.functions.invoke('generate-task-steps', {
         body: {
-          prompt: data.prompt,
-          blockOptions: {
-            collect: ['User Text', 'File Upload', 'Data Import', 'Form Input'],
-            think: ['Basic AI Analysis', 'Advanced Reasoning', 'Data Processing', 'Pattern Recognition'],
-            act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call'],
-            agent: ['Agent']
-          }
+          title: taskTitle || "Generated Task",
+          description: data.prompt
         }
       });
 
@@ -86,78 +82,58 @@ export function AIStepGenerator({
         throw new Error(response.error.message);
       }
 
-      if (!response.data || response.data.success === false) {
-        const errorMsg = response.data?.error || "Unknown error occurred";
-        console.error("Flow generation error:", errorMsg);
-        throw new Error(errorMsg);
-      }
-
-      const generatedFlow = response.data.generatedFlow;
-      console.log("Generated flow data:", generatedFlow);
-
-      // Handle the case where we get blocks instead of steps/blocks
-      let steps: FlowStep[] = [];
-      let blocks: FlowBlock[] = [];
-
-      if (generatedFlow?.blocks && Array.isArray(generatedFlow.blocks)) {
-        // Convert the generated blocks into steps and blocks format
-        generatedFlow.blocks.forEach((block: any, index: number) => {
-          const stepId = generateUUID();
-          const blockId = generateUUID();
-
-          // Create FlowStep - explicitly set completed to false
-          steps.push({
-            id: stepId,
-            title: block.name || `Step ${index + 1}`,
-            description: "",
-            completed: false, // Explicitly ensure new steps are not completed
-            order: index,
-            blockId: blockId
-          });
-
-          // Create FlowBlock
-          blocks.push({
-            id: blockId,
-            type: block.type || 'collect',
-            option: block.option || 'User Text',
-            name: block.name || `Step ${index + 1}`
-          });
-        });
-      } else if (generatedFlow?.steps && generatedFlow?.blocks) {
-        // Use the steps and blocks directly if they're already in the right format
-        // But ensure all steps are marked as not completed
-        steps = generatedFlow.steps.map((step: FlowStep) => ({
-          ...step,
-          completed: false // Explicitly ensure new steps are not completed
-        }));
-        blocks = generatedFlow.blocks;
-      } else {
-        throw new Error("Invalid response format - no blocks or steps found");
-      }
-
-      if (steps.length === 0) {
+      if (!response.data || !response.data.steps) {
         throw new Error("No steps were generated");
       }
+
+      const generatedSteps = response.data.steps;
+      console.log("Generated steps:", generatedSteps);
+
+      // Convert generated steps to FlowStep and FlowBlock format
+      const steps: FlowStep[] = [];
+      const blocks: FlowBlock[] = [];
+
+      generatedSteps.forEach((step: any, index: number) => {
+        const stepId = generateUUID();
+        const blockId = generateUUID();
+
+        // Create FlowStep - explicitly set completed to false
+        steps.push({
+          id: stepId,
+          title: step.title || `Step ${index + 1}`,
+          description: step.description || "",
+          completed: false, // Explicitly ensure new steps are not completed
+          order: index,
+          blockId: blockId
+        });
+
+        // Create FlowBlock with default type and option
+        blocks.push({
+          id: blockId,
+          type: index === 0 ? 'collect' : index === generatedSteps.length - 1 ? 'act' : 'think',
+          option: index === 0 ? 'User Text' : index === generatedSteps.length - 1 ? 'AI Summary' : 'Basic AI Analysis',
+          name: step.title || `Step ${index + 1}`
+        });
+      });
 
       console.log("Converted to steps:", steps);
       console.log("Converted to blocks:", blocks);
 
       // Call the callback with the generated steps and blocks
-      // This will replace all existing steps
       onStepsGenerated(steps, blocks);
       form.reset();
       
       toast({
-        title: "Flow generated",
-        description: `Generated ${steps.length} steps with linked blocks`
+        title: "Steps generated",
+        description: `Generated ${steps.length} steps successfully`
       });
       
     } catch (error) {
-      console.error("Error generating flow:", error);
+      console.error("Error generating steps:", error);
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
       setAiError(errorMessage);
       toast({
-        title: "Error generating flow",
+        title: "Error generating steps",
         description: errorMessage,
         variant: "destructive"
       });
@@ -176,7 +152,7 @@ export function AIStepGenerator({
               name="prompt"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-md font-medium">Generate flow with AI</FormLabel>
+                  <FormLabel className="text-md font-medium">Generate steps with AI</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder={placeholder}
@@ -216,7 +192,7 @@ export function AIStepGenerator({
               {!aiError && (
                 <div className="text-xs text-muted-foreground flex items-center mt-2 sm:mt-0">
                   <HelpCircle className="h-3 w-3 mr-1" />
-                  AI will generate actionable steps with execution blocks
+                  AI will generate actionable steps for your task
                 </div>
               )}
             </div>
