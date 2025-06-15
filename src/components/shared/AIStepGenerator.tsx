@@ -8,13 +8,19 @@ import { AlertCircle, HelpCircle, Loader2, WandSparkles } from 'lucide-react';
 import { UseFormReturn, useForm } from 'react-hook-form';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { FlowStep, FlowBlock } from '@/types/flowTypes';
 
 interface AIStepFormValues {
   prompt: string;
 }
 
+interface GeneratedFlow {
+  steps: FlowStep[];
+  blocks: FlowBlock[];
+}
+
 interface AIStepGeneratorProps {
-  onStepsGenerated: (steps: string[]) => void;
+  onStepsGenerated: (steps: FlowStep[], blocks: FlowBlock[]) => void;
   taskTitle?: string;
   taskDescription?: string;
   placeholder?: string;
@@ -25,7 +31,7 @@ export function AIStepGenerator({
   onStepsGenerated, 
   taskTitle, 
   taskDescription,
-  placeholder = "E.g.: Break down this task into actionable steps that can be executed by an AI agent...",
+  placeholder = "E.g.: Create a flow that analyzes customer reviews weekly, identifies common issues, and sends a summary email to the team.",
   className = ""
 }: AIStepGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -51,12 +57,12 @@ export function AIStepGenerator({
       setIsGenerating(true);
       setAiError(null);
       
-      console.log("Generating steps for prompt:", data.prompt);
+      console.log("Generating flow for prompt:", data.prompt);
       
-      const response = await supabase.functions.invoke('generate-task-steps', {
+      // Use the same flow generation approach as the flow builder
+      const response = await supabase.functions.invoke('generate-flow', {
         body: {
-          title: taskTitle || "Task Steps",
-          description: data.prompt
+          prompt: data.prompt
         }
       });
 
@@ -64,27 +70,31 @@ export function AIStepGenerator({
         throw new Error(response.error.message);
       }
 
-      const steps = response.data?.steps || [];
-      const stepTitles = steps.map((step: any) => step.title || step);
-      
-      if (stepTitles.length === 0) {
-        throw new Error("No steps were generated");
+      if (!response.data || response.data.success === false) {
+        const errorMsg = response.data?.error || "Unknown error occurred";
+        console.error("Flow generation error:", errorMsg);
+        throw new Error(errorMsg);
       }
 
-      onStepsGenerated(stepTitles);
+      const generatedFlow = response.data.generatedFlow;
+      if (!generatedFlow || !generatedFlow.steps || !generatedFlow.blocks) {
+        throw new Error("No flow was generated");
+      }
+
+      onStepsGenerated(generatedFlow.steps, generatedFlow.blocks);
       form.reset();
       
       toast({
-        title: "Steps generated",
-        description: `Generated ${stepTitles.length} steps for your task`
+        title: "Flow generated",
+        description: `Generated ${generatedFlow.steps.length} steps with linked blocks`
       });
       
     } catch (error) {
-      console.error("Error generating steps:", error);
+      console.error("Error generating flow:", error);
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
       setAiError(errorMessage);
       toast({
-        title: "Error generating steps",
+        title: "Error generating flow",
         description: errorMessage,
         variant: "destructive"
       });
@@ -103,7 +113,7 @@ export function AIStepGenerator({
               name="prompt"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-md font-medium">Generate steps with AI</FormLabel>
+                  <FormLabel className="text-md font-medium">Generate flow with AI</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder={placeholder}
@@ -143,7 +153,7 @@ export function AIStepGenerator({
               {!aiError && (
                 <div className="text-xs text-muted-foreground flex items-center mt-2 sm:mt-0">
                   <HelpCircle className="h-3 w-3 mr-1" />
-                  AI will generate actionable steps for your task
+                  AI will generate actionable steps with execution blocks
                 </div>
               )}
             </div>

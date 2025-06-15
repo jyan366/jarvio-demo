@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { AIStepGenerator } from '@/components/shared/AIStepGenerator';
+import { FlowStep, FlowBlock } from '@/types/flowTypes';
 
 interface AIPromptSectionProps {
   form: any;
-  onSubmit: (data: { prompt: string }) => Promise<void>;
+  onSubmit: (steps: FlowStep[], blocks: FlowBlock[]) => Promise<void>;
   isGenerating: boolean;
   aiError: string | null;
 }
@@ -15,9 +16,8 @@ export function AIPromptSection({
   isGenerating, 
   aiError 
 }: AIPromptSectionProps) {
-  const handleStepsGenerated = async (steps: string[]) => {
-    // Convert steps to the expected format for flow generation
-    await onSubmit({ prompt: form.getValues('prompt') });
+  const handleStepsGenerated = async (steps: FlowStep[], blocks: FlowBlock[]) => {
+    await onSubmit(steps, blocks);
   };
 
   return (

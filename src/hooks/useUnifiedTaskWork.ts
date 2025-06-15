@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   fetchTaskById, 
@@ -98,6 +97,32 @@ export function useUnifiedTaskWork(taskId: string) {
     }
   };
 
+  const updateFlowData = async (flowSteps: any[], flowBlocks: any[]) => {
+    if (!task) return;
+    
+    try {
+      const updatedData = {
+        ...task.data,
+        flowSteps,
+        flowBlocks
+      };
+      
+      await updateUnifiedTask(task.id, { data: updatedData });
+      setTask(prev => prev ? { ...prev, data: updatedData } : null);
+      
+      toast({
+        title: "Flow updated",
+        description: "Flow steps and blocks have been successfully updated"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update flow data",
+        variant: "destructive"
+      });
+    }
+  };
+
   const addChild = async (title: string, description?: string) => {
     if (!task) return;
     
@@ -143,6 +168,7 @@ export function useUnifiedTaskWork(taskId: string) {
     error,
     updateTask,
     updateTaskSteps,
+    updateFlowData,
     addChild,
     removeChild,
     markStepComplete,

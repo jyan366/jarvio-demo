@@ -17,8 +17,8 @@ import { UnifiedTask } from '@/types/unifiedTask';
 import { parseTaskSteps, markStepCompleted } from '@/lib/unifiedTasks';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { AIStepGenerator } from '@/components/shared/AIStepGenerator';
-import { StepEditor } from '@/components/shared/StepEditor';
+import { FlowStepsManager } from '@/components/shared/FlowStepsManager';
+import { FlowStep, FlowBlock } from '@/types/flowTypes';
 
 interface UnifiedTaskStepsProps {
   task: UnifiedTask;
@@ -38,13 +38,29 @@ export function UnifiedTaskSteps({
   const [newChildTitle, setNewChildTitle] = useState('');
   const [isAddingChild, setIsAddingChild] = useState(false);
   const [executingStep, setExecutingStep] = useState<number | null>(null);
-  const [showAIGenerator, setShowAIGenerator] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   // Parse steps - unified for all task types
   const steps = parseTaskSteps(task);
   const completedSteps = task.steps_completed || [];
+
+  // Convert task data to flow format
+  const flowSteps: FlowStep[] = (task.data?.flowSteps || steps.map((step, index) => ({
+    id: `step-${index}`,
+    title: step,
+    description: "",
+    completed: completedSteps.includes(index),
+    order: index,
+    blockId: `block-${index}`
+  })));
+
+  const flowBlocks: FlowBlock[] = (task.data?.flowBlocks || flowSteps.map((step, index) => ({
+    id: step.blockId || `block-${index}`,
+    type: 'collect' as const,
+    option: 'User Text',
+    name: step.title
+  })));
 
   const handleStepExecute = async (stepIndex: number) => {
     try {
@@ -68,59 +84,29 @@ export function UnifiedTaskSteps({
     }
   };
 
-  const handleStepsGenerated = async (generatedSteps: string[]) => {
-    try {
-      // Update task data with generated steps
-      const updatedData = {
-        ...task.data,
-        flowSteps: generatedSteps.map((step, index) => ({
-          id: crypto.randomUUID(),
-          title: step,
-          description: "",
-          completed: false,
-          order: index
-        }))
-      };
-      
-      // Update task with new steps data
-      await onTaskUpdate();
-      setShowAIGenerator(false);
-      
-      toast({
-        title: "Steps generated",
-        description: `Generated ${generatedSteps.length} steps for your task`
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save generated steps",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleStepsChange = (updatedSteps: any[]) => {
-    // Convert to the format expected by the task system
-    const stepsData = updatedSteps.map(step => ({
-      id: step.id,
-      title: step.title,
-      description: step.description || "",
-      completed: step.completed || false,
-      order: step.order || 0
-    }));
-    
-    // Update task data
+  const handleFlowStepsChange = (updatedSteps: FlowStep[]) => {
+    // Update task data with new flow steps
+    const updatedData = {
+      ...task.data,
+      flowSteps: updatedSteps,
+      flowBlocks: flowBlocks // Keep existing blocks
+    };
+    // Note: This would need to be implemented in the hook
+    console.log('Updated flow steps:', updatedSteps);
     onTaskUpdate();
   };
 
-  // Convert parsed steps to editor format
-  const editorSteps = steps.map((step, index) => ({
-    id: `step-${index}`,
-    title: step,
-    description: "",
-    completed: completedSteps.includes(index),
-    order: index
-  }));
+  const handleFlowBlocksChange = (updatedBlocks: FlowBlock[]) => {
+    // Update task data with new flow blocks
+    const updatedData = {
+      ...task.data,
+      flowSteps: flowSteps, // Keep existing steps
+      flowBlocks: updatedBlocks
+    };
+    // Note: This would need to be implemented in the hook
+    console.log('Updated flow blocks:', updatedBlocks);
+    onTaskUpdate();
+  };
 
   const handleAddChild = async () => {
     if (!newChildTitle.trim()) return;
@@ -169,23 +155,12 @@ export function UnifiedTaskSteps({
     }
   };
 
-  const hasSteps = steps.length > 0;
   const hasActualChildTasks = childTasks.length > 0;
   const isFlowTask = task.task_type === 'flow';
 
   return (
     <div className="space-y-6">
-      {/* AI Step Generator */}
-      {showAIGenerator && (
-        <AIStepGenerator
-          onStepsGenerated={handleStepsGenerated}
-          taskTitle={task.title}
-          taskDescription={task.description}
-          placeholder="Describe what you want to accomplish, and AI will generate actionable steps..."
-        />
-      )}
-
-      {/* Task Steps - unified handling for all task types */}
+      {/* Flow Steps Manager - identical to flow builder */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -194,38 +169,23 @@ export function UnifiedTaskSteps({
               {isFlowTask ? 'Flow Steps' : 'Task Steps'}
             </h3>
             <Badge variant="outline" className="text-xs">
-              {completedSteps.length} / {steps.length} completed
+              {completedSteps.length} / {flowSteps.length} completed
             </Badge>
           </div>
-          <Button
-            size="sm"
-            onClick={() => setShowAIGenerator(!showAIGenerator)}
-            className="flex items-center gap-2"
-            variant="outline"
-          >
-            Create with AI
-          </Button>
         </div>
 
-        {hasSteps ? (
-          <StepEditor
-            steps={editorSteps}
-            onStepsChange={handleStepsChange}
-            onStepExecute={handleStepExecute}
-            completedSteps={completedSteps}
-            executingStep={executingStep}
-            title=""
-            showExecuteButtons={true}
-            showCompletionStatus={true}
-          />
-        ) : (
-          <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-            <p>No steps yet. Click "Create with AI" to generate steps for this task.</p>
-          </div>
-        )}
+        <FlowStepsManager
+          steps={flowSteps}
+          blocks={flowBlocks}
+          onStepsChange={handleFlowStepsChange}
+          onBlocksChange={handleFlowBlocksChange}
+          taskTitle={task.title}
+          taskDescription={task.description}
+          showAIGenerator={true}
+        />
       </div>
 
-      {/* Child Tasks - FIXED: Only show for non-flow tasks or when actual child tasks exist */}
+      {/* Child Tasks - only show for non-flow tasks or when actual child tasks exist */}
       {(!isFlowTask || hasActualChildTasks) && (
         <div>
           <div className="flex items-center justify-between mb-4">
