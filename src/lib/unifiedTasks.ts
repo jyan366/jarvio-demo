@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { UnifiedTask, TaskTreeNode, TaskType, TriggerType } from "@/types/unifiedTask";
 
@@ -382,15 +383,14 @@ export async function addChildTask(parentId: string, title: string, description?
         trigger: 'manual' as TriggerType,
         saved_to_flows: false,
         steps_completed: [],
-        step_execution_log: [],
-        data: { skipAutoStepGeneration: true, isChildTask: true } // Prevent step generation for child tasks
+        step_execution_log: []
       })
       .select()
       .single();
       
     if (error) throw error;
     
-    console.log("Child task created, SKIPPING step generation");
+    console.log("Child task created successfully");
     console.log("=== ADD CHILD TASK DEBUG END ===");
     
     return {
