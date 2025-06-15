@@ -169,6 +169,7 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onCreateTask={handleTaskCreated}
+        disableAutoStepGeneration={true}
       />
     </div>
   );
