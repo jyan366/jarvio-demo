@@ -1,3 +1,4 @@
+
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -85,7 +86,9 @@ export default function TaskWorkContainer({
     addChild,
     removeChild,
     refresh,
-    updateFlowData
+    updateFlowData,
+    updateFlowSteps,
+    updateFlowBlocks
   } = useUnifiedTaskWork(taskId);
 
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
@@ -144,7 +147,6 @@ export default function TaskWorkContainer({
       status: child.status,
       priority: child.priority,
       category: child.category || "",
-      // Include block execution data for flow steps
       blockData: child.data?.blockData,
       executionOrder: child.data?.blockData?.executionOrder ?? index,
     })),
@@ -152,9 +154,8 @@ export default function TaskWorkContainer({
     insights: [],
     data: {
       ...task.data,
-      // Ensure flow data is preserved
       isFlowTask: task.task_type === 'flow',
-      flowBlocks: task.data?.blocks || [],
+      flowBlocks: task.data?.flowBlocks || [],
       flowExecutionMetadata: task.data?.executionMetadata || {}
     },
   };
@@ -294,7 +295,9 @@ export default function TaskWorkContainer({
               onFocusSubtask={handleFocusSubtask} 
               onUpdateSubtask={handleUpdateSubtask} 
               onOpenSubtask={handleOpenSubtask} 
-              isFlowTask={isFlowTask} 
+              isFlowTask={isFlowTask}
+              onUpdateFlowSteps={updateFlowSteps}
+              onUpdateFlowBlocks={updateFlowBlocks}
             />
           </div>
         </main>

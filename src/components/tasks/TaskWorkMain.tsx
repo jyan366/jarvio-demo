@@ -3,12 +3,13 @@ import React from "react";
 import { TaskWorkHeader } from "./TaskWorkHeader";
 import { TaskWorkProductCard } from "./TaskWorkProductCard";
 import { TaskWorkSubtasks } from "./TaskWorkSubtasks";
-import { FlowSteps } from "./flows/FlowSteps";
+import { FlowStepsEditor } from "@/components/jarvi-flows/builder/FlowStepsEditor";
 import { TaskInsights } from "./TaskInsights";
 import { TaskWorkType, Subtask, TaskInsight } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { FlowStep, FlowBlock } from "@/types/flowTypes";
 
 interface TaskWorkMainProps {
   task: TaskWorkType;
@@ -24,6 +25,8 @@ interface TaskWorkMainProps {
   onUpdateSubtask: (field: keyof Subtask, value: any) => void;
   onOpenSubtask: (idx: number) => void;
   isFlowTask?: boolean;
+  onUpdateFlowSteps?: (steps: FlowStep[]) => void;
+  onUpdateFlowBlocks?: (blocks: FlowBlock[]) => void;
 }
 
 export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
@@ -40,6 +43,8 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   onUpdateSubtask,
   onOpenSubtask,
   isFlowTask = false,
+  onUpdateFlowSteps,
+  onUpdateFlowBlocks,
 }) => {
   const { toast } = useToast();
 
@@ -73,6 +78,10 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   const handleAddComment = (insight: TaskInsight) => {
     onOpenSidebarMobile();
   };
+
+  // Get flow steps and blocks from task data
+  const flowSteps: FlowStep[] = task.data?.flowSteps || [];
+  const flowBlocks: FlowBlock[] = task.data?.flowBlocks || [];
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -122,14 +131,29 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
 
       <div className="mt-2">
         {isFlowTask ? (
-          <FlowSteps 
-            subtasks={task.subtasks}
-            onToggleSubtask={onToggleSubtask}
-            onAddSubtask={onAddSubtask}
-            onRemoveSubtask={onRemoveSubtask}
-            focusedSubtaskIdx={focusedSubtaskIdx}
-            onFocusSubtask={onFocusSubtask}
-            onOpenSubtask={onOpenSubtask}
+          <FlowStepsEditor
+            steps={flowSteps}
+            blocks={flowBlocks}
+            onStepsChange={onUpdateFlowSteps || (() => {})}
+            onBlocksChange={onUpdateFlowBlocks || (() => {})}
+            availableBlockOptions={{
+              collect: ['User Text', 'File Upload', 'Data Import', 'Form Input'],
+              think: ['Basic AI Analysis', 'Advanced Reasoning', 'Data Processing', 'Pattern Recognition'],
+              act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call'],
+              agent: ['Agent']
+            }}
+            task={{
+              id: task.id,
+              title: task.title,
+              description: task.description,
+              status: task.status,
+              priority: task.priority,
+              category: task.category,
+              date: task.date,
+              task_type: 'flow',
+              steps_completed: task.data?.steps_completed || [],
+              data: task.data
+            }}
           />
         ) : (
           <TaskWorkSubtasks
