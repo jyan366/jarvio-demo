@@ -366,6 +366,17 @@ export async function addChildTask(parentId: string, title: string, description?
       
     if (error) throw error;
     
+    // Generate steps with AI for the child task
+    if (data?.id) {
+      const prompt = `${title}. ${description || ''}`;
+      try {
+        await generateStepsWithAI(data.id, prompt);
+      } catch (stepError) {
+        console.error("Error generating steps for child task:", stepError);
+        // Don't throw here, the task was created successfully
+      }
+    }
+    
     return {
       id: data.id,
       title: data.title,
@@ -398,6 +409,77 @@ export async function addChildTask(parentId: string, title: string, description?
     throw error;
   }
 }
+
+// Add the generateStepsWithAI function that was in CreateTaskFlow
+const generateStepsWithAI = async (taskId: string, prompt: string) => {
+  try {
+    console.log("Generating steps for task:", taskId, "with prompt:", prompt);
+    
+    const response = await supabase.functions.invoke('generate-flow', {
+      body: {
+        prompt: prompt,
+        blockOptions: {
+          collect: ['User Text', 'File Upload', 'Data Import', 'Form Input'],
+          think: ['Basic AI Analysis', 'Advanced Reasoning', 'Data Processing', 'Pattern Recognition'],
+          act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call'],
+          agent: ['Agent']
+        }
+      }
+    });
+
+    if (response.error) {
+      throw new Error(response.error.message);
+    }
+
+    if (!response.data || response.data.success === false) {
+      const errorMsg = response.data?.error || "Unknown error occurred";
+      throw new Error(errorMsg);
+    }
+
+    const generatedFlow = response.data.generatedFlow;
+
+    if (generatedFlow?.blocks && Array.isArray(generatedFlow.blocks)) {
+      // Convert blocks to flow steps and blocks
+      const flowSteps = generatedFlow.blocks.map((block: any, index: number) => ({
+        id: generateUUID(),
+        title: block.name || `Step ${index + 1}`,
+        description: "",
+        completed: false,
+        order: index,
+        blockId: generateUUID()
+      }));
+
+      const flowBlocks = generatedFlow.blocks.map((block: any, index: number) => ({
+        id: flowSteps[index].blockId,
+        type: block.type || 'collect',
+        option: block.option || 'User Text',
+        name: block.name || `Step ${index + 1}`
+      }));
+
+      // Update the task with the generated steps
+      await updateUnifiedTask(taskId, {
+        data: {
+          flowSteps,
+          flowBlocks
+        },
+        task_type: 'flow'
+      });
+
+      console.log("Successfully generated and saved", flowSteps.length, "steps for task");
+    }
+  } catch (error) {
+    console.error("Error generating steps:", error);
+    throw error;
+  }
+};
+
+const generateUUID = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
 
 // Update task
 export async function updateUnifiedTask(taskId: string, updates: Partial<UnifiedTask>) {
