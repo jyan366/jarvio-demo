@@ -12,11 +12,7 @@ import { parseTaskSteps } from "@/lib/unifiedTasks";
 import { useJarvioAutoRun } from "@/components/tasks/hooks/useJarvioAutoRun";
 
 export default function UnifiedTaskWorkContainer() {
-  const {
-    taskId
-  } = useParams<{
-    taskId: string;
-  }>();
+  const { taskId } = useParams<{ taskId: string; }>();
   const navigate = useNavigate();
 
   // All hooks must be called at the top, before any conditional logic
@@ -59,16 +55,16 @@ export default function UnifiedTaskWorkContainer() {
     refresh
   } = useUnifiedTaskWork(taskId || '');
 
-  // Parse steps and create subtasks (move this logic up so it's available for hooks)
-  const steps = task ? parseTaskSteps(task) : [];
-  const subtasks = steps.map((step, index) => ({
-    id: `step-${index}`,
-    title: step,
-    description: "",
-    done: task?.steps_completed?.includes(index) || false,
-    status: task?.steps_completed?.includes(index) ? 'Done' as const : 'Not Started' as const,
-    priority: 'MEDIUM' as const,
-    category: 'FLOW'
+  // Parse steps from child tasks - simplified approach
+  const steps = task ? parseTaskSteps(task, childTasks) : [];
+  const subtasks = childTasks.map((child) => ({
+    id: child.id,
+    title: child.title,
+    description: child.description,
+    done: child.status === 'Done',
+    status: child.status,
+    priority: child.priority,
+    category: child.category || 'FLOW'
   }));
 
   // Helper functions
@@ -86,11 +82,11 @@ export default function UnifiedTaskWorkContainer() {
   const handleStepComplete = async (stepIndex: number) => {
     try {
       setIsLoading(true);
-      const currentCompleted = task?.steps_completed || [];
-      const updatedCompleted = currentCompleted.includes(stepIndex) ? currentCompleted.filter(idx => idx !== stepIndex) : [...currentCompleted, stepIndex];
-      await updateTask({
-        steps_completed: updatedCompleted
-      });
+      const childTask = childTasks[stepIndex];
+      if (!childTask) return;
+      
+      const newStatus = childTask.status === 'Done' ? 'Not Started' : 'Done';
+      await updateTask({ status: newStatus });
 
       // Store step result data
       setSubtaskData(prev => ({
@@ -106,7 +102,6 @@ export default function UnifiedTaskWorkContainer() {
         setReadyForNextSubtask(true);
       }
       
-      // DON'T call refresh() here - this was causing the chat to reset
       console.log(`Step ${stepIndex + 1} completed successfully`);
     } catch (error) {
       console.error("Error updating step completion:", error);
@@ -200,6 +195,9 @@ export default function UnifiedTaskWorkContainer() {
         Parent Task
       </Button>);
   }
+
+  // Simplified flow detection: any task with child tasks is a "flow"
+  const isFlowTask = childTasks.length > 0;
   
   return <MainLayout>
       <div className="flex h-screen">
@@ -208,24 +206,26 @@ export default function UnifiedTaskWorkContainer() {
           <div className="flex-1 overflow-auto">
             <div className="max-w-4xl mx-auto p-6 space-y-6">
               {/* Task Header */}
-              <TaskWorkHeader title={task.title} onTitleChange={newTitle => updateTask({
-              title: newTitle
-            })} createdAt={task.date || ''} description={task.description} onDescriptionChange={desc => updateTask({
-              description: desc
-            })} status={task.status} setStatus={status => updateTask({
-              status: status as any
-            })} priority={task.priority} setPriority={priority => updateTask({
-              priority: priority as any
-            })} category={task.category} setCategory={category => updateTask({
-              category
-            })} isFlowTask={task.task_type === 'flow'} />
+              <TaskWorkHeader 
+                title={task.title} 
+                onTitleChange={newTitle => updateTask({ title: newTitle })} 
+                createdAt={task.date || ''} 
+                description={task.description} 
+                onDescriptionChange={desc => updateTask({ description: desc })} 
+                status={task.status} 
+                setStatus={status => updateTask({ status: status as any })} 
+                priority={task.priority} 
+                setPriority={priority => updateTask({ priority: priority as any })} 
+                category={task.category} 
+                setCategory={category => updateTask({ category })} 
+                isFlowTask={isFlowTask} 
+              />
 
               {/* Main Task Content */}
               <UnifiedTaskSteps 
                 task={task} 
                 childTasks={childTasks} 
                 onTaskUpdate={() => {
-                  // Only refresh task data without resetting the entire component
                   console.log("Task updated, maintaining chat state");
                 }} 
                 onAddChildTask={addChild} 
@@ -239,7 +239,25 @@ export default function UnifiedTaskWorkContainer() {
 
         {/* Sidebar */}
         {sidebarOpen && <div className="w-80 border-l bg-background">
-            <TaskWorkSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} selectedTab={selectedTab} setSelectedTab={setSelectedTab} comments={comments} addComment={addComment} commentValue={commentValue} setCommentValue={setCommentValue} taskId={taskId} taskTitle={task.title} taskDescription={task.description} subtasks={subtasks} currentSubtaskIndex={currentStepIndex} onSubtaskComplete={handleStepComplete} onSubtaskSelect={handleStepSelect} taskData={task.data} isFlowTask={task.task_type === 'flow'} />
+            <TaskWorkSidebar 
+              open={sidebarOpen} 
+              onOpenChange={setSidebarOpen} 
+              selectedTab={selectedTab} 
+              setSelectedTab={setSelectedTab} 
+              comments={comments} 
+              addComment={addComment} 
+              commentValue={commentValue} 
+              setCommentValue={setCommentValue} 
+              taskId={taskId} 
+              taskTitle={task.title} 
+              taskDescription={task.description} 
+              subtasks={subtasks} 
+              currentSubtaskIndex={currentStepIndex} 
+              onSubtaskComplete={handleStepComplete} 
+              onSubtaskSelect={handleStepSelect} 
+              taskData={task.data} 
+              isFlowTask={isFlowTask} 
+            />
           </div>}
       </div>
     </MainLayout>;
