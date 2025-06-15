@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Plus, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { UnifiedTaskCard } from './UnifiedTaskCard';
-import { CreateTaskFlow } from './CreateTaskFlow';
+import { SimpleCreateTaskDialog } from './SimpleCreateTaskDialog';
 import { fetchTaskTree, deleteUnifiedTask } from '@/lib/unifiedTasks';
 import { TaskTreeNode } from '@/types/unifiedTask';
 import { useToast } from '@/hooks/use-toast';
@@ -164,12 +163,11 @@ export function UnifiedTaskBoard({ onCreateTask, onTaskDeleted }: UnifiedTaskBoa
         })}
       </div>
 
-      {/* Create Task Dialog */}
-      <CreateTaskFlow
+      {/* Simple Create Task Dialog */}
+      <SimpleCreateTaskDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onSuccess={handleTaskCreated}
-        disableAutoStepGeneration={true}
       />
     </div>
   );

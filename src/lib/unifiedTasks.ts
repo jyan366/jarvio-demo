@@ -305,6 +305,12 @@ export async function createUnifiedTask(
       throw new Error(`Failed to create task: ${error.message}`);
     }
     
+    // Skip any step generation if explicitly disabled
+    if (task.data?.skipAutoStepGeneration) {
+      console.log("Skipping step generation as requested");
+      return data;
+    }
+    
     // Create child tasks if provided and not a flow task
     if (childTasks && childTasks.length > 0 && data && !task.saved_to_flows) {
       try {
