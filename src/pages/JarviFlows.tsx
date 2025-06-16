@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useNavigate } from 'react-router-dom';
@@ -8,35 +7,27 @@ import { FlowsSection } from '@/components/jarvi-flows/FlowsSection';
 import { FlowTemplatesSection } from '@/components/jarvi-flows/FlowTemplatesSection';
 import { MyBlocksSection } from '@/components/jarvi-flows/MyBlocksSection';
 import { Flow } from '@/components/jarvi-flows/FlowsGrid';
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { convertFlowToUnifiedTask, fetchSavedFlows, deleteUnifiedTask } from '@/lib/unifiedTasks';
 import { supabase } from '@/integrations/supabase/client';
-
 export default function JarviFlows() {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [flows, setFlows] = useState<Flow[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [flowToDelete, setFlowToDelete] = useState<string | null>(null);
   const [isRunningFlow, setIsRunningFlow] = useState(false);
   const [runningFlowId, setRunningFlowId] = useState<string | null>(null);
-  
+
   // Load flows from unified tasks that are saved to flows
   useEffect(() => {
     const loadFlows = async () => {
       try {
         const savedFlows = await fetchSavedFlows();
-        
+
         // Convert unified tasks back to Flow format for the UI
         const flowsData = savedFlows.map(task => ({
           id: task.id,
@@ -46,7 +37,6 @@ export default function JarviFlows() {
           blocks: task.data?.flowBlocks || [],
           steps: task.data?.flowSteps || []
         }));
-        
         setFlows(flowsData);
       } catch (error) {
         console.error('Error loading flows:', error);
@@ -57,35 +47,30 @@ export default function JarviFlows() {
         });
       }
     };
-    
     loadFlows();
   }, [toast]);
-  
+
   // Function to handle editing a flow
   const handleEditFlow = (flowId: string) => {
     navigate(`/jarvi-flows/builder/${flowId}`);
   };
-  
+
   // Function to handle running a flow - updated to use unified tasks
   const handleRunFlow = async (flowId: string) => {
     try {
       setIsRunningFlow(true);
       setRunningFlowId(flowId);
-      
       const flowToRun = flows.find(flow => flow.id === flowId);
-      
       if (!flowToRun) {
         throw new Error('Flow not found');
       }
-      
       toast({
         title: "Starting flow",
         description: "Creating unified task from flow steps..."
       });
-      
+
       // Since the flow is already a unified task, just navigate to it
       navigate(`/task/${flowId}`);
-      
     } catch (error) {
       console.error('Error running flow:', error);
       toast({
@@ -93,36 +78,34 @@ export default function JarviFlows() {
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
-      
+
       // Reset running state on error
       setIsRunningFlow(false);
       setRunningFlowId(null);
     }
   };
-  
+
   // Function to handle deleting a flow
   const handleDeleteFlow = (flowId: string) => {
     setFlowToDelete(flowId);
   };
-  
+
   // Function to confirm deletion of a flow
   const confirmDeleteFlow = async () => {
     if (flowToDelete) {
       try {
         const flowName = flows.find(f => f.id === flowToDelete)?.name || "Flow";
-        
+
         // Delete the unified task
         await deleteUnifiedTask(flowToDelete);
-        
+
         // Update local state
         const updatedFlows = flows.filter(flow => flow.id !== flowToDelete);
         setFlows(updatedFlows);
-        
         toast({
           title: "Flow deleted",
           description: `${flowName} has been removed.`
         });
-        
         setFlowToDelete(null);
       } catch (error) {
         toast({
@@ -133,36 +116,35 @@ export default function JarviFlows() {
       }
     }
   };
-  
+
   // Function to create a new flow
   const handleCreateNewFlow = () => {
     navigate('/jarvi-flows/builder');
   };
-  
+
   // Function to handle AI prompt submission - updated to use the generate-flow edge function
   const handleAIPromptSubmit = async (prompt: string) => {
     try {
       setIsCreating(true);
-      
+
       // Display a toast notification
       toast({
         title: "Creating your flow",
         description: "Please wait while we generate your custom flow..."
       });
-      
+
       // Call the generate-flow function
       const response = await supabase.functions.invoke("generate-flow", {
         body: {
           prompt: prompt
         }
       });
-      
       if (!response.data || response.data.success === false) {
         const errorMsg = response.data?.error || "Unknown error occurred";
         console.error("Flow generation error:", errorMsg);
         throw new Error(errorMsg);
       }
-      
+
       // If successful, navigate to builder with the generated flow encoded in query params
       const generatedFlow = response.data.generatedFlow;
       if (generatedFlow) {
@@ -183,9 +165,7 @@ export default function JarviFlows() {
       setIsCreating(false);
     }
   };
-  
-  return (
-    <MainLayout>
+  return <MainLayout>
       <div className="space-y-12">
         {/* Hero Section with AI Prompt */}
         <HeroSection onAIPromptSubmit={handleAIPromptSubmit} />
@@ -193,22 +173,13 @@ export default function JarviFlows() {
         {/* Flows Section with Tabs */}
         <Tabs defaultValue="your-flows" className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-lg">
-            <TabsTrigger value="your-flows">Your Flows</TabsTrigger>
+            <TabsTrigger value="your-flows">My Templates</TabsTrigger>
             <TabsTrigger value="flow-templates">Flow Templates</TabsTrigger>
             <TabsTrigger value="my-blocks">My Blocks</TabsTrigger>
           </TabsList>
           
           <TabsContent value="your-flows">
-            <FlowsSection
-              flows={flows}
-              onEditFlow={handleEditFlow}
-              onRunFlow={handleRunFlow}
-              onDeleteFlow={handleDeleteFlow}
-              onCreateNewFlow={handleCreateNewFlow}
-              isCreating={isCreating}
-              isRunningFlow={isRunningFlow}
-              runningFlowId={runningFlowId}
-            />
+            <FlowsSection flows={flows} onEditFlow={handleEditFlow} onRunFlow={handleRunFlow} onDeleteFlow={handleDeleteFlow} onCreateNewFlow={handleCreateNewFlow} isCreating={isCreating} isRunningFlow={isRunningFlow} runningFlowId={runningFlowId} />
           </TabsContent>
           
           <TabsContent value="flow-templates">
@@ -222,7 +193,7 @@ export default function JarviFlows() {
       </div>
 
       {/* Confirmation dialog for deleting flows */}
-      <AlertDialog open={!!flowToDelete} onOpenChange={(open) => !open && setFlowToDelete(null)}>
+      <AlertDialog open={!!flowToDelete} onOpenChange={open => !open && setFlowToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -233,15 +204,11 @@ export default function JarviFlows() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDeleteFlow}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
+            <AlertDialogAction onClick={confirmDeleteFlow} className="bg-red-600 hover:bg-red-700 text-white">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </MainLayout>
-  );
+    </MainLayout>;
 }
