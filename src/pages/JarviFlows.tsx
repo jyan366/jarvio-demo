@@ -174,7 +174,7 @@ export default function JarviFlows() {
         <Tabs defaultValue="your-flows" className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-lg">
             <TabsTrigger value="your-flows">My Templates</TabsTrigger>
-            <TabsTrigger value="flow-templates">Flow Templates</TabsTrigger>
+            <TabsTrigger value="flow-templates">Community Templates</TabsTrigger>
             <TabsTrigger value="my-blocks">My Blocks</TabsTrigger>
           </TabsList>
           
