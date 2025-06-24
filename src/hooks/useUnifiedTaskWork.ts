@@ -85,17 +85,8 @@ export function useUnifiedTaskWork(taskId: string) {
       
       await updateUnifiedTask(task.id, { data: updatedData });
       setTask(prev => prev ? { ...prev, data: updatedData } : null);
-      
-      toast({
-        title: "Steps updated",
-        description: "Task steps have been successfully updated"
-      });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update task steps",
-        variant: "destructive"
-      });
+      console.error('Failed to update task steps:', error);
     }
   };
 
@@ -110,17 +101,8 @@ export function useUnifiedTaskWork(taskId: string) {
       
       await updateUnifiedTask(task.id, { data: updatedData });
       setTask(prev => prev ? { ...prev, data: updatedData } : null);
-      
-      toast({
-        title: "Steps updated",
-        description: "Flow steps have been successfully updated"
-      });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update flow steps",
-        variant: "destructive"
-      });
+      console.error('Failed to update flow steps:', error);
     }
   };
 
@@ -135,17 +117,8 @@ export function useUnifiedTaskWork(taskId: string) {
       
       await updateUnifiedTask(task.id, { data: updatedData });
       setTask(prev => prev ? { ...prev, data: updatedData } : null);
-      
-      toast({
-        title: "Blocks updated",
-        description: "Flow blocks have been successfully updated"
-      });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update flow blocks",
-        variant: "destructive"
-      });
+      console.error('Failed to update flow blocks:', error);
     }
   };
 
@@ -161,17 +134,8 @@ export function useUnifiedTaskWork(taskId: string) {
       
       await updateUnifiedTask(task.id, { data: updatedData });
       setTask(prev => prev ? { ...prev, data: updatedData } : null);
-      
-      toast({
-        title: "Flow updated",
-        description: "Flow steps and blocks have been successfully updated"
-      });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update flow data",
-        variant: "destructive"
-      });
+      console.error('Failed to update flow data:', error);
     }
   };
 

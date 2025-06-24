@@ -87,7 +87,6 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   const handleFlowStepsChange = async (steps: FlowStep[]) => {
     if (onUpdateFlowSteps) {
       await onUpdateFlowSteps(steps);
-      // Removed toast notification for step updates
     }
   };
 
@@ -95,7 +94,6 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   const handleFlowBlocksChange = async (blocks: FlowBlock[]) => {
     if (onUpdateFlowBlocks) {
       await onUpdateFlowBlocks(blocks);
-      // Removed toast notification for block updates
     }
   };
 
