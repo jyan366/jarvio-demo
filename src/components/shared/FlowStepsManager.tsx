@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, GripVertical, Wand2, RotateCcw } from 'lucide-react';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { AIStepGenerator } from './AIStepGenerator';
-import { StepEditor } from './StepEditor';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { UnifiedTask } from '@/types/unifiedTask';
 
@@ -52,8 +52,6 @@ export function FlowStepsManager({
     setBlocks(generatedBlocks);
     onStepsChange(generatedSteps);
     onBlocksChange(generatedBlocks);
-    
-    // Removed toast notification - no longer showing success message
   };
 
   const handleStepUpdate = (stepId: string, updates: Partial<FlowStep>) => {
@@ -62,8 +60,6 @@ export function FlowStepsManager({
     );
     setSteps(updatedSteps);
     onStepsChange(updatedSteps);
-    
-    // Removed toast notification
   };
 
   const handleStepDelete = (stepId: string) => {
@@ -76,8 +72,6 @@ export function FlowStepsManager({
     setBlocks(updatedBlocks);
     onStepsChange(updatedSteps);
     onBlocksChange(updatedBlocks);
-    
-    // Removed toast notification
   };
 
   const handleAddStep = () => {
@@ -104,8 +98,6 @@ export function FlowStepsManager({
     setBlocks(updatedBlocks);
     onStepsChange(updatedSteps);
     onBlocksChange(updatedBlocks);
-    
-    // Removed toast notification
   };
 
   const handleDragStart = (dragStart: any) => {
@@ -201,17 +193,50 @@ export function FlowStepsManager({
       </Card>
 
       {isEditing && selectedStep && (
-        <StepEditor
-          open={isEditing}
-          onClose={() => {
-            setIsEditing(false);
-            setSelectedStep(null);
-          }}
-          step={selectedStep}
-          onUpdate={(updates) => {
-            handleStepUpdate(selectedStep.id, updates);
-          }}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Edit Step</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Title</label>
+                <input
+                  type="text"
+                  value={selectedStep.title}
+                  onChange={(e) => {
+                    const updatedStep = { ...selectedStep, title: e.target.value };
+                    setSelectedStep(updatedStep);
+                    handleStepUpdate(selectedStep.id, { title: e.target.value });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Description</label>
+                <textarea
+                  value={selectedStep.description || ''}
+                  onChange={(e) => {
+                    const updatedStep = { ...selectedStep, description: e.target.value };
+                    setSelectedStep(updatedStep);
+                    handleStepUpdate(selectedStep.id, { description: e.target.value });
+                  }}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsEditing(false);
+                  setSelectedStep(null);
+                }}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

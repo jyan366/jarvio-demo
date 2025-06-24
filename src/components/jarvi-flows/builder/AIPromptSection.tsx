@@ -21,10 +21,10 @@ export function AIPromptSection({
   };
 
   return (
-    <AIStepGenerator
-      onStepsGenerated={handleStepsGenerated}
-      placeholder="E.g.: Create a flow that analyzes customer reviews weekly, identifies common issues, and sends a summary email to the team."
-      className="border-2 border-purple-200 bg-purple-50/50"
-    />
+    <div className="border-2 border-purple-200 bg-purple-50/50 rounded-lg">
+      <AIStepGenerator
+        onStepsGenerated={handleStepsGenerated}
+      />
+    </div>
   );
 }
