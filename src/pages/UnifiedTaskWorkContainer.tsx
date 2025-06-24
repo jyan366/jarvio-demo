@@ -237,8 +237,8 @@ export default function UnifiedTaskWorkContainer() {
           </div>
         </div>
 
-        {/* Sidebar - Made wider */}
-        {sidebarOpen && <div className="w-[480px] border-l bg-background">
+        {/* Sidebar - Set to 420px width */}
+        {sidebarOpen && <div className="w-[420px] border-l bg-background">
             <TaskWorkSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} selectedTab={selectedTab} setSelectedTab={setSelectedTab} comments={comments} addComment={addComment} commentValue={commentValue} setCommentValue={setCommentValue} taskId={taskId} taskTitle={task.title} taskDescription={task.description} subtasks={subtasks} currentSubtaskIndex={currentStepIndex} onSubtaskComplete={handleStepComplete} onSubtaskSelect={handleStepSelect} taskData={task.data} isFlowTask={task.task_type === 'flow'} />
           </div>}
       </div>
