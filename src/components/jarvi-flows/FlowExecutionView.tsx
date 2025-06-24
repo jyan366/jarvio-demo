@@ -68,10 +68,7 @@ export function FlowExecutionView({ flow, taskId, onComplete }: FlowExecutionVie
           onComplete: () => {
             setIsCompleted(true);
             setIsExecuting(false);
-            toast({
-              title: "Flow completed",
-              description: `All ${flow.blocks.length} blocks have been processed`
-            });
+            // Removed toast notification for flow completion
             
             if (onComplete) {
               onComplete();
