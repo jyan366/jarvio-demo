@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Flow } from '@/components/jarvi-flows/FlowsGrid';
@@ -41,21 +40,12 @@ export function FlowExecutionView({ flow, taskId, onComplete }: FlowExecutionVie
           taskId,
           onBlockStart: (blockIndex) => {
             setCurrentBlockIndex(blockIndex);
-            toast({
-              title: "Running block",
-              description: `Starting ${flow.blocks[blockIndex].name || `Block ${blockIndex + 1}`}`
-            });
           },
           onBlockComplete: (blockIndex, result) => {
             setBlockResults(prev => ({
               ...prev,
               [flow.blocks[blockIndex].id]: result
             }));
-            
-            toast({
-              title: "Block completed",
-              description: `Finished ${flow.blocks[blockIndex].name || `Block ${blockIndex + 1}`}`
-            });
           },
           onUserActionRequired: (blockIndex, prompt, callback) => {
             setUserActionRequired(true);
