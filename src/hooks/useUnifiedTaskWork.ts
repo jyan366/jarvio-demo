@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   fetchTaskById, 
@@ -55,16 +54,8 @@ export function useUnifiedTaskWork(taskId: string) {
     try {
       await updateUnifiedTask(task.id, updates);
       setTask(prev => prev ? { ...prev, ...updates } : null);
-      toast({
-        title: "Task updated",
-        description: "Task has been successfully updated"
-      });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update task",
-        variant: "destructive"
-      });
+      console.error('Failed to update task:', error);
     }
   };
 
