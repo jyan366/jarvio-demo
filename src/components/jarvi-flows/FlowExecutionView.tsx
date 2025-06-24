@@ -56,13 +56,7 @@ export function FlowExecutionView({ flow, taskId, onComplete }: FlowExecutionVie
             window.flowActionCallback = callback;
           },
           onError: (error, blockIndex) => {
-            toast({
-              title: "Error in flow",
-              description: blockIndex >= 0 ? 
-                `Error in ${flow.blocks[blockIndex].name || `Block ${blockIndex + 1}`}: ${error.message}` :
-                `Flow error: ${error.message}`,
-              variant: "destructive"
-            });
+            console.error("Flow error:", error);
             setIsExecuting(false);
           },
           onComplete: () => {
@@ -80,11 +74,6 @@ export function FlowExecutionView({ flow, taskId, onComplete }: FlowExecutionVie
         setExecutionEngine(engine);
       } catch (error) {
         console.error("Error initializing flow engine:", error);
-        toast({
-          title: "Initialization error",
-          description: `Failed to initialize flow engine: ${(error as Error).message}`,
-          variant: "destructive"
-        });
       } finally {
         setIsInitializing(false);
       }

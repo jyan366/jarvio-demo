@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { TaskWorkMain } from "@/components/tasks/TaskWorkMain";
@@ -319,11 +318,6 @@ export default function TaskWorkContainer({
       
       // Refresh to get updated data
       await refresh();
-      
-      toast({
-        title: "Steps generated",
-        description: `Generated ${generatedSteps.length} steps successfully`,
-      });
       
     } catch (error) {
       console.error("Error generating steps:", error);

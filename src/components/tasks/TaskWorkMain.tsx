@@ -87,10 +87,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   const handleFlowStepsChange = async (steps: FlowStep[]) => {
     if (onUpdateFlowSteps) {
       await onUpdateFlowSteps(steps);
-      toast({
-        title: "Steps updated",
-        description: "Task steps have been saved successfully.",
-      });
+      // Removed toast notification for step updates
     }
   };
 
@@ -98,10 +95,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   const handleFlowBlocksChange = async (blocks: FlowBlock[]) => {
     if (onUpdateFlowBlocks) {
       await onUpdateFlowBlocks(blocks);
-      toast({
-        title: "Steps updated", 
-        description: "Task step blocks have been saved successfully.",
-      });
+      // Removed toast notification for block updates
     }
   };
 
