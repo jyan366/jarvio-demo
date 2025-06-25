@@ -47,6 +47,92 @@ const predefinedFlows: Flow[] = [
   }
 ];
 
+// Dummy monitoring flows that correspond to the insight checkers
+const monitoringFlows: Record<string, Flow> = {
+  'buybox-monitor': {
+    id: 'buybox-monitor',
+    name: 'Buy Box Loss Monitor',
+    description: 'Tracks Buy Box status changes across all products and alerts when competitors win',
+    trigger: 'scheduled',
+    blocks: [
+      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Fetch Current Buy Box Status' },
+      { id: 'c2', type: 'collect', option: 'Get Keywords', name: 'Analyze Competitor Pricing' },
+      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Detect Buy Box Changes' },
+      { id: 'a1', type: 'act', option: 'Send Email', name: 'Alert Team of Buy Box Loss' }
+    ],
+    steps: [
+      { id: 's1', title: 'Monitor Buy Box Status', description: 'Check current Buy Box winner', order: 0, blockId: 'c1' },
+      { id: 's2', title: 'Analyze Competition', description: 'Compare competitor prices', order: 1, blockId: 'c2' },
+      { id: 's3', title: 'Detect Changes', description: 'Identify Buy Box shifts', order: 2, blockId: 't1' },
+      { id: 's4', title: 'Send Alerts', description: 'Notify about changes', order: 3, blockId: 'a1' }
+    ]
+  },
+  'listing-suppression': {
+    id: 'listing-suppression',
+    name: 'Listing Suppression Monitor',
+    description: 'Monitors listing health and detects suppressions or compliance issues',
+    trigger: 'scheduled',
+    blocks: [
+      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Check Listing Status' },
+      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Analyze Listing Health' },
+      { id: 'a1', type: 'act', option: 'Send Email', name: 'Alert for Suppressed Listings' }
+    ],
+    steps: [
+      { id: 's1', title: 'Check Listing Health', description: 'Monitor listing status', order: 0, blockId: 'c1' },
+      { id: 's2', title: 'Analyze Issues', description: 'Identify suppression causes', order: 1, blockId: 't1' },
+      { id: 's3', title: 'Send Alerts', description: 'Notify about suppressions', order: 2, blockId: 'a1' }
+    ]
+  },
+  'account-health': {
+    id: 'account-health',
+    name: 'Account Health Monitor',
+    description: 'Tracks account performance metrics and identifies health score changes',
+    trigger: 'scheduled',
+    blocks: [
+      { id: 'c1', type: 'collect', option: 'Seller Account Feedback', name: 'Fetch Account Metrics' },
+      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Analyze Performance Trends' },
+      { id: 'a1', type: 'act', option: 'Send Email', name: 'Report Account Health Changes' }
+    ],
+    steps: [
+      { id: 's1', title: 'Collect Metrics', description: 'Gather account performance data', order: 0, blockId: 'c1' },
+      { id: 's2', title: 'Analyze Trends', description: 'Identify health score changes', order: 1, blockId: 't1' },
+      { id: 's3', title: 'Generate Report', description: 'Send health summary', order: 2, blockId: 'a1' }
+    ]
+  },
+  'sales-dip': {
+    id: 'sales-dip',
+    name: 'Sales Dip Checker',
+    description: 'Analyzes sales patterns and identifies unusual decreases or trend changes',
+    trigger: 'scheduled',
+    blocks: [
+      { id: 'c1', type: 'collect', option: 'Estimate Sales', name: 'Gather Sales Data' },
+      { id: 't1', type: 'think', option: 'Basic AI Analysis', name: 'Detect Sales Anomalies' },
+      { id: 'a1', type: 'act', option: 'Send Email', name: 'Alert for Sales Dips' }
+    ],
+    steps: [
+      { id: 's1', title: 'Collect Sales Data', description: 'Gather recent sales metrics', order: 0, blockId: 'c1' },
+      { id: 's2', title: 'Analyze Patterns', description: 'Detect unusual changes', order: 1, blockId: 't1' },
+      { id: 's3', title: 'Send Alerts', description: 'Notify about sales dips', order: 2, blockId: 'a1' }
+    ]
+  },
+  'policy-breach': {
+    id: 'policy-breach',
+    name: 'Listing Policy Breach Checker',
+    description: 'Scans listings for potential policy violations and compliance issues',
+    trigger: 'scheduled',
+    blocks: [
+      { id: 'c1', type: 'collect', option: 'All Listing Info', name: 'Scan Listing Content' },
+      { id: 't1', type: 'think', option: 'Listing Analysis', name: 'Check Policy Compliance' },
+      { id: 'a1', type: 'act', option: 'Send Email', name: 'Report Policy Violations' }
+    ],
+    steps: [
+      { id: 's1', title: 'Scan Listings', description: 'Review listing content', order: 0, blockId: 'c1' },
+      { id: 's2', title: 'Check Compliance', description: 'Identify policy violations', order: 1, blockId: 't1' },
+      { id: 's3', title: 'Generate Report', description: 'Send violation alerts', order: 2, blockId: 'a1' }
+    ]
+  }
+};
+
 // Simple form type for AI prompt
 type AIPromptFormValues = {
   prompt: string;
@@ -220,46 +306,55 @@ export default function FlowBuilder() {
         });
       }
     } else if (flowId) {
-      // Load existing flow from unified tasks
-      const loadFlowFromTask = async () => {
-        try {
-          const task = await fetchTaskById(flowId);
-          if (task && task.saved_to_flows) {
-            setFlow({
-              id: task.id,
-              name: task.title,
-              description: task.description,
-              trigger: task.trigger || 'manual',
-              blocks: task.data?.flowBlocks || [],
-              steps: task.data?.flowSteps || []
-            });
-          } else {
+      // Check if this is a monitoring flow ID
+      if (monitoringFlows[flowId]) {
+        console.log(`Loading monitoring flow: ${flowId}`);
+        setFlow(monitoringFlows[flowId]);
+        toast({
+          title: "Monitoring Flow Loaded",
+          description: `This is the flow that generates insights for ${monitoringFlows[flowId].name}`,
+        });
+      } else {
+        // Load existing flow from unified tasks
+        const loadFlowFromTask = async () => {
+          try {
+            const task = await fetchTaskById(flowId);
+            if (task && task.saved_to_flows) {
+              setFlow({
+                id: task.id,
+                name: task.title,
+                description: task.description,
+                trigger: task.trigger || 'manual',
+                blocks: task.data?.flowBlocks || [],
+                steps: task.data?.flowSteps || []
+              });
+            } else {
+              toast({
+                title: "Flow not found",
+                description: "The requested flow could not be found",
+                variant: "destructive"
+              });
+              navigate('/jarvi-flows');
+            }
+          } catch (error) {
+            console.error('Error loading flow:', error);
             toast({
-              title: "Flow not found",
-              description: "The requested flow could not be found",
+              title: "Error loading flow",
+              description: "Failed to load the flow",
               variant: "destructive"
             });
             navigate('/jarvi-flows');
           }
-        } catch (error) {
-          console.error('Error loading flow:', error);
-          toast({
-            title: "Error loading flow",
-            description: "Failed to load the flow",
-            variant: "destructive"
-          });
-          navigate('/jarvi-flows');
-        }
-      };
-      
-      loadFlowFromTask();
+        };
+        
+        loadFlowFromTask();
+      }
     } else {
       // New flow - initialize with a default ID
       setFlow(prev => ({ ...prev, id: uuidv4() }));
     }
   }, [flowId, location.search, availableBlockOptions, navigate, toast]);
 
-  // Handle agent selection
   const handleAgentSelection = (blockId: string, agentId: string) => {
     const selectedAgent = agentsData.find(agent => agent.id === agentId);
     
@@ -284,9 +379,7 @@ export default function FlowBuilder() {
     }
   };
 
-  // Handle AI-generated steps and blocks
   const handleAIStepsGenerated = async (steps: FlowStep[], blocks: FlowBlock[]) => {
-    // Extract flow name and description from the first step's title or use defaults
     const flowName = steps.length > 0 ? `Generated Flow - ${steps[0].title}` : "New AI Flow";
     const flowDescription = steps.length > 0 ? `AI-generated flow with ${steps.length} steps` : "Flow created from AI prompt";
     
@@ -306,7 +399,6 @@ export default function FlowBuilder() {
     setShowAIPrompt(false);
   };
 
-  // Save flow - now saves as unified task with saved_to_flows = true
   const saveFlow = async () => {
     if (!flow.name.trim()) {
       toast({
@@ -345,11 +437,9 @@ export default function FlowBuilder() {
         }
       };
 
-      if (flowId) {
-        // Update existing flow
+      if (flowId && !monitoringFlows[flowId]) {
         await updateUnifiedTask(flowId, taskData);
       } else {
-        // Create new flow
         const newTask = await createUnifiedTask(taskData);
         if (newTask) {
           setFlow(prev => ({ ...prev, id: newTask.id }));
@@ -371,7 +461,6 @@ export default function FlowBuilder() {
     }
   };
 
-  // Update the handleStartFlow function to show loading state
   const handleStartFlow = async () => {
     try {
       if (!flow.name.trim()) {
@@ -395,10 +484,9 @@ export default function FlowBuilder() {
       setIsRunningFlow(true);
       setIsCreatingTask(true);
 
-      // Save the flow first if it hasn't been saved
       let currentFlowId = flowId;
       
-      if (!flowId) {
+      if (!flowId || monitoringFlows[flowId]) {
         const taskData = {
           title: flow.name,
           description: flow.description,
@@ -424,7 +512,6 @@ export default function FlowBuilder() {
         }
       }
       
-      // Navigate to the task with a delay to ensure it's created
       setTimeout(() => {
         navigate(`/task/${currentFlowId}`);
       }, 1000);
@@ -441,7 +528,6 @@ export default function FlowBuilder() {
     }
   };
 
-  // Helper function for descriptive block names
   const getDescriptiveBlockName = (type: string, option: string): string => {
     const contextualNaming: Record<string, Record<string, string>> = {
       collect: {
@@ -476,7 +562,6 @@ export default function FlowBuilder() {
     return contextualNaming[type]?.[option] || `${type.charAt(0).toUpperCase() + type.slice(1)} ${option}`;
   };
 
-  // Update flow field handlers
   const updateFlowName = (name: string) => {
     setFlow(prev => ({ ...prev, name }));
   };
@@ -497,7 +582,6 @@ export default function FlowBuilder() {
     setFlow(prev => ({ ...prev, blocks }));
   };
 
-  // Show loading screen when creating task
   if (isCreatingTask) {
     return (
       <MainLayout>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Edit, Eye, Settings } from 'lucide-react';
 import { ViewInsightsDialog } from './ViewInsightsDialog';
 import { getFlowInsights } from './MonitoringFlowInsights';
+import { useNavigate } from 'react-router-dom';
 
 interface MonitoringFlow {
   id: string;
@@ -16,6 +18,7 @@ interface MonitoringFlow {
   insightsGenerated: number;
   frequency: string;
 }
+
 const monitoringFlows: MonitoringFlow[] = [{
   id: 'buybox-monitor',
   name: 'Buy Box Loss Monitor',
@@ -57,6 +60,7 @@ const monitoringFlows: MonitoringFlow[] = [{
   insightsGenerated: 3,
   frequency: 'Daily'
 }];
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'active':
@@ -69,7 +73,9 @@ const getStatusColor = (status: string) => {
       return 'bg-gray-100 text-gray-800';
   }
 };
+
 export function MonitoringFlowsSection() {
+  const navigate = useNavigate();
   const [viewInsightsOpen, setViewInsightsOpen] = useState(false);
   const [selectedFlow, setSelectedFlow] = useState<MonitoringFlow | null>(null);
 
@@ -77,15 +83,19 @@ export function MonitoringFlowsSection() {
     console.log(`Toggling flow ${flowId} to ${isEnabled ? 'active' : 'paused'}`);
     // TODO: Implement actual toggle functionality
   };
+
   const handleEditFlow = (flowId: string) => {
     console.log(`Editing flow ${flowId}`);
-    // TODO: Implement edit functionality
+    // Navigate to the flow builder with the specific flow ID
+    navigate(`/jarvi-flows/builder/${flowId}`);
   };
+
   const handleViewInsights = (flow: MonitoringFlow) => {
     console.log(`Viewing insights for flow ${flow.id}`);
     setSelectedFlow(flow);
     setViewInsightsOpen(true);
   };
+
   return (
     <>
       <div className="space-y-4">
