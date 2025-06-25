@@ -4,12 +4,15 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Info, Clock, Play, Check, ArrowRight, Settings, Target, TrendingUp, ShoppingCart, Package, Star, DollarSign } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertTriangle, Info, Clock, Play, Check, ArrowRight, Settings, Target, TrendingUp, ShoppingCart, Package, Star, DollarSign, Sparkles, Calendar, Mouse } from 'lucide-react';
 
 export default function Designs() {
   const [currentMockup, setCurrentMockup] = useState(1);
   const [showAnimation, setShowAnimation] = useState(false);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
+  const [showTriggerDialog, setShowTriggerDialog] = useState(false);
+  const [selectedTriggerType, setSelectedTriggerType] = useState<string | null>(null);
 
   // Mock data for the different mockups
   const insights = [
@@ -50,6 +53,34 @@ export default function Designs() {
     { id: '5', title: 'Respond to customer reviews', status: 'pending' }
   ];
 
+  const triggerOptions = [
+    {
+      id: 'manual',
+      name: 'Manual',
+      description: 'Trigger workflow manually when needed',
+      icon: Mouse,
+      color: 'bg-gray-100 text-gray-800 border-gray-200',
+      buttonColor: 'bg-gray-600 hover:bg-gray-700'
+    },
+    {
+      id: 'scheduled',
+      name: 'Scheduled',
+      description: 'Run workflow on a time-based schedule',
+      icon: Calendar,
+      color: 'bg-blue-100 text-blue-800 border-blue-200',
+      buttonColor: 'bg-blue-600 hover:bg-blue-700'
+    },
+    {
+      id: 'insight',
+      name: 'From Insight',
+      description: 'AI automatically triggers when insights are detected',
+      icon: Sparkles,
+      color: 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border-purple-300',
+      buttonColor: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700',
+      isSpecial: true
+    }
+  ];
+
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'high':
@@ -72,10 +103,6 @@ export default function Designs() {
     }
   };
 
-  const handleTriggerFlow = (insightId: string) => {
-    console.log(`Triggering flow for insight ${insightId}`);
-  };
-
   const handlePlayTasks = () => {
     setShowAnimation(true);
     tasks.forEach((task, index) => {
@@ -90,6 +117,12 @@ export default function Designs() {
     setShowAnimation(false);
   };
 
+  const handleTriggerSelection = (triggerType: string) => {
+    setSelectedTriggerType(triggerType);
+    console.log(`Selected trigger type: ${triggerType}`);
+    // Here you would typically navigate to the workflow builder or show next step
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6 max-w-7xl mx-auto">
@@ -101,7 +134,7 @@ export default function Designs() {
               onClick={() => setCurrentMockup(1)}
               size="sm"
             >
-              Trigger Flows
+              Workflow Triggers
             </Button>
             <Button 
               variant={currentMockup === 2 ? "default" : "outline"} 
@@ -120,104 +153,106 @@ export default function Designs() {
           </div>
         </div>
 
-        {/* Mockup 1: Trigger Flows with Insights (3 iterations) */}
+        {/* Mockup 1: Select Workflow Trigger */}
         {currentMockup === 1 && (
           <div className="space-y-8">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-semibold mb-2">Trigger Flows with Insights</h2>
-              <p className="text-muted-foreground">Three different approaches to connecting insights with automated flows</p>
+              <h2 className="text-2xl font-semibold mb-2">Workflow Trigger Selection</h2>
+              <p className="text-muted-foreground">Choose how your workflow should be activated</p>
             </div>
 
-            {/* Iteration 1: Inline Flow Triggers */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Iteration 1: Inline Flow Suggestions</h3>
-              <div className="grid gap-4">
-                {insights.map((insight) => (
-                  <Card key={insight.id} className="border-l-4 border-l-blue-400">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3 flex-1">
-                          {getSeverityIcon(insight.severity)}
-                          <div className="flex-1">
-                            <div className="font-medium">{insight.title}</div>
-                            <div className="text-sm text-muted-foreground">{insight.summary}</div>
-                            <div className="flex items-center gap-2 mt-2">
-                              <Badge variant="outline" className={getSeverityColor(insight.severity)}>
-                                {insight.severity}
-                              </Badge>
-                              <Badge variant="outline">{insight.category}</Badge>
-                              <span className="text-xs text-muted-foreground">{insight.timestamp}</span>
-                            </div>
-                          </div>
+            {/* Main Workflow Setup Interface */}
+            <div className="max-w-2xl mx-auto">
+              <Card className="border-2 border-gray-200">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-xl">Create New Workflow</CardTitle>
+                  <p className="text-muted-foreground">Price Optimization Workflow</p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Workflow Name */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Workflow Name</label>
+                    <div className="p-3 bg-gray-50 rounded-lg border">
+                      <div className="text-sm">Auto Price Adjustment for Buy Box</div>
+                    </div>
+                  </div>
+
+                  {/* Trigger Selection */}
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Trigger Method</label>
+                    <Button 
+                      onClick={() => setShowTriggerDialog(true)}
+                      className="w-full h-auto p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-dashed border-blue-300 hover:border-purple-400 text-gray-700 hover:text-gray-900"
+                      variant="outline"
+                    >
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                          <Settings className="h-4 w-4 text-blue-600" />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" className="text-green-600 border-green-300">
-                            <Play className="h-4 w-4 mr-1" />
-                            {insight.suggestedFlow}
-                          </Button>
+                        <div className="text-left">
+                          <div className="font-medium">Select Workflow Trigger</div>
+                          <div className="text-xs text-muted-foreground">Choose when this workflow should run</div>
                         </div>
+                        <ArrowRight className="h-4 w-4 ml-auto" />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Iteration 2: Modal Flow Selector */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Iteration 2: Flow Selection Modal</h3>
-              <div className="grid gap-4">
-                {insights.slice(0, 2).map((insight) => (
-                  <Card key={`modal-${insight.id}`} className="border-l-4 border-l-purple-400">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3 flex-1">
-                          {getSeverityIcon(insight.severity)}
-                          <div className="flex-1">
-                            <div className="font-medium">{insight.title}</div>
-                            <div className="text-sm text-muted-foreground">{insight.summary}</div>
-                            <div className="text-xs text-muted-foreground mt-1">{insight.timestamp}</div>
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                            <Target className="h-4 w-4 mr-1" />
-                            Choose Flow
-                          </Button>
-                          <div className="text-xs text-center text-muted-foreground">3 flows available</div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Iteration 3: Bulk Flow Actions */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Iteration 3: Bulk Flow Triggers</h3>
-              <Card className="border-l-4 border-l-green-400">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Critical Issues Detected</CardTitle>
-                    <Button className="bg-green-600 hover:bg-green-700">
-                      <Play className="h-4 w-4 mr-2" />
-                      Run All Flows
                     </Button>
                   </div>
+
+                  {/* Selected Trigger Preview */}
+                  {selectedTriggerType && (
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Check className="h-5 w-5 text-green-600" />
+                        <div>
+                          <div className="font-medium text-green-800">
+                            Trigger Selected: {triggerOptions.find(opt => opt.id === selectedTriggerType)?.name}
+                          </div>
+                          <div className="text-sm text-green-600">
+                            {triggerOptions.find(opt => opt.id === selectedTriggerType)?.description}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-4">
+                    <Button variant="outline" className="flex-1">
+                      Cancel
+                    </Button>
+                    <Button 
+                      className={`flex-1 ${selectedTriggerType ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                      disabled={!selectedTriggerType}
+                    >
+                      Continue Setup
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Available Insights Preview */}
+            <div className="max-w-2xl mx-auto">
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-purple-600" />
+                    <CardTitle className="text-lg text-purple-800">Available AI Insights</CardTitle>
+                  </div>
+                  <p className="text-sm text-purple-600">These insights can automatically trigger your workflows</p>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent>
                   <div className="space-y-3">
-                    {insights.map((insight) => (
-                      <div key={`bulk-${insight.id}`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    {insights.slice(0, 2).map((insight) => (
+                      <div key={insight.id} className="flex items-center justify-between p-3 bg-white/50 rounded-lg border border-purple-200">
                         <div className="flex items-center gap-3">
                           {getSeverityIcon(insight.severity)}
                           <div>
                             <div className="font-medium text-sm">{insight.title}</div>
-                            <div className="text-xs text-muted-foreground">→ {insight.suggestedFlow}</div>
+                            <div className="text-xs text-muted-foreground">{insight.timestamp}</div>
                           </div>
                         </div>
-                        <ArrowRight className="h-4 w-4 text-gray-400" />
+                        <div className="text-xs text-purple-600 font-medium">Ready to trigger</div>
                       </div>
                     ))}
                   </div>
@@ -226,6 +261,60 @@ export default function Designs() {
             </div>
           </div>
         )}
+
+        {/* Trigger Selection Dialog */}
+        <Dialog open={showTriggerDialog} onOpenChange={setShowTriggerDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Select Workflow Trigger</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              {triggerOptions.map((option) => (
+                <div 
+                  key={option.id} 
+                  className={`relative p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                    option.isSpecial 
+                      ? 'border-purple-300 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100' 
+                      : 'border-gray-200 bg-white hover:bg-gray-50'
+                  } ${option.isSpecial ? 'animate-pulse' : ''}`}
+                  onClick={() => handleTriggerSelection(option.id)}
+                >
+                  {option.isSpecial && (
+                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
+                  )}
+                  <div className="flex items-start gap-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      option.isSpecial 
+                        ? 'bg-gradient-to-r from-purple-100 to-pink-100' 
+                        : 'bg-gray-100'
+                    }`}>
+                      <option.icon className={`h-5 w-5 ${
+                        option.isSpecial ? 'text-purple-600' : 'text-gray-600'
+                      }`} />
+                    </div>
+                    <div className="flex-1">
+                      <div className={`font-medium flex items-center gap-2 ${
+                        option.isSpecial ? 'text-purple-800' : 'text-gray-900'
+                      }`}>
+                        {option.name}
+                        {option.isSpecial && (
+                          <span className="text-xs bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full">
+                            ✨ AI Powered
+                          </span>
+                        )}
+                      </div>
+                      <div className={`text-sm mt-1 ${
+                        option.isSpecial ? 'text-purple-600' : 'text-muted-foreground'
+                      }`}>
+                        {option.description}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Mockup 2: 37 Active Flows */}
         {currentMockup === 2 && (
