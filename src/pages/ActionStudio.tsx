@@ -4,6 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
 import { InsightsFeed } from '@/components/action-studio/InsightsFeed';
 import { MonitoringFlowsSection } from '@/components/action-studio/MonitoringFlowsSection';
+import { AllInsightsSection } from '@/components/action-studio/AllInsightsSection';
 import { PlusCircle } from 'lucide-react';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from '@/components/ui/card';
@@ -37,10 +38,15 @@ export default function ActionStudio() {
 
         {showHowItWorks}
 
-        <div className="space-y-6">
-          <MonitoringFlowsSection />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <MonitoringFlowsSection />
+            <SuggestedTasksSection />
+          </div>
           
-          <SuggestedTasksSection />
+          <div className="space-y-6">
+            <AllInsightsSection />
+          </div>
         </div>
       </div>
 
