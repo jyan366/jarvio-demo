@@ -1,19 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Shield, 
-  AlertTriangle, 
-  TrendingDown, 
-  FileX, 
-  Activity,
-  Clock,
-  CheckCircle,
-  Settings
-} from 'lucide-react';
-
+import { Shield, AlertTriangle, TrendingDown, FileX, Activity, Clock, CheckCircle, Settings } from 'lucide-react';
 interface MonitoringFlow {
   id: string;
   name: string;
@@ -24,60 +13,52 @@ interface MonitoringFlow {
   insightsGenerated: number;
   frequency: string;
 }
-
-const monitoringFlows: MonitoringFlow[] = [
-  {
-    id: 'buybox-monitor',
-    name: 'Buy Box Loss Monitor',
-    description: 'Tracks Buy Box status changes across all products and alerts when competitors win',
-    icon: <TrendingDown className="h-5 w-5" />,
-    status: 'active',
-    lastRun: '2 hours ago',
-    insightsGenerated: 3,
-    frequency: 'Every 30 minutes'
-  },
-  {
-    id: 'listing-suppression',
-    name: 'Listing Suppression Monitor', 
-    description: 'Monitors listing health and detects suppressions or compliance issues',
-    icon: <FileX className="h-5 w-5" />,
-    status: 'active',
-    lastRun: '1 hour ago',
-    insightsGenerated: 3,
-    frequency: 'Every hour'
-  },
-  {
-    id: 'account-health',
-    name: 'Account Health Monitor',
-    description: 'Tracks account performance metrics and identifies health score changes',
-    icon: <Activity className="h-5 w-5" />,
-    status: 'active',
-    lastRun: '8 hours ago',
-    insightsGenerated: 2,
-    frequency: 'Daily'
-  },
-  {
-    id: 'sales-dip',
-    name: 'Sales Dip Checker',
-    description: 'Analyzes sales patterns and identifies unusual decreases or trend changes',
-    icon: <AlertTriangle className="h-5 w-5" />,
-    status: 'active',
-    lastRun: '5 hours ago',
-    insightsGenerated: 3,
-    frequency: 'Every 6 hours'
-  },
-  {
-    id: 'policy-breach',
-    name: 'Listing Policy Breach Checker',
-    description: 'Scans listings for potential policy violations and compliance issues',
-    icon: <Shield className="h-5 w-5" />,
-    status: 'active',
-    lastRun: '3 hours ago',
-    insightsGenerated: 3,
-    frequency: 'Daily'
-  }
-];
-
+const monitoringFlows: MonitoringFlow[] = [{
+  id: 'buybox-monitor',
+  name: 'Buy Box Loss Monitor',
+  description: 'Tracks Buy Box status changes across all products and alerts when competitors win',
+  icon: <TrendingDown className="h-5 w-5" />,
+  status: 'active',
+  lastRun: '2 hours ago',
+  insightsGenerated: 3,
+  frequency: 'Every 30 minutes'
+}, {
+  id: 'listing-suppression',
+  name: 'Listing Suppression Monitor',
+  description: 'Monitors listing health and detects suppressions or compliance issues',
+  icon: <FileX className="h-5 w-5" />,
+  status: 'active',
+  lastRun: '1 hour ago',
+  insightsGenerated: 3,
+  frequency: 'Every hour'
+}, {
+  id: 'account-health',
+  name: 'Account Health Monitor',
+  description: 'Tracks account performance metrics and identifies health score changes',
+  icon: <Activity className="h-5 w-5" />,
+  status: 'active',
+  lastRun: '8 hours ago',
+  insightsGenerated: 2,
+  frequency: 'Daily'
+}, {
+  id: 'sales-dip',
+  name: 'Sales Dip Checker',
+  description: 'Analyzes sales patterns and identifies unusual decreases or trend changes',
+  icon: <AlertTriangle className="h-5 w-5" />,
+  status: 'active',
+  lastRun: '5 hours ago',
+  insightsGenerated: 3,
+  frequency: 'Every 6 hours'
+}, {
+  id: 'policy-breach',
+  name: 'Listing Policy Breach Checker',
+  description: 'Scans listings for potential policy violations and compliance issues',
+  icon: <Shield className="h-5 w-5" />,
+  status: 'active',
+  lastRun: '3 hours ago',
+  insightsGenerated: 3,
+  frequency: 'Daily'
+}];
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'active':
@@ -90,7 +71,6 @@ const getStatusColor = (status: string) => {
       return 'bg-gray-100 text-gray-800';
   }
 };
-
 const getStatusIcon = (status: string) => {
   switch (status) {
     case 'active':
@@ -103,13 +83,11 @@ const getStatusIcon = (status: string) => {
       return <Clock className="h-4 w-4" />;
   }
 };
-
 export function MonitoringFlowsSection() {
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold">Active Monitoring Flows</h2>
+          <h2 className="text-lg sm:text-xl font-semibold">My Insight Checkers</h2>
           <p className="text-sm text-muted-foreground">
             AI workflows continuously monitoring your business for insights
           </p>
@@ -121,8 +99,7 @@ export function MonitoringFlowsSection() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {monitoringFlows.map((flow) => (
-          <Card key={flow.id} className="hover:shadow-md transition-shadow">
+        {monitoringFlows.map(flow => <Card key={flow.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
@@ -162,9 +139,7 @@ export function MonitoringFlowsSection() {
                 </div>
               </div>
             </CardContent>
-          </Card>
-        ))}
+          </Card>)}
       </div>
-    </div>
-  );
+    </div>;
 }

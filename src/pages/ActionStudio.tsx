@@ -1,18 +1,10 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
 import { InsightsFeed } from '@/components/action-studio/InsightsFeed';
 import { MonitoringFlowsSection } from '@/components/action-studio/MonitoringFlowsSection';
 import { PlusCircle } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from '@/components/ui/card';
 import { X, Circle, CheckCircle, BookText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,9 +14,7 @@ import { ProcessBuilder } from '@/components/ads/ProcessBuilder';
 import { BestSellersRestockProcess } from '@/components/inventory/BestSellersRestockProcess';
 import { TaskPrioritizationBox } from '@/components/action-studio/TaskPrioritizationBox';
 import { useToast } from '@/hooks/use-toast';
-
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
-
 export default function ActionStudio() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<InsightCategory>('All');
@@ -33,14 +23,13 @@ export default function ActionStudio() {
   const [isRestockProcessOpen, setIsRestockProcessOpen] = useState(false);
   const [isProcessBuilderOpen, setIsProcessBuilderOpen] = useState(false);
   const [showPrioritizationBox, setShowPrioritizationBox] = useState(true);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handlePrioritizationSubmit = () => {
     setShowPrioritizationBox(false);
   };
-
-  return (
-    <MainLayout>
+  return <MainLayout>
       <div className="space-y-6 md:space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -51,52 +40,17 @@ export default function ActionStudio() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button 
-              onClick={() => setIsCreateTaskOpen(true)}
-              className="bg-[#4457ff] hover:bg-[#4457ff]/90"
-            >
+            <Button onClick={() => setIsCreateTaskOpen(true)} className="bg-[#4457ff] hover:bg-[#4457ff]/90">
               <PlusCircle className="w-4 h-4 mr-2" />
               Create Task
             </Button>
           </div>
         </div>
 
-        {showHowItWorks && (
-          <Card className="p-4 bg-muted/30 border-border shadow-sm relative">
-            <button 
-              onClick={() => setShowHowItWorks(false)}
-              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors z-10"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            
-            <div className="flex items-start space-x-4 pr-8">
-              <BookText className="h-8 w-8 text-primary/70 mt-1 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold text-foreground text-lg mb-2">How Action Studio Works</h3>
-                <div className="space-y-2 text-muted-foreground text-sm">
-                  <div className="flex items-center space-x-2">
-                    <Circle className="h-4 w-4 text-primary/50" />
-                    <span>Discover actionable insights across your business</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-primary/50" />
-                    <span>Create tasks directly from insights in one click</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <BookText className="h-4 w-4 text-primary/50" />
-                    <span>Monitor task status from creation to completion</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
+        {showHowItWorks}
 
         <div className="space-y-6">
-          {showPrioritizationBox && (
-            <TaskPrioritizationBox onSubmit={handlePrioritizationSubmit} />
-          )}
+          {showPrioritizationBox && <TaskPrioritizationBox onSubmit={handlePrioritizationSubmit} />}
           
           <MonitoringFlowsSection />
           
@@ -105,7 +59,7 @@ export default function ActionStudio() {
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg sm:text-xl font-semibold">Insights Feed</h2>
-              <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as InsightCategory)}>
+              <Select value={selectedCategory} onValueChange={value => setSelectedCategory(value as InsightCategory)}>
                 <SelectTrigger className="w-[140px] sm:w-[180px]">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -128,23 +82,12 @@ export default function ActionStudio() {
         </div>
       </div>
 
-      <CreateTaskFlow 
-        open={isCreateTaskOpen} 
-        onOpenChange={setIsCreateTaskOpen} 
-        onSuccess={() => {
-          navigate('/task-manager');
-        }}
-      />
+      <CreateTaskFlow open={isCreateTaskOpen} onOpenChange={setIsCreateTaskOpen} onSuccess={() => {
+      navigate('/task-manager');
+    }} />
 
-      <ProcessBuilder 
-        open={isProcessBuilderOpen}
-        onOpenChange={setIsProcessBuilderOpen}
-      />
+      <ProcessBuilder open={isProcessBuilderOpen} onOpenChange={setIsProcessBuilderOpen} />
 
-      <BestSellersRestockProcess
-        open={isRestockProcessOpen}
-        onOpenChange={setIsRestockProcessOpen}
-      />
-    </MainLayout>
-  );
+      <BestSellersRestockProcess open={isRestockProcessOpen} onOpenChange={setIsRestockProcessOpen} />
+    </MainLayout>;
 }
