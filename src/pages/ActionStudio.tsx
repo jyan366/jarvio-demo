@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
 import { InsightsFeed } from '@/components/action-studio/InsightsFeed';
+import { MonitoringFlowsSection } from '@/components/action-studio/MonitoringFlowsSection';
 import { PlusCircle } from 'lucide-react';
 import {
   Select,
@@ -96,6 +97,8 @@ export default function ActionStudio() {
           {showPrioritizationBox && (
             <TaskPrioritizationBox onSubmit={handlePrioritizationSubmit} />
           )}
+          
+          <MonitoringFlowsSection />
           
           <SuggestedTasksSection />
 
