@@ -171,15 +171,32 @@ export function FlowStepsEditor({
   };
 
   const handleBlockClick = (blockOption: string) => {
-    // Find the block by its option name
-    const block = blocks.find(b => b.option === blockOption);
-    if (block) {
-      console.log('Opening block config for:', block);
-      setSelectedBlock(block);
-      setShowBlockConfig(true);
-    } else {
-      console.warn('Block not found for option:', blockOption);
+    console.log('Clicked block option:', blockOption);
+    
+    // First try to find by exact option match
+    let block = blocks.find(b => b.option === blockOption);
+    
+    // If not found, try to find by option name with case-insensitive match
+    if (!block) {
+      block = blocks.find(b => 
+        b.option.toLowerCase() === blockOption.toLowerCase()
+      );
     }
+    
+    // If still not found, create a temporary block for display
+    if (!block) {
+      console.log('Creating temporary block for:', blockOption);
+      block = {
+        id: 'temp-' + uuidv4(),
+        type: 'collect', // Default type
+        option: blockOption,
+        name: blockOption
+      };
+    }
+    
+    console.log('Opening block config for:', block);
+    setSelectedBlock(block);
+    setShowBlockConfig(true);
   };
 
   const handleInstructionsGenerated = (stepId: string, instructions: string) => {
