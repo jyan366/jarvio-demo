@@ -1,11 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Edit, Eye, Settings } from 'lucide-react';
-
 interface MonitoringFlow {
   id: string;
   name: string;
@@ -15,7 +13,6 @@ interface MonitoringFlow {
   insightsGenerated: number;
   frequency: string;
 }
-
 const monitoringFlows: MonitoringFlow[] = [{
   id: 'buybox-monitor',
   name: 'Buy Box Loss Monitor',
@@ -57,7 +54,6 @@ const monitoringFlows: MonitoringFlow[] = [{
   insightsGenerated: 3,
   frequency: 'Daily'
 }];
-
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'active':
@@ -70,31 +66,24 @@ const getStatusColor = (status: string) => {
       return 'bg-gray-100 text-gray-800';
   }
 };
-
 export function MonitoringFlowsSection() {
   const handleToggleFlow = (flowId: string, isEnabled: boolean) => {
     console.log(`Toggling flow ${flowId} to ${isEnabled ? 'active' : 'paused'}`);
     // TODO: Implement actual toggle functionality
   };
-
   const handleEditFlow = (flowId: string) => {
     console.log(`Editing flow ${flowId}`);
     // TODO: Implement edit functionality
   };
-
   const handleViewInsights = (flowId: string) => {
     console.log(`Viewing insights for flow ${flowId}`);
     // TODO: Implement view insights functionality
   };
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg sm:text-xl font-semibold">My Insight Checkers</h2>
-          <p className="text-sm text-muted-foreground">
-            AI workflows continuously monitoring your business for insights
-          </p>
+          
         </div>
         <Button variant="outline" size="sm">
           <Settings className="h-4 w-4 mr-2" />
@@ -103,48 +92,26 @@ export function MonitoringFlowsSection() {
       </div>
 
       <div className="bg-white rounded-lg border">
-        {monitoringFlows.map((flow, index) => (
-          <div 
-            key={flow.id} 
-            className={`flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${
-              index !== monitoringFlows.length - 1 ? 'border-b' : ''
-            }`}
-          >
+        {monitoringFlows.map((flow, index) => <div key={flow.id} className={`flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${index !== monitoringFlows.length - 1 ? 'border-b' : ''}`}>
             <div className="flex items-center gap-4">
-              <Switch
-                checked={flow.status === 'active'}
-                onCheckedChange={(checked) => handleToggleFlow(flow.id, checked)}
-              />
+              <Switch checked={flow.status === 'active'} onCheckedChange={checked => handleToggleFlow(flow.id, checked)} />
               <div>
                 <span className="font-medium text-sm">{flow.name}</span>
-                <Badge 
-                  className={`${getStatusColor(flow.status)} ml-2`}
-                  variant="outline"
-                >
+                <Badge className={`${getStatusColor(flow.status)} ml-2`} variant="outline">
                   {flow.status}
                 </Badge>
               </div>
             </div>
             
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleViewInsights(flow.id)}
-              >
+              <Button variant="ghost" size="sm" onClick={() => handleViewInsights(flow.id)}>
                 <Eye className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleEditFlow(flow.id)}
-              >
+              <Button variant="ghost" size="sm" onClick={() => handleEditFlow(flow.id)}>
                 <Edit className="h-4 w-4" />
               </Button>
             </div>
-          </div>
-        ))}
+          </div>)}
       </div>
-    </div>
-  );
+    </div>;
 }
