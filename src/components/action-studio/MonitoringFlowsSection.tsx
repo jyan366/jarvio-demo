@@ -97,9 +97,7 @@ export function MonitoringFlowsSection() {
               <Switch checked={flow.status === 'active'} onCheckedChange={checked => handleToggleFlow(flow.id, checked)} />
               <div>
                 <span className="font-medium text-sm">{flow.name}</span>
-                <Badge className={`${getStatusColor(flow.status)} ml-2`} variant="outline">
-                  {flow.status}
-                </Badge>
+                
               </div>
             </div>
             
