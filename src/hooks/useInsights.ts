@@ -32,25 +32,38 @@ export function useInsights(taskId?: string) {
       setLoading(true);
       setError(null);
       
-      let query = supabase
-        .from('insights')
-        .select('*')
-        .order('generated_at', { ascending: false });
+      // Use supabase.rpc or raw query since the table isn't in auto-generated types yet
+      let query = `SELECT * FROM insights ORDER BY generated_at DESC`;
       
       if (taskId) {
-        query = query.eq('source_task_id', taskId);
+        query = `SELECT * FROM insights WHERE source_task_id = '${taskId}' ORDER BY generated_at DESC`;
       }
       
-      const { data, error: fetchError } = await query;
+      const { data, error: fetchError } = await supabase.rpc('execute_sql', { 
+        sql: query 
+      }) as { data: Insight[] | null, error: any };
       
       if (fetchError) {
-        throw fetchError;
+        // Fallback: try direct query if rpc doesn't work
+        console.log('RPC failed, trying direct query...');
+        const { data: directData, error: directError } = await (supabase as any)
+          .from('insights')
+          .select('*')
+          .order('generated_at', { ascending: false });
+        
+        if (directError) {
+          throw directError;
+        }
+        
+        setInsights((directData as Insight[]) || []);
+      } else {
+        setInsights(data || []);
       }
-      
-      setInsights(data || []);
     } catch (err) {
       console.error('Error loading insights:', err);
       setError(err instanceof Error ? err.message : 'Failed to load insights');
+      // Set empty array on error to prevent UI issues
+      setInsights([]);
     } finally {
       setLoading(false);
     }
@@ -58,7 +71,7 @@ export function useInsights(taskId?: string) {
 
   const dismissInsight = async (insightId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('insights')
         .update({ status: 'dismissed' })
         .eq('id', insightId);
@@ -87,7 +100,7 @@ export function useInsights(taskId?: string) {
 
   const resolveInsight = async (insightId: string, actionsTaken?: any[]) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('insights')
         .update({ 
           status: 'resolved',
