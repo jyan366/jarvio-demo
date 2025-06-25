@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +10,8 @@ import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { v4 as uuidv4 } from 'uuid';
 import { agentsData } from '@/data/agentsData';
 import { UnifiedTask } from '@/types/unifiedTask';
+import { BlockConfigDialog } from './BlockConfigDialog';
+import { GenerateInstructionsButton } from './GenerateInstructionsButton';
 
 interface FlowStepsEditorProps {
   steps: FlowStep[];
@@ -18,7 +19,7 @@ interface FlowStepsEditorProps {
   onStepsChange: (steps: FlowStep[]) => void;
   onBlocksChange: (blocks: FlowBlock[]) => void;
   availableBlockOptions?: Record<string, string[]>;
-  task?: UnifiedTask; // Add task prop to get completion data
+  task?: UnifiedTask;
 }
 
 export function FlowStepsEditor({
@@ -31,8 +32,9 @@ export function FlowStepsEditor({
 }: FlowStepsEditorProps) {
   const [isAddingStep, setIsAddingStep] = useState(false);
   const [newStepTitle, setNewStepTitle] = useState('');
-  const [newStepDescription, setNewStepDescription] = useState('');
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set());
+  const [selectedBlock, setSelectedBlock] = useState<FlowBlock | null>(null);
+  const [showBlockConfig, setShowBlockConfig] = useState(false);
 
   // Sync steps completion status with task data
   useEffect(() => {
@@ -86,40 +88,34 @@ export function FlowStepsEditor({
   const addStep = () => {
     if (!newStepTitle.trim()) return;
 
-    // Create a corresponding block for the step
     const blockId = uuidv4();
     const stepId = uuidv4();
     const newBlock: FlowBlock = {
       id: blockId,
-      type: 'collect', // Default type
+      type: 'collect',
       option: availableBlockOptions?.collect?.[0] || 'User Text',
       name: newStepTitle
     };
     const newStep: FlowStep = {
       id: stepId,
       title: newStepTitle,
-      description: newStepDescription,
+      description: '', // Will be generated when user clicks "Generate Instructions"
       completed: false,
       order: steps.length,
-      blockId: blockId // Link step to block
+      blockId: blockId
     };
     onStepsChange([...steps, newStep]);
     onBlocksChange([...blocks, newBlock]);
     setNewStepTitle('');
-    setNewStepDescription('');
     setIsAddingStep(false);
   };
 
   const removeStep = (stepId: string) => {
     const step = steps.find(s => s.id === stepId);
-    
-    // Remove step and its linked block
     const updatedSteps = steps
       .filter(step => step.id !== stepId)
       .map((step, index) => ({ ...step, order: index }));
-    
     const updatedBlocks = blocks.filter(block => block.id !== step?.blockId);
-    
     onStepsChange(updatedSteps);
     onBlocksChange(updatedBlocks);
   };
@@ -170,16 +166,48 @@ export function FlowStepsEditor({
     return step?.blockId ? blocks.find(b => b.id === step.blockId) : null;
   };
 
-  // Helper function to check if step is completed based on task data
   const isStepCompleted = (stepIndex: number) => {
     return task?.steps_completed?.includes(stepIndex) || false;
+  };
+
+  const handleBlockClick = (block: FlowBlock) => {
+    setSelectedBlock(block);
+    setShowBlockConfig(true);
+  };
+
+  const handleInstructionsGenerated = (stepId: string, instructions: string) => {
+    updateStep(stepId, { description: instructions });
+  };
+
+  const renderBlockReference = (blockName: string, blockType: string) => {
+    const parts = blockName.split(/(\"[^\"]+\")/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('"') && part.endsWith('"')) {
+        const blockOption = part.slice(1, -1);
+        return (
+          <button
+            key={index}
+            onClick={() => {
+              const block = blocks.find(b => b.option === blockOption);
+              if (block) handleBlockClick(block);
+            }}
+            className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium hover:bg-blue-200 transition-colors"
+          >
+            {getBlockIcon(blockType)}
+            {blockOption}
+          </button>
+        );
+      }
+      return <span key={index}>{part}</span>;
+    });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold">Steps</h2>
+          <h2 className="text-xl font-semibold">Flow Steps</h2>
+          <p className="text-sm text-gray-600">Define what needs to be done in each step</p>
         </div>
         <Button 
           onClick={() => setIsAddingStep(true)} 
@@ -193,19 +221,19 @@ export function FlowStepsEditor({
       {steps.length === 0 && !isAddingStep ? (
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground">Add steps to build your flow</p>
-          <p className="text-xs text-gray-500 mt-1">Each step will have a corresponding block for execution</p>
+          <p className="text-xs text-gray-500 mt-1">Each step will describe what needs to be done and which blocks to use</p>
         </div>
       ) : (
         <div className="space-y-4">
           {steps.map((step, index) => {
             const stepBlock = getStepBlock(step.id);
             const isExpanded = expandedSteps.has(step.id);
-            const completed = isStepCompleted(index); // Use task completion data
+            const completed = isStepCompleted(index);
             
             return (
               <Card key={step.id} className="overflow-hidden">
                 <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-start gap-3">
                     <div className="flex items-center gap-2">
                       <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
                       <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
@@ -218,33 +246,41 @@ export function FlowStepsEditor({
                     </div>
                     
                     <div className="flex-1">
-                      <Input
-                        value={step.title}
-                        onChange={(e) => updateStep(step.id, { title: e.target.value })}
-                        placeholder="Step title"
-                        className="text-lg font-semibold border-none shadow-none p-0 h-auto"
-                      />
-                      {step.description && (
-                        <Textarea
-                          value={step.description}
-                          onChange={(e) => updateStep(step.id, { description: e.target.value })}
-                          placeholder="Step description"
-                          className="text-sm text-gray-600 border-none shadow-none p-0 mt-1 resize-none"
-                          rows={2}
+                      <div className="flex items-center gap-2 mb-2">
+                        <Input
+                          value={step.title}
+                          onChange={(e) => updateStep(step.id, { title: e.target.value })}
+                          placeholder="Step name (e.g., Get Amazon Sales for last 30 days)"
+                          className="text-base font-semibold border-none shadow-none p-0 h-auto"
                         />
+                        {stepBlock && (
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {stepBlock.type}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {step.description ? (
+                        <div className="text-sm text-gray-700 leading-relaxed">
+                          {renderBlockReference(step.description, stepBlock?.type || 'collect')}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-500">No instructions yet</span>
+                          {stepBlock && (
+                            <GenerateInstructionsButton
+                              step={step}
+                              block={stepBlock}
+                              onInstructionsGenerated={(instructions) => 
+                                handleInstructionsGenerated(step.id, instructions)
+                              }
+                            />
+                          )}
+                        </div>
                       )}
                     </div>
 
                     <div className="flex items-center gap-1">
-                      {stepBlock && (
-                        <div className="flex items-center gap-1">
-                          {getBlockIcon(stepBlock.type)}
-                          <Badge variant="outline" className="text-xs capitalize">
-                            {stepBlock.type}
-                          </Badge>
-                        </div>
-                      )}
-                      
                       {completed && (
                         <Badge className="bg-green-100 text-green-700 text-xs">
                           Completed
@@ -378,7 +414,6 @@ export function FlowStepsEditor({
         </div>
       )}
 
-      {/* Add New Step */}
       {isAddingStep && (
         <Card>
           <CardContent className="p-4">
@@ -386,14 +421,8 @@ export function FlowStepsEditor({
               <Input
                 value={newStepTitle}
                 onChange={(e) => setNewStepTitle(e.target.value)}
-                placeholder="Enter step title"
+                placeholder="Enter step name (e.g., Get Amazon Sales for last 30 days)"
                 autoFocus
-              />
-              <Textarea
-                value={newStepDescription}
-                onChange={(e) => setNewStepDescription(e.target.value)}
-                placeholder="Enter step description (optional)"
-                rows={2}
               />
               <div className="flex gap-2">
                 <Button onClick={addStep} disabled={!newStepTitle.trim()}>
@@ -404,7 +433,6 @@ export function FlowStepsEditor({
                   onClick={() => {
                     setIsAddingStep(false);
                     setNewStepTitle('');
-                    setNewStepDescription('');
                   }}
                 >
                   Cancel
@@ -414,6 +442,12 @@ export function FlowStepsEditor({
           </CardContent>
         </Card>
       )}
+
+      <BlockConfigDialog
+        block={selectedBlock}
+        isOpen={showBlockConfig}
+        onClose={() => setShowBlockConfig(false)}
+      />
     </div>
   );
 }
