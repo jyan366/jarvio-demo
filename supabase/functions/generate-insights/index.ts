@@ -98,10 +98,64 @@ serve(async (req) => {
     
     console.log('Generated insights:', insights);
     
+    // Get user_id from the task
+    const { data: taskData, error: taskError } = await supabase
+      .from('tasks')
+      .select('user_id')
+      .eq('id', taskId)
+      .single();
+    
+    if (taskError || !taskData) {
+      throw new Error('Failed to get task user_id');
+    }
+    
+    // Save insights to database
+    const insightIds = [];
+    for (const insight of insights) {
+      const { data: savedInsight, error: saveError } = await supabase
+        .from('insights')
+        .insert({
+          title: insight.title,
+          summary: insight.summary,
+          category: insight.category,
+          severity: insight.severity,
+          source_flow_id: flowId,
+          source_task_id: taskId,
+          source_block_id: blockId,
+          user_id: taskData.user_id,
+          metadata: {
+            context_summary: contextSummary,
+            generation_method: 'openai_gpt4o_mini'
+          }
+        })
+        .select('id')
+        .single();
+      
+      if (saveError) {
+        console.error('Error saving insight:', saveError);
+      } else {
+        insightIds.push(savedInsight.id);
+      }
+    }
+    
+    // Update flow execution with insights count
+    if (insightIds.length > 0) {
+      await supabase
+        .from('flow_executions')
+        .update({
+          insights_generated: insightIds.length,
+          insights_ids: insightIds
+        })
+        .eq('flow_id', flowId)
+        .eq('task_id', taskId);
+    }
+    
     // Return the generated insights
     return new Response(JSON.stringify({
       success: true,
       insights: insights,
+      insights_saved: insightIds.length,
+      insight_ids: insightIds,
       generated_at: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import { FlowStepsManager } from '@/components/shared/FlowStepsManager';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { updateUnifiedTask } from '@/lib/unifiedTasks';
+import { TaskInsights } from './TaskInsights';
+import { useInsights } from '@/hooks/useInsights';
 
 interface UnifiedTaskStepsProps {
   task: UnifiedTask;
@@ -36,6 +38,7 @@ export function UnifiedTaskSteps({
   const [executingStep, setExecutingStep] = useState<number | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { insights, dismissInsight } = useInsights(task.id);
 
   // Parse steps - unified for all task types
   const steps = parseTaskSteps(task);
@@ -127,6 +130,30 @@ export function UnifiedTaskSteps({
     }
   };
 
+  const handleConvertToSubtask = async (insight: any) => {
+    try {
+      await onAddChildTask(insight.title);
+      toast({
+        title: "Child task created",
+        description: "The insight has been converted to a child task.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create child task from insight.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddComment = (insight: any) => {
+    // This could open a comment dialog or navigate to task comments
+    toast({
+      title: "Comment feature",
+      description: "Comment functionality will be implemented in future phases.",
+    });
+  };
+
   const getTaskStatusColor = (status: string) => {
     switch (status) {
       case 'Done':
@@ -140,6 +167,14 @@ export function UnifiedTaskSteps({
 
   return (
     <div className="space-y-6">
+      {/* Task Insights */}
+      <TaskInsights
+        insights={insights}
+        onDismissInsight={dismissInsight}
+        onConvertToSubtask={handleConvertToSubtask}
+        onAddComment={handleAddComment}
+      />
+
       {/* Flow Steps Manager - identical to flow builder */}
       <div>
         <div className="flex items-center justify-between mb-4">

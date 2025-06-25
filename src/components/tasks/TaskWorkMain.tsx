@@ -5,11 +5,12 @@ import { TaskWorkProductCard } from "./TaskWorkProductCard";
 import { TaskWorkSubtasks } from "./TaskWorkSubtasks";
 import { FlowStepsEditor } from "@/components/jarvi-flows/builder/FlowStepsEditor";
 import { TaskInsights } from "./TaskInsights";
-import { TaskWorkType, Subtask, TaskInsight } from "@/pages/TaskWorkContainer";
+import { TaskWorkType, Subtask } from "@/pages/TaskWorkContainer";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { FlowStep, FlowBlock } from "@/types/flowTypes";
+import { useInsights } from "@/hooks/useInsights";
 
 interface TaskWorkMainProps {
   task: TaskWorkType;
@@ -47,15 +48,9 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
   onUpdateFlowBlocks,
 }) => {
   const { toast } = useToast();
+  const { insights, dismissInsight } = useInsights(task.id);
 
-  const handleDismissInsight = async (id: string) => {
-    toast({
-      title: "Insight dismissed",
-      description: "The insight has been marked as resolved.",
-    });
-  };
-
-  const handleConvertToSubtask = async (insight: TaskInsight) => {
+  const handleConvertToSubtask = async (insight: any) => {
     try {
       await onAddSubtask(insight.title);
       toast({
@@ -71,7 +66,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
     }
   };
 
-  const handleAddComment = (insight: TaskInsight) => {
+  const handleAddComment = (insight: any) => {
     onOpenSidebarMobile();
   };
 
@@ -116,8 +111,8 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
       />
       
       <TaskInsights
-        insights={task.insights || []}
-        onDismissInsight={handleDismissInsight}
+        insights={insights}
+        onDismissInsight={dismissInsight}
         onConvertToSubtask={handleConvertToSubtask}
         onAddComment={handleAddComment}
       />
@@ -154,7 +149,7 @@ export const TaskWorkMain: React.FC<TaskWorkMainProps> = ({
             availableBlockOptions={{
               collect: ['User Text', 'File Upload', 'Data Import', 'Form Input'],
               think: ['Basic AI Analysis', 'Advanced Reasoning', 'Data Processing', 'Pattern Recognition'],
-              act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call'],
+              act: ['AI Summary', 'Send Email', 'Create Report', 'Update Database', 'API Call', 'Generate Insight'],
               agent: ['Agent']
             }}
             task={{
