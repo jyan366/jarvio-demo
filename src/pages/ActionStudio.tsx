@@ -26,52 +26,10 @@ export default function ActionStudio() {
   const [isRestockProcessOpen, setIsRestockProcessOpen] = useState(false);
   const [isProcessBuilderOpen, setIsProcessBuilderOpen] = useState(false);
   const { toast } = useToast();
-  
-  const mainContainerRef = useRef<HTMLDivElement>(null);
-  const insightsContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      // Only intercept wheel events if we have both refs
-      if (!mainContainerRef.current || !insightsContainerRef.current) return;
-      
-      // Check if the scroll is happening over the main container
-      const mainContainer = mainContainerRef.current;
-      const rect = mainContainer.getBoundingClientRect();
-      const isOverMainContainer = 
-        e.clientX >= rect.left && 
-        e.clientX <= rect.right && 
-        e.clientY >= rect.top && 
-        e.clientY <= rect.bottom;
-      
-      if (isOverMainContainer) {
-        // Check if the insights container can scroll
-        const insightsContainer = insightsContainerRef.current;
-        const canScrollDown = insightsContainer.scrollTop < insightsContainer.scrollHeight - insightsContainer.clientHeight;
-        const canScrollUp = insightsContainer.scrollTop > 0;
-        
-        // If we can scroll in the direction of the wheel event, handle it
-        if ((e.deltaY > 0 && canScrollDown) || (e.deltaY < 0 && canScrollUp)) {
-          e.preventDefault();
-          insightsContainer.scrollBy({
-            top: e.deltaY,
-            behavior: 'smooth'
-          });
-        }
-      }
-    };
-
-    // Add the event listener to the document to capture all wheel events
-    document.addEventListener('wheel', handleWheel, { passive: false });
-
-    return () => {
-      document.removeEventListener('wheel', handleWheel);
-    };
-  }, []);
 
   return (
     <MainLayout>
-      <div ref={mainContainerRef} className="h-[calc(100vh-4rem)] flex flex-col max-w-full overflow-hidden">
+      <div className="h-[calc(100vh-4rem)] flex flex-col max-w-full overflow-hidden">
         <div className="flex-shrink-0 mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -94,7 +52,7 @@ export default function ActionStudio() {
           
           <div className="flex flex-col min-h-0">
             <div className="flex-1 overflow-hidden">
-              <AllInsightsSection ref={insightsContainerRef} />
+              <AllInsightsSection />
             </div>
           </div>
         </div>

@@ -1,10 +1,10 @@
-import React, { forwardRef } from 'react';
+
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Info, Clock } from 'lucide-react';
 import { getFlowInsights } from './MonitoringFlowInsights';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Insight {
   id: string;
@@ -78,7 +78,7 @@ const parseTimestamp = (timestamp: string): Date => {
   return now;
 };
 
-export const AllInsightsSection = forwardRef<HTMLDivElement>((props, ref) => {
+export function AllInsightsSection() {
   // Aggregate all insights from all flows
   const allInsights: Insight[] = monitoringFlows.flatMap(flow => {
     const flowInsights = getFlowInsights(flow.id);
@@ -111,11 +111,7 @@ export const AllInsightsSection = forwardRef<HTMLDivElement>((props, ref) => {
         </div>
       </div>
 
-      <div
-        ref={ref}
-        className="flex-1 overflow-y-auto pr-2"
-        style={{ maxHeight: 'calc(100vh - 12rem)' }}
-      >
+      <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
         <div className="grid gap-3 w-full pb-4">
           {recentInsights.length === 0 ? (
             <Card className="p-6">
@@ -178,6 +174,4 @@ export const AllInsightsSection = forwardRef<HTMLDivElement>((props, ref) => {
       </div>
     </div>
   );
-});
-
-AllInsightsSection.displayName = 'AllInsightsSection';
+}
