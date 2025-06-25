@@ -191,7 +191,7 @@ export const SuggestedTasksSection: React.FC = () => {
 
   if (sortedTasks.length === 0) {
     return (
-      <div className="space-y-2 px-2 sm:px-0">
+      <div className="space-y-2 px-4 sm:px-0">
         <h2 className="text-base sm:text-xl font-semibold pl-2 sm:pl-0">Suggested Tasks</h2>
         <Card className="p-6 text-center text-muted-foreground">
           No suggested tasks available
@@ -308,9 +308,9 @@ export const SuggestedTasksSection: React.FC = () => {
   );
 
   return (
-    <div className="space-y-4 px-2 sm:px-0">
+    <div className="space-y-4 px-4 sm:px-0">
       <div className="flex items-center justify-between">
-        <h2 className="text-base sm:text-xl font-semibold pl-2 sm:pl-0">Suggested Tasks</h2>
+        <h2 className="text-base sm:text-xl font-semibold">Suggested Tasks</h2>
         <div className="flex gap-1 border rounded-md p-1 bg-white">
           <Button
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
@@ -344,7 +344,7 @@ export const SuggestedTasksSection: React.FC = () => {
       </div>
       
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {sortedTasks.map(task => (
             <TaskCard key={task.id} task={task} />
           ))}
