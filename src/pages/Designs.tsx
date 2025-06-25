@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertTriangle, Info, Clock, Play, Check, ArrowRight, Settings, Target, TrendingUp, ShoppingCart, Package, Star, DollarSign, Sparkles, Calendar, Mouse } from 'lucide-react';
+import { AlertTriangle, Info, Clock, Play, Check, ArrowRight, Settings, Target, TrendingUp, ShoppingCart, Package, Star, DollarSign, Sparkles, Calendar, Mouse, CheckCircle } from 'lucide-react';
 
 export default function Designs() {
   const [currentMockup, setCurrentMockup] = useState(1);
@@ -13,6 +12,7 @@ export default function Designs() {
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
   const [showTriggerDialog, setShowTriggerDialog] = useState(false);
   const [selectedTriggerType, setSelectedTriggerType] = useState<string | null>(null);
+  const [showInsightCheckers, setShowInsightCheckers] = useState(false);
 
   // Mock data for the different mockups
   const insights = [
@@ -75,18 +75,53 @@ export default function Designs() {
       name: 'From Insight',
       description: 'AI automatically triggers when insights are detected',
       icon: Sparkles,
-      color: 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border-purple-300',
-      buttonColor: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700',
+      color: 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-300',
+      buttonColor: 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700',
       isSpecial: true
+    }
+  ];
+
+  const insightCheckers = [
+    {
+      id: 'buybox-monitor',
+      name: 'Buy Box Loss Monitor',
+      description: 'Tracks Buy Box status changes across all products',
+      status: 'active',
+      insightsGenerated: 3,
+      frequency: 'Every 30 minutes'
+    },
+    {
+      id: 'listing-suppression',
+      name: 'Listing Suppression Monitor',
+      description: 'Monitors listing health and detects suppressions',
+      status: 'active',
+      insightsGenerated: 3,
+      frequency: 'Every hour'
+    },
+    {
+      id: 'account-health',
+      name: 'Account Health Monitor',
+      description: 'Tracks account performance metrics',
+      status: 'active',
+      insightsGenerated: 2,
+      frequency: 'Daily'
+    },
+    {
+      id: 'sales-dip',
+      name: 'Sales Dip Checker',
+      description: 'Analyzes sales patterns and identifies decreases',
+      status: 'active',
+      insightsGenerated: 3,
+      frequency: 'Every 6 hours'
     }
   ];
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'high':
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
+        return <AlertTriangle className="h-4 w-4 text-blue-500" />;
       case 'medium':
-        return <Info className="h-4 w-4 text-yellow-500" />;
+        return <Info className="h-4 w-4 text-blue-500" />;
       default:
         return <Info className="h-4 w-4 text-blue-500" />;
     }
@@ -95,9 +130,9 @@ export default function Designs() {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'high':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       default:
         return 'bg-blue-100 text-blue-800 border-blue-200';
     }
@@ -119,8 +154,17 @@ export default function Designs() {
 
   const handleTriggerSelection = (triggerType: string) => {
     setSelectedTriggerType(triggerType);
+    if (triggerType === 'insight') {
+      setShowInsightCheckers(true);
+    }
     console.log(`Selected trigger type: ${triggerType}`);
-    // Here you would typically navigate to the workflow builder or show next step
+  };
+
+  const handleInsightCheckerSelection = (checkerId: string) => {
+    console.log(`Selected insight checker: ${checkerId}`);
+    setShowInsightCheckers(false);
+    setShowTriggerDialog(false);
+    // Here you would typically proceed with workflow setup
   };
 
   return (
@@ -182,7 +226,7 @@ export default function Designs() {
                     <label className="text-sm font-medium">Trigger Method</label>
                     <Button 
                       onClick={() => setShowTriggerDialog(true)}
-                      className="w-full h-auto p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-dashed border-blue-300 hover:border-purple-400 text-gray-700 hover:text-gray-900"
+                      className="w-full h-auto p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300 hover:border-indigo-400 text-gray-700 hover:text-gray-900"
                       variant="outline"
                     >
                       <div className="flex items-center justify-center gap-3">
@@ -233,18 +277,18 @@ export default function Designs() {
 
             {/* Available Insights Preview */}
             <div className="max-w-2xl mx-auto">
-              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
                 <CardHeader>
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-purple-600" />
-                    <CardTitle className="text-lg text-purple-800">Available AI Insights</CardTitle>
+                    <Sparkles className="h-5 w-5 text-blue-600" />
+                    <CardTitle className="text-lg text-blue-800">Available AI Insights</CardTitle>
                   </div>
-                  <p className="text-sm text-purple-600">These insights can automatically trigger your workflows</p>
+                  <p className="text-sm text-blue-600">These insights can automatically trigger your workflows</p>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {insights.slice(0, 2).map((insight) => (
-                      <div key={insight.id} className="flex items-center justify-between p-3 bg-white/50 rounded-lg border border-purple-200">
+                      <div key={insight.id} className="flex items-center justify-between p-3 bg-white/50 rounded-lg border border-blue-200">
                         <div className="flex items-center gap-3">
                           {getSeverityIcon(insight.severity)}
                           <div>
@@ -252,7 +296,7 @@ export default function Designs() {
                             <div className="text-xs text-muted-foreground">{insight.timestamp}</div>
                           </div>
                         </div>
-                        <div className="text-xs text-purple-600 font-medium">Ready to trigger</div>
+                        <div className="text-xs text-blue-600 font-medium">Ready to trigger</div>
                       </div>
                     ))}
                   </div>
@@ -274,41 +318,80 @@ export default function Designs() {
                   key={option.id} 
                   className={`relative p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
                     option.isSpecial 
-                      ? 'border-purple-300 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100' 
+                      ? 'border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100' 
                       : 'border-gray-200 bg-white hover:bg-gray-50'
                   } ${option.isSpecial ? 'animate-pulse' : ''}`}
                   onClick={() => handleTriggerSelection(option.id)}
                 >
                   {option.isSpecial && (
-                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
+                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse" />
                   )}
                   <div className="flex items-start gap-3">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                       option.isSpecial 
-                        ? 'bg-gradient-to-r from-purple-100 to-pink-100' 
+                        ? 'bg-gradient-to-r from-blue-100 to-indigo-100' 
                         : 'bg-gray-100'
                     }`}>
                       <option.icon className={`h-5 w-5 ${
-                        option.isSpecial ? 'text-purple-600' : 'text-gray-600'
+                        option.isSpecial ? 'text-blue-600' : 'text-gray-600'
                       }`} />
                     </div>
                     <div className="flex-1">
                       <div className={`font-medium flex items-center gap-2 ${
-                        option.isSpecial ? 'text-purple-800' : 'text-gray-900'
+                        option.isSpecial ? 'text-blue-800' : 'text-gray-900'
                       }`}>
                         {option.name}
                         {option.isSpecial && (
-                          <span className="text-xs bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full">
+                          <span className="text-xs bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-2 py-0.5 rounded-full">
                             ✨ AI Powered
                           </span>
                         )}
                       </div>
                       <div className={`text-sm mt-1 ${
-                        option.isSpecial ? 'text-purple-600' : 'text-muted-foreground'
+                        option.isSpecial ? 'text-blue-600' : 'text-muted-foreground'
                       }`}>
                         {option.description}
                       </div>
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Insight Checkers Selection Dialog */}
+        <Dialog open={showInsightCheckers} onOpenChange={setShowInsightCheckers}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-blue-600" />
+                Select Insight Checker
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                Choose which insight checker should trigger this workflow
+              </p>
+            </DialogHeader>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {insightCheckers.map((checker) => (
+                <div 
+                  key={checker.id} 
+                  className="p-4 rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-all"
+                  onClick={() => handleInsightCheckerSelection(checker.id)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="font-medium text-blue-900">{checker.name}</div>
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      </div>
+                      <div className="text-sm text-blue-700 mb-2">{checker.description}</div>
+                      <div className="flex items-center gap-4 text-xs text-blue-600">
+                        <span>{checker.frequency}</span>
+                        <span>{checker.insightsGenerated} insights generated</span>
+                      </div>
+                    </div>
+                    <CheckCircle className="h-5 w-5 text-blue-600 opacity-50" />
                   </div>
                 </div>
               ))}
