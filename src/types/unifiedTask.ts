@@ -1,6 +1,6 @@
 
 export type TaskType = 'task' | 'flow' | 'step';
-export type TriggerType = 'manual' | 'scheduled' | 'webhook' | 'event';
+export type TriggerType = 'manual' | 'scheduled' | 'webhook' | 'event' | 'insight';
 
 export interface UnifiedTask {
   id: string;
