@@ -84,7 +84,7 @@ export function FlowDetailsSection({
   const handleInsightCheckerSelection = (checkerId: string) => {
     const checker = insightCheckers.find(c => c.id === checkerId);
     setSelectedInsightChecker(checkerId);
-    setTrigger('event'); // Map to existing TriggerType
+    setTrigger('insight');
     setShowInsightCheckers(false);
     
     if (checker && !name) {
@@ -107,6 +107,8 @@ export function FlowDetailsSection({
         return "This flow will be triggered by webhook calls.";
       case 'event':
         return "This flow will be triggered when specific events occur.";
+      case 'insight':
+        return "This flow will be triggered when insights are generated.";
       default:
         return "";
     }
@@ -168,25 +170,23 @@ export function FlowDetailsSection({
                 <SelectItem value="event">Event-Based</SelectItem>
                 <SelectItem value="insight">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-blue-600" />
-                    <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-medium">
-                      From Insight
-                    </span>
+                    <Sparkles className="h-4 w-4 text-blue-500" />
+                    <span>From Insight</span>
                   </div>
                 </SelectItem>
               </SelectContent>
             </Select>
             
             {selectedInsightChecker && (
-              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
                 <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">
+                  <Sparkles className="h-3 w-3 text-blue-500" />
+                  <span className="text-xs font-medium text-blue-800">
                     {insightCheckers.find(c => c.id === selectedInsightChecker)?.name}
                   </span>
                 </div>
                 <p className="text-xs text-blue-600">
-                  Triggered automatically when insights are detected
+                  Triggered when insights are detected
                 </p>
               </div>
             )}
@@ -202,33 +202,33 @@ export function FlowDetailsSection({
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-blue-600" />
+              <Sparkles className="h-4 w-4 text-blue-500" />
               Select Insight Checker
             </DialogTitle>
             <p className="text-sm text-muted-foreground">
               Choose which insight checker should trigger this workflow
             </p>
           </DialogHeader>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
+          <div className="space-y-2 max-h-96 overflow-y-auto">
             {insightCheckers.map((checker) => (
               <div 
                 key={checker.id} 
-                className="p-4 rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-all"
+                className="p-3 rounded-md border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-colors"
                 onClick={() => handleInsightCheckerSelection(checker.id)}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="font-medium text-blue-900">{checker.name}</div>
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <div className="font-medium text-gray-900">{checker.name}</div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     </div>
-                    <div className="text-sm text-blue-700 mb-2">{checker.description}</div>
-                    <div className="flex items-center gap-4 text-xs text-blue-600">
+                    <div className="text-sm text-gray-600 mb-2">{checker.description}</div>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
                       <span>{checker.frequency}</span>
                       <span>{checker.insightsGenerated} insights generated</span>
                     </div>
                   </div>
-                  <CheckCircle className="h-5 w-5 text-blue-600 opacity-50" />
+                  <CheckCircle className="h-4 w-4 text-gray-400" />
                 </div>
               </div>
             ))}

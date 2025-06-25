@@ -1,3 +1,4 @@
+
 export interface FlowStep {
   id: string;
   title: string;
@@ -20,7 +21,7 @@ export interface Flow {
   id: string;
   name: string;
   description: string;
-  trigger: 'manual' | 'scheduled' | 'webhook' | 'event';
+  trigger: 'manual' | 'scheduled' | 'webhook' | 'event' | 'insight';
   blocks: FlowBlock[];
   steps: FlowStep[];
 }
