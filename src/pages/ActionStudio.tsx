@@ -40,12 +40,12 @@ export default function ActionStudio() {
 
         {showHowItWorks}
 
-        <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0">
-          <div className="xl:col-span-2 flex flex-col min-h-0">
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0 overflow-y-auto">
+          <div className="xl:col-span-2 flex flex-col">
             <div className="flex-shrink-0 sticky top-0 bg-white z-10 pb-6">
               <MonitoringFlowsSection />
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-shrink-0">
               <SuggestedTasksSection />
             </div>
           </div>
