@@ -1,57 +1,50 @@
 
-import { 
-  CheckSquare, 
-  Zap, 
-  GitBranch, 
-  BookOpen, 
-  BarChart3, 
-  Users, 
-  Target,
-  Brain
-} from 'lucide-react';
-import { MenuItem } from './types';
+import {
+  CheckSquare,
+  Sparkles,
+  Book,
+  GitBranch,
+  Settings,
+  TestTube,
+} from "lucide-react";
+
+import { MenuItem } from "./types";
 
 export const workflowItems: MenuItem[] = [
   {
-    id: 'task-manager',
-    label: 'Task Manager',
-    href: '/task-manager',
-    icon: CheckSquare
+    icon: CheckSquare,
+    label: "Home",
+    href: "/task-manager",
+    id: "task-manager",
   },
   {
-    id: 'insights-studio',
-    label: 'Insights Studio',
-    href: '/action-studio',
-    icon: Brain
+    icon: Sparkles,
+    label: "Action Studio",
+    href: "/action-studio",
+    id: "action-studio",
   },
   {
-    id: 'jarvi-flows',
-    label: 'Jarvi Flows',
-    href: '/jarvi-flows',
-    icon: GitBranch
+    icon: GitBranch,
+    label: "Flows",
+    href: "/jarvi-flows",
+    id: "jarvi-flows",
   },
   {
-    id: 'knowledge-base',
-    label: 'Knowledge Base',
-    href: '/knowledge-base',
-    icon: BookOpen
+    icon: Settings,
+    label: "Flow Blocks Admin",
+    href: "/flow-blocks-admin",
+    id: "flow-blocks-admin",
   },
   {
-    id: 'sales-hub',
-    label: 'Sales Hub',
-    href: '/sales-hub',
-    icon: BarChart3
+    icon: TestTube,
+    label: "Block Testing",
+    href: "/block-testing",
+    id: "block-testing",
   },
   {
-    id: 'agents-hub',
-    label: 'Agents Hub',
-    href: '/agents-hub',
-    icon: Users
+    icon: Book,
+    label: "Knowledge Base",
+    href: "/knowledge-base",
+    id: "knowledge-base",
   },
-  {
-    id: 'ads-manager',
-    label: 'Ads Manager',
-    href: '/ads-manager',
-    icon: Target
-  }
 ];
