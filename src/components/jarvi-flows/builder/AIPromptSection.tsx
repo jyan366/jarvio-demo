@@ -25,31 +25,36 @@ export function AIPromptSection({ form, onSubmit, isGenerating, aiError }: AIPro
     setLocalGenerating(true);
     
     try {
-      // Simulate AI generation with more detailed step descriptions
+      // Simulate AI generation with more accurate step-to-block mapping
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const mockSteps: Array<{title: string, description: string, blockType: 'collect' | 'think' | 'act', blockOption: string}> = [
+      const mockSteps: Array<{
+        title: string, 
+        description: string, 
+        blockType: 'collect' | 'think' | 'act', 
+        blockOption: string
+      }> = [
         {
-          title: "Get Amazon Sales for last 30 days",
-          description: 'Use the "AMAZON PERFORMANCE SUMMARY" block to retrieve sales data for the last 30 days from your Amazon seller account.',
+          title: "Get my performance summary",
+          description: 'Use the "ALL LISTING INFO" block to get my performance summary. This collect block will process the required data and provide the necessary output for the next step.',
           blockType: "collect",
           blockOption: "All Listing Info"
         },
         {
-          title: "Analyze sales performance trends",
-          description: 'Use the "BASIC AI ANALYSIS" block to identify patterns, trends, and anomalies in the sales data.',
+          title: "Analyze the performance data",
+          description: 'Use the "BASIC AI ANALYSIS" block to analyze the performance data. This think block will identify trends, patterns, and key insights from the collected data.',
           blockType: "think",
           blockOption: "Basic AI Analysis"
         },
         {
           title: "Generate performance report",
-          description: 'Use the "AI SUMMARY" block to create a comprehensive sales performance report with insights and recommendations.',
+          description: 'Use the "AI SUMMARY" block to generate a comprehensive performance report. This act block will create a detailed summary with actionable insights.',
           blockType: "act",
           blockOption: "AI Summary"
         },
         {
-          title: "Send report to team",
-          description: 'Use the "SEND EMAIL" block to distribute the sales performance report to the relevant team members.',
+          title: "Send me an email with it",
+          description: 'Use the "SEND EMAIL" block to send me an email with the performance report. This act block will deliver the summary directly to your inbox.',
           blockType: "act",
           blockOption: "Send Email"
         }
@@ -100,7 +105,7 @@ export function AIPromptSection({ form, onSubmit, isGenerating, aiError }: AIPro
           <div className="space-y-3">
             <Textarea
               {...form.register('prompt')}
-              placeholder="Describe what you want your flow to do. E.g., 'Create a weekly Amazon sales analysis that checks performance, identifies trends, and emails a summary to the team.'"
+              placeholder="Describe what you want your flow to do. E.g., 'Get my performance summary and send me an email with it weekly.'"
               className="min-h-[100px] resize-none"
             />
             
