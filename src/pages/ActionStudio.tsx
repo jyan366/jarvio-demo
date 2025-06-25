@@ -29,23 +29,31 @@ export default function ActionStudio() {
 
   return (
     <MainLayout>
-      <div className="space-y-6 md:space-y-8 max-w-full overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Insights Studio</h1>
+      <div className="h-[calc(100vh-4rem)] flex flex-col max-w-full overflow-hidden">
+        <div className="flex-shrink-0 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Insights Studio</h1>
+            </div>
           </div>
         </div>
 
         {showHowItWorks}
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-full">
-          <div className="xl:col-span-2 space-y-6 min-w-0">
-            <MonitoringFlowsSection />
-            <SuggestedTasksSection />
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0">
+          <div className="xl:col-span-2 flex flex-col min-h-0">
+            <div className="flex-shrink-0 sticky top-0 bg-white z-10 pb-6">
+              <MonitoringFlowsSection />
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <SuggestedTasksSection />
+            </div>
           </div>
           
-          <div className="space-y-6 min-w-0 overflow-hidden">
-            <AllInsightsSection />
+          <div className="flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto">
+              <AllInsightsSection />
+            </div>
           </div>
         </div>
       </div>
