@@ -37,16 +37,22 @@ export function FlowHeader({
 }: FlowHeaderProps) {
   const navigate = useNavigate();
   
+  const handleBackClick = () => {
+    // Go back to the previous page in browser history
+    window.history.back();
+  };
+  
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <Button 
         variant="ghost" 
-        onClick={() => navigate('/action-studio')}
+        onClick={handleBackClick}
         className="self-start"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Insights Studio
+        Back
       </Button>
+      
       <div className="flex gap-2">
         <Button
           variant="outline"
