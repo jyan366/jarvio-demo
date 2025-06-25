@@ -170,28 +170,38 @@ export function FlowStepsEditor({
     return task?.steps_completed?.includes(stepIndex) || false;
   };
 
-  const handleBlockClick = (block: FlowBlock) => {
-    setSelectedBlock(block);
-    setShowBlockConfig(true);
+  const handleBlockClick = (blockOption: string) => {
+    // Find the block by its option name
+    const block = blocks.find(b => b.option === blockOption);
+    if (block) {
+      console.log('Opening block config for:', block);
+      setSelectedBlock(block);
+      setShowBlockConfig(true);
+    } else {
+      console.warn('Block not found for option:', blockOption);
+    }
   };
 
   const handleInstructionsGenerated = (stepId: string, instructions: string) => {
     updateStep(stepId, { description: instructions });
   };
 
-  const renderBlockReference = (blockName: string, blockType: string) => {
-    const parts = blockName.split(/(\"[^\"]+\")/g);
+  const renderBlockReference = (description: string, stepBlock: FlowBlock | null) => {
+    if (!description) return null;
+    
+    // Split the description by quoted blocks and render them as clickable buttons
+    const parts = description.split(/(\"[^\"]+\")/g);
+    
     return parts.map((part, index) => {
       if (part.startsWith('"') && part.endsWith('"')) {
-        const blockOption = part.slice(1, -1);
+        const blockOption = part.slice(1, -1); // Remove quotes
+        const blockType = stepBlock?.type || 'collect';
+        
         return (
           <button
             key={index}
-            onClick={() => {
-              const block = blocks.find(b => b.option === blockOption);
-              if (block) handleBlockClick(block);
-            }}
-            className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium hover:bg-blue-200 transition-colors"
+            onClick={() => handleBlockClick(blockOption)}
+            className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium hover:bg-blue-200 transition-colors cursor-pointer"
           >
             {getBlockIcon(blockType)}
             {blockOption}
@@ -262,7 +272,7 @@ export function FlowStepsEditor({
                       
                       {step.description ? (
                         <div className="text-sm text-gray-700 leading-relaxed">
-                          {renderBlockReference(step.description, stepBlock?.type || 'collect')}
+                          {renderBlockReference(step.description, stepBlock)}
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
@@ -446,7 +456,10 @@ export function FlowStepsEditor({
       <BlockConfigDialog
         block={selectedBlock}
         isOpen={showBlockConfig}
-        onClose={() => setShowBlockConfig(false)}
+        onClose={() => {
+          setShowBlockConfig(false);
+          setSelectedBlock(null);
+        }}
       />
     </div>
   );
