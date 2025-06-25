@@ -32,16 +32,6 @@ export default function ActionStudio() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Insights Studio</h1>
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-2 text-sm md:text-base">
-              <span className="font-medium">Cultured Food Company</span>
-              <span className="text-muted-foreground">UK</span>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setIsCreateTaskOpen(true)} className="bg-[#4457ff] hover:bg-[#4457ff]/90">
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Create Task
-            </Button>
           </div>
         </div>
 
