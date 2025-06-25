@@ -7,7 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Flow, FlowBlock } from '@/types/flowTypes';
 
 // Define the flow types and their properties
-export type TriggerType = 'manual' | 'scheduled' | 'webhook' | 'event';
+export type TriggerType = 'manual' | 'scheduled' | 'webhook' | 'event' | 'insight';
 
 // Re-export types for backward compatibility
 export type { Flow, FlowBlock };
@@ -30,6 +30,8 @@ const getTriggerIcon = (trigger: TriggerType) => {
     case 'webhook':
       return <Zap className="h-4 w-4" />;
     case 'event':
+      return <Zap className="h-4 w-4" />;
+    case 'insight':
       return <Zap className="h-4 w-4" />;
     default:
       return <Play className="h-4 w-4" />;

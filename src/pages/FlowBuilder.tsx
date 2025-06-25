@@ -138,6 +138,50 @@ type AIPromptFormValues = {
   prompt: string;
 };
 
+// Add insight checkers data at the top level
+const insightCheckers = [
+  {
+    id: 'buybox-monitor',
+    name: 'Buy Box Loss Monitor',
+    description: 'Tracks Buy Box status changes across all products',
+    status: 'active',
+    insightsGenerated: 3,
+    frequency: 'Every 30 minutes'
+  },
+  {
+    id: 'listing-suppression',
+    name: 'Listing Suppression Monitor',
+    description: 'Monitors listing health and detects suppressions',
+    status: 'active',
+    insightsGenerated: 3,
+    frequency: 'Every hour'
+  },
+  {
+    id: 'account-health',
+    name: 'Account Health Monitor',
+    description: 'Tracks account performance metrics',
+    status: 'active',
+    insightsGenerated: 2,
+    frequency: 'Daily'
+  },
+  {
+    id: 'sales-dip',
+    name: 'Sales Dip Checker',
+    description: 'Analyzes sales patterns and identifies decreases',
+    status: 'active',
+    insightsGenerated: 3,
+    frequency: 'Every 6 hours'
+  },
+  {
+    id: 'policy-breach',
+    name: 'Listing Policy Breach Checker',
+    description: 'Scans listings for potential policy violations',
+    status: 'active',
+    insightsGenerated: 3,
+    frequency: 'Daily'
+  }
+];
+
 export default function FlowBuilder() {
   const { flowId } = useParams();
   const navigate = useNavigate();
@@ -226,6 +270,9 @@ export default function FlowBuilder() {
     }
   };
 
+  // Add state for selected insight checker
+  const [selectedInsightChecker, setSelectedInsightChecker] = useState<string | null>(null);
+
   // Load flow block options when component mounts
   useEffect(() => {
     loadFlowBlockOptions();
@@ -310,6 +357,7 @@ export default function FlowBuilder() {
       if (monitoringFlows[flowId]) {
         console.log(`Loading monitoring flow: ${flowId}`);
         setFlow(monitoringFlows[flowId]);
+        setSelectedInsightChecker(flowId); // Set the insight checker for monitoring flows
         toast({
           title: "Monitoring Flow Loaded",
           description: `This is the flow that generates insights for ${monitoringFlows[flowId].name}`,
@@ -570,8 +618,14 @@ export default function FlowBuilder() {
     setFlow(prev => ({ ...prev, description }));
   };
 
+  // Update the updateFlowTrigger function to handle insight checker selection
   const updateFlowTrigger = (trigger: TriggerType) => {
     setFlow(prev => ({ ...prev, trigger }));
+    
+    // If not selecting insight trigger, clear the selected insight checker
+    if (trigger !== 'event') {
+      setSelectedInsightChecker(null);
+    }
   };
 
   const updateFlowSteps = (steps: FlowStep[]) => {
