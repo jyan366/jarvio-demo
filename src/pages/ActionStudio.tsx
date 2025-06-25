@@ -56,29 +56,7 @@ export default function ActionStudio() {
           
           <SuggestedTasksSection />
 
-          <div className="flex flex-col space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl font-semibold">Insights Feed</h2>
-              <Select value={selectedCategory} onValueChange={value => setSelectedCategory(value as InsightCategory)}>
-                <SelectTrigger className="w-[140px] sm:w-[180px]">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="All">All</SelectItem>
-                    <SelectItem value="Sales">Sales</SelectItem>
-                    <SelectItem value="Inventory">Inventory</SelectItem>
-                    <SelectItem value="Listings">Listings</SelectItem>
-                    <SelectItem value="Customers">Customers</SelectItem>
-                    <SelectItem value="Competitors">Competitors</SelectItem>
-                    <SelectItem value="Advertising">Advertising</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <InsightsFeed selectedCategory={selectedCategory} />
-          </div>
+          
         </div>
       </div>
 
