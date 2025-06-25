@@ -29,7 +29,7 @@ export default function ActionStudio() {
 
   return (
     <MainLayout>
-      <div className="space-y-6 md:space-y-8">
+      <div className="space-y-6 md:space-y-8 max-w-full overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Insights Studio</h1>
@@ -38,13 +38,13 @@ export default function ActionStudio() {
 
         {showHowItWorks}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-full">
+          <div className="xl:col-span-2 space-y-6 min-w-0">
             <MonitoringFlowsSection />
             <SuggestedTasksSection />
           </div>
           
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0 overflow-hidden">
             <AllInsightsSection />
           </div>
         </div>

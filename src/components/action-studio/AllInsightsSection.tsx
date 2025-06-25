@@ -28,13 +28,13 @@ const monitoringFlows = [
 const getSeverityIcon = (severity: Insight['severity']) => {
   switch (severity) {
     case 'high':
-      return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      return <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />;
     case 'medium':
-      return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      return <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0" />;
     case 'low':
-      return <Info className="h-4 w-4 text-blue-500" />;
+      return <Info className="h-4 w-4 text-blue-500 flex-shrink-0" />;
     case 'info':
-      return <Info className="h-4 w-4 text-gray-500" />;
+      return <Info className="h-4 w-4 text-gray-500 flex-shrink-0" />;
   }
 };
 
@@ -100,16 +100,16 @@ export function AllInsightsSection() {
   const recentInsights = sortedInsights.slice(0, 8);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Clock className="h-5 w-5 text-gray-600" />
-        <h2 className="text-lg sm:text-xl font-semibold">Recent Insights</h2>
-        <Badge variant="secondary" className="text-xs">
+    <div className="space-y-4 w-full">
+      <div className="flex items-center gap-2 flex-wrap">
+        <Clock className="h-5 w-5 text-gray-600 flex-shrink-0" />
+        <h2 className="text-lg sm:text-xl font-semibold truncate">Recent Insights</h2>
+        <Badge variant="secondary" className="text-xs flex-shrink-0">
           {recentInsights.length} latest
         </Badge>
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 w-full">
         {recentInsights.length === 0 ? (
           <Card className="p-6">
             <div className="text-center text-muted-foreground">
@@ -118,17 +118,17 @@ export function AllInsightsSection() {
           </Card>
         ) : (
           recentInsights.map((insight) => (
-            <Card key={`${insight.flowId}-${insight.id}`} className="border-l-4 border-l-blue-400">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2 flex-1">
+            <Card key={`${insight.flowId}-${insight.id}`} className="border-l-4 border-l-blue-400 w-full">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-start justify-between mb-2 gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
                     {getSeverityIcon(insight.severity)}
-                    <div>
-                      <div className="font-medium text-sm">{insight.title}</div>
-                      <div className="text-xs text-muted-foreground">{insight.flowName}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-sm truncate">{insight.title}</div>
+                      <div className="text-xs text-muted-foreground truncate">{insight.flowName}</div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 flex-shrink-0 flex-wrap">
                     <Badge variant="outline" className={`text-xs ${getStatusColor(insight.status)}`}>
                       {insight.status}
                     </Badge>
@@ -138,19 +138,19 @@ export function AllInsightsSection() {
                   </div>
                 </div>
                 
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2 break-words">
                   {insight.summary}
                 </p>
                 
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">{insight.timestamp}</span>
-                  <div className="flex gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground flex-shrink-0">{insight.timestamp}</span>
+                  <div className="flex gap-2 flex-shrink-0">
                     {insight.status === 'new' && (
-                      <Button variant="outline" size="sm" className="text-xs h-7">
+                      <Button variant="outline" size="sm" className="text-xs h-7 px-2">
                         Acknowledge
                       </Button>
                     )}
-                    <Button variant="outline" size="sm" className="text-xs h-7">
+                    <Button variant="outline" size="sm" className="text-xs h-7 px-2">
                       Create Task
                     </Button>
                   </div>
