@@ -37,6 +37,7 @@ import FlowBlocksAdmin from './pages/FlowBlocksAdmin';
 import ChatTest from './pages/ChatTest';
 import BlockTesting from './pages/BlockTesting';
 import PitchDeck from './pages/PitchDeck';
+import Designs from './pages/Designs';
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
             <Route path="/flow-blocks-admin" element={<FlowBlocksAdmin />} />
             <Route path="/block-testing" element={<BlockTesting />} />
             <Route path="/pitch-deck" element={<PitchDeck />} />
+            <Route path="/designs" element={<Designs />} />
             
             {/* Brand Toolkit Routes */}
             <Route path="/my-offers" element={<MyOffers />} />
