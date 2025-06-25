@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Shield, AlertTriangle, TrendingDown, FileX, Activity, Clock, CheckCircle, Settings } from 'lucide-react';
+
 interface MonitoringFlow {
   id: string;
   name: string;
@@ -13,6 +15,7 @@ interface MonitoringFlow {
   insightsGenerated: number;
   frequency: string;
 }
+
 const monitoringFlows: MonitoringFlow[] = [{
   id: 'buybox-monitor',
   name: 'Buy Box Loss Monitor',
@@ -59,6 +62,7 @@ const monitoringFlows: MonitoringFlow[] = [{
   insightsGenerated: 3,
   frequency: 'Daily'
 }];
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'active':
@@ -71,6 +75,7 @@ const getStatusColor = (status: string) => {
       return 'bg-gray-100 text-gray-800';
   }
 };
+
 const getStatusIcon = (status: string) => {
   switch (status) {
     case 'active':
@@ -83,8 +88,10 @@ const getStatusIcon = (status: string) => {
       return <Clock className="h-4 w-4" />;
   }
 };
+
 export function MonitoringFlowsSection() {
-  return <div className="space-y-4">
+  return (
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg sm:text-xl font-semibold">My Insight Checkers</h2>
@@ -98,48 +105,27 @@ export function MonitoringFlowsSection() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {monitoringFlows.map(flow => <Card key={flow.id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-muted rounded-md">
-                    {flow.icon}
-                  </div>
-                  <div>
-                    <CardTitle className="text-sm font-medium">
-                      {flow.name}
-                    </CardTitle>
-                  </div>
-                </div>
-                <Badge className={`${getStatusColor(flow.status)} flex items-center gap-1`}>
-                  {getStatusIcon(flow.status)}
-                  {flow.status}
-                </Badge>
+      <div className="bg-white rounded-lg border">
+        {monitoringFlows.map((flow, index) => (
+          <div 
+            key={flow.id} 
+            className={`flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${
+              index !== monitoringFlows.length - 1 ? 'border-b' : ''
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-muted rounded-md">
+                {flow.icon}
               </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-xs text-muted-foreground mb-3">
-                {flow.description}
-              </p>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Last run:</span>
-                  <span className="font-medium">{flow.lastRun}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Frequency:</span>
-                  <span className="font-medium">{flow.frequency}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Insights today:</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {flow.insightsGenerated}
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>)}
+              <span className="font-medium text-sm">{flow.name}</span>
+            </div>
+            <Badge className={`${getStatusColor(flow.status)} flex items-center gap-1`}>
+              {getStatusIcon(flow.status)}
+              {flow.status}
+            </Badge>
+          </div>
+        ))}
       </div>
-    </div>;
+    </div>
+  );
 }
