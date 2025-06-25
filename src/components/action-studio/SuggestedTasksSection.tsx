@@ -311,12 +311,17 @@ export const SuggestedTasksSection: React.FC = () => {
     <div className="space-y-4 px-2 sm:px-0">
       <div className="flex items-center justify-between">
         <h2 className="text-base sm:text-xl font-semibold pl-2 sm:pl-0">Suggested Tasks</h2>
-        <div className="flex gap-1 border rounded-md p-1">
+        <div className="flex gap-1 border rounded-md p-1 bg-white">
           <Button
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('grid')}
-            className="h-8 px-3"
+            className={cn(
+              "h-8 px-3",
+              viewMode === 'grid' 
+                ? "bg-indigo-600 hover:bg-indigo-700 text-white" 
+                : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+            )}
           >
             <Grid3X3 className="h-4 w-4 mr-1" />
             Grid
@@ -325,7 +330,12 @@ export const SuggestedTasksSection: React.FC = () => {
             variant={viewMode === 'focus' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('focus')}
-            className="h-8 px-3"
+            className={cn(
+              "h-8 px-3",
+              viewMode === 'focus' 
+                ? "bg-indigo-600 hover:bg-indigo-700 text-white" 
+                : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+            )}
           >
             <Eye className="h-4 w-4 mr-1" />
             Focus
@@ -351,6 +361,7 @@ export const SuggestedTasksSection: React.FC = () => {
                 size="sm"
                 onClick={previousTask}
                 disabled={focusIndex === 0}
+                className="border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-800"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -359,6 +370,7 @@ export const SuggestedTasksSection: React.FC = () => {
                 size="sm"
                 onClick={nextTask}
                 disabled={focusIndex >= sortedTasks.length - 1}
+                className="border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-800"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
