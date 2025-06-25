@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Check, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Check, X, Grid3X3, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -122,6 +122,8 @@ export const SuggestedTasksSection: React.FC = () => {
   const { toast } = useToast();
   const [processingTasks, setProcessingTasks] = useState<string[]>([]);
   const [handledTasks, setHandledTasks] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'grid' | 'focus'>('grid');
+  const [focusIndex, setFocusIndex] = useState(0);
 
   const toggleTask = (taskId: string) => {
     setOpenTaskIds(prev => 
@@ -155,6 +157,11 @@ export const SuggestedTasksSection: React.FC = () => {
         });
       }
       setHandledTasks(prev => [...prev, task.id]);
+      
+      // If in focus mode and we're at the last task, go to previous
+      if (viewMode === 'focus' && focusIndex >= sortedTasks.length - 1) {
+        setFocusIndex(Math.max(0, focusIndex - 1));
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -170,6 +177,18 @@ export const SuggestedTasksSection: React.FC = () => {
     .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
     .filter(task => !handledTasks.includes(task.id));
 
+  const nextTask = () => {
+    if (focusIndex < sortedTasks.length - 1) {
+      setFocusIndex(focusIndex + 1);
+    }
+  };
+
+  const previousTask = () => {
+    if (focusIndex > 0) {
+      setFocusIndex(focusIndex - 1);
+    }
+  };
+
   if (sortedTasks.length === 0) {
     return (
       <div className="space-y-2 px-2 sm:px-0">
@@ -181,87 +200,174 @@ export const SuggestedTasksSection: React.FC = () => {
     );
   }
 
-  return (
-    <div className="space-y-2 px-2 sm:px-0">
-      <h2 className="text-base sm:text-xl font-semibold pl-2 sm:pl-0">Suggested Tasks</h2>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-        {sortedTasks.map(task => (
-          <Card 
-            key={task.id} 
-            className={cn(
-              "p-2 sm:p-3 border hover:shadow-md transition-shadow",
-              priorityColors[task.priority],
-              task.priority === 'CRITICAL' && 'ring-2 ring-red-200'
-            )}
-          >
-            <div className="flex flex-col space-y-1 sm:space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1">
-                  <Badge className={cn(
-                    "mb-2",
-                    priorityBadgeColors[task.priority]
-                  )}>
-                    {task.priority}
-                  </Badge>
-                  <h3 className="font-medium text-sm sm:text-base">{task.title}</h3>
-                  <Badge className={`mt-1 text-xs ${categoryColors[task.category]}`}>
-                    {task.category}
-                  </Badge>
-                </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 hover:bg-green-100 text-green-600 hover:text-green-700"
-                    onClick={() => handleTaskAction(task, true)}
-                    disabled={processingTasks.includes(task.id)}
-                  >
-                    <Check className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 hover:bg-red-100 text-red-600 hover:text-red-700"
-                    onClick={() => handleTaskAction(task, false)}
-                    disabled={processingTasks.includes(task.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+  const TaskCard = ({ task, isExpanded = false }: { task: SuggestedTask; isExpanded?: boolean }) => (
+    <Card 
+      className={cn(
+        "border hover:shadow-md transition-shadow",
+        isExpanded ? "p-6" : "p-2 sm:p-3",
+        priorityColors[task.priority],
+        task.priority === 'CRITICAL' && 'ring-2 ring-red-200'
+      )}
+    >
+      <div className={cn("flex flex-col", isExpanded ? "space-y-4" : "space-y-1 sm:space-y-2")}>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1">
+            <Badge className={cn(
+              "mb-2",
+              priorityBadgeColors[task.priority]
+            )}>
+              {task.priority}
+            </Badge>
+            <h3 className={cn(
+              "font-medium",
+              isExpanded ? "text-lg sm:text-xl mb-2" : "text-sm sm:text-base"
+            )}>
+              {task.title}
+            </h3>
+            <Badge className={`mt-1 text-xs ${categoryColors[task.category]}`}>
+              {task.category}
+            </Badge>
+            {isExpanded && (
+              <div className="mt-4 text-sm text-muted-foreground">
+                Based on {task.linkedInsights.length} insights from your monitoring flows
               </div>
-              
-              <Collapsible
-                open={openTaskIds.includes(task.id)}
-                onOpenChange={() => toggleTask(task.id)}
-                className="mt-1"
-              >
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <span>Based on {task.linkedInsights.length} insights</span>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-0 h-6 w-6 ml-1">
-                      {openTaskIds.includes(task.id) ? (
-                        <ChevronUp className="h-3 w-3" />
-                      ) : (
-                        <ChevronDown className="h-3 w-3" />
-                      )}
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
-
-                <CollapsibleContent className="mt-1 space-y-1">
-                  {task.linkedInsights.map(insight => (
-                    <div key={insight.id} className="bg-muted/50 p-1 rounded-md">
-                      <p className="font-medium text-xs">{insight.title}</p>
-                      <p className="text-xs text-muted-foreground">{insight.summary}</p>
-                    </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
+            )}
+          </div>
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "hover:bg-green-100 text-green-600 hover:text-green-700",
+                isExpanded ? "h-10 w-10" : "h-8 w-8"
+              )}
+              onClick={() => handleTaskAction(task, true)}
+              disabled={processingTasks.includes(task.id)}
+            >
+              <Check className={cn(isExpanded ? "h-5 w-5" : "h-4 w-4")} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "hover:bg-red-100 text-red-600 hover:text-red-700",
+                isExpanded ? "h-10 w-10" : "h-8 w-8"
+              )}
+              onClick={() => handleTaskAction(task, false)}
+              disabled={processingTasks.includes(task.id)}
+            >
+              <X className={cn(isExpanded ? "h-5 w-5" : "h-4 w-4")} />
+            </Button>
+          </div>
+        </div>
+        
+        <Collapsible
+          open={isExpanded || openTaskIds.includes(task.id)}
+          onOpenChange={() => !isExpanded && toggleTask(task.id)}
+          className="mt-1"
+        >
+          {!isExpanded && (
+            <div className="flex items-center text-xs text-muted-foreground">
+              <span>Based on {task.linkedInsights.length} insights</span>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-0 h-6 w-6 ml-1">
+                  {openTaskIds.includes(task.id) ? (
+                    <ChevronUp className="h-3 w-3" />
+                  ) : (
+                    <ChevronDown className="h-3 w-3" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
             </div>
-          </Card>
-        ))}
+          )}
+
+          <CollapsibleContent className={cn("space-y-2", isExpanded ? "mt-4" : "mt-1")}>
+            {task.linkedInsights.map(insight => (
+              <div key={insight.id} className={cn(
+                "bg-muted/50 rounded-md",
+                isExpanded ? "p-3" : "p-1"
+              )}>
+                <p className={cn(
+                  "font-medium",
+                  isExpanded ? "text-sm mb-1" : "text-xs"
+                )}>
+                  {insight.title}
+                </p>
+                <p className={cn(
+                  "text-muted-foreground",
+                  isExpanded ? "text-sm" : "text-xs"
+                )}>
+                  {insight.summary}
+                </p>
+              </div>
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
       </div>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-4 px-2 sm:px-0">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base sm:text-xl font-semibold pl-2 sm:pl-0">Suggested Tasks</h2>
+        <div className="flex gap-1 border rounded-md p-1">
+          <Button
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('grid')}
+            className="h-8 px-3"
+          >
+            <Grid3X3 className="h-4 w-4 mr-1" />
+            Grid
+          </Button>
+          <Button
+            variant={viewMode === 'focus' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('focus')}
+            className="h-8 px-3"
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            Focus
+          </Button>
+        </div>
+      </div>
+      
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+          {sortedTasks.map(task => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              {focusIndex + 1} of {sortedTasks.length} tasks
+            </div>
+            <div className="flex gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={previousTask}
+                disabled={focusIndex === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={nextTask}
+                disabled={focusIndex >= sortedTasks.length - 1}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          
+          <TaskCard task={sortedTasks[focusIndex]} isExpanded={true} />
+        </div>
+      )}
     </div>
   );
 };
