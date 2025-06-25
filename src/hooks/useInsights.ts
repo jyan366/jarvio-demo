@@ -32,33 +32,20 @@ export function useInsights(taskId?: string) {
       setLoading(true);
       setError(null);
       
-      // Use supabase.rpc or raw query since the table isn't in auto-generated types yet
-      let query = `SELECT * FROM insights ORDER BY generated_at DESC`;
+      // Query the insights table directly with type assertion since it's not in generated types yet
+      let query = (supabase as any).from('insights').select('*').order('generated_at', { ascending: false });
       
       if (taskId) {
-        query = `SELECT * FROM insights WHERE source_task_id = '${taskId}' ORDER BY generated_at DESC`;
+        query = query.eq('source_task_id', taskId);
       }
       
-      const { data, error: fetchError } = await supabase.rpc('execute_sql', { 
-        sql: query 
-      }) as { data: Insight[] | null, error: any };
+      const { data, error: fetchError } = await query;
       
       if (fetchError) {
-        // Fallback: try direct query if rpc doesn't work
-        console.log('RPC failed, trying direct query...');
-        const { data: directData, error: directError } = await (supabase as any)
-          .from('insights')
-          .select('*')
-          .order('generated_at', { ascending: false });
-        
-        if (directError) {
-          throw directError;
-        }
-        
-        setInsights((directData as Insight[]) || []);
-      } else {
-        setInsights(data || []);
+        throw fetchError;
       }
+      
+      setInsights((data as Insight[]) || []);
     } catch (err) {
       console.error('Error loading insights:', err);
       setError(err instanceof Error ? err.message : 'Failed to load insights');
