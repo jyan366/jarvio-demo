@@ -274,6 +274,11 @@ export class FlowExecutionEngine {
    */
   private async executeFunctionalBlock(block: SimpleFlowBlock, config: BlockConfig): Promise<BlockExecutionResult> {
     try {
+      // Special handling for Generate Insight block
+      if (block.type === 'act' && block.option === 'Generate Insight') {
+        return await this.executeGenerateInsightBlock(block);
+      }
+      
       // Call the edge function to execute the block
       const { data, error } = await supabase.functions.invoke('execute-flow-block', {
         body: {
@@ -305,11 +310,80 @@ export class FlowExecutionEngine {
   }
 
   /**
+   * Execute the Generate Insight block
+   */
+  private async executeGenerateInsightBlock(block: SimpleFlowBlock): Promise<BlockExecutionResult> {
+    try {
+      console.log("Executing Generate Insight block:", block.name);
+      
+      const { data, error } = await supabase.functions.invoke('generate-insights', {
+        body: {
+          blockId: block.id,
+          flowId: this.flow.id,
+          taskId: this.taskId,
+          context: Object.values(this.blockResults)
+        }
+      });
+      
+      if (error) {
+        console.error("Error calling generate-insights function:", error);
+        throw new Error(error.message);
+      }
+      
+      if (!data.success) {
+        throw new Error(data.error || "Failed to generate insights");
+      }
+      
+      console.log("Generated insights:", data.insights);
+      
+      return {
+        success: true,
+        data: {
+          insights: data.insights,
+          generated_at: data.generated_at,
+          block_type: 'generate_insight',
+          flow_id: this.flow.id,
+          task_id: this.taskId
+        }
+      };
+      
+    } catch (error) {
+      console.error("Error in Generate Insight block:", error);
+      return {
+        success: false,
+        error: (error as Error).message
+      };
+    }
+  }
+
+  /**
    * Execute a demo block with simulated data
    */
   private async executeDemoBlock(block: SimpleFlowBlock): Promise<BlockExecutionResult> {
     // Wait to simulate processing time
     await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Special handling for Generate Insight demo block
+    if (block.type === 'act' && block.option === 'Generate Insight') {
+      return {
+        success: true,
+        data: {
+          insights: [
+            {
+              title: "Demo Insight: Sales Trend Detected",
+              summary: "Based on the workflow analysis, there's an opportunity to optimize your product listings for better performance.",
+              category: "Sales",
+              severity: "medium"
+            }
+          ],
+          generated_at: new Date().toISOString(),
+          block_type: 'generate_insight',
+          flow_id: this.flow.id,
+          task_id: this.taskId,
+          demo_note: "This is a simulated insight generation. Real insights would be based on actual data analysis."
+        }
+      };
+    }
     
     // Generate demo result based on block type
     let demoResult: any;

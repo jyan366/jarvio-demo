@@ -24,7 +24,8 @@ export const flowBlockOptions = {
     'Human in the Loop',
     'Agent',
     'Run N8N Workflow',
-    'Run Zapier Workflow'
+    'Run Zapier Workflow',
+    'Generate Insight'
   ],
   agent: [
     'Agent'
