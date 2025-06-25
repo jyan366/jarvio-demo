@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
@@ -12,9 +13,10 @@ import { useNavigate } from 'react-router-dom';
 import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 import { ProcessBuilder } from '@/components/ads/ProcessBuilder';
 import { BestSellersRestockProcess } from '@/components/inventory/BestSellersRestockProcess';
-import { TaskPrioritizationBox } from '@/components/action-studio/TaskPrioritizationBox';
 import { useToast } from '@/hooks/use-toast';
+
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
+
 export default function ActionStudio() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<InsightCategory>('All');
@@ -22,14 +24,10 @@ export default function ActionStudio() {
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [isRestockProcessOpen, setIsRestockProcessOpen] = useState(false);
   const [isProcessBuilderOpen, setIsProcessBuilderOpen] = useState(false);
-  const [showPrioritizationBox, setShowPrioritizationBox] = useState(true);
-  const {
-    toast
-  } = useToast();
-  const handlePrioritizationSubmit = () => {
-    setShowPrioritizationBox(false);
-  };
-  return <MainLayout>
+  const { toast } = useToast();
+
+  return (
+    <MainLayout>
       <div className="space-y-6 md:space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -50,22 +48,19 @@ export default function ActionStudio() {
         {showHowItWorks}
 
         <div className="space-y-6">
-          {showPrioritizationBox && <TaskPrioritizationBox onSubmit={handlePrioritizationSubmit} />}
-          
           <MonitoringFlowsSection />
           
           <SuggestedTasksSection />
-
-          
         </div>
       </div>
 
       <CreateTaskFlow open={isCreateTaskOpen} onOpenChange={setIsCreateTaskOpen} onSuccess={() => {
-      navigate('/task-manager');
-    }} />
+        navigate('/task-manager');
+      }} />
 
       <ProcessBuilder open={isProcessBuilderOpen} onOpenChange={setIsProcessBuilderOpen} />
 
       <BestSellersRestockProcess open={isRestockProcessOpen} onOpenChange={setIsRestockProcessOpen} />
-    </MainLayout>;
+    </MainLayout>
+  );
 }
