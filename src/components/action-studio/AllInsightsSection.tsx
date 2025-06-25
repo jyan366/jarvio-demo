@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -79,7 +78,7 @@ const parseTimestamp = (timestamp: string): Date => {
   return now;
 };
 
-export function AllInsightsSection() {
+export const AllInsightsSection = forwardRef<HTMLDivElement>((props, ref) => {
   // Aggregate all insights from all flows
   const allInsights: Insight[] = monitoringFlows.flatMap(flow => {
     const flowInsights = getFlowInsights(flow.id);
@@ -112,7 +111,11 @@ export function AllInsightsSection() {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 pr-2">
+      <div
+        ref={ref}
+        className="flex-1 overflow-y-auto pr-2"
+        style={{ maxHeight: 'calc(100vh - 12rem)' }}
+      >
         <div className="grid gap-3 w-full pb-4">
           {recentInsights.length === 0 ? (
             <Card className="p-6">
@@ -172,7 +175,9 @@ export function AllInsightsSection() {
             </Button>
           </div>
         )}
-      </ScrollArea>
+      </div>
     </div>
   );
-}
+});
+
+AllInsightsSection.displayName = 'AllInsightsSection';
