@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Check, X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -82,16 +83,6 @@ export const suggestedTasks: (SuggestedTask & { priority: PriorityLevel })[] = [
     ]
   },
   {
-    id: '6',
-    title: 'Replenish Low Stock Items',
-    category: 'Inventory',
-    priority: 'LOW',
-    linkedInsights: [
-      { id: '11', title: 'Stock Level Alert', summary: 'Multiple products approaching reorder point within 7 days' },
-      { id: '12', title: 'Lead Time Warning', summary: 'Supplier has increased lead time for next shipment by 5 days' }
-    ]
-  },
-  {
     id: '7',
     title: 'Investigate Sales Decline',
     category: 'Sales',
@@ -99,36 +90,6 @@ export const suggestedTasks: (SuggestedTask & { priority: PriorityLevel })[] = [
     linkedInsights: [
       { id: '13', title: 'Sales Trend Alert', summary: '22% week-over-week decline in Carrot & Fennel Kimchi sales' },
       { id: '14', title: 'Category Performance', summary: 'Overall fermented foods category growing while our products declining' }
-    ]
-  },
-  {
-    id: '8',
-    title: 'Update Product Images',
-    category: 'Listings',
-    priority: 'MEDIUM',
-    linkedInsights: [
-      { id: '15', title: 'Listing Quality Alert', summary: 'Product images for 3 variants don\'t meet Amazon\'s requirements' },
-      { id: '16', title: 'Click-Through Rate Drop', summary: '27% decrease in CTR potentially related to image quality' }
-    ]
-  },
-  {
-    id: '9',
-    title: 'Respond to Customer Questions',
-    category: 'Customers',
-    priority: 'LOW',
-    linkedInsights: [
-      { id: '17', title: 'Unanswered Questions Alert', summary: '4 customer questions pending for more than 48 hours' },
-      { id: '18', title: 'Question Topic Analysis', summary: 'Multiple questions about product storage requirements' }
-    ]
-  },
-  {
-    id: '10',
-    title: 'Review Advertising Budget',
-    category: 'Advertising',
-    priority: 'MEDIUM',
-    linkedInsights: [
-      { id: '19', title: 'Budget Utilization', summary: 'Daily budget exhausted before 2pm for 5 consecutive days' },
-      { id: '20', title: 'Impression Share Loss', summary: 'Losing 42% of possible impressions due to budget constraints' }
     ]
   }
 ];
