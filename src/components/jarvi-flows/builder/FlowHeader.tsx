@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -42,11 +41,11 @@ export function FlowHeader({
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <Button 
         variant="ghost" 
-        onClick={() => navigate('/jarvi-flows')}
+        onClick={() => navigate('/action-studio')}
         className="self-start"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Flows
+        Back to Insights Studio
       </Button>
       <div className="flex gap-2">
         <Button
