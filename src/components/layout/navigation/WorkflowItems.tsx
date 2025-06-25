@@ -19,7 +19,7 @@ export const workflowItems: MenuItem[] = [
   },
   {
     icon: Sparkles,
-    label: "Action Studio",
+    label: "Insights Studio",
     href: "/action-studio",
     id: "action-studio",
   },
