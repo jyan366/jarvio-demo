@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Sparkles, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { TriggerType } from '@/components/jarvi-flows/FlowsGrid';
 
 interface FlowDetailsSectionProps {
@@ -103,10 +103,6 @@ export function FlowDetailsSection({
         return "This flow will need to be manually triggered by a user.";
       case 'scheduled':
         return "This flow will run automatically based on a schedule.";
-      case 'webhook':
-        return "This flow will be triggered by webhook calls.";
-      case 'event':
-        return "This flow will be triggered when specific events occur.";
       case 'insight':
         return "This flow will be triggered when insights are generated.";
       default:
@@ -164,23 +160,15 @@ export function FlowDetailsSection({
                 <SelectValue placeholder="Select trigger type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="manual">Manual Trigger</SelectItem>
+                <SelectItem value="manual">Manual</SelectItem>
                 <SelectItem value="scheduled">Scheduled</SelectItem>
-                <SelectItem value="webhook">Webhook</SelectItem>
-                <SelectItem value="event">Event-Based</SelectItem>
-                <SelectItem value="insight">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-blue-500" />
-                    <span>From Insight</span>
-                  </div>
-                </SelectItem>
+                <SelectItem value="insight">From Insight</SelectItem>
               </SelectContent>
             </Select>
             
             {selectedInsightChecker && (
               <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
                 <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="h-3 w-3 text-blue-500" />
                   <span className="text-xs font-medium text-blue-800">
                     {insightCheckers.find(c => c.id === selectedInsightChecker)?.name}
                   </span>
@@ -201,10 +189,7 @@ export function FlowDetailsSection({
       <Dialog open={showInsightCheckers} onOpenChange={setShowInsightCheckers}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-blue-500" />
-              Select Insight Checker
-            </DialogTitle>
+            <DialogTitle>Select Insight Checker</DialogTitle>
             <p className="text-sm text-muted-foreground">
               Choose which insight checker should trigger this workflow
             </p>
