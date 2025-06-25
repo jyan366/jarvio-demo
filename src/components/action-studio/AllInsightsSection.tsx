@@ -100,8 +100,8 @@ export function AllInsightsSection() {
   const recentInsights = sortedInsights.slice(0, 8);
 
   return (
-    <div className="space-y-4 w-full h-full px-4 sm:px-6">
-      <div className="flex-shrink-0">
+    <div className="h-full flex flex-col">
+      <div className="flex-shrink-0 px-4 sm:px-6 pb-4">
         <div className="flex items-center gap-2 flex-wrap">
           <Clock className="h-5 w-5 text-gray-600 flex-shrink-0" />
           <h2 className="text-lg sm:text-xl font-semibold truncate">Recent Insights</h2>
@@ -111,7 +111,7 @@ export function AllInsightsSection() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6">
         <div className="grid gap-3 w-full pb-4">
           {recentInsights.length === 0 ? (
             <Card className="p-6">

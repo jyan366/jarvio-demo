@@ -40,20 +40,18 @@ export default function ActionStudio() {
 
         {showHowItWorks}
 
-        <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0 overflow-y-auto">
-          <div className="xl:col-span-2 flex flex-col">
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0">
+          <div className="xl:col-span-2 flex flex-col min-h-0 overflow-hidden">
             <div className="flex-shrink-0 sticky top-0 bg-white z-10 pb-6">
               <MonitoringFlowsSection />
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex-1 overflow-y-auto">
               <SuggestedTasksSection />
             </div>
           </div>
           
-          <div className="flex flex-col min-h-0">
-            <div className="flex-1 overflow-hidden">
-              <AllInsightsSection />
-            </div>
+          <div className="flex flex-col min-h-0 overflow-hidden">
+            <AllInsightsSection />
           </div>
         </div>
       </div>
