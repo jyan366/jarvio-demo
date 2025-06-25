@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Edit, Eye, Settings } from 'lucide-react';
+import { ViewInsightsDialog } from './ViewInsightsDialog';
+import { getFlowInsights } from './MonitoringFlowInsights';
+
 interface MonitoringFlow {
   id: string;
   name: string;
@@ -67,6 +70,9 @@ const getStatusColor = (status: string) => {
   }
 };
 export function MonitoringFlowsSection() {
+  const [viewInsightsOpen, setViewInsightsOpen] = useState(false);
+  const [selectedFlow, setSelectedFlow] = useState<MonitoringFlow | null>(null);
+
   const handleToggleFlow = (flowId: string, isEnabled: boolean) => {
     console.log(`Toggling flow ${flowId} to ${isEnabled ? 'active' : 'paused'}`);
     // TODO: Implement actual toggle functionality
@@ -75,41 +81,70 @@ export function MonitoringFlowsSection() {
     console.log(`Editing flow ${flowId}`);
     // TODO: Implement edit functionality
   };
-  const handleViewInsights = (flowId: string) => {
-    console.log(`Viewing insights for flow ${flowId}`);
-    // TODO: Implement view insights functionality
+  const handleViewInsights = (flow: MonitoringFlow) => {
+    console.log(`Viewing insights for flow ${flow.id}`);
+    setSelectedFlow(flow);
+    setViewInsightsOpen(true);
   };
-  return <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg sm:text-xl font-semibold">My Insight Checkers</h2>
-          
+  return (
+    <>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg sm:text-xl font-semibold">My Insight Checkers</h2>
+          </div>
+          <Button variant="outline" size="sm">
+            <Settings className="h-4 w-4 mr-2" />
+            Manage Flows
+          </Button>
         </div>
-        <Button variant="outline" size="sm">
-          <Settings className="h-4 w-4 mr-2" />
-          Manage Flows
-        </Button>
-      </div>
 
-      <div className="bg-white rounded-lg border">
-        {monitoringFlows.map((flow, index) => <div key={flow.id} className={`flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${index !== monitoringFlows.length - 1 ? 'border-b' : ''}`}>
-            <div className="flex items-center gap-4">
-              <Switch checked={flow.status === 'active'} onCheckedChange={checked => handleToggleFlow(flow.id, checked)} />
-              <div>
-                <span className="font-medium text-sm">{flow.name}</span>
-                
+        <div className="bg-white rounded-lg border">
+          {monitoringFlows.map((flow, index) => (
+            <div
+              key={flow.id}
+              className={`flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${
+                index !== monitoringFlows.length - 1 ? 'border-b' : ''
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <Switch
+                  checked={flow.status === 'active'}
+                  onCheckedChange={(checked) => handleToggleFlow(flow.id, checked)}
+                />
+                <div>
+                  <span className="font-medium text-sm">{flow.name}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleViewInsights(flow)}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEditFlow(flow.id)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-            
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => handleViewInsights(flow.id)}>
-                <Eye className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => handleEditFlow(flow.id)}>
-                <Edit className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>)}
+          ))}
+        </div>
       </div>
-    </div>;
+
+      <ViewInsightsDialog
+        open={viewInsightsOpen}
+        onOpenChange={setViewInsightsOpen}
+        flowId={selectedFlow?.id || ''}
+        flowName={selectedFlow?.name || ''}
+        insights={selectedFlow ? getFlowInsights(selectedFlow.id) : []}
+      />
+    </>
+  );
 }
