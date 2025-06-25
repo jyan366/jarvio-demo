@@ -100,78 +100,74 @@ export function AllInsightsSection() {
   const recentInsights = sortedInsights.slice(0, 8);
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-shrink-0 px-4 sm:px-6 pb-4">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Clock className="h-5 w-5 text-gray-600 flex-shrink-0" />
-          <h2 className="text-lg sm:text-xl font-semibold truncate">Recent Insights</h2>
-          <Badge variant="secondary" className="text-xs flex-shrink-0">
-            {recentInsights.length} latest
-          </Badge>
-        </div>
+    <div className="space-y-4 w-full">
+      <div className="flex items-center gap-2 flex-wrap">
+        <Clock className="h-5 w-5 text-gray-600 flex-shrink-0" />
+        <h2 className="text-lg sm:text-xl font-semibold truncate">Recent Insights</h2>
+        <Badge variant="secondary" className="text-xs flex-shrink-0">
+          {recentInsights.length} latest
+        </Badge>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6">
-        <div className="grid gap-3 w-full pb-4">
-          {recentInsights.length === 0 ? (
-            <Card className="p-6">
-              <div className="text-center text-muted-foreground">
-                No recent insights available
-              </div>
-            </Card>
-          ) : (
-            recentInsights.map((insight) => (
-              <Card key={`${insight.flowId}-${insight.id}`} className="border-l-4 border-l-blue-400 w-full">
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex items-start justify-between mb-2 gap-2">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      {getSeverityIcon(insight.severity)}
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium text-sm truncate">{insight.title}</div>
-                        <div className="text-xs text-muted-foreground truncate">{insight.flowName}</div>
-                      </div>
-                    </div>
-                    <div className="flex gap-1 flex-shrink-0 flex-wrap">
-                      <Badge variant="outline" className={`text-xs ${getStatusColor(insight.status)}`}>
-                        {insight.status}
-                      </Badge>
-                      <Badge variant="outline" className={`text-xs ${getSeverityColor(insight.severity)}`}>
-                        {insight.severity}
-                      </Badge>
+      <div className="grid gap-3 w-full">
+        {recentInsights.length === 0 ? (
+          <Card className="p-6">
+            <div className="text-center text-muted-foreground">
+              No recent insights available
+            </div>
+          </Card>
+        ) : (
+          recentInsights.map((insight) => (
+            <Card key={`${insight.flowId}-${insight.id}`} className="border-l-4 border-l-blue-400 w-full">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-start justify-between mb-2 gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    {getSeverityIcon(insight.severity)}
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-sm truncate">{insight.title}</div>
+                      <div className="text-xs text-muted-foreground truncate">{insight.flowName}</div>
                     </div>
                   </div>
-                  
-                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2 break-words">
-                    {insight.summary}
-                  </p>
-                  
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-foreground flex-shrink-0">{insight.timestamp}</span>
-                    <div className="flex gap-2 flex-shrink-0">
-                      {insight.status === 'new' && (
-                        <Button variant="outline" size="sm" className="text-xs h-7 px-2">
-                          Acknowledge
-                        </Button>
-                      )}
+                  <div className="flex gap-1 flex-shrink-0 flex-wrap">
+                    <Badge variant="outline" className={`text-xs ${getStatusColor(insight.status)}`}>
+                      {insight.status}
+                    </Badge>
+                    <Badge variant="outline" className={`text-xs ${getSeverityColor(insight.severity)}`}>
+                      {insight.severity}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2 break-words">
+                  {insight.summary}
+                </p>
+                
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground flex-shrink-0">{insight.timestamp}</span>
+                  <div className="flex gap-2 flex-shrink-0">
+                    {insight.status === 'new' && (
                       <Button variant="outline" size="sm" className="text-xs h-7 px-2">
-                        Create Task
+                        Acknowledge
                       </Button>
-                    </div>
+                    )}
+                    <Button variant="outline" size="sm" className="text-xs h-7 px-2">
+                      Create Task
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-        
-        {sortedInsights.length > 8 && (
-          <div className="text-center pb-4">
-            <Button variant="outline" size="sm">
-              View All Insights ({sortedInsights.length})
-            </Button>
-          </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
         )}
       </div>
+      
+      {sortedInsights.length > 8 && (
+        <div className="text-center">
+          <Button variant="outline" size="sm">
+            View All Insights ({sortedInsights.length})
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

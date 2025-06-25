@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
 import { InsightsFeed } from '@/components/action-studio/InsightsFeed';
@@ -29,28 +29,22 @@ export default function ActionStudio() {
 
   return (
     <MainLayout>
-      <div className="h-[calc(100vh-4rem)] flex flex-col max-w-full overflow-hidden">
-        <div className="flex-shrink-0 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Insights Studio</h1>
-            </div>
+      <div className="space-y-6 md:space-y-8 max-w-full overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Insights Studio</h1>
           </div>
         </div>
 
         {showHowItWorks}
 
-        <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0">
-          <div className="xl:col-span-2 flex flex-col min-h-0">
-            <div className="flex-shrink-0 sticky top-0 bg-white z-10 pb-6">
-              <MonitoringFlowsSection />
-            </div>
-            <div className="flex-shrink-0">
-              <SuggestedTasksSection />
-            </div>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-full">
+          <div className="xl:col-span-2 space-y-6 min-w-0">
+            <MonitoringFlowsSection />
+            <SuggestedTasksSection />
           </div>
           
-          <div className="flex flex-col min-h-0 overflow-hidden">
+          <div className="space-y-6 min-w-0 overflow-hidden">
             <AllInsightsSection />
           </div>
         </div>
