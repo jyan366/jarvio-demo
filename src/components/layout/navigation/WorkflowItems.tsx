@@ -1,50 +1,36 @@
 
-import {
-  CheckSquare,
-  Sparkles,
-  Book,
-  GitBranch,
-  Settings,
-  TestTube,
-} from "lucide-react";
-
-import { MenuItem } from "./types";
+import { CheckSquare, Lightbulb, Shuffle, BookOpen, MessageCirclePlus } from 'lucide-react';
+import { MenuItem } from './types';
 
 export const workflowItems: MenuItem[] = [
   {
+    id: 'task-manager',
+    title: 'Tasks',
+    path: '/task-manager',
     icon: CheckSquare,
-    label: "Home",
-    href: "/task-manager",
-    id: "task-manager",
   },
   {
-    icon: Sparkles,
-    label: "Insights Studio",
-    href: "/action-studio",
-    id: "action-studio",
+    id: 'action-studio',
+    title: 'Insights Studio',
+    path: '/action-studio',
+    icon: Lightbulb,
   },
   {
-    icon: GitBranch,
-    label: "Flows",
-    href: "/jarvi-flows",
-    id: "jarvi-flows",
+    id: 'jarvi-flows',
+    title: 'Flows',
+    path: '/jarvi-flows',
+    icon: Shuffle,
   },
   {
-    icon: Settings,
-    label: "Flow Blocks Admin",
-    href: "/flow-blocks-admin",
-    id: "flow-blocks-admin",
+    id: 'knowledge-base',
+    title: 'Knowledge Base',
+    path: '/knowledge-base',
+    icon: BookOpen,
   },
   {
-    icon: TestTube,
-    label: "Block Testing",
-    href: "/block-testing",
-    id: "block-testing",
-  },
-  {
-    icon: Book,
-    label: "Knowledge Base",
-    href: "/knowledge-base",
-    id: "knowledge-base",
+    id: 'new-conversation',
+    title: '+ New Conversation',
+    path: '/ai-assistant',
+    icon: MessageCirclePlus,
   },
 ];

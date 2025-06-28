@@ -33,6 +33,7 @@ import Financing from './pages/Financing';
 import AnalyticsStudio from './pages/AnalyticsStudio';
 import AdvertisingInsights from './pages/AdvertisingInsights';
 import AIAssistant from './pages/AIAssistant';
+import NewConversation from './pages/NewConversation';
 import FlowBlocksAdmin from './pages/FlowBlocksAdmin';
 import ChatTest from './pages/ChatTest';
 import BlockTesting from './pages/BlockTesting';
@@ -88,6 +89,7 @@ function App() {
             <Route path="/analytics-studio" element={<AnalyticsStudio />} />
             <Route path="/advertising-insights" element={<AdvertisingInsights />} />
             <Route path="/ai-assistant" element={<AIAssistant />} />
+            <Route path="/new-conversation" element={<NewConversation />} />
             
             {/* Chat Test Page */}
             <Route path="/chat-test" element={<ChatTest />} />
