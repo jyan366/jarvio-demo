@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -151,7 +150,7 @@ export function NavigationSettings() {
                 { id: 'action-studio', label: 'Insights Studio' },
                 { id: 'jarvi-flows', label: 'Flows' },
                 { id: 'knowledge-base', label: 'Knowledge Base' },
-                { id: 'new-conversation', label: '+ New Conversation' },
+                { id: 'new-conversation', label: '+ New Conversation' }
               ].map(item => (
                 <div key={item.id} className="flex items-center justify-between">
                   <Label htmlFor={item.id} className="text-sm">{item.label}</Label>
