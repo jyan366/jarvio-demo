@@ -5,32 +5,32 @@ import { MenuItem } from './types';
 export const workflowItems: MenuItem[] = [
   {
     id: 'task-manager',
-    title: 'Tasks',
-    path: '/task-manager',
+    label: 'Tasks',
+    href: '/task-manager',
     icon: CheckSquare,
   },
   {
     id: 'action-studio',
-    title: 'Insights Studio',
-    path: '/action-studio',
+    label: 'Insights Studio',
+    href: '/action-studio',
     icon: Lightbulb,
   },
   {
     id: 'jarvi-flows',
-    title: 'Flows',
-    path: '/jarvi-flows',
+    label: 'Flows',
+    href: '/jarvi-flows',
     icon: Shuffle,
   },
   {
     id: 'knowledge-base',
-    title: 'Knowledge Base',
-    path: '/knowledge-base',
+    label: 'Knowledge Base',
+    href: '/knowledge-base',
     icon: BookOpen,
   },
   {
     id: 'new-conversation',
-    title: '+ New Conversation',
-    path: '/ai-assistant',
+    label: '+ New Conversation',
+    href: '/ai-assistant',
     icon: MessageCirclePlus,
   },
 ];
