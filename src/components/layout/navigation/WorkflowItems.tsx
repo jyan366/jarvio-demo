@@ -30,7 +30,7 @@ export const workflowItems: MenuItem[] = [
   {
     id: 'new-conversation',
     label: '+ New Conversation',
-    href: '/ai-assistant',
+    href: '/new-conversation',
     icon: MessageCirclePlus,
   },
 ];
