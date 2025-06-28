@@ -1,198 +1,233 @@
-import * as React from "react";
-import { Cog } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 
-// Create a context to share visibility settings across components
-interface NavigationVisibilityContextType {
-  visibleSections: string[];
-  visibleItems: string[];
-  toggleSection: (sectionId: string) => void;
-  toggleItem: (itemId: string) => void;
-  isItemVisible: (itemId: string, sectionId: string) => boolean;
-  isSectionVisible: (sectionId: string) => boolean;
+import React, { createContext, useState, useContext, ReactNode } from 'react';
+import { Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+
+interface NavigationVisibilityState {
+  workflow: {
+    'task-manager': boolean;
+    'action-studio': boolean;
+    'jarvi-flows': boolean;
+    'knowledge-base': boolean;
+    'new-conversation': boolean;
+  };
+  brand: {
+    'sales-hub': boolean;
+    'agents-hub': boolean;
+    'ads-manager': boolean;
+    'all-product-reviews': boolean;
+    'my-offers': boolean;
+    'reports-builder': boolean;
+    'inventory': boolean;
+    'seller-reimbursements': boolean;
+    'listing-quality': boolean;
+    'listing-builder': boolean;
+    'customer-insights': boolean;
+    'my-competitors': boolean;
+    'ads-performance': boolean;
+  };
+  support: {
+    'get-support': boolean;
+  };
 }
 
-export const NavigationVisibilityContext = React.createContext<NavigationVisibilityContextType>({
-  visibleSections: [],
-  visibleItems: [],
-  toggleSection: () => {},
-  toggleItem: () => {},
+interface NavigationVisibilityContextType {
+  isItemVisible: (itemId: string, sectionId: string) => boolean;
+  isSectionVisible: (sectionId: string) => boolean;
+  toggleItem: (itemId: string, sectionId: string) => void;
+  toggleSection: (sectionId: string) => void;
+}
+
+const defaultState: NavigationVisibilityState = {
+  workflow: {
+    'task-manager': true,
+    'action-studio': true,
+    'jarvi-flows': true,
+    'knowledge-base': true,
+    'new-conversation': true,
+  },
+  brand: {
+    'sales-hub': true,
+    'agents-hub': true,
+    'ads-manager': true,
+    'all-product-reviews': true,
+    'my-offers': true,
+    'reports-builder': true,
+    'inventory': true,
+    'seller-reimbursements': true,
+    'listing-quality': true,
+    'listing-builder': true,
+    'customer-insights': true,
+    'my-competitors': true,
+    'ads-performance': true,
+  },
+  support: {
+    'get-support': true,
+  },
+};
+
+export const NavigationVisibilityContext = createContext<NavigationVisibilityContextType>({
   isItemVisible: () => true,
   isSectionVisible: () => true,
+  toggleItem: () => {},
+  toggleSection: () => {},
 });
 
-export function NavigationVisibilityProvider({ children }: { children: React.ReactNode }) {
-  // Default navigation settings - brand toolkit hidden by default
-  const defaultSections = ["workflow", "support"];
-  const defaultItems = [
-    "task-manager", "action-studio", "jarvi-flows", "knowledge-base", "agents-hub",
-    "jarvio-assistant", "financing", "get-support"
-  ];
-
-  // Initialize state from localStorage or use defaults
-  const [visibleSections, setVisibleSections] = React.useState<string[]>(() => {
-    const stored = localStorage.getItem('visibleNavSections_v2');
-    return stored ? JSON.parse(stored) : defaultSections;
-  });
-
-  const [visibleItems, setVisibleItems] = React.useState<string[]>(() => {
-    const stored = localStorage.getItem('visibleNavItems_v2');
-    return stored ? JSON.parse(stored) : defaultItems;
-  });
-
-  // Save to localStorage whenever state changes
-  React.useEffect(() => {
-    localStorage.setItem('visibleNavSections_v2', JSON.stringify(visibleSections));
-  }, [visibleSections]);
-
-  React.useEffect(() => {
-    localStorage.setItem('visibleNavItems_v2', JSON.stringify(visibleItems));
-  }, [visibleItems]);
-
-  const toggleSection = (sectionId: string) => {
-    setVisibleSections(current =>
-      current.includes(sectionId)
-        ? current.filter(id => id !== sectionId)
-        : [...current, sectionId]
-    );
-  };
-
-  const toggleItem = (itemId: string) => {
-    setVisibleItems(current =>
-      current.includes(itemId)
-        ? current.filter(id => id !== itemId)
-        : [...current, itemId]
-    );
-  };
+export function NavigationVisibilityProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<NavigationVisibilityState>(defaultState);
 
   const isItemVisible = (itemId: string, sectionId: string) => {
-    return visibleItems.includes(itemId) && visibleSections.includes(sectionId);
+    const section = state[sectionId as keyof NavigationVisibilityState];
+    if (!section) return true;
+    return section[itemId as keyof typeof section] ?? true;
   };
 
   const isSectionVisible = (sectionId: string) => {
-    return visibleSections.includes(sectionId);
+    const section = state[sectionId as keyof NavigationVisibilityState];
+    if (!section) return true;
+    return Object.values(section).some(visible => visible);
+  };
+
+  const toggleItem = (itemId: string, sectionId: string) => {
+    setState(prev => ({
+      ...prev,
+      [sectionId]: {
+        ...prev[sectionId as keyof NavigationVisibilityState],
+        [itemId]: !prev[sectionId as keyof NavigationVisibilityState][itemId as keyof typeof prev[sectionId as keyof NavigationVisibilityState]]
+      }
+    }));
+  };
+
+  const toggleSection = (sectionId: string) => {
+    const section = state[sectionId as keyof NavigationVisibilityState];
+    const allVisible = Object.values(section).every(visible => visible);
+    
+    setState(prev => ({
+      ...prev,
+      [sectionId]: Object.keys(section).reduce((acc, key) => ({
+        ...acc,
+        [key]: !allVisible
+      }), {})
+    }));
   };
 
   return (
-    <NavigationVisibilityContext.Provider 
-      value={{ 
-        visibleSections, 
-        visibleItems, 
-        toggleSection, 
-        toggleItem, 
-        isItemVisible,
-        isSectionVisible 
-      }}
-    >
+    <NavigationVisibilityContext.Provider value={{isItemVisible, isSectionVisible, toggleItem, toggleSection}}>
       {children}
     </NavigationVisibilityContext.Provider>
   );
 }
 
-// Navigation sections with grouped items
-const navigationItems = [
-  {
-    section: "workflow",
-    sectionLabel: "Workflow",
-    items: [
-      { id: "task-manager", label: "Home" },
-      { id: "action-studio", label: "Action Studio" },
-      { id: "jarvi-flows", label: "Flows" },
-      { id: "knowledge-base", label: "Knowledge Base" },
-    ]
-  },
-  {
-    section: "brand",
-    sectionLabel: "Brand Toolkit",
-    items: [
-      { id: "sales-center", label: "Sales Center" },
-      { id: "inventory", label: "Inventory" },
-      { id: "listing-hub", label: "Listing Hub" },
-      { id: "customers", label: "Customers" },
-      { id: "competitors", label: "Competitors" },
-      { id: "advertising", label: "Advertising" },
-    ]
-  },
-  {
-    section: "support",
-    sectionLabel: "Support",
-    items: [
-      { id: "agents-hub", label: "Agents Hub" },
-      { id: "financing", label: "Financing" },
-      { id: "get-support", label: "Get Support" },
-    ]
-  }
-];
-
 export function NavigationSettings() {
-  const { 
-    visibleSections, 
-    visibleItems, 
-    toggleSection, 
-    toggleItem 
-  } = React.useContext(NavigationVisibilityContext);
+  const { isItemVisible, isSectionVisible, toggleItem, toggleSection } = useContext(NavigationVisibilityContext);
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="group-data-[collapsible=icon]:hidden"
-        >
-          <Cog className="h-4 w-4" />
+        <Button variant="ghost" size="icon">
+          <Settings className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-72" align="start" side="top">
+      <PopoverContent className="w-80">
         <div className="space-y-4">
-          <h4 className="font-medium leading-none">Navigation Settings</h4>
-          <Separator />
+          <h4 className="font-medium text-sm">Navigation Settings</h4>
           
-          {navigationItems.map((sectionGroup) => (
-            <div key={sectionGroup.section} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor={sectionGroup.section} className="font-medium">
-                  {sectionGroup.sectionLabel}
-                </Label>
-                <Switch
-                  id={sectionGroup.section}
-                  checked={visibleSections.includes(sectionGroup.section)}
-                  onCheckedChange={() => toggleSection(sectionGroup.section)}
-                />
-              </div>
-              
-              {visibleSections.includes(sectionGroup.section) && (
-                <div className="pl-4 space-y-2 border-l border-gray-100 dark:border-gray-800">
-                  {sectionGroup.items.map((item) => (
-                    <div 
-                      key={item.id} 
-                      className="flex items-center justify-between"
-                    >
-                      <Label htmlFor={item.id} className="text-sm">
-                        {item.label}
-                      </Label>
-                      <Switch
-                        id={item.id}
-                        checked={visibleItems.includes(item.id)}
-                        onCheckedChange={() => toggleItem(item.id)}
-                        className="scale-75" // Using className for smaller switch instead of size prop
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              <Separator />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="workflow-section" className="text-sm font-medium">Workflow</Label>
+              <Switch
+                id="workflow-section"
+                checked={isSectionVisible('workflow')}
+                onCheckedChange={() => toggleSection('workflow')}
+              />
             </div>
-          ))}
+            
+            <div className="ml-4 space-y-2">
+              {[
+                { id: 'task-manager', label: 'Tasks' },
+                { id: 'action-studio', label: 'Insights Studio' },
+                { id: 'jarvi-flows', label: 'Flows' },
+                { id: 'knowledge-base', label: 'Knowledge Base' },
+                { id: 'new-conversation', label: '+ New Conversation' },
+              ].map(item => (
+                <div key={item.id} className="flex items-center justify-between">
+                  <Label htmlFor={item.id} className="text-sm">{item.label}</Label>
+                  <Switch
+                    id={item.id}
+                    checked={isItemVisible(item.id, 'workflow')}
+                    onCheckedChange={() => toggleItem(item.id, 'workflow')}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="brand-section" className="text-sm font-medium">Brand Toolkit</Label>
+              <Switch
+                id="brand-section"
+                checked={isSectionVisible('brand')}
+                onCheckedChange={() => toggleSection('brand')}
+              />
+            </div>
+            
+            <div className="ml-4 space-y-2">
+              {[
+                { id: 'sales-hub', label: 'Sales Hub' },
+                { id: 'agents-hub', label: 'Agents Hub' },
+                { id: 'ads-manager', label: 'Ads Manager' },
+                { id: 'all-product-reviews', label: 'All Product Reviews' },
+                { id: 'my-offers', label: 'My Offers' },
+                { id: 'reports-builder', label: 'Reports Builder' },
+                { id: 'inventory', label: 'My Inventory' },
+                { id: 'seller-reimbursements', label: 'Seller Reimbursements' },
+                { id: 'listing-quality', label: 'Listing Quality' },
+                { id: 'listing-builder', label: 'Listing Builder' },
+                { id: 'customer-insights', label: 'Customer Insights' },
+                { id: 'my-competitors', label: 'My Competitors' },
+                { id: 'ads-performance', label: 'Ads Performance' },
+              ].map(item => (
+                <div key={item.id} className="flex items-center justify-between">
+                  <Label htmlFor={item.id} className="text-sm">{item.label}</Label>
+                  <Switch
+                    id={item.id}
+                    checked={isItemVisible(item.id, 'brand')}
+                    onCheckedChange={() => toggleItem(item.id, 'brand')}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="support-section" className="text-sm font-medium">Support</Label>
+              <Switch
+                id="support-section"
+                checked={isSectionVisible('support')}
+                onCheckedChange={() => toggleSection('support')}
+              />
+            </div>
+            
+            <div className="ml-4 space-y-2">
+              {[
+                { id: 'get-support', label: 'Get Support' },
+              ].map(item => (
+                <div key={item.id} className="flex items-center justify-between">
+                  <Label htmlFor={item.id} className="text-sm">{item.label}</Label>
+                  <Switch
+                    id={item.id}
+                    checked={isItemVisible(item.id, 'support')}
+                    onCheckedChange={() => toggleItem(item.id, 'support')}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
