@@ -11,7 +11,7 @@ export const workflowItems: MenuItem[] = [
   },
   {
     id: 'action-studio',
-    label: 'Insights Studio',
+    label: 'Insights',
     href: '/action-studio',
     icon: Lightbulb,
   },
