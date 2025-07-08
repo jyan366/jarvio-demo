@@ -46,8 +46,8 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <AgentSettingsProvider>
           <Routes>
-            {/* Redirect root to task manager */}
-            <Route path="/" element={<Navigate to="/task-manager" replace />} />
+            {/* Redirect root to new conversation */}
+            <Route path="/" element={<Navigate to="/new-conversation" replace />} />
             
             {/* Keep the original Home component accessible via /home */}
             <Route path="/home" element={<Home />} />
