@@ -92,11 +92,11 @@ export default function NewConversation() {
 
   return (
     <MainLayout>
-      <div className="h-full flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col bg-background">
         
         {messages.length === 0 ? (
           /* Welcome Screen with Centered Input */
-          <div className="flex-1 flex flex-col items-center justify-center px-6 min-h-0">
+          <div className="flex-1 flex items-center justify-center px-6">
             <div className="w-full max-w-2xl mx-auto">
               <div className="text-center mb-12">
                 <h1 className="text-4xl font-normal text-foreground">
