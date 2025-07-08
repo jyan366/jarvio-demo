@@ -29,7 +29,7 @@ export const workflowItems: MenuItem[] = [
   },
   {
     id: 'new-conversation',
-    label: '+ New Conversation',
+    label: 'Chat',
     href: '/new-conversation',
     icon: MessageCirclePlus,
   },
