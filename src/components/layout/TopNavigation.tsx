@@ -71,7 +71,7 @@ export function TopNavigation() {
                   onClick={() => navigate(item.href)}
                   className={`group rounded-full px-3 py-2 font-medium transition-all duration-200 overflow-hidden ${
                     isActive 
-                      ? "bg-background text-foreground shadow-sm" 
+                      ? "bg-background text-foreground shadow-sm hover:bg-background" 
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   }`}
                 >
