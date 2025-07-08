@@ -234,7 +234,7 @@ export default function NewConversation() {
                 
                 {/* Suggestions dropdown */}
                 {showSuggestions && (
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-4 space-y-2 px-4">
                     {filteredSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
@@ -399,7 +399,7 @@ export default function NewConversation() {
                 
                 {/* Suggestions dropdown for conversation state */}
                 {showSuggestions && (
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-4 space-y-2 px-4">
                     {filteredSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
