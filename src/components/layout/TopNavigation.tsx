@@ -46,21 +46,20 @@ export function TopNavigation() {
           <span className="font-semibold text-lg">Jarvio</span>
         </div>
 
-        {/* Navigation Icons - Only Chat, Flows, Insights Studio */}
+        {/* Navigation - Only Chat, Flows, Insights Studio */}
         <nav className="flex items-center gap-1">
           {selectedItems.map((item) => {
-            const Icon = item.icon;
             const isActive = location.pathname === item.href;
             
             return (
               <Button
                 key={item.id}
                 variant={isActive ? "default" : "ghost"}
-                size="icon"
+                size="sm"
                 onClick={() => navigate(item.href)}
-                title={item.label}
+                className="px-4"
               >
-                <Icon className="h-4 w-4" />
+                {item.label}
               </Button>
             );
           })}
