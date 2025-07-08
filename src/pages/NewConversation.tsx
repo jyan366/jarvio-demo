@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, User, Sparkles, ArrowUp, Mic, Paperclip, Plus, Settings2, Image, Globe, Code, Search } from 'lucide-react';
+import { Bot, Send, User, Sparkles, ArrowUp, Mic, Paperclip, Plus, Settings2, Image, Globe, Code, Search, CheckSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import Markdown from 'markdown-to-jsx';
@@ -131,6 +131,10 @@ export default function NewConversation() {
                       <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground">
                         <Settings2 className="h-3.5 w-3.5 mr-1" />
                         <span className="text-sm">Tools</span>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground">
+                        <CheckSquare className="h-3.5 w-3.5 mr-1" />
+                        <span className="text-sm">Tasks</span>
                       </Button>
                     </div>
                     <div className="flex items-center gap-2">
@@ -280,6 +284,10 @@ export default function NewConversation() {
                       <Button variant="ghost" size="sm" className="h-6 px-2 text-muted-foreground hover:text-foreground">
                         <Settings2 className="h-3 w-3 mr-1" />
                         <span className="text-xs">Tools</span>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-6 px-2 text-muted-foreground hover:text-foreground">
+                        <CheckSquare className="h-3 w-3 mr-1" />
+                        <span className="text-xs">Tasks</span>
                       </Button>
                     </div>
                     <div className="flex items-center gap-1">
