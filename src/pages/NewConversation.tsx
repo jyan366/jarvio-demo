@@ -94,61 +94,64 @@ export default function NewConversation() {
     <MainLayout>
       <div className="h-full flex flex-col bg-background">
         
-        {/* Messages Area */}
-        <div className="flex-1 flex flex-col">
-          {messages.length === 0 ? (
-            /* Welcome Screen */
-            <div className="flex-1 flex flex-col items-center justify-center px-6">
-              <div className="w-full max-w-2xl mx-auto">
-                <div className="text-center mb-8">
-                  <h1 className="text-3xl font-normal mb-2">
-                    What are you working on?
-                  </h1>
-                </div>
-                
-                {/* Main Input - Larger for welcome state */}
-                <div className="relative mb-6">
-                  <div className="relative border border-border/50 rounded-2xl bg-background shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <Textarea
-                      ref={textareaRef}
-                      placeholder="Ask anything"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={handleKeyPress}
-                      disabled={isLoading}
-                      className="min-h-[60px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-4 py-4 pr-20 focus-visible:ring-0 focus-visible:ring-offset-0"
-                      style={{ height: 'auto' }}
-                      rows={1}
-                    />
-                    <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                      <Button variant="ghost" size="sm" className="h-8 px-3 text-muted-foreground">
-                        <Paperclip className="h-4 w-4 mr-1" />
-                        <span className="text-sm">Tools</span>
-                      </Button>
-                    </div>
-                    <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                        <Mic className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        onClick={handleSend} 
-                        size="icon"
-                        disabled={isLoading || !input.trim()}
-                        className={`h-8 w-8 rounded-lg transition-all duration-200 ${
-                          input.trim() 
-                            ? 'bg-foreground hover:bg-foreground/90 text-background' 
-                            : 'bg-muted text-muted-foreground cursor-not-allowed'
-                        }`}
-                      >
-                        <ArrowUp className="h-4 w-4" />
-                      </Button>
-                    </div>
+        {messages.length === 0 ? (
+          /* Welcome Screen with Centered Input */
+          <div className="flex-1 flex flex-col items-center justify-center px-6">
+            <div className="w-full max-w-2xl mx-auto">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-normal mb-2">
+                  What are you working on?
+                </h1>
+              </div>
+              
+              {/* Main Input - Centered for welcome state */}
+              <div className="relative mb-6">
+                <div className="relative border border-border/50 rounded-2xl bg-background shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <Textarea
+                    ref={textareaRef}
+                    placeholder="Ask anything"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    disabled={isLoading}
+                    className="min-h-[60px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-4 py-4 pr-20 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    style={{ height: 'auto' }}
+                    rows={1}
+                  />
+                  <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                    <Button variant="ghost" size="sm" className="h-8 px-3 text-muted-foreground">
+                      <Paperclip className="h-4 w-4 mr-1" />
+                      <span className="text-sm">Tools</span>
+                    </Button>
                   </div>
+                  <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                      <Mic className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      onClick={handleSend} 
+                      size="icon"
+                      disabled={isLoading || !input.trim()}
+                      className={`h-8 w-8 rounded-lg transition-all duration-200 ${
+                        input.trim() 
+                          ? 'bg-foreground hover:bg-foreground/90 text-background' 
+                          : 'bg-muted text-muted-foreground cursor-not-allowed'
+                      }`}
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground text-center">
+                  Jarvio can make mistakes. Check important info.
                 </div>
               </div>
             </div>
-          ) : (
-            /* Messages */
+          </div>
+        ) : (
+          /* Conversation View */
+          <>
+            {/* Messages */}
             <div className="flex-1 overflow-y-auto">
               <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
                 {messages.map((message, index) => (
@@ -238,53 +241,53 @@ export default function NewConversation() {
                 <div ref={messagesEndRef} />
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Input Area - Compact for conversation state */}
-        <div className="border-t bg-background">
-          <div className="max-w-3xl mx-auto px-6 py-4">
-            <div className="relative border border-border/50 rounded-2xl bg-background hover:shadow-sm transition-shadow duration-200">
-              <Textarea
-                ref={textareaRef}
-                placeholder="Ask anything"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyPress}
-                disabled={isLoading}
-                className="min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-4 py-3 pr-20 focus-visible:ring-0 focus-visible:ring-offset-0"
-                style={{ height: 'auto' }}
-                rows={1}
-              />
-              <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground">
-                  <Paperclip className="h-3.5 w-3.5 mr-1" />
-                  <span className="text-xs">Tools</span>
-                </Button>
-              </div>
-              <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground">
-                  <Mic className="h-3.5 w-3.5" />
-                </Button>
-                <Button 
-                  onClick={handleSend} 
-                  size="icon"
-                  disabled={isLoading || !input.trim()}
-                  className={`h-7 w-7 rounded-lg transition-all duration-200 ${
-                    input.trim() 
-                      ? 'bg-foreground hover:bg-foreground/90 text-background' 
-                      : 'bg-muted text-muted-foreground cursor-not-allowed'
-                  }`}
-                >
-                  <ArrowUp className="h-3.5 w-3.5" />
-                </Button>
+            {/* Input Area - Bottom for conversation state */}
+            <div className="border-t bg-background">
+              <div className="max-w-3xl mx-auto px-6 py-4">
+                <div className="relative border border-border/50 rounded-2xl bg-background hover:shadow-sm transition-shadow duration-200">
+                  <Textarea
+                    ref={textareaRef}
+                    placeholder="Ask anything"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    disabled={isLoading}
+                    className="min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-4 py-3 pr-20 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    style={{ height: 'auto' }}
+                    rows={1}
+                  />
+                  <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                    <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground">
+                      <Paperclip className="h-3.5 w-3.5 mr-1" />
+                      <span className="text-xs">Tools</span>
+                    </Button>
+                  </div>
+                  <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground">
+                      <Mic className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button 
+                      onClick={handleSend} 
+                      size="icon"
+                      disabled={isLoading || !input.trim()}
+                      className={`h-7 w-7 rounded-lg transition-all duration-200 ${
+                        input.trim() 
+                          ? 'bg-foreground hover:bg-foreground/90 text-background' 
+                          : 'bg-muted text-muted-foreground cursor-not-allowed'
+                      }`}
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground text-center">
+                  Jarvio can make mistakes. Check important info.
+                </div>
               </div>
             </div>
-            <div className="mt-2 text-xs text-muted-foreground text-center">
-              Jarvio can make mistakes. Check important info.
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </MainLayout>
   );
