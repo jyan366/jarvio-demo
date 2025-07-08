@@ -234,11 +234,11 @@ export default function NewConversation() {
                 
                 {/* Suggestions dropdown */}
                 {showSuggestions && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-background/95 backdrop-blur-sm border border-border/20 rounded-lg shadow-sm z-50 max-h-64 overflow-y-auto">
                     {filteredSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
-                        className="w-full px-4 py-3 text-left hover:bg-muted transition-colors text-sm border-b border-border/30 last:border-b-0"
+                        className="w-full px-4 py-2.5 text-left hover:bg-muted/50 transition-colors text-sm text-muted-foreground hover:text-foreground border-b border-border/10 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
                         {suggestion}
@@ -403,11 +403,11 @@ export default function NewConversation() {
                 
                 {/* Suggestions dropdown for conversation state */}
                 {showSuggestions && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-background/95 backdrop-blur-sm border border-border/20 rounded-lg shadow-sm z-50 max-h-64 overflow-y-auto">
                     {filteredSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
-                        className="w-full px-4 py-3 text-left hover:bg-muted transition-colors text-sm border-b border-border/30 last:border-b-0"
+                        className="w-full px-4 py-2.5 text-left hover:bg-muted/50 transition-colors text-sm text-muted-foreground hover:text-foreground border-b border-border/10 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
                         {suggestion}
