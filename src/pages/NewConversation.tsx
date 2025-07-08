@@ -14,10 +14,65 @@ interface Message {
   content: string;
 }
 
+const amazonSuggestions = [
+  "How do I optimize my Amazon product listings for better visibility?",
+  "What's the best strategy for Amazon PPC campaigns?",
+  "How can I improve my Amazon seller feedback score?",
+  "What are the key metrics to track for Amazon FBA success?",
+  "How do I handle negative reviews on Amazon effectively?",
+  "What's the best way to price my products competitively on Amazon?",
+  "How can I increase my Amazon Buy Box percentage?",
+  "What are the most effective Amazon keywords research tools?",
+  "How do I create compelling Amazon product images?",
+  "What's the process for getting ungated in restricted categories?",
+  "How can I improve my Amazon inventory management?",
+  "What are the best practices for Amazon product photography?",
+  "How do I handle Amazon account suspensions?",
+  "What's the difference between Amazon FBA and FBM?",
+  "How can I optimize my Amazon product titles?",
+  "What are the most profitable Amazon product categories?",
+  "How do I create effective Amazon A+ content?",
+  "What's the best way to launch a new product on Amazon?",
+  "How can I track my competitors on Amazon?",
+  "What are the common Amazon policy violations to avoid?",
+  "How do I optimize my Amazon backend search terms?",
+  "What's the best strategy for Amazon international expansion?",
+  "How can I improve my Amazon conversion rates?",
+  "What are the key factors for Amazon ranking algorithm?",
+  "How do I handle Amazon inventory reimbursements?",
+  "What's the best way to manage Amazon customer service?",
+  "How can I create effective Amazon promotional campaigns?",
+  "What are the benefits of Amazon Brand Registry?",
+  "How do I optimize my Amazon storefront design?",
+  "What's the best approach for Amazon seasonal selling?",
+  "How can I improve my Amazon profit margins?",
+  "What are the most effective Amazon review strategies?",
+  "How do I handle Amazon return and refund policies?",
+  "What's the best way to scale my Amazon business?",
+  "How can I optimize my Amazon logistics and shipping?",
+  "What are the key Amazon seller metrics I should monitor?",
+  "How do I create effective Amazon product bundles?",
+  "What's the best strategy for Amazon cross-selling?",
+  "How can I improve my Amazon search ranking?",
+  "What are the most common Amazon seller mistakes?",
+  "How do I optimize my Amazon tax strategy?",
+  "What's the best way to handle Amazon intellectual property issues?",
+  "How can I create effective Amazon product variations?",
+  "What are the key elements of successful Amazon branding?",
+  "How do I optimize my Amazon customer acquisition cost?",
+  "What's the best approach for Amazon market research?",
+  "How can I improve my Amazon operational efficiency?",
+  "What are the most effective Amazon advertising formats?",
+  "How do I handle Amazon compliance and regulations?",
+  "What's the best strategy for Amazon long-term growth?"
+];
+
 export default function NewConversation() {
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [input, setInput] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+  const [filteredSuggestions, setFilteredSuggestions] = React.useState<string[]>([]);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -29,6 +84,26 @@ export default function NewConversation() {
   React.useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Handle suggestion filtering
+  React.useEffect(() => {
+    if (input.trim().length > 0) {
+      const filtered = amazonSuggestions.filter(suggestion =>
+        suggestion.toLowerCase().includes(input.toLowerCase())
+      ).slice(0, 5); // Show max 5 suggestions
+      setFilteredSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setShowSuggestions(false);
+      setFilteredSuggestions([]);
+    }
+  }, [input]);
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setInput(suggestion);
+    setShowSuggestions(false);
+    textareaRef.current?.focus();
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -156,6 +231,22 @@ export default function NewConversation() {
                     </div>
                   </div>
                 </div>
+                
+                {/* Suggestions dropdown */}
+                {showSuggestions && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+                    {filteredSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        className="w-full px-4 py-3 text-left hover:bg-muted transition-colors text-sm border-b border-border/30 last:border-b-0"
+                        onClick={() => handleSuggestionClick(suggestion)}
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
                 <div className="mt-3 text-xs text-muted-foreground text-center">
                   Jarvio can make mistakes. Check important info.
                 </div>
@@ -309,6 +400,22 @@ export default function NewConversation() {
                     </div>
                   </div>
                 </div>
+                
+                {/* Suggestions dropdown for conversation state */}
+                {showSuggestions && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+                    {filteredSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        className="w-full px-4 py-3 text-left hover:bg-muted transition-colors text-sm border-b border-border/30 last:border-b-0"
+                        onClick={() => handleSuggestionClick(suggestion)}
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
                 <div className="mt-2 text-xs text-muted-foreground text-center">
                   Jarvio can make mistakes. Check important info.
                 </div>
