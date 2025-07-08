@@ -27,7 +27,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <div className={
             isTaskPage 
               ? "h-full flex flex-col flex-1 min-h-0 overflow-hidden" 
-              : "container py-6 h-full flex flex-col items-center justify-center"
+              : "container py-6 h-full flex flex-col"
           }>
             <div className="flex-1 flex flex-col min-h-0">{children}</div>
           </div>
