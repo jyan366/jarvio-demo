@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, Maximize, Plus } from 'lucide-react';
+import { Bot, Send, User, Sparkles, ArrowUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import Markdown from 'markdown-to-jsx';
@@ -15,9 +15,7 @@ interface Message {
 }
 
 export default function NewConversation() {
-  const [messages, setMessages] = React.useState<Message[]>(() => [
-    { role: 'assistant', content: "Hi! I'm Jarvio, your AI assistant. I'm here to help you with your Amazon business. What can I help you with today?" }
-  ]);
+  const [messages, setMessages] = React.useState<Message[]>([]);
   const [input, setInput] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -76,9 +74,7 @@ export default function NewConversation() {
   };
 
   const handleNewConversation = () => {
-    setMessages([
-      { role: 'assistant', content: "Hi! I'm Jarvio, your AI assistant. I'm here to help you with your Amazon business. What can I help you with today?" }
-    ]);
+    setMessages([]);
     setInput('');
   };
 
@@ -96,132 +92,168 @@ export default function NewConversation() {
 
   return (
     <MainLayout>
-      <div className="h-full flex flex-col max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Bot className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold">Jarvio</h1>
-              <p className="text-sm text-muted-foreground">Your AI assistant</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNewConversation}
-              className="flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              New Conversation
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground"
-            >
-              <Maximize className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
+      <div className="h-full flex flex-col bg-background">
+        
         {/* Messages Area */}
-        <div 
-          className="flex-1 p-6 space-y-6 overflow-y-auto"
-          style={{ minHeight: 0 }}
-        >
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 ${
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground ml-4'
-                    : 'bg-muted/50 border border-primary/10 mr-4'
-                }`}
-              >
-                {message.role === 'assistant' ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <Markdown
-                      options={{
-                        forceBlock: true,
-                        overrides: {
-                          h1: {
-                            component: 'h3',
-                            props: {
-                              className: 'text-lg font-bold mb-2',
-                            },
-                          },
-                          h2: {
-                            component: 'h4',
-                            props: {
-                              className: 'text-base font-semibold mb-2',
-                            },
-                          },
-                          p: {
-                            props: {
-                              className: 'mb-2',
-                            },
-                          },
-                          ul: {
-                            props: {
-                              className: 'my-2 list-disc pl-4 space-y-1',
-                            },
-                          },
-                          ol: {
-                            props: {
-                              className: 'my-2 list-decimal pl-4 space-y-1',
-                            },
-                          },
-                          li: {
-                            props: {
-                              className: 'ml-2',
-                            },
-                          },
-                        },
-                      }}
+        <div className="flex-1 flex flex-col">
+          {messages.length === 0 ? (
+            /* Welcome Screen */
+            <div className="flex-1 flex items-center justify-center">
+              <div className="max-w-2xl mx-auto text-center px-6">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
+                <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  How can I help you today?
+                </h1>
+                <p className="text-lg text-muted-foreground mb-8">
+                  I'm Jarvio, your AI assistant for Amazon business optimization. Ask me anything about your products, sales, analytics, or business strategy.
+                </p>
+                
+                {/* Quick suggestions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto">
+                  {[
+                    "Analyze my product performance",
+                    "Create a marketing strategy",
+                    "Optimize my product listings",
+                    "Review competitor analysis"
+                  ].map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setInput(suggestion)}
+                      className="p-4 text-left bg-card border border-border/50 rounded-xl hover:border-border hover:bg-accent/50 transition-all duration-200"
                     >
-                      {message.content}
-                    </Markdown>
-                  </div>
-                ) : (
-                  message.content
-                )}
+                      <span className="text-sm font-medium">{suggestion}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          ))}
-          <div ref={messagesEndRef} />
+          ) : (
+            /* Messages */
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
+                {messages.map((message, index) => (
+                  <div key={index} className="group">
+                    <div className="flex items-start gap-4">
+                      {/* Avatar */}
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                        message.role === 'user' 
+                          ? 'bg-blue-500 text-white' 
+                          : 'bg-gradient-to-br from-purple-500 to-blue-600 text-white'
+                      }`}>
+                        {message.role === 'user' ? (
+                          <User className="w-4 h-4" />
+                        ) : (
+                          <Bot className="w-4 h-4" />
+                        )}
+                      </div>
+                      
+                      {/* Message Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="mb-2">
+                          <span className="text-sm font-medium">
+                            {message.role === 'user' ? 'You' : 'Jarvio'}
+                          </span>
+                        </div>
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          {message.role === 'assistant' ? (
+                            <Markdown
+                              options={{
+                                forceBlock: true,
+                                overrides: {
+                                  h1: {
+                                    component: 'h3',
+                                    props: {
+                                      className: 'text-lg font-semibold mb-3 mt-4 first:mt-0',
+                                    },
+                                  },
+                                  h2: {
+                                    component: 'h4',
+                                    props: {
+                                      className: 'text-base font-semibold mb-2 mt-3',
+                                    },
+                                  },
+                                  p: {
+                                    props: {
+                                      className: 'mb-3 last:mb-0 leading-relaxed',
+                                    },
+                                  },
+                                  ul: {
+                                    props: {
+                                      className: 'my-3 list-disc pl-6 space-y-1',
+                                    },
+                                  },
+                                  ol: {
+                                    props: {
+                                      className: 'my-3 list-decimal pl-6 space-y-1',
+                                    },
+                                  },
+                                  li: {
+                                    props: {
+                                      className: 'leading-relaxed',
+                                    },
+                                  },
+                                  code: {
+                                    props: {
+                                      className: 'bg-muted px-1.5 py-0.5 rounded text-sm',
+                                    },
+                                  },
+                                  pre: {
+                                    props: {
+                                      className: 'bg-muted p-4 rounded-lg overflow-x-auto my-3',
+                                    },
+                                  },
+                                },
+                              }}
+                            >
+                              {message.content}
+                            </Markdown>
+                          ) : (
+                            <p className="leading-relaxed">{message.content}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Input Area */}
-        <div className="border-t p-6 bg-card/50">
-          <div className="flex items-end gap-3 max-w-4xl mx-auto">
-            <div className="flex-1">
+        <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="max-w-3xl mx-auto px-6 py-6">
+            <div className="relative">
               <Textarea
                 ref={textareaRef}
-                placeholder="Type your message... (use @ for flow blocks)"
+                placeholder="Message Jarvio..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 disabled={isLoading}
-                className="min-h-[50px] resize-none overflow-hidden w-full border-2 focus:border-primary/20"
+                className="min-h-[60px] max-h-[200px] resize-none pr-12 rounded-2xl border-border/50 focus:border-border bg-background/50 text-base leading-relaxed"
                 style={{ height: 'auto' }}
                 rows={1}
               />
+              <Button 
+                onClick={handleSend} 
+                size="icon"
+                disabled={isLoading || !input.trim()}
+                className={`absolute right-2 bottom-2 h-8 w-8 rounded-lg transition-all duration-200 ${
+                  input.trim() 
+                    ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg' 
+                    : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                <ArrowUp className="h-4 w-4" />
+              </Button>
             </div>
-            <Button 
-              onClick={handleSend} 
-              size="icon"
-              disabled={isLoading || !input.trim()}
-              className="bg-primary hover:bg-primary/90 shrink-0 h-[50px] w-[50px]"
-            >
-              <Send className="h-5 w-5" />
-            </Button>
+            <div className="mt-3 text-xs text-muted-foreground text-center">
+              Jarvio can make mistakes. Please verify important information.
+            </div>
           </div>
         </div>
       </div>
