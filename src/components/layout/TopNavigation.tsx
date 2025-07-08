@@ -27,9 +27,10 @@ export function TopNavigation() {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  // Only show Chat, Flows, and Insights Studio
+  // Show Chat, Tasks, Flows, and Insights Studio
   const selectedItems = [
     workflowItems.find(item => item.id === 'new-conversation'), // Chat
+    workflowItems.find(item => item.id === 'task-manager'), // Tasks
     workflowItems.find(item => item.id === 'jarvi-flows'), // Flows
     workflowItems.find(item => item.id === 'action-studio'), // Insights Studio
   ].filter(Boolean);
