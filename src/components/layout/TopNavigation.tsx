@@ -8,7 +8,7 @@ import { Button } from '../ui/button';
 import { NavigationSettings } from './NavigationSettings';
 import { ThemeToggle } from '../ThemeToggle';
 import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
-import { LogOut, User, Settings, Sun, Moon } from 'lucide-react';
+import { LogOut, User, Settings, Sun, Moon, Package } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useTheme } from '../ThemeProvider';
 
@@ -27,12 +27,13 @@ export function TopNavigation() {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  // Show Chat, Tasks, Flows, and Insights Studio
+  // Show Chat, Tasks, Flows, Insights Studio, and My Products
   const selectedItems = [
     workflowItems.find(item => item.id === 'new-conversation'), // Chat
     workflowItems.find(item => item.id === 'task-manager'), // Tasks
     workflowItems.find(item => item.id === 'jarvi-flows'), // Flows
     workflowItems.find(item => item.id === 'action-studio'), // Insights Studio
+    { id: 'my-products', label: 'My Products', href: '/my-offers', icon: Package }, // My Products
   ].filter(Boolean);
 
   const isTaskPage = /^\/task(\/|$)/.test(location.pathname);
@@ -60,6 +61,7 @@ export function TopNavigation() {
           <nav className="flex items-center gap-2 bg-muted/30 rounded-full p-1">
             {selectedItems.map((item) => {
               const isActive = location.pathname === item.href;
+              const IconComponent = item.icon;
               
               return (
                 <Button
@@ -67,13 +69,18 @@ export function TopNavigation() {
                   variant={isActive ? "default" : "ghost"}
                   size="sm"
                   onClick={() => navigate(item.href)}
-                  className={`rounded-full px-6 py-2 font-medium transition-all ${
+                  className={`group rounded-full px-3 py-2 font-medium transition-all duration-200 overflow-hidden ${
                     isActive 
                       ? "bg-background text-foreground shadow-sm" 
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   }`}
                 >
-                  {item.label}
+                  <div className="flex items-center gap-2">
+                    <IconComponent className="h-4 w-4 flex-shrink-0" />
+                    <span className="opacity-0 group-hover:opacity-100 max-w-0 group-hover:max-w-24 transition-all duration-200 whitespace-nowrap overflow-hidden">
+                      {item.label}
+                    </span>
+                  </div>
                 </Button>
               );
             })}
