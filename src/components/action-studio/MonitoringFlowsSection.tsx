@@ -61,16 +61,16 @@ const monitoringFlows: MonitoringFlow[] = [{
   frequency: 'Daily'
 }];
 
-const getStatusColor = (status: string) => {
+const getStatusIndicator = (status: string) => {
   switch (status) {
     case 'active':
-      return 'bg-green-100 text-green-800';
+      return 'bg-green-500';
     case 'paused':
-      return 'bg-yellow-100 text-yellow-800';
+      return 'bg-yellow-500';
     case 'error':
-      return 'bg-red-100 text-red-800';
+      return 'bg-red-500';
     default:
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-gray-400';
   }
 };
 
@@ -98,40 +98,41 @@ export function MonitoringFlowsSection() {
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg sm:text-xl font-semibold">My Insight Checkers</h2>
-          </div>
-          <Button variant="outline" size="sm">
+          <h2 className="text-xl font-semibold">Insight Checkers</h2>
+          <Button variant="outline" size="sm" className="hover:bg-muted">
             <Settings className="h-4 w-4 mr-2" />
-            Insights Engine
+            Configure
           </Button>
         </div>
 
-        <div className="bg-white rounded-lg border">
-          {monitoringFlows.map((flow, index) => (
+        <div className="space-y-1">
+          {monitoringFlows.map((flow) => (
             <div
               key={flow.id}
-              className={`flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${
-                index !== monitoringFlows.length - 1 ? 'border-b' : ''
-              }`}
+              className="flex items-center justify-between p-4 hover:bg-muted/30 rounded-lg transition-colors"
             >
               <div className="flex items-center gap-4">
                 <Switch
                   checked={flow.status === 'active'}
                   onCheckedChange={(checked) => handleToggleFlow(flow.id, checked)}
                 />
-                <div>
-                  <span className="font-medium text-sm">{flow.name}</span>
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${getStatusIndicator(flow.status)}`} />
+                  <div>
+                    <span className="font-medium text-sm">{flow.name}</span>
+                    <p className="text-xs text-muted-foreground">{flow.frequency}</p>
+                  </div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => handleViewInsights(flow)}
+                  className="h-8 w-8 p-0 hover:bg-muted"
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -139,6 +140,7 @@ export function MonitoringFlowsSection() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleEditFlow(flow.id)}
+                  className="h-8 w-8 p-0 hover:bg-muted"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>

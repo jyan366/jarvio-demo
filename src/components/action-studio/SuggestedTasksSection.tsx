@@ -94,27 +94,11 @@ export const suggestedTasks: (SuggestedTask & { priority: PriorityLevel })[] = [
   }
 ];
 
-const categoryColors: Record<string, string> = {
-  Sales: 'bg-purple-100 text-purple-800',
-  Inventory: 'bg-blue-100 text-blue-800',
-  Listings: 'bg-green-100 text-green-800',
-  Customers: 'bg-indigo-100 text-indigo-800',
-  Competitors: 'bg-orange-100 text-orange-800',
-  Advertising: 'bg-yellow-100 text-yellow-800'
-};
-
-const priorityColors: Record<PriorityLevel, string> = {
-  'CRITICAL': 'bg-purple-50 border-purple-200 shadow-sm',
-  'HIGH': 'bg-blue-50 border-blue-200',
-  'MEDIUM': 'bg-indigo-50 border-indigo-100',
-  'LOW': 'bg-gray-50 border-gray-100',
-};
-
-const priorityBadgeColors: Record<PriorityLevel, string> = {
-  'CRITICAL': 'bg-purple-100 text-purple-800 border-purple-200',
-  'HIGH': 'bg-blue-100 text-blue-800 border-blue-200',
-  'MEDIUM': 'bg-indigo-100 text-indigo-800',
-  'LOW': 'bg-gray-100 text-gray-800',
+const priorityIndicators: Record<PriorityLevel, string> = {
+  'CRITICAL': 'border-l-red-500',
+  'HIGH': 'border-l-orange-500', 
+  'MEDIUM': 'border-l-blue-500',
+  'LOW': 'border-l-gray-400',
 };
 
 export const SuggestedTasksSection: React.FC = () => {
@@ -191,9 +175,9 @@ export const SuggestedTasksSection: React.FC = () => {
 
   if (sortedTasks.length === 0) {
     return (
-      <div className="space-y-2 px-4 sm:px-6">
-        <h2 className="text-base sm:text-xl font-semibold">Suggested Tasks</h2>
-        <Card className="p-6 text-center text-muted-foreground">
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Suggested Tasks</h2>
+        <Card className="p-8 text-center text-muted-foreground">
           No suggested tasks available
         </Card>
       </div>
@@ -203,42 +187,46 @@ export const SuggestedTasksSection: React.FC = () => {
   const TaskCard = ({ task, isExpanded = false }: { task: SuggestedTask; isExpanded?: boolean }) => (
     <Card 
       className={cn(
-        "border hover:shadow-md transition-shadow",
-        isExpanded ? "p-6" : "p-2 sm:p-3",
-        priorityColors[task.priority],
-        task.priority === 'CRITICAL' && 'ring-2 ring-red-200'
+        "border-l-4 hover:shadow-sm transition-all duration-200",
+        isExpanded ? "p-6" : "p-4",
+        priorityIndicators[task.priority]
       )}
     >
-      <div className={cn("flex flex-col", isExpanded ? "space-y-4" : "space-y-1 sm:space-y-2")}>
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1">
-            <Badge className={cn(
-              "mb-2",
-              priorityBadgeColors[task.priority]
-            )}>
-              {task.priority}
-            </Badge>
+      <div className={cn("flex flex-col", isExpanded ? "space-y-4" : "space-y-3")}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <span className={cn(
+                "inline-block w-2 h-2 rounded-full",
+                task.priority === 'CRITICAL' ? 'bg-red-500' :
+                task.priority === 'HIGH' ? 'bg-orange-500' :
+                task.priority === 'MEDIUM' ? 'bg-blue-500' : 'bg-gray-400'
+              )} />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                {task.priority}
+              </span>
+            </div>
             <h3 className={cn(
-              "font-medium",
-              isExpanded ? "text-lg sm:text-xl mb-2" : "text-sm sm:text-base"
+              "font-medium text-foreground leading-tight",
+              isExpanded ? "text-lg mb-2" : "text-base mb-1"
             )}>
               {task.title}
             </h3>
-            <Badge className={`mt-1 text-xs ${categoryColors[task.category]}`}>
+            <span className="text-xs text-muted-foreground">
               {task.category}
-            </Badge>
+            </span>
             {isExpanded && (
-              <div className="mt-4 text-sm text-muted-foreground">
+              <div className="mt-3 text-sm text-muted-foreground">
                 Based on {task.linkedInsights.length} insights from your monitoring flows
               </div>
             )}
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 flex-shrink-0">
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "hover:bg-green-100 text-green-600 hover:text-green-700",
+                "hover:bg-green-50 text-green-600 hover:text-green-700 border border-transparent hover:border-green-200",
                 isExpanded ? "h-10 w-10" : "h-8 w-8"
               )}
               onClick={() => handleTaskAction(task, true)}
@@ -250,7 +238,7 @@ export const SuggestedTasksSection: React.FC = () => {
               variant="ghost"
               size="icon"
               className={cn(
-                "hover:bg-red-100 text-red-600 hover:text-red-700",
+                "hover:bg-red-50 text-red-600 hover:text-red-700 border border-transparent hover:border-red-200",
                 isExpanded ? "h-10 w-10" : "h-8 w-8"
               )}
               onClick={() => handleTaskAction(task, false)}
@@ -264,13 +252,13 @@ export const SuggestedTasksSection: React.FC = () => {
         <Collapsible
           open={isExpanded || openTaskIds.includes(task.id)}
           onOpenChange={() => !isExpanded && toggleTask(task.id)}
-          className="mt-1"
+          className="mt-2"
         >
           {!isExpanded && (
             <div className="flex items-center text-xs text-muted-foreground">
               <span>Based on {task.linkedInsights.length} insights</span>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-0 h-6 w-6 ml-1">
+                <Button variant="ghost" size="sm" className="p-0 h-6 w-6 ml-1 hover:bg-muted">
                   {openTaskIds.includes(task.id) ? (
                     <ChevronUp className="h-3 w-3" />
                   ) : (
@@ -281,14 +269,14 @@ export const SuggestedTasksSection: React.FC = () => {
             </div>
           )}
 
-          <CollapsibleContent className={cn("space-y-2", isExpanded ? "mt-4" : "mt-1")}>
+          <CollapsibleContent className={cn("space-y-2", isExpanded ? "mt-4" : "mt-2")}>
             {task.linkedInsights.map(insight => (
               <div key={insight.id} className={cn(
-                "bg-muted/50 rounded-md",
-                isExpanded ? "p-3" : "p-1"
+                "bg-muted/30 border border-border rounded-lg",
+                isExpanded ? "p-3" : "p-2"
               )}>
                 <p className={cn(
-                  "font-medium",
+                  "font-medium text-foreground",
                   isExpanded ? "text-sm mb-1" : "text-xs"
                 )}>
                   {insight.title}
@@ -308,19 +296,19 @@ export const SuggestedTasksSection: React.FC = () => {
   );
 
   return (
-    <div className="space-y-4 px-4 sm:px-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-base sm:text-xl font-semibold">Suggested Tasks</h2>
-        <div className="flex gap-1 border rounded-md p-1 bg-white">
+        <h2 className="text-xl font-semibold">Suggested Tasks</h2>
+        <div className="flex gap-1 bg-muted rounded-lg p-1">
           <Button
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('grid')}
             className={cn(
-              "h-8 px-3",
+              "h-8 px-3 rounded-md",
               viewMode === 'grid' 
-                ? "bg-indigo-600 hover:bg-indigo-700 text-white" 
-                : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                ? "bg-background shadow-sm" 
+                : "hover:bg-background/50"
             )}
           >
             <Grid3X3 className="h-4 w-4 mr-1" />
@@ -331,10 +319,10 @@ export const SuggestedTasksSection: React.FC = () => {
             size="sm"
             onClick={() => setViewMode('focus')}
             className={cn(
-              "h-8 px-3",
+              "h-8 px-3 rounded-md",
               viewMode === 'focus' 
-                ? "bg-indigo-600 hover:bg-indigo-700 text-white" 
-                : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                ? "bg-background shadow-sm" 
+                : "hover:bg-background/50"
             )}
           >
             <Eye className="h-4 w-4 mr-1" />
@@ -344,7 +332,7 @@ export const SuggestedTasksSection: React.FC = () => {
       </div>
       
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {sortedTasks.map(task => (
             <TaskCard key={task.id} task={task} />
           ))}
@@ -361,7 +349,7 @@ export const SuggestedTasksSection: React.FC = () => {
                 size="sm"
                 onClick={previousTask}
                 disabled={focusIndex === 0}
-                className="border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                className="hover:bg-muted"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -370,7 +358,7 @@ export const SuggestedTasksSection: React.FC = () => {
                 size="sm"
                 onClick={nextTask}
                 disabled={focusIndex >= sortedTasks.length - 1}
-                className="border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                className="hover:bg-muted"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
