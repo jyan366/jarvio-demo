@@ -20,11 +20,12 @@ export function TopNavigation() {
     navigate('/auth');
   };
 
-  const allItems = [
-    ...(isSectionVisible("workflow") ? workflowItems.filter(item => isItemVisible(item.id, 'workflow')) : []),
-    ...(isSectionVisible("brand") ? brandToolkitItems.filter(item => isItemVisible(item.id, 'brand')) : []),
-    ...(isSectionVisible("support") ? supportItems.filter(item => isItemVisible(item.id, 'support')) : [])
-  ];
+  // Only show Chat, Flows, and Insights Studio
+  const selectedItems = [
+    workflowItems.find(item => item.id === 'new-conversation'), // Chat
+    workflowItems.find(item => item.id === 'jarvi-flows'), // Flows
+    workflowItems.find(item => item.id === 'action-studio'), // Insights Studio
+  ].filter(Boolean);
 
   const isTaskPage = /^\/task(\/|$)/.test(location.pathname);
 
@@ -45,9 +46,9 @@ export function TopNavigation() {
           <span className="font-semibold text-lg">Jarvio</span>
         </div>
 
-        {/* Navigation Icons */}
+        {/* Navigation Icons - Only Chat, Flows, Insights Studio */}
         <nav className="flex items-center gap-1">
-          {allItems.map((item) => {
+          {selectedItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
             
@@ -55,13 +56,11 @@ export function TopNavigation() {
               <Button
                 key={item.id}
                 variant={isActive ? "default" : "ghost"}
-                size="sm"
+                size="icon"
                 onClick={() => navigate(item.href)}
-                className="flex items-center gap-2 px-3"
                 title={item.label}
               >
                 <Icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{item.label}</span>
               </Button>
             );
           })}
