@@ -246,10 +246,6 @@ export default function NewConversation() {
                     ))}
                   </div>
                 )}
-                
-                <div className="mt-3 text-xs text-muted-foreground text-center">
-                  Jarvio can make mistakes. Check important info.
-                </div>
               </div>
             </div>
           </div>
@@ -415,10 +411,6 @@ export default function NewConversation() {
                     ))}
                   </div>
                 )}
-                
-                <div className="mt-2 text-xs text-muted-foreground text-center">
-                  Jarvio can make mistakes. Check important info.
-                </div>
               </div>
             </div>
           </>
