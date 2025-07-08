@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
@@ -15,9 +14,7 @@ import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 import { ProcessBuilder } from '@/components/ads/ProcessBuilder';
 import { BestSellersRestockProcess } from '@/components/inventory/BestSellersRestockProcess';
 import { useToast } from '@/hooks/use-toast';
-
 export type InsightCategory = 'All' | 'Sales' | 'Inventory' | 'Listings' | 'Customers' | 'Competitors' | 'Advertising';
-
 export default function ActionStudio() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<InsightCategory>('All');
@@ -25,14 +22,14 @@ export default function ActionStudio() {
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [isRestockProcessOpen, setIsRestockProcessOpen] = useState(false);
   const [isProcessBuilderOpen, setIsProcessBuilderOpen] = useState(false);
-  const { toast } = useToast();
-
-  return (
-    <MainLayout>
+  const {
+    toast
+  } = useToast();
+  return <MainLayout>
       <div className="space-y-6 md:space-y-8 max-w-full overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Insights Studio</h1>
+            
           </div>
         </div>
 
@@ -51,12 +48,11 @@ export default function ActionStudio() {
       </div>
 
       <CreateTaskFlow open={isCreateTaskOpen} onOpenChange={setIsCreateTaskOpen} onSuccess={() => {
-        navigate('/task-manager');
-      }} />
+      navigate('/task-manager');
+    }} />
 
       <ProcessBuilder open={isProcessBuilderOpen} onOpenChange={setIsProcessBuilderOpen} />
 
       <BestSellersRestockProcess open={isRestockProcessOpen} onOpenChange={setIsRestockProcessOpen} />
-    </MainLayout>
-  );
+    </MainLayout>;
 }
