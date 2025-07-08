@@ -234,11 +234,11 @@ export default function NewConversation() {
                 
                 {/* Suggestions dropdown */}
                 {showSuggestions && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-background/95 backdrop-blur-sm border border-border/20 rounded-lg shadow-sm z-50 max-h-64 overflow-y-auto">
+                  <div className="mt-4 space-y-2">
                     {filteredSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
-                        className="w-full px-4 py-2.5 text-left hover:bg-muted/50 transition-colors text-sm text-muted-foreground hover:text-foreground border-b border-border/10 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
+                        className="w-full px-0 py-2 text-left hover:text-foreground transition-colors text-sm text-muted-foreground"
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
                         {suggestion}
@@ -403,11 +403,11 @@ export default function NewConversation() {
                 
                 {/* Suggestions dropdown for conversation state */}
                 {showSuggestions && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-background/95 backdrop-blur-sm border border-border/20 rounded-lg shadow-sm z-50 max-h-64 overflow-y-auto">
+                  <div className="mt-4 space-y-2">
                     {filteredSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
-                        className="w-full px-4 py-2.5 text-left hover:bg-muted/50 transition-colors text-sm text-muted-foreground hover:text-foreground border-b border-border/10 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
+                        className="w-full px-0 py-2 text-left hover:text-foreground transition-colors text-sm text-muted-foreground"
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
                         {suggestion}
