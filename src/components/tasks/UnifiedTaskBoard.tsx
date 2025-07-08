@@ -98,19 +98,7 @@ export function UnifiedTaskBoard({
   }
   return <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Task Manager</h1>
-          <p className="text-muted-foreground">Manage and track your tasks</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsSimpleCreateDialogOpen(true)} className="bg-green-50 border-green-200 hover:bg-green-100 text-green-700">
-            <Zap className="h-4 w-4 mr-2" />
-            Quick Task
-          </Button>
-          
-        </div>
-      </div>
+      
 
       {/* Search */}
       <div className="flex flex-col sm:flex-row gap-4">
