@@ -8,16 +8,23 @@ import { Button } from '../ui/button';
 import { NavigationSettings } from './NavigationSettings';
 import { ThemeToggle } from '../ThemeToggle';
 import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Settings, Sun, Moon } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { useTheme } from '../ThemeProvider';
 
 export function TopNavigation() {
   const { isItemVisible, isSectionVisible } = useContext(NavigationVisibilityContext);
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
 
   const handleSignOut = () => {
     localStorage.removeItem('isAuthenticated');
     navigate('/auth');
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   // Only show Chat, Flows, and Insights Studio
@@ -71,27 +78,41 @@ export function TopNavigation() {
             })}
           </nav>
 
-          {/* Right side controls */}
-          <div className="absolute right-6 flex items-center gap-2">
-            <MarketplaceSelector />
-            <ThemeToggle />
-            <NavigationSettings />
-            
-            {/* User menu */}
-            <div className="flex items-center gap-2 pl-2 border-l border-border/40">
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                <User className="w-4 h-4 text-muted-foreground" />
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleSignOut}
-                title="Sign out"
-                className="w-8 h-8"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
+          {/* Profile Menu */}
+          <div className="absolute right-6">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="w-8 h-8">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={toggleTheme}>
+                  {theme === 'light' ? <Moon className="h-4 w-4 mr-2" /> : <Sun className="h-4 w-4 mr-2" />}
+                  {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <div className="w-full">
+                    <MarketplaceSelector />
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <div className="w-full">
+                    <NavigationSettings />
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="h-4 w-4 mr-2" />
+                  Demo User
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
