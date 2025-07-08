@@ -92,13 +92,16 @@ export function NavigationVisibilityProvider({ children }: { children: ReactNode
   };
 
   const toggleItem = (itemId: string, sectionId: string) => {
-    setState(prev => ({
-      ...prev,
-      [sectionId]: {
-        ...prev[sectionId as keyof NavigationVisibilityState],
-        [itemId]: !prev[sectionId as keyof NavigationVisibilityState][itemId as keyof typeof prev[sectionId as keyof NavigationVisibilityState]]
-      }
-    }));
+    setState(prev => {
+      const section = prev[sectionId as keyof NavigationVisibilityState];
+      return {
+        ...prev,
+        [sectionId]: {
+          ...section,
+          [itemId]: !section[itemId as keyof typeof section]
+        }
+      };
+    });
   };
 
   const toggleSection = (sectionId: string) => {
