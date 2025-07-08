@@ -52,6 +52,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "nav-active": "hsl(var(--nav-active))",
       },
       borderRadius: {
         lg: "var(--radius)",

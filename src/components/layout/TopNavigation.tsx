@@ -76,7 +76,7 @@ export function TopNavigation() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <IconComponent className="h-4 w-4 flex-shrink-0" />
+                    <IconComponent className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-nav-active' : ''}`} />
                     <span className="opacity-0 group-hover:opacity-100 max-w-0 group-hover:max-w-24 transition-all duration-200 whitespace-nowrap overflow-hidden">
                       {item.label}
                     </span>
