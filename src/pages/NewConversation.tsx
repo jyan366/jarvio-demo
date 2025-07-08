@@ -96,17 +96,17 @@ export default function NewConversation() {
         
         {messages.length === 0 ? (
           /* Welcome Screen with Centered Input */
-          <div className="flex-1 flex flex-col items-center justify-center px-6">
+          <div className="flex-1 flex flex-col items-center justify-center px-6 min-h-0">
             <div className="w-full max-w-2xl mx-auto">
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-normal mb-2">
+              <div className="text-center mb-12">
+                <h1 className="text-4xl font-normal text-foreground">
                   What are you working on?
                 </h1>
               </div>
               
               {/* Main Input - Centered for welcome state */}
-              <div className="relative mb-6">
-                <div className="relative border border-border/50 rounded-2xl bg-background shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="relative">
+                <div className="relative border border-border rounded-3xl bg-background shadow-sm hover:shadow-md transition-shadow duration-200">
                   <Textarea
                     ref={textareaRef}
                     placeholder="Ask anything"
@@ -114,18 +114,18 @@ export default function NewConversation() {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyPress}
                     disabled={isLoading}
-                    className="min-h-[60px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-4 py-4 pr-20 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="min-h-[56px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-5 py-4 pr-24 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground"
                     style={{ height: 'auto' }}
                     rows={1}
                   />
                   <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                    <Button variant="ghost" size="sm" className="h-8 px-3 text-muted-foreground">
+                    <Button variant="ghost" size="sm" className="h-8 px-3 text-muted-foreground hover:text-foreground">
                       <Paperclip className="h-4 w-4 mr-1" />
                       <span className="text-sm">Tools</span>
                     </Button>
                   </div>
                   <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                       <Mic className="h-4 w-4" />
                     </Button>
                     <Button 
@@ -142,7 +142,7 @@ export default function NewConversation() {
                     </Button>
                   </div>
                 </div>
-                <div className="mt-2 text-xs text-muted-foreground text-center">
+                <div className="mt-3 text-xs text-muted-foreground text-center">
                   Jarvio can make mistakes. Check important info.
                 </div>
               </div>
