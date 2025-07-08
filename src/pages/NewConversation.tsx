@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, User, Sparkles, ArrowUp, Mic, Paperclip, Settings2 } from 'lucide-react';
+import { Bot, Send, User, Sparkles, ArrowUp, Mic, Paperclip, Plus, Settings2, Image, Globe, Code, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import Markdown from 'markdown-to-jsx';
@@ -106,40 +106,50 @@ export default function NewConversation() {
               
               {/* Main Input - Centered for welcome state */}
               <div className="relative">
-                <div className="relative border border-border rounded-3xl bg-background shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <Textarea
-                    ref={textareaRef}
-                    placeholder="Ask anything"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    disabled={isLoading}
-                    className="min-h-[56px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-5 py-4 pr-24 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground"
-                    style={{ height: 'auto' }}
-                    rows={1}
-                  />
-                  <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                    <Button variant="ghost" size="sm" className="h-8 px-3 text-muted-foreground hover:text-foreground">
-                      <Paperclip className="h-4 w-4 mr-1" />
-                      <span className="text-sm">Tools</span>
-                    </Button>
+                <div className="relative border border-border rounded-3xl bg-background shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                  {/* Top row - Text input */}
+                  <div className="px-5 pt-4 pb-2">
+                    <Textarea
+                      ref={textareaRef}
+                      placeholder="Ask anything"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      disabled={isLoading}
+                      className="min-h-[24px] max-h-[120px] resize-none border-0 bg-transparent text-base leading-relaxed p-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground"
+                      style={{ height: 'auto' }}
+                      rows={1}
+                    />
                   </div>
-                  <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                      <Mic className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      onClick={handleSend} 
-                      size="icon"
-                      disabled={isLoading || !input.trim()}
-                      className={`h-8 w-8 rounded-lg transition-all duration-200 ${
-                        input.trim() 
-                          ? 'bg-foreground hover:bg-foreground/90 text-background' 
-                          : 'bg-muted text-muted-foreground cursor-not-allowed'
-                      }`}
-                    >
-                      <ArrowUp className="h-4 w-4" />
-                    </Button>
+                  
+                  {/* Bottom row - Controls */}
+                  <div className="flex items-center justify-between px-4 pb-3 pt-1 border-t border-border/20">
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground">
+                        <Settings2 className="h-3.5 w-3.5 mr-1" />
+                        <span className="text-sm">Tools</span>
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                        <Mic className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        onClick={handleSend} 
+                        size="icon"
+                        disabled={isLoading || !input.trim()}
+                        className={`h-7 w-7 rounded-lg transition-all duration-200 ${
+                          input.trim() 
+                            ? 'bg-foreground hover:bg-foreground/90 text-background' 
+                            : 'bg-muted text-muted-foreground cursor-not-allowed'
+                        }`}
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 <div className="mt-3 text-xs text-muted-foreground text-center">
@@ -245,40 +255,50 @@ export default function NewConversation() {
             {/* Input Area - Bottom for conversation state */}
             <div className="border-t bg-background">
               <div className="max-w-3xl mx-auto px-6 py-4">
-                <div className="relative border border-border/50 rounded-2xl bg-background hover:shadow-sm transition-shadow duration-200">
-                  <Textarea
-                    ref={textareaRef}
-                    placeholder="Ask anything"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    disabled={isLoading}
-                    className="min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-4 py-3 pr-20 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    style={{ height: 'auto' }}
-                    rows={1}
-                  />
-                  <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                    <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground">
-                      <Paperclip className="h-3.5 w-3.5 mr-1" />
-                      <span className="text-xs">Tools</span>
-                    </Button>
+                <div className="relative border border-border/50 rounded-2xl bg-background hover:shadow-sm transition-shadow duration-200 overflow-hidden">
+                  {/* Top row - Text input */}
+                  <div className="px-4 pt-3 pb-1">
+                    <Textarea
+                      ref={textareaRef}
+                      placeholder="Ask anything"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      disabled={isLoading}
+                      className="min-h-[20px] max-h-[120px] resize-none border-0 bg-transparent text-base leading-relaxed p-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground"
+                      style={{ height: 'auto' }}
+                      rows={1}
+                    />
                   </div>
-                  <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground">
-                      <Mic className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button 
-                      onClick={handleSend} 
-                      size="icon"
-                      disabled={isLoading || !input.trim()}
-                      className={`h-7 w-7 rounded-lg transition-all duration-200 ${
-                        input.trim() 
-                          ? 'bg-foreground hover:bg-foreground/90 text-background' 
-                          : 'bg-muted text-muted-foreground cursor-not-allowed'
-                      }`}
-                    >
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    </Button>
+                  
+                  {/* Bottom row - Controls */}
+                  <div className="flex items-center justify-between px-3 pb-2 pt-1 border-t border-border/20">
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground">
+                        <Plus className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-6 px-2 text-muted-foreground hover:text-foreground">
+                        <Settings2 className="h-3 w-3 mr-1" />
+                        <span className="text-xs">Tools</span>
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground">
+                        <Mic className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button 
+                        onClick={handleSend} 
+                        size="icon"
+                        disabled={isLoading || !input.trim()}
+                        className={`h-6 w-6 rounded-lg transition-all duration-200 ${
+                          input.trim() 
+                            ? 'bg-foreground hover:bg-foreground/90 text-background' 
+                            : 'bg-muted text-muted-foreground cursor-not-allowed'
+                        }`}
+                      >
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 <div className="mt-2 text-xs text-muted-foreground text-center">
