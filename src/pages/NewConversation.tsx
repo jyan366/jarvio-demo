@@ -92,7 +92,7 @@ export default function NewConversation() {
 
   return (
     <MainLayout>
-      <div className="absolute inset-0 flex flex-col bg-background">
+      <div className="h-full flex flex-col bg-background -my-6 -mx-6">
         
         {messages.length === 0 ? (
           /* Welcome Screen with Centered Input */
