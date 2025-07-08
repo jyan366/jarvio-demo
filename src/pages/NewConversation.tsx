@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, User, Sparkles, ArrowUp } from 'lucide-react';
+import { Bot, Send, User, Sparkles, ArrowUp, Mic, Paperclip, Settings2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import Markdown from 'markdown-to-jsx';
@@ -98,34 +98,52 @@ export default function NewConversation() {
         <div className="flex-1 flex flex-col">
           {messages.length === 0 ? (
             /* Welcome Screen */
-            <div className="flex-1 flex items-center justify-center">
-              <div className="max-w-2xl mx-auto text-center px-6">
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-white" />
+            <div className="flex-1 flex flex-col items-center justify-center px-6">
+              <div className="w-full max-w-2xl mx-auto">
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl font-normal mb-2">
+                    What are you working on?
+                  </h1>
                 </div>
-                <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  How can I help you today?
-                </h1>
-                <p className="text-lg text-muted-foreground mb-8">
-                  I'm Jarvio, your AI assistant for Amazon business optimization. Ask me anything about your products, sales, analytics, or business strategy.
-                </p>
                 
-                {/* Quick suggestions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto">
-                  {[
-                    "Analyze my product performance",
-                    "Create a marketing strategy",
-                    "Optimize my product listings",
-                    "Review competitor analysis"
-                  ].map((suggestion, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setInput(suggestion)}
-                      className="p-4 text-left bg-card border border-border/50 rounded-xl hover:border-border hover:bg-accent/50 transition-all duration-200"
-                    >
-                      <span className="text-sm font-medium">{suggestion}</span>
-                    </button>
-                  ))}
+                {/* Main Input - Larger for welcome state */}
+                <div className="relative mb-6">
+                  <div className="relative border border-border/50 rounded-2xl bg-background shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <Textarea
+                      ref={textareaRef}
+                      placeholder="Ask anything"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      disabled={isLoading}
+                      className="min-h-[60px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-4 py-4 pr-20 focus-visible:ring-0 focus-visible:ring-offset-0"
+                      style={{ height: 'auto' }}
+                      rows={1}
+                    />
+                    <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="h-8 px-3 text-muted-foreground">
+                        <Paperclip className="h-4 w-4 mr-1" />
+                        <span className="text-sm">Tools</span>
+                      </Button>
+                    </div>
+                    <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                        <Mic className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        onClick={handleSend} 
+                        size="icon"
+                        disabled={isLoading || !input.trim()}
+                        className={`h-8 w-8 rounded-lg transition-all duration-200 ${
+                          input.trim() 
+                            ? 'bg-foreground hover:bg-foreground/90 text-background' 
+                            : 'bg-muted text-muted-foreground cursor-not-allowed'
+                        }`}
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -223,36 +241,47 @@ export default function NewConversation() {
           )}
         </div>
 
-        {/* Input Area */}
-        <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="max-w-3xl mx-auto px-6 py-6">
-            <div className="relative">
+        {/* Input Area - Compact for conversation state */}
+        <div className="border-t bg-background">
+          <div className="max-w-3xl mx-auto px-6 py-4">
+            <div className="relative border border-border/50 rounded-2xl bg-background hover:shadow-sm transition-shadow duration-200">
               <Textarea
                 ref={textareaRef}
-                placeholder="Message Jarvio..."
+                placeholder="Ask anything"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 disabled={isLoading}
-                className="min-h-[60px] max-h-[200px] resize-none pr-12 rounded-2xl border-border/50 focus:border-border bg-background/50 text-base leading-relaxed"
+                className="min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent text-base leading-relaxed px-4 py-3 pr-20 focus-visible:ring-0 focus-visible:ring-offset-0"
                 style={{ height: 'auto' }}
                 rows={1}
               />
-              <Button 
-                onClick={handleSend} 
-                size="icon"
-                disabled={isLoading || !input.trim()}
-                className={`absolute right-2 bottom-2 h-8 w-8 rounded-lg transition-all duration-200 ${
-                  input.trim() 
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg' 
-                    : 'bg-muted text-muted-foreground'
-                }`}
-              >
-                <ArrowUp className="h-4 w-4" />
-              </Button>
+              <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground">
+                  <Paperclip className="h-3.5 w-3.5 mr-1" />
+                  <span className="text-xs">Tools</span>
+                </Button>
+              </div>
+              <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground">
+                  <Mic className="h-3.5 w-3.5" />
+                </Button>
+                <Button 
+                  onClick={handleSend} 
+                  size="icon"
+                  disabled={isLoading || !input.trim()}
+                  className={`h-7 w-7 rounded-lg transition-all duration-200 ${
+                    input.trim() 
+                      ? 'bg-foreground hover:bg-foreground/90 text-background' 
+                      : 'bg-muted text-muted-foreground cursor-not-allowed'
+                  }`}
+                >
+                  <ArrowUp className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
-            <div className="mt-3 text-xs text-muted-foreground text-center">
-              Jarvio can make mistakes. Please verify important information.
+            <div className="mt-2 text-xs text-muted-foreground text-center">
+              Jarvio can make mistakes. Check important info.
             </div>
           </div>
         </div>
