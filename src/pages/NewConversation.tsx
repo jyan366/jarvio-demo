@@ -171,9 +171,9 @@ export default function NewConversation() {
         
         {messages.length === 0 ? (
           /* Welcome Screen with Centered Input */
-          <div className="flex-1 flex items-center justify-center px-6 pt-64">
-            <div className="w-full max-w-2xl mx-auto">
-              <div className="text-center mb-12">
+          <div className="flex-1 flex items-center justify-center px-6 pt-64 transition-all duration-700 ease-in-out">
+            <div className="w-full max-w-2xl mx-auto transition-all duration-700 ease-in-out">
+              <div className="text-center mb-12 transition-opacity duration-500">
                 <h1 className="text-4xl font-normal text-foreground">
                   What are you working on?
                 </h1>
@@ -181,7 +181,7 @@ export default function NewConversation() {
               
               {/* Main Input - Centered for welcome state */}
               <div className="relative">
-                <div className="relative border border-border rounded-3xl bg-background shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                <div className="relative border border-border rounded-3xl bg-background shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden">
                   {/* Top row - Text input */}
                   <div className="px-5 pt-4 pb-2">
                     <Textarea
