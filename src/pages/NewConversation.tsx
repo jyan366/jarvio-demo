@@ -110,13 +110,17 @@ export default function NewConversation() {
 
     setIsLoading(true);
     const userMessage = input.trim();
+    
+    // Add a small delay to show the transition animation
+    setTimeout(() => {
+      setMessages(prev => [
+        ...prev, 
+        { role: 'user', content: userMessage },
+        { role: 'assistant', content: '🤔 Thinking...' }
+      ]);
+    }, 100);
+    
     setInput('');
-
-    setMessages(prev => [
-      ...prev, 
-      { role: 'user', content: userMessage },
-      { role: 'assistant', content: '🤔 Thinking...' }
-    ]);
 
     try {
       const { data, error } = await supabase.functions.invoke('chat', {
