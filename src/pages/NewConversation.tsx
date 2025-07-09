@@ -175,7 +175,7 @@ export default function NewConversation() {
         
         {messages.length === 0 ? (
           /* Welcome Screen with Centered Input */
-          <div className="flex-1 flex items-center justify-center px-6 transition-all duration-700 ease-in-out">
+          <div className="flex-1 flex items-center justify-center px-6 pt-64 transition-all duration-700 ease-in-out">
             <div className="w-full max-w-2xl mx-auto transition-all duration-700 ease-in-out">
               <div className="text-center mb-12 transition-opacity duration-500">
                 <h1 className="text-4xl font-normal text-foreground">
