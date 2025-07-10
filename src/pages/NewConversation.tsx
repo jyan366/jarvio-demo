@@ -700,10 +700,10 @@ export default function NewConversation() {
           <div 
             ref={containerRef}
             className={`flex select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} ${
-              isFiltering && tasksToShow.length <= 5 ? 'justify-center' : ''
+              isFiltering ? 'justify-center' : ''
             }`}
             style={{ 
-              transform: isFiltering && tasksToShow.length <= 5 
+              transform: isFiltering 
                 ? 'none' 
                 : `translate3d(${position}px, 0, 0)`,
               transition: 'none' // No CSS transitions, pure JS control
