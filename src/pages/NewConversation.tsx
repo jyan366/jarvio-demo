@@ -829,11 +829,11 @@ export default function NewConversation() {
                 
                 {/* Suggestions dropdown */}
                 {showSuggestions && (
-                  <div className="mt-4 space-y-2 px-4">
+                  <div className="mt-4 space-y-2 px-4 max-w-2xl mx-auto">
                     {filteredSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
-                        className="w-full px-0 py-2 text-left hover:text-foreground transition-colors text-sm text-muted-foreground"
+                        className="w-full px-0 py-2 text-left hover:text-foreground transition-colors text-sm text-muted-foreground text-center"
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
                         {suggestion}
@@ -1001,11 +1001,11 @@ export default function NewConversation() {
                 
                 {/* Suggestions dropdown for conversation state */}
                 {showSuggestions && (
-                  <div className="mt-4 space-y-2 px-4">
+                  <div className="mt-4 space-y-2 px-4 max-w-2xl mx-auto">
                     {filteredSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
-                        className="w-full px-0 py-2 text-left hover:text-foreground transition-colors text-sm text-muted-foreground"
+                        className="w-full px-0 py-2 text-left hover:text-foreground transition-colors text-sm text-muted-foreground text-center"
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
                         {suggestion}
