@@ -600,19 +600,20 @@ export default function NewConversation() {
     // Create duplicates for infinite scroll with filtering
     const tasksToShow = filteredTaskCards.length > 0 ? filteredTaskCards : allTaskCards;
     const isFiltering = input.trim().length > 0;
+    const isInputFocused = isTaskScrollPaused; // Paused when input is focused
     
     // Hide component if filtering and no results
     if (isFiltering && filteredTaskCards.length === 0) {
       return null;
     }
     
-    // When filtering, show only unique results limited to 4 cards. When not filtering, duplicate for infinite scroll
-    const infiniteTasks = isFiltering 
-      ? tasksToShow.slice(0, 4) // Limit to 4 cards when filtering
+    // When input is focused or filtering, show static centered results. When not focused, scroll infinitely
+    const infiniteTasks = (isInputFocused || isFiltering)
+      ? (isFiltering ? tasksToShow.slice(0, 4) : allTaskCards.slice(0, 4)) // Limit to 4 cards when focused/filtering
       : Array(Math.ceil(40 / Math.min(20, tasksToShow.length))).fill(tasksToShow.slice(0, 20)).flat().slice(0, 40);
     
-    const singleSetWidth = isFiltering 
-      ? Math.min(tasksToShow.length, 4) * 304 
+    const singleSetWidth = (isInputFocused || isFiltering)
+      ? Math.min(isFiltering ? tasksToShow.length : allTaskCards.length, 4) * 304 
       : Math.min(20, tasksToShow.length) * 304;
     
     // Auto-scroll animation using JavaScript
@@ -700,10 +701,10 @@ export default function NewConversation() {
           <div 
             ref={containerRef}
             className={`flex select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} ${
-              isFiltering ? 'justify-center' : ''
+              (isInputFocused || isFiltering) ? 'justify-center' : ''
             }`}
             style={{ 
-              transform: isFiltering 
+              transform: (isInputFocused || isFiltering)
                 ? 'none' 
                 : `translate3d(${position}px, 0, 0)`,
               transition: 'none' // No CSS transitions, pure JS control
