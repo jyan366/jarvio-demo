@@ -222,8 +222,48 @@ export default function NewConversation() {
   // }, [showTaskCards]);
 
   const FloatingTaskCards = () => {
-    // Create enough duplicates for seamless infinite scroll
+    const [isDragging, setIsDragging] = React.useState(false);
+    const [dragStart, setDragStart] = React.useState(0);
+    const [dragOffset, setDragOffset] = React.useState(0);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+    
+    // Create many duplicates for truly infinite scroll
     const topTasks = taskCards.slice(0, 5);
+    const infiniteTasks = Array(20).fill(topTasks).flat(); // 100 total tasks (20 sets of 5)
+    
+    const handleMouseDown = (e: React.MouseEvent) => {
+      setIsDragging(true);
+      setDragStart(e.clientX);
+      e.preventDefault();
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+      if (!isDragging) return;
+      const diff = e.clientX - dragStart;
+      setDragOffset(diff);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setDragOffset(0);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+      setIsDragging(true);
+      setDragStart(e.touches[0].clientX);
+      e.preventDefault();
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+      if (!isDragging) return;
+      const diff = e.touches[0].clientX - dragStart;
+      setDragOffset(diff);
+    };
+
+    const handleTouchEnd = () => {
+      setIsDragging(false);
+      setDragOffset(0);
+    };
     
     return (
       <div className="absolute inset-x-0 top-8 z-50 overflow-hidden">
@@ -233,39 +273,23 @@ export default function NewConversation() {
           <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           
           {/* Scrolling container */}
-          <div className="flex animate-infinite-scroll">
-            {/* First set */}
-            {topTasks.map((task, index) => (
-              <div key={`set1-${task.id}-${index}`} className="flex-shrink-0 mr-6">
-                <div className="min-h-[140px] w-[280px] flex flex-col p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-medium text-card-foreground text-sm leading-tight flex-1 mr-2">{task.title}</h4>
-                    <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
-                      task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
-                      task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
-                      'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
-                    }`}>
-                      {task.priority}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
-                    {task.description.length > 100 ? `${task.description.substring(0, 100)}...` : task.description}
-                  </p>
-                  <div className="flex items-center justify-start mt-auto">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
-                      task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
-                    }`}>
-                      {task.status}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {/* Second set (identical) */}
-            {topTasks.map((task, index) => (
-              <div key={`set2-${task.id}-${index}`} className="flex-shrink-0 mr-6">
+          <div 
+            ref={containerRef}
+            className={`flex select-none cursor-grab ${isDragging ? 'cursor-grabbing animate-none' : 'animate-infinite-scroll'}`}
+            style={{ 
+              transform: isDragging ? `translateX(${dragOffset}px)` : undefined,
+              transition: isDragging ? 'none' : undefined
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {infiniteTasks.map((task, index) => (
+              <div key={`infinite-${task.id}-${index}`} className="flex-shrink-0 mr-6">
                 <div className="min-h-[140px] w-[280px] flex flex-col p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-medium text-card-foreground text-sm leading-tight flex-1 mr-2">{task.title}</h4>
