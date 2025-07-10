@@ -8,6 +8,8 @@ import { Bot, Send, User, Sparkles, ArrowUp, Mic, Paperclip, Plus, Settings2, Im
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchTaskTree } from '@/lib/unifiedTasks';
+import { TaskTreeNode } from '@/types/unifiedTask';
 import Markdown from 'markdown-to-jsx';
 
 interface Message {
@@ -171,37 +173,23 @@ export default function NewConversation() {
     adjustTextareaHeight();
   }, [input]);
 
-  // Sample task cards data
-  const taskCards = [
-    {
-      id: 1,
-      title: "Amazon Keyword Research",
-      description: "Research high-converting keywords for product listings",
-      priority: "High",
-      status: "In Progress"
-    },
-    {
-      id: 2,
-      title: "Competitor Analysis",
-      description: "Analyze top 5 competitors' pricing strategies",
-      priority: "Medium",
-      status: "To Do"
-    },
-    {
-      id: 3,
-      title: "Inventory Restock",
-      description: "Check low-stock items and create restock plan",
-      priority: "High",
-      status: "To Do"
-    },
-    {
-      id: 4,
-      title: "Review Response",
-      description: "Respond to recent customer reviews",
-      priority: "Low",
-      status: "Completed"
-    }
-  ];
+  // Real task data from database
+  const [taskCards, setTaskCards] = React.useState<TaskTreeNode[]>([]);
+  
+  React.useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const taskTree = await fetchTaskTree();
+        // Get only parent tasks (tasks without parent_id) for the scroller
+        const parentTasks = taskTree.filter(task => !task.parent_id);
+        setTaskCards(parentTasks);
+      } catch (error) {
+        console.error('Error loading tasks:', error);
+      }
+    };
+
+    loadTasks();
+  }, []);
 
   // Auto-scroll through tasks - REMOVED (using CSS animation now)
   // React.useEffect(() => {
@@ -231,9 +219,9 @@ export default function NewConversation() {
     const lastTimeRef = React.useRef<number>();
     
     // Create duplicates for infinite scroll
-    const topTasks = taskCards.slice(0, 5);
-    const infiniteTasks = Array(8).fill(topTasks).flat(); // 40 total tasks
-    const singleSetWidth = 5 * 304; // 5 tasks * (280px + 24px margin)
+    const topTasks = taskCards.slice(0, Math.min(10, taskCards.length));
+    const infiniteTasks = taskCards.length > 0 ? Array(8).fill(topTasks).flat() : [];
+    const singleSetWidth = Math.min(10, taskCards.length) * 304; // tasks * (280px + 24px margin)
     
     // Auto-scroll animation using JavaScript
     React.useEffect(() => {
@@ -330,28 +318,35 @@ export default function NewConversation() {
           >
             {infiniteTasks.map((task, index) => (
               <div key={`infinite-${task.id}-${index}`} className="flex-shrink-0 mr-6">
-                <div className="min-h-[140px] w-[280px] flex flex-col p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
+                <div className="min-h-[140px] w-[280px] flex flex-col p-4 bg-card rounded-lg border hover:shadow-md transition-shadow cursor-pointer">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-medium text-card-foreground text-sm leading-tight flex-1 mr-2">{task.title}</h4>
                     <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
-                      task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
-                      task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
-                      'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                      task.priority === 'CRITICAL' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
+                      task.priority === 'HIGH' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300' :
+                      task.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
+                      task.priority === 'LOW' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
+                      'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
                     }`}>
                       {task.priority}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
-                    {task.description.length > 100 ? `${task.description.substring(0, 100)}...` : task.description}
+                    {task.description && task.description.length > 100 ? `${task.description.substring(0, 100)}...` : task.description || 'No description'}
                   </p>
-                  <div className="flex items-center justify-start mt-auto">
+                  <div className="flex items-center justify-between mt-auto">
                     <span className={`text-xs px-2 py-1 rounded-full ${
-                      task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
-                      task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-green-300' :
+                      task.status === 'Done' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
+                      task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
                       'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
                     }`}>
                       {task.status}
                     </span>
+                    {task.children.length > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        {task.children.length} subtask{task.children.length !== 1 ? 's' : ''}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
