@@ -75,6 +75,7 @@ export default function NewConversation() {
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = React.useState<string[]>([]);
   const [showTaskCards, setShowTaskCards] = React.useState(false);
+  const [isTaskScrollPaused, setIsTaskScrollPaused] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -604,7 +605,7 @@ export default function NewConversation() {
     
     // Auto-scroll animation using JavaScript
     React.useEffect(() => {
-      if (isDragging || !showTaskCards) return;
+      if (isDragging || !showTaskCards || isTaskScrollPaused) return;
       
       const animate = (currentTime: number) => {
         if (!lastTimeRef.current) lastTimeRef.current = currentTime;
@@ -756,6 +757,8 @@ export default function NewConversation() {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyPress}
+                      onFocus={() => setIsTaskScrollPaused(true)}
+                      onBlur={() => setIsTaskScrollPaused(false)}
                       disabled={isLoading}
                       className="min-h-[24px] max-h-[120px] resize-none border-0 bg-transparent text-base leading-relaxed p-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground"
                       style={{ height: 'auto' }}
@@ -926,6 +929,8 @@ export default function NewConversation() {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyPress}
+                      onFocus={() => setIsTaskScrollPaused(true)}
+                      onBlur={() => setIsTaskScrollPaused(false)}
                       disabled={isLoading}
                       className="min-h-[20px] max-h-[120px] resize-none border-0 bg-transparent text-base leading-relaxed p-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground"
                       style={{ height: 'auto' }}
