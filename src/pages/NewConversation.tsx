@@ -224,45 +224,84 @@ export default function NewConversation() {
   const FloatingTaskCards = () => {
     const [isDragging, setIsDragging] = React.useState(false);
     const [dragStart, setDragStart] = React.useState(0);
-    const [dragOffset, setDragOffset] = React.useState(0);
+    const [currentPosition, setCurrentPosition] = React.useState(0);
+    const [animationOffset, setAnimationOffset] = React.useState(0);
     const containerRef = React.useRef<HTMLDivElement>(null);
     
     // Create many duplicates for truly infinite scroll
     const topTasks = taskCards.slice(0, 5);
     const infiniteTasks = Array(20).fill(topTasks).flat(); // 100 total tasks (20 sets of 5)
     
+    // Calculate single set width (5 tasks * 304px each)
+    const singleSetWidth = 5 * 304;
+    
     const handleMouseDown = (e: React.MouseEvent) => {
       setIsDragging(true);
       setDragStart(e.clientX);
+      
+      // Get current computed transform to maintain position
+      if (containerRef.current) {
+        const computedStyle = window.getComputedStyle(containerRef.current);
+        const matrix = computedStyle.transform;
+        if (matrix !== 'none') {
+          const values = matrix.split('(')[1].split(')')[0].split(',');
+          const translateX = parseFloat(values[4]) || 0;
+          setAnimationOffset(translateX);
+        }
+      }
       e.preventDefault();
     };
 
     const handleMouseMove = (e: React.MouseEvent) => {
       if (!isDragging) return;
       const diff = e.clientX - dragStart;
-      setDragOffset(diff);
+      setCurrentPosition(animationOffset + diff);
     };
 
     const handleMouseUp = () => {
+      if (!isDragging) return;
       setIsDragging(false);
-      setDragOffset(0);
+      
+      // Normalize position to prevent infinite scrolling in wrong direction
+      let finalPosition = currentPosition;
+      
+      // Wrap around if we've scrolled too far in either direction
+      while (finalPosition > 0) {
+        finalPosition -= singleSetWidth;
+      }
+      while (finalPosition < -singleSetWidth * 19) {
+        finalPosition += singleSetWidth;
+      }
+      
+      setCurrentPosition(finalPosition);
+      setAnimationOffset(finalPosition);
     };
 
     const handleTouchStart = (e: React.TouchEvent) => {
       setIsDragging(true);
       setDragStart(e.touches[0].clientX);
+      
+      // Get current computed transform
+      if (containerRef.current) {
+        const computedStyle = window.getComputedStyle(containerRef.current);
+        const matrix = computedStyle.transform;
+        if (matrix !== 'none') {
+          const values = matrix.split('(')[1].split(')')[0].split(',');
+          const translateX = parseFloat(values[4]) || 0;
+          setAnimationOffset(translateX);
+        }
+      }
       e.preventDefault();
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
       if (!isDragging) return;
       const diff = e.touches[0].clientX - dragStart;
-      setDragOffset(diff);
+      setCurrentPosition(animationOffset + diff);
     };
 
     const handleTouchEnd = () => {
-      setIsDragging(false);
-      setDragOffset(0);
+      handleMouseUp(); // Same logic as mouse up
     };
     
     return (
@@ -275,10 +314,10 @@ export default function NewConversation() {
           {/* Scrolling container */}
           <div 
             ref={containerRef}
-            className={`flex select-none cursor-grab ${isDragging ? 'cursor-grabbing animate-none' : 'animate-infinite-scroll'}`}
+            className={`flex select-none cursor-grab ${isDragging ? 'cursor-grabbing' : ''} ${isDragging ? '' : 'animate-infinite-scroll'}`}
             style={{ 
-              transform: isDragging ? `translateX(${dragOffset}px)` : undefined,
-              transition: isDragging ? 'none' : undefined
+              transform: isDragging ? `translate3d(${currentPosition}px, 0, 0)` : undefined,
+              transition: isDragging ? 'none' : 'transform 0.3s ease-out'
             }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -307,7 +346,7 @@ export default function NewConversation() {
                   <div className="flex items-center justify-start mt-auto">
                     <span className={`text-xs px-2 py-1 rounded-full ${
                       task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
-                      task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
+                      task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-green-300' :
                       'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
                     }`}>
                       {task.status}
