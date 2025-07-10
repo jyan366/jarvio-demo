@@ -223,23 +223,24 @@ export default function NewConversation() {
   }, [showTaskCards]);
 
   const FloatingTaskCards = () => {
-    // Create many duplicates for smooth infinite scroll
-    const duplicatedTasks = Array(10).fill(taskCards).flat();
+    // Only show 5 tasks and duplicate them for smooth infinite scroll
+    const topTasks = taskCards.slice(0, 5);
+    const duplicatedTasks = [...topTasks, ...topTasks, ...topTasks];
     
     return (
       <div className="absolute inset-x-0 top-8 z-50 overflow-hidden">
         <div className="relative w-full animate-fade-in">
           {/* Fade overlays */}
-          <div className="absolute left-0 top-0 w-20 h-[140px] bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 w-20 h-[140px] bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           
           {/* Scrolling container */}
           <div className="flex animate-scroll-left">
             {duplicatedTasks.map((task, index) => (
               <div key={`${task.id}-${index}`} className="flex-shrink-0 mr-6">
-                <div className="h-[140px] w-[280px] flex flex-col p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
+                <div className="min-h-[140px] w-[280px] flex flex-col p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-medium text-card-foreground text-sm leading-tight flex-1 mr-2 line-clamp-1">{task.title}</h4>
+                    <h4 className="font-medium text-card-foreground text-sm leading-tight flex-1 mr-2">{task.title}</h4>
                     <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
                       task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
                       task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
@@ -248,8 +249,10 @@ export default function NewConversation() {
                       {task.priority}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1 overflow-hidden">{task.description}</p>
-                  <div className="flex items-center justify-start">
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
+                    {task.description.length > 100 ? `${task.description.substring(0, 100)}...` : task.description}
+                  </p>
+                  <div className="flex items-center justify-start mt-auto">
                     <span className={`text-xs px-2 py-1 rounded-full ${
                       task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
                       task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
