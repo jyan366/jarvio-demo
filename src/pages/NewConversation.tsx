@@ -223,9 +223,9 @@ export default function NewConversation() {
   }, [showTaskCards]);
 
   const FloatingTaskCards = () => {
-    // Only show 5 tasks and duplicate them for smooth infinite scroll
+    // Create enough duplicates for seamless infinite scroll
     const topTasks = taskCards.slice(0, 5);
-    const duplicatedTasks = [...topTasks, ...topTasks, ...topTasks];
+    const duplicatedTasks = [...topTasks, ...topTasks]; // Only 2 sets for smooth 50% animation
     
     return (
       <div className="absolute inset-x-0 top-8 z-50 overflow-hidden">
