@@ -203,49 +203,34 @@ export default function NewConversation() {
   ];
 
   const FloatingTaskCards = () => (
-    <div className="absolute inset-x-0 top-0 z-50 flex justify-center pt-4 px-4">
-      <div className="bg-background/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg max-w-4xl w-full animate-fade-in">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-foreground">Your Tasks</h3>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setShowTaskCards(false)}
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            >
-              ×
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {taskCards.map((task) => (
-              <Card key={task.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer bg-card">
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <h4 className="font-medium text-card-foreground line-clamp-2">{task.title}</h4>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
-                      task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
-                      'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
-                    }`}>
-                      {task.priority}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
-                      task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
-                    }`}>
-                      {task.status}
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
+    <div className="absolute inset-x-0 top-8 z-50 flex justify-center px-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl w-full animate-fade-in">
+        {taskCards.map((task) => (
+          <Card key={task.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer bg-card">
+            <div className="space-y-3">
+              <div className="flex items-start justify-between">
+                <h4 className="font-medium text-card-foreground line-clamp-2">{task.title}</h4>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
+                  task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
+                  'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                }`}>
+                  {task.priority}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
+              <div className="flex items-center justify-between">
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
+                  task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
+                  'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
+                }`}>
+                  {task.status}
+                </span>
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );
