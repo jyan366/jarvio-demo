@@ -148,6 +148,20 @@
   }
 }
 
+/* Scroll left animation for task cards */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 60s linear infinite;
+}
+
 /* Flow Builder Input Field Styles */
 .auto-height-input {
   height: auto !important;
