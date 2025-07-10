@@ -596,7 +596,7 @@ export default function NewConversation() {
       <div className="flex-1 flex items-center justify-center px-6 pt-64 transition-all duration-700 ease-in-out">
             <div className="w-full max-w-2xl mx-auto transition-all duration-700 ease-in-out">
               <div className="text-center mb-12 transition-opacity duration-500">
-                <h1 className="text-4xl font-normal text-foreground">What are we cooking, Jake?</h1>
+                <h1 className="text-4xl font-normal text-foreground">What will we do today?</h1>
               </div>
               
               {/* Main Input - Centered for welcome state */}
