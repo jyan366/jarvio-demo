@@ -171,8 +171,8 @@ export default function NewConversation() {
     adjustTextareaHeight();
   }, [input]);
 
-  // Sample task cards data
-  const taskCards = [
+  // Amazon task cards data
+  const allTaskCards = [
     {
       id: 1,
       title: "Amazon Keyword Research",
@@ -200,8 +200,374 @@ export default function NewConversation() {
       description: "Respond to recent customer reviews",
       priority: "Low",
       status: "Completed"
+    },
+    {
+      id: 5,
+      title: "PPC Campaign Optimization",
+      description: "Optimize Amazon advertising campaigns for better ROI",
+      priority: "High",
+      status: "In Progress"
+    },
+    {
+      id: 6,
+      title: "Product Image Enhancement",
+      description: "Update main product images for better conversion",
+      priority: "Medium",
+      status: "To Do"
+    },
+    {
+      id: 7,
+      title: "A+ Content Creation",
+      description: "Design enhanced brand content for product pages",
+      priority: "Medium",
+      status: "In Progress"
+    },
+    {
+      id: 8,
+      title: "Pricing Strategy Review",
+      description: "Analyze and adjust product pricing for competitiveness",
+      priority: "High",
+      status: "To Do"
+    },
+    {
+      id: 9,
+      title: "Brand Registry Setup",
+      description: "Complete Amazon Brand Registry application process",
+      priority: "Low",
+      status: "Completed"
+    },
+    {
+      id: 10,
+      title: "International Marketplace Expansion",
+      description: "Research and launch products in EU marketplaces",
+      priority: "Medium",
+      status: "To Do"
+    },
+    {
+      id: 11,
+      title: "FBA Shipment Planning",
+      description: "Plan and schedule next inventory shipment to Amazon",
+      priority: "High",
+      status: "In Progress"
+    },
+    {
+      id: 12,
+      title: "Customer Service Automation",
+      description: "Set up automated responses for common customer queries",
+      priority: "Low",
+      status: "To Do"
+    },
+    {
+      id: 13,
+      title: "Product Bundle Creation",
+      description: "Create profitable product bundles to increase AOV",
+      priority: "Medium",
+      status: "In Progress"
+    },
+    {
+      id: 14,
+      title: "Negative Review Management",
+      description: "Address and resolve recent negative product reviews",
+      priority: "High",
+      status: "To Do"
+    },
+    {
+      id: 15,
+      title: "Backend Search Terms Optimization",
+      description: "Update hidden keywords for better search visibility",
+      priority: "Medium",
+      status: "Completed"
+    },
+    {
+      id: 16,
+      title: "Seasonal Product Preparation",
+      description: "Prepare holiday season product listings and inventory",
+      priority: "High",
+      status: "In Progress"
+    },
+    {
+      id: 17,
+      title: "Return Policy Optimization",
+      description: "Review and optimize product return policies",
+      priority: "Low",
+      status: "To Do"
+    },
+    {
+      id: 18,
+      title: "Amazon Storefront Design",
+      description: "Create branded storefront with enhanced navigation",
+      priority: "Medium",
+      status: "In Progress"
+    },
+    {
+      id: 19,
+      title: "Lightning Deal Application",
+      description: "Apply for upcoming lightning deals on bestsellers",
+      priority: "High",
+      status: "To Do"
+    },
+    {
+      id: 20,
+      title: "Inventory Forecasting",
+      description: "Forecast demand and plan inventory for next quarter",
+      priority: "Medium",
+      status: "Completed"
+    },
+    {
+      id: 21,
+      title: "Category Ungating Request",
+      description: "Submit ungating request for restricted categories",
+      priority: "Low",
+      status: "In Progress"
+    },
+    {
+      id: 22,
+      title: "Product Variation Expansion",
+      description: "Add new color and size variations to existing products",
+      priority: "Medium",
+      status: "To Do"
+    },
+    {
+      id: 23,
+      title: "Tax Compliance Review",
+      description: "Review tax settings for all marketplace jurisdictions",
+      priority: "High",
+      status: "To Do"
+    },
+    {
+      id: 24,
+      title: "Vine Program Enrollment",
+      description: "Enroll eligible products in Amazon Vine program",
+      priority: "Low",
+      status: "Completed"
+    },
+    {
+      id: 25,
+      title: "Brand Analytics Review",
+      description: "Analyze brand performance metrics and search terms",
+      priority: "Medium",
+      status: "In Progress"
+    },
+    {
+      id: 26,
+      title: "Product Launch Strategy",
+      description: "Develop comprehensive launch plan for new product line",
+      priority: "High",
+      status: "To Do"
+    },
+    {
+      id: 27,
+      title: "Amazon Posts Content",
+      description: "Create engaging Amazon Posts for brand awareness",
+      priority: "Low",
+      status: "In Progress"
+    },
+    {
+      id: 28,
+      title: "Subscribe & Save Optimization",
+      description: "Optimize products for Subscribe & Save program",
+      priority: "Medium",
+      status: "To Do"
+    },
+    {
+      id: 29,
+      title: "ASIN Consolidation",
+      description: "Consolidate duplicate ASINs and variations",
+      priority: "High",
+      status: "Completed"
+    },
+    {
+      id: 30,
+      title: "DSP Campaign Setup",
+      description: "Launch Amazon DSP advertising campaigns",
+      priority: "Medium",
+      status: "In Progress"
+    },
+    {
+      id: 31,
+      title: "Product Video Creation",
+      description: "Produce high-quality product demonstration videos",
+      priority: "Low",
+      status: "To Do"
+    },
+    {
+      id: 32,
+      title: "Early Reviewer Program",
+      description: "Enroll new products in Early Reviewer Program",
+      priority: "Medium",
+      status: "In Progress"
+    },
+    {
+      id: 33,
+      title: "Amazon Fresh Eligibility",
+      description: "Apply for Amazon Fresh marketplace eligibility",
+      priority: "High",
+      status: "To Do"
+    },
+    {
+      id: 34,
+      title: "Product Compliance Audit",
+      description: "Audit all products for Amazon policy compliance",
+      priority: "Medium",
+      status: "Completed"
+    },
+    {
+      id: 35,
+      title: "Cross-Border Trade Setup",
+      description: "Set up cross-border trade for international sales",
+      priority: "Low",
+      status: "In Progress"
+    },
+    {
+      id: 36,
+      title: "Amazon Business Registration",
+      description: "Register for Amazon Business seller program",
+      priority: "Medium",
+      status: "To Do"
+    },
+    {
+      id: 37,
+      title: "Product Recall Management",
+      description: "Manage product recall process and notifications",
+      priority: "High",
+      status: "Completed"
+    },
+    {
+      id: 38,
+      title: "Brand Protection Monitoring",
+      description: "Monitor and report brand protection violations",
+      priority: "Medium",
+      status: "In Progress"
+    },
+    {
+      id: 39,
+      title: "Amazon Launchpad Application",
+      description: "Apply for Amazon Launchpad startup program",
+      priority: "Low",
+      status: "To Do"
+    },
+    {
+      id: 40,
+      title: "Multi-Channel Fulfillment",
+      description: "Set up MCF for other sales channel fulfillment",
+      priority: "Medium",
+      status: "In Progress"
+    },
+    {
+      id: 41,
+      title: "Amazon Handmade Setup",
+      description: "Set up Amazon Handmade store for artisan products",
+      priority: "High",
+      status: "To Do"
+    },
+    {
+      id: 42,
+      title: "Product Photography Audit",
+      description: "Audit and update all product photography standards",
+      priority: "Medium",
+      status: "Completed"
+    },
+    {
+      id: 43,
+      title: "Amazon Live Streaming",
+      description: "Plan and execute Amazon Live streaming events",
+      priority: "Low",
+      status: "In Progress"
+    },
+    {
+      id: 44,
+      title: "Seller University Training",
+      description: "Complete advanced Amazon Seller University courses",
+      priority: "Medium",
+      status: "To Do"
+    },
+    {
+      id: 45,
+      title: "Climate Pledge Certification",
+      description: "Apply for Climate Pledge Friendly certification",
+      priority: "High",
+      status: "In Progress"
+    },
+    {
+      id: 46,
+      title: "Amazon Affiliate Program",
+      description: "Set up Amazon Associates affiliate program",
+      priority: "Low",
+      status: "To Do"
+    },
+    {
+      id: 47,
+      title: "Product Recall Insurance",
+      description: "Review and update product liability insurance",
+      priority: "Medium",
+      status: "Completed"
+    },
+    {
+      id: 48,
+      title: "Amazon Transparency Setup",
+      description: "Implement Amazon Transparency anti-counterfeiting",
+      priority: "High",
+      status: "In Progress"
+    },
+    {
+      id: 49,
+      title: "Voice Shopping Optimization",
+      description: "Optimize products for Alexa voice shopping",
+      priority: "Medium",
+      status: "To Do"
+    },
+    {
+      id: 50,
+      title: "Amazon Prime Day Prep",
+      description: "Prepare promotional strategy for Prime Day event",
+      priority: "High",
+      status: "In Progress"
+    },
+    {
+      id: 51,
+      title: "Fulfillment Network Analysis",
+      description: "Analyze fulfillment network performance and costs",
+      priority: "Low",
+      status: "To Do"
+    },
+    {
+      id: 52,
+      title: "Amazon Flex Integration",
+      description: "Integrate with Amazon Flex for last-mile delivery",
+      priority: "Medium",
+      status: "Completed"
+    },
+    {
+      id: 53,
+      title: "Product Bundling Strategy",
+      description: "Develop strategic product bundling for higher margins",
+      priority: "High",
+      status: "In Progress"
+    },
+    {
+      id: 54,
+      title: "Amazon Influencer Outreach",
+      description: "Connect with Amazon influencers for product promotion",
+      priority: "Medium",
+      status: "To Do"
     }
   ];
+
+  // Filter task cards based on input
+  const [filteredTaskCards, setFilteredTaskCards] = React.useState(allTaskCards);
+
+  // Handle task filtering
+  React.useEffect(() => {
+    if (input.trim().length > 0) {
+      const filtered = allTaskCards.filter(task =>
+        task.title.toLowerCase().includes(input.toLowerCase()) ||
+        task.description.toLowerCase().includes(input.toLowerCase())
+      );
+      setFilteredTaskCards(filtered);
+    } else {
+      setFilteredTaskCards(allTaskCards);
+    }
+  }, [input]);
 
   // Auto-scroll through tasks - REMOVED (using CSS animation now)
   // React.useEffect(() => {
@@ -230,10 +596,11 @@ export default function NewConversation() {
     const animationRef = React.useRef<number>();
     const lastTimeRef = React.useRef<number>();
     
-    // Create duplicates for infinite scroll
-    const topTasks = taskCards.slice(0, 5);
-    const infiniteTasks = Array(8).fill(topTasks).flat(); // 40 total tasks
-    const singleSetWidth = 5 * 304; // 5 tasks * (280px + 24px margin)
+    // Create duplicates for infinite scroll with filtering
+    const tasksToShow = filteredTaskCards.length > 0 ? filteredTaskCards : allTaskCards;
+    const displayTasks = tasksToShow.slice(0, Math.min(20, tasksToShow.length)); // Show up to 20 tasks
+    const infiniteTasks = Array(Math.ceil(40 / displayTasks.length)).fill(displayTasks).flat().slice(0, 40);
+    const singleSetWidth = displayTasks.length * 304; // tasks * (280px + 24px margin)
     
     // Auto-scroll animation using JavaScript
     React.useEffect(() => {
