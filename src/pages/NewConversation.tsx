@@ -601,6 +601,11 @@ export default function NewConversation() {
     const tasksToShow = filteredTaskCards.length > 0 ? filteredTaskCards : allTaskCards;
     const isFiltering = input.trim().length > 0;
     
+    // Hide component if filtering and no results
+    if (isFiltering && filteredTaskCards.length === 0) {
+      return null;
+    }
+    
     // When filtering, show only unique results. When not filtering, duplicate for infinite scroll
     const infiniteTasks = isFiltering 
       ? tasksToShow 
