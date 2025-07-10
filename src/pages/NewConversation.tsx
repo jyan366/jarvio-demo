@@ -599,9 +599,16 @@ export default function NewConversation() {
     
     // Create duplicates for infinite scroll with filtering
     const tasksToShow = filteredTaskCards.length > 0 ? filteredTaskCards : allTaskCards;
-    const displayTasks = tasksToShow.slice(0, Math.min(20, tasksToShow.length)); // Show up to 20 tasks
-    const infiniteTasks = Array(Math.ceil(40 / displayTasks.length)).fill(displayTasks).flat().slice(0, 40);
-    const singleSetWidth = displayTasks.length * 304; // tasks * (280px + 24px margin)
+    const isFiltering = input.trim().length > 0;
+    
+    // When filtering, show only unique results. When not filtering, duplicate for infinite scroll
+    const infiniteTasks = isFiltering 
+      ? tasksToShow 
+      : Array(Math.ceil(40 / Math.min(20, tasksToShow.length))).fill(tasksToShow.slice(0, 20)).flat().slice(0, 40);
+    
+    const singleSetWidth = isFiltering 
+      ? tasksToShow.length * 304 
+      : Math.min(20, tasksToShow.length) * 304;
     
     // Auto-scroll animation using JavaScript
     React.useEffect(() => {
