@@ -148,18 +148,19 @@
   }
 }
 
-/* Scroll left animation for task cards */
-@keyframes scroll-left {
+/* Infinite scroll animation for task cards */
+@keyframes infinite-scroll {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translate3d(-1520px, 0, 0); /* 5 tasks * (280px + 24px margin) = 1520px */
   }
 }
 
-.animate-scroll-left {
-  animation: scroll-left 30s linear infinite;
+.animate-infinite-scroll {
+  animation: infinite-scroll 25s linear infinite;
+  will-change: transform;
 }
 
 /* Flow Builder Input Field Styles */
