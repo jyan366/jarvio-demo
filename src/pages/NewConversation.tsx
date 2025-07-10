@@ -235,11 +235,11 @@ export default function NewConversation() {
       return () => clearInterval(interval);
     }, [carouselApi, showTaskCards]);
     
-    // Create duplicated tasks for infinite scroll effect
-    const duplicatedTasks = [...taskCards, ...taskCards, ...taskCards];
+    // Create many duplicates for smooth infinite scroll
+    const duplicatedTasks = Array(10).fill(taskCards).flat();
     
     return (
-      <div className="absolute inset-x-0 top-8 z-50 px-6">
+      <div className="absolute inset-x-0 top-8 z-50 overflow-hidden">
         <div className="w-full animate-fade-in">
           <Carousel
             setApi={setCarouselApi}
@@ -247,16 +247,16 @@ export default function NewConversation() {
               align: "start",
               loop: true,
               skipSnaps: false,
-              dragFree: true,
+              dragFree: false,
             }}
             className="w-full"
           >
             <CarouselContent className="-ml-4">
               {duplicatedTasks.map((task, index) => (
-                <CarouselItem key={`${task.id}-${index}`} className="pl-4 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
-                  <div className="space-y-3 p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between">
-                      <h4 className="font-medium text-card-foreground line-clamp-2">{task.title}</h4>
+                <CarouselItem key={`${task.id}-${index}`} className="pl-4 basis-[280px] flex-shrink-0">
+                  <div className="h-[140px] w-[280px] flex flex-col justify-between p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-3">
+                      <h4 className="font-medium text-card-foreground text-sm leading-tight line-clamp-2 flex-1 mr-2">{task.title}</h4>
                       <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
                         task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
                         task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
@@ -265,8 +265,8 @@ export default function NewConversation() {
                         {task.priority}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
-                    <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground line-clamp-2 flex-1">{task.description}</p>
+                    <div className="flex items-center justify-start mt-3">
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
                         task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
