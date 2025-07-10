@@ -163,6 +163,10 @@
   will-change: transform;
 }
 
+.animate-infinite-scroll:hover {
+  animation-play-state: paused;
+}
+
 /* Flow Builder Input Field Styles */
 .auto-height-input {
   height: auto !important;
