@@ -235,24 +235,29 @@ export default function NewConversation() {
       return () => clearInterval(interval);
     }, [carouselApi, showTaskCards]);
     
+    // Create duplicated tasks for infinite scroll effect
+    const duplicatedTasks = [...taskCards, ...taskCards, ...taskCards];
+    
     return (
-      <div className="absolute inset-x-0 top-8 z-50 flex justify-center px-6">
-        <div className="max-w-4xl w-full animate-fade-in">
+      <div className="absolute inset-x-0 top-8 z-50 px-6">
+        <div className="w-full animate-fade-in">
           <Carousel
             setApi={setCarouselApi}
             opts={{
               align: "start",
               loop: true,
+              skipSnaps: false,
+              dragFree: true,
             }}
             className="w-full"
           >
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {taskCards.map((task) => (
-                <CarouselItem key={task.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
-                  <div className="space-y-3 p-4 bg-card rounded-lg border">
+            <CarouselContent className="-ml-4">
+              {duplicatedTasks.map((task, index) => (
+                <CarouselItem key={`${task.id}-${index}`} className="pl-4 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
+                  <div className="space-y-3 p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                       <h4 className="font-medium text-card-foreground line-clamp-2">{task.title}</h4>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
+                      <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
                         task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
                         task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
                         'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
