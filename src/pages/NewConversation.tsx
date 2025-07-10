@@ -688,9 +688,13 @@ export default function NewConversation() {
     return (
       <div className="absolute inset-x-0 top-8 z-50 overflow-hidden">
         <div className="relative w-full animate-fade-in">
-          {/* Fade overlays */}
-          <div className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          {/* Fade overlays - hidden when chat is focused */}
+          {!isTaskScrollPaused && (
+            <>
+              <div className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+            </>
+          )}
           
           {/* Scrolling container */}
           <div 
