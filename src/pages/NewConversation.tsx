@@ -73,6 +73,7 @@ export default function NewConversation() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = React.useState<string[]>([]);
+  const [showTaskCards, setShowTaskCards] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -169,9 +170,91 @@ export default function NewConversation() {
     adjustTextareaHeight();
   }, [input]);
 
+  // Sample task cards data
+  const taskCards = [
+    {
+      id: 1,
+      title: "Amazon Keyword Research",
+      description: "Research high-converting keywords for product listings",
+      priority: "High",
+      status: "In Progress"
+    },
+    {
+      id: 2,
+      title: "Competitor Analysis",
+      description: "Analyze top 5 competitors' pricing strategies",
+      priority: "Medium",
+      status: "To Do"
+    },
+    {
+      id: 3,
+      title: "Inventory Restock",
+      description: "Check low-stock items and create restock plan",
+      priority: "High",
+      status: "To Do"
+    },
+    {
+      id: 4,
+      title: "Review Response",
+      description: "Respond to recent customer reviews",
+      priority: "Low",
+      status: "Completed"
+    }
+  ];
+
+  const FloatingTaskCards = () => (
+    <div className="absolute inset-x-0 top-0 z-50 flex justify-center pt-4 px-4">
+      <div className="bg-background/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg max-w-4xl w-full animate-fade-in">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Your Tasks</h3>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setShowTaskCards(false)}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            >
+              ×
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {taskCards.map((task) => (
+              <Card key={task.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer bg-card">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <h4 className="font-medium text-card-foreground line-clamp-2">{task.title}</h4>
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
+                      task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
+                      'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                    }`}>
+                      {task.priority}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
+                      task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
+                      'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
+                    }`}>
+                      {task.status}
+                    </span>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <MainLayout>
-      <div className="h-full flex flex-col bg-background -my-6 -mx-6">
+      <div className="h-full flex flex-col bg-background -my-6 -mx-6 relative">
+        {/* Floating Task Cards */}
+        {showTaskCards && <FloatingTaskCards />}
         
         {messages.length === 0 ? (
           /* Welcome Screen with Centered Input */
@@ -211,7 +294,12 @@ export default function NewConversation() {
                         <Settings2 className="h-3.5 w-3.5 mr-1" />
                         <span className="text-sm">Tools</span>
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 px-2 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowTaskCards(!showTaskCards)}
+                      >
                         <CheckSquare className="h-3.5 w-3.5 mr-1" />
                         <span className="text-sm">Tasks</span>
                       </Button>
@@ -376,7 +464,12 @@ export default function NewConversation() {
                         <Settings2 className="h-3 w-3 mr-1" />
                         <span className="text-xs">Tools</span>
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-6 px-2 text-muted-foreground hover:text-foreground">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 px-2 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowTaskCards(!showTaskCards)}
+                      >
                         <CheckSquare className="h-3 w-3 mr-1" />
                         <span className="text-xs">Tasks</span>
                       </Button>
