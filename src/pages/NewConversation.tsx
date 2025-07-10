@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Bot, Send, User, Sparkles, ArrowUp, Mic, Paperclip, Plus, Settings2, Image, Globe, Code, Search, CheckSquare } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import Markdown from 'markdown-to-jsx';
@@ -222,45 +223,58 @@ export default function NewConversation() {
   }, [showTaskCards]);
 
   const FloatingTaskCards = () => {
-    const currentTask = taskCards[currentTaskIndex];
+    const [carouselApi, setCarouselApi] = React.useState<any>();
+    
+    React.useEffect(() => {
+      if (!carouselApi || !showTaskCards) return;
+
+      const interval = setInterval(() => {
+        carouselApi.scrollNext();
+      }, 2000);
+
+      return () => clearInterval(interval);
+    }, [carouselApi, showTaskCards]);
     
     return (
       <div className="absolute inset-x-0 top-8 z-50 flex justify-center px-6">
-        <div className="max-w-md w-full animate-fade-in">
-          <Card key={currentTask.id} className="p-4 bg-card transition-all duration-500 transform">
-            <div className="space-y-3">
-              <div className="flex items-start justify-between">
-                <h4 className="font-medium text-card-foreground line-clamp-2">{currentTask.title}</h4>
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  currentTask.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
-                  currentTask.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
-                  'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
-                }`}>
-                  {currentTask.priority}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground line-clamp-2">{currentTask.description}</p>
-              <div className="flex items-center justify-between">
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  currentTask.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
-                  currentTask.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
-                  'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
-                }`}>
-                  {currentTask.status}
-                </span>
-                <div className="flex gap-1">
-                  {taskCards.map((_, index) => (
-                    <div
-                      key={index}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        index === currentTaskIndex ? 'bg-primary' : 'bg-muted'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
+        <div className="max-w-4xl w-full animate-fade-in">
+          <Carousel
+            setApi={setCarouselApi}
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {taskCards.map((task) => (
+                <CarouselItem key={task.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                  <div className="space-y-3 p-4 bg-card rounded-lg border">
+                    <div className="flex items-start justify-between">
+                      <h4 className="font-medium text-card-foreground line-clamp-2">{task.title}</h4>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
+                        task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
+                        'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                      }`}>
+                        {task.priority}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
+                        task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
+                        'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
+                      }`}>
+                        {task.status}
+                      </span>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
         </div>
       </div>
     );
