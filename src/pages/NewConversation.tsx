@@ -606,13 +606,13 @@ export default function NewConversation() {
       return null;
     }
     
-    // When filtering, show only unique results. When not filtering, duplicate for infinite scroll
+    // When filtering, show only unique results limited to 4 cards. When not filtering, duplicate for infinite scroll
     const infiniteTasks = isFiltering 
-      ? tasksToShow 
+      ? tasksToShow.slice(0, 4) // Limit to 4 cards when filtering
       : Array(Math.ceil(40 / Math.min(20, tasksToShow.length))).fill(tasksToShow.slice(0, 20)).flat().slice(0, 40);
     
     const singleSetWidth = isFiltering 
-      ? tasksToShow.length * 304 
+      ? Math.min(tasksToShow.length, 4) * 304 
       : Math.min(20, tasksToShow.length) * 304;
     
     // Auto-scroll animation using JavaScript
