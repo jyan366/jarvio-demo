@@ -75,7 +75,6 @@ export default function NewConversation() {
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = React.useState<string[]>([]);
   const [showTaskCards, setShowTaskCards] = React.useState(false);
-  const [currentTaskIndex, setCurrentTaskIndex] = React.useState(0);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -204,23 +203,23 @@ export default function NewConversation() {
     }
   ];
 
-  // Auto-scroll through tasks
-  React.useEffect(() => {
-    if (!showTaskCards) return;
+  // Auto-scroll through tasks - REMOVED (using CSS animation now)
+  // React.useEffect(() => {
+  //   if (!showTaskCards) return;
 
-    const interval = setInterval(() => {
-      setCurrentTaskIndex((prev) => (prev + 1) % taskCards.length);
-    }, 2000); // Change task every 2 seconds
+  //   const interval = setInterval(() => {
+  //     setCurrentTaskIndex((prev) => (prev + 1) % taskCards.length);
+  //   }, 2000); // Change task every 2 seconds
 
-    return () => clearInterval(interval);
-  }, [showTaskCards, taskCards.length]);
+  //   return () => clearInterval(interval);
+  // }, [showTaskCards, taskCards.length]);
 
-  // Reset task index when showing/hiding tasks
-  React.useEffect(() => {
-    if (showTaskCards) {
-      setCurrentTaskIndex(0);
-    }
-  }, [showTaskCards]);
+  // Reset task index when showing/hiding tasks - REMOVED
+  // React.useEffect(() => {
+  //   if (showTaskCards) {
+  //     setCurrentTaskIndex(0);
+  //   }
+  // }, [showTaskCards]);
 
   const FloatingTaskCards = () => {
     // Create enough duplicates for seamless infinite scroll
