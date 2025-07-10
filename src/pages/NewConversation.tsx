@@ -690,9 +690,13 @@ export default function NewConversation() {
           {/* Scrolling container */}
           <div 
             ref={containerRef}
-            className={`flex select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+            className={`flex select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} ${
+              isFiltering && tasksToShow.length <= 3 ? 'justify-center' : ''
+            }`}
             style={{ 
-              transform: `translate3d(${position}px, 0, 0)`,
+              transform: isFiltering && tasksToShow.length <= 3 
+                ? 'none' 
+                : `translate3d(${position}px, 0, 0)`,
               transition: 'none' // No CSS transitions, pure JS control
             }}
             onMouseDown={handleMouseDown}
