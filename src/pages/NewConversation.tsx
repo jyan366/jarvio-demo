@@ -560,30 +560,59 @@ export default function NewConversation() {
               <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
             </>}
           
-          {/* Scrolling container */}
-          <div ref={containerRef} className={`flex select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} ${isInputFocused || isFiltering ? 'justify-center' : ''}`} style={{
-          transform: isInputFocused || isFiltering ? 'none' : `translate3d(${position}px, 0, 0)`,
-          transition: 'none' // No CSS transitions, pure JS control
-        }} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-            {infiniteTasks.map((task, index) => <div key={`infinite-${task.id}-${index}`} className="flex-shrink-0 mr-6">
-                <div className="min-h-[140px] w-[280px] flex flex-col p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-medium text-card-foreground text-sm leading-tight flex-1 mr-2">{task.title}</h4>
-                    <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' : task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'}`}>
-                      {task.priority}
-                    </span>
+          {/* Dynamic container - scrolling or grid */}
+          {isTaskScrollPaused || isFiltering ? (
+            /* Grid layout when focused/filtering */
+            <div className="max-w-4xl mx-auto px-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {tasksToShow.slice(0, 4).map((task) => (
+                  <div key={`grid-${task.id}`} className="min-h-[140px] flex flex-col p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-medium text-card-foreground text-sm leading-tight flex-1 mr-2">{task.title}</h4>
+                      <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' : task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'}`}>
+                        {task.priority}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
+                      {task.description.length > 100 ? `${task.description.substring(0, 100)}...` : task.description}
+                    </p>
+                    <div className="flex items-center justify-start mt-auto">
+                      <span className={`text-xs px-2 py-1 rounded-full ${task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' : task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'}`}>
+                        {task.status}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
-                    {task.description.length > 100 ? `${task.description.substring(0, 100)}...` : task.description}
-                  </p>
-                  <div className="flex items-center justify-start mt-auto">
-                    <span className={`text-xs px-2 py-1 rounded-full ${task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' : task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'}`}>
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* Scrolling container */
+            <div ref={containerRef} className={`flex select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`} style={{
+            transform: `translate3d(${position}px, 0, 0)`,
+            transition: 'none' // No CSS transitions, pure JS control
+          }} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+              {infiniteTasks.map((task, index) => (
+                <div key={`infinite-${task.id}-${index}`} className="flex-shrink-0 mr-6">
+                  <div className="min-h-[140px] w-[280px] flex flex-col p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-medium text-card-foreground text-sm leading-tight flex-1 mr-2">{task.title}</h4>
+                      <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' : task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'}`}>
+                        {task.priority}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
+                      {task.description.length > 100 ? `${task.description.substring(0, 100)}...` : task.description}
+                    </p>
+                    <div className="flex items-center justify-start mt-auto">
+                      <span className={`text-xs px-2 py-1 rounded-full ${task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' : task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'}`}>
                       {task.status}
                     </span>
+                    </div>
                   </div>
                 </div>
-              </div>)}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>;
   };
