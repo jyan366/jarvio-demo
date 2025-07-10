@@ -74,6 +74,7 @@ export default function NewConversation() {
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = React.useState<string[]>([]);
   const [showTaskCards, setShowTaskCards] = React.useState(false);
+  const [currentTaskIndex, setCurrentTaskIndex] = React.useState(0);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -202,38 +203,68 @@ export default function NewConversation() {
     }
   ];
 
-  const FloatingTaskCards = () => (
-    <div className="absolute inset-x-0 top-8 z-50 flex justify-center px-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl w-full animate-fade-in">
-        {taskCards.map((task) => (
-          <Card key={task.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer bg-card">
+  // Auto-scroll through tasks
+  React.useEffect(() => {
+    if (!showTaskCards) return;
+
+    const interval = setInterval(() => {
+      setCurrentTaskIndex((prev) => (prev + 1) % taskCards.length);
+    }, 2000); // Change task every 2 seconds
+
+    return () => clearInterval(interval);
+  }, [showTaskCards, taskCards.length]);
+
+  // Reset task index when showing/hiding tasks
+  React.useEffect(() => {
+    if (showTaskCards) {
+      setCurrentTaskIndex(0);
+    }
+  }, [showTaskCards]);
+
+  const FloatingTaskCards = () => {
+    const currentTask = taskCards[currentTaskIndex];
+    
+    return (
+      <div className="absolute inset-x-0 top-8 z-50 flex justify-center px-6">
+        <div className="max-w-md w-full animate-fade-in">
+          <Card key={currentTask.id} className="p-4 bg-card transition-all duration-500 transform">
             <div className="space-y-3">
               <div className="flex items-start justify-between">
-                <h4 className="font-medium text-card-foreground line-clamp-2">{task.title}</h4>
+                <h4 className="font-medium text-card-foreground line-clamp-2">{currentTask.title}</h4>
                 <span className={`text-xs px-2 py-1 rounded-full ${
-                  task.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
-                  task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
+                  currentTask.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
+                  currentTask.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
                   'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
                 }`}>
-                  {task.priority}
+                  {currentTask.priority}
                 </span>
               </div>
-              <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
+              <p className="text-sm text-muted-foreground line-clamp-2">{currentTask.description}</p>
               <div className="flex items-center justify-between">
                 <span className={`text-xs px-2 py-1 rounded-full ${
-                  task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
-                  task.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
+                  currentTask.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
+                  currentTask.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
                   'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
                 }`}>
-                  {task.status}
+                  {currentTask.status}
                 </span>
+                <div className="flex gap-1">
+                  {taskCards.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentTaskIndex ? 'bg-primary' : 'bg-muted'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </Card>
-        ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <MainLayout>
