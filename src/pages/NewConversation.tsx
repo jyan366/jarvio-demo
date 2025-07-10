@@ -223,85 +223,86 @@ export default function NewConversation() {
 
   const FloatingTaskCards = () => {
     const [isDragging, setIsDragging] = React.useState(false);
+    const [position, setPosition] = React.useState(0);
     const [dragStart, setDragStart] = React.useState(0);
-    const [currentPosition, setCurrentPosition] = React.useState(0);
-    const [animationOffset, setAnimationOffset] = React.useState(0);
+    const [dragStartPosition, setDragStartPosition] = React.useState(0);
     const containerRef = React.useRef<HTMLDivElement>(null);
+    const animationRef = React.useRef<number>();
+    const lastTimeRef = React.useRef<number>();
     
-    // Create many duplicates for truly infinite scroll
+    // Create duplicates for infinite scroll
     const topTasks = taskCards.slice(0, 5);
-    const infiniteTasks = Array(20).fill(topTasks).flat(); // 100 total tasks (20 sets of 5)
+    const infiniteTasks = Array(8).fill(topTasks).flat(); // 40 total tasks
+    const singleSetWidth = 5 * 304; // 5 tasks * (280px + 24px margin)
     
-    // Calculate single set width (5 tasks * 304px each)
-    const singleSetWidth = 5 * 304;
+    // Auto-scroll animation using JavaScript
+    React.useEffect(() => {
+      if (isDragging || !showTaskCards) return;
+      
+      const animate = (currentTime: number) => {
+        if (!lastTimeRef.current) lastTimeRef.current = currentTime;
+        
+        const deltaTime = currentTime - lastTimeRef.current;
+        const speed = 30; // pixels per second
+        
+        setPosition(prev => {
+          let newPos = prev - (speed * deltaTime / 1000);
+          
+          // Reset when we've scrolled one complete set
+          if (newPos <= -singleSetWidth) {
+            newPos += singleSetWidth;
+          }
+          
+          return newPos;
+        });
+        
+        lastTimeRef.current = currentTime;
+        animationRef.current = requestAnimationFrame(animate);
+      };
+      
+      animationRef.current = requestAnimationFrame(animate);
+      
+      return () => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
+      };
+    }, [isDragging, showTaskCards, singleSetWidth]);
     
     const handleMouseDown = (e: React.MouseEvent) => {
       setIsDragging(true);
       setDragStart(e.clientX);
-      
-      // Get current computed transform to maintain position
-      if (containerRef.current) {
-        const computedStyle = window.getComputedStyle(containerRef.current);
-        const matrix = computedStyle.transform;
-        if (matrix !== 'none') {
-          const values = matrix.split('(')[1].split(')')[0].split(',');
-          const translateX = parseFloat(values[4]) || 0;
-          setAnimationOffset(translateX);
-        }
-      }
+      setDragStartPosition(position);
       e.preventDefault();
     };
 
     const handleMouseMove = (e: React.MouseEvent) => {
       if (!isDragging) return;
       const diff = e.clientX - dragStart;
-      setCurrentPosition(animationOffset + diff);
+      setPosition(dragStartPosition + diff);
     };
 
     const handleMouseUp = () => {
       if (!isDragging) return;
       setIsDragging(false);
-      
-      // Normalize position to prevent infinite scrolling in wrong direction
-      let finalPosition = currentPosition;
-      
-      // Wrap around if we've scrolled too far in either direction
-      while (finalPosition > 0) {
-        finalPosition -= singleSetWidth;
-      }
-      while (finalPosition < -singleSetWidth * 19) {
-        finalPosition += singleSetWidth;
-      }
-      
-      setCurrentPosition(finalPosition);
-      setAnimationOffset(finalPosition);
+      lastTimeRef.current = undefined; // Reset animation timer
     };
 
     const handleTouchStart = (e: React.TouchEvent) => {
       setIsDragging(true);
       setDragStart(e.touches[0].clientX);
-      
-      // Get current computed transform
-      if (containerRef.current) {
-        const computedStyle = window.getComputedStyle(containerRef.current);
-        const matrix = computedStyle.transform;
-        if (matrix !== 'none') {
-          const values = matrix.split('(')[1].split(')')[0].split(',');
-          const translateX = parseFloat(values[4]) || 0;
-          setAnimationOffset(translateX);
-        }
-      }
+      setDragStartPosition(position);
       e.preventDefault();
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
       if (!isDragging) return;
       const diff = e.touches[0].clientX - dragStart;
-      setCurrentPosition(animationOffset + diff);
+      setPosition(dragStartPosition + diff);
     };
 
     const handleTouchEnd = () => {
-      handleMouseUp(); // Same logic as mouse up
+      handleMouseUp();
     };
     
     return (
@@ -314,10 +315,10 @@ export default function NewConversation() {
           {/* Scrolling container */}
           <div 
             ref={containerRef}
-            className={`flex select-none cursor-grab ${isDragging ? 'cursor-grabbing' : ''} ${isDragging ? '' : 'animate-infinite-scroll'}`}
+            className={`flex select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
             style={{ 
-              transform: isDragging ? `translate3d(${currentPosition}px, 0, 0)` : undefined,
-              transition: isDragging ? 'none' : 'transform 0.3s ease-out'
+              transform: `translate3d(${position}px, 0, 0)`,
+              transition: 'none' // No CSS transitions, pure JS control
             }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
