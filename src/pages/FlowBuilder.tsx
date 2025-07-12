@@ -14,6 +14,7 @@ import { FlowHeader } from '@/components/jarvi-flows/builder/FlowHeader';
 import { AIPromptSection } from '@/components/jarvi-flows/builder/AIPromptSection';
 import { FlowDetailsSection } from '@/components/jarvi-flows/builder/FlowDetailsSection';
 import { FlowStepsEditor } from '@/components/jarvi-flows/builder/FlowStepsEditor';
+import { FlowCanvas } from '@/components/jarvi-flows/builder/canvas/FlowCanvas';
 import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
 import { agentsData } from '@/data/agentsData';
 import { useFlowBlockConfig } from '@/hooks/useFlowBlockConfig';
@@ -202,6 +203,7 @@ export default function FlowBuilder() {
   const [isRunningFlow, setIsRunningFlow] = useState(false);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'steps' | 'canvas'>('steps');
   const { blockConfigs, updateBlockConfig } = useFlowBlockConfig();
 
   const aiPromptForm = useForm<AIPromptFormValues>({
@@ -663,6 +665,8 @@ export default function FlowBuilder() {
           flowHasBlocks={flow.steps.length > 0}
           onStartFlow={handleStartFlow}
           onSaveFlow={saveFlow}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
         
         {showAIPrompt && (
@@ -684,13 +688,25 @@ export default function FlowBuilder() {
             setTrigger={updateFlowTrigger}
           />
           
-          <FlowStepsEditor
-            steps={flow.steps}
-            blocks={flow.blocks}
-            onStepsChange={updateFlowSteps}
-            onBlocksChange={updateFlowBlocks}
-            availableBlockOptions={availableBlockOptions}
-          />
+          {viewMode === 'steps' ? (
+            <FlowStepsEditor
+              steps={flow.steps}
+              blocks={flow.blocks}
+              onStepsChange={updateFlowSteps}
+              onBlocksChange={updateFlowBlocks}
+              availableBlockOptions={availableBlockOptions}
+            />
+          ) : (
+            <div className="h-[600px] border rounded-lg overflow-hidden">
+              <FlowCanvas
+                steps={flow.steps}
+                blocks={flow.blocks}
+                onStepsChange={updateFlowSteps}
+                onBlocksChange={updateFlowBlocks}
+                availableBlockOptions={availableBlockOptions}
+              />
+            </div>
+          )}
         </div>
       </div>
     </MainLayout>

@@ -6,6 +6,11 @@ export interface FlowStep {
   completed?: boolean;
   order: number;
   blockId?: string; // Links step to a specific block
+  // Canvas-specific fields:
+  canvasPosition?: { x: number; y: number };
+  isAgentStep?: boolean;
+  agentPrompt?: string;
+  selectedBlocks?: string[]; // Block IDs for agent steps
 }
 
 export interface FlowBlock {

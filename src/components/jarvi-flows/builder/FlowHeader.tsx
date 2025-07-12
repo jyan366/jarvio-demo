@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ViewToggle } from './ViewToggle';
 
 interface FlowHeaderProps {
   showAIPrompt: boolean;
@@ -24,6 +25,8 @@ interface FlowHeaderProps {
   flowHasBlocks: boolean;
   onStartFlow: () => void;
   onSaveFlow: () => void;
+  viewMode?: 'steps' | 'canvas';
+  onViewModeChange?: (mode: 'steps' | 'canvas') => void;
 }
 
 export function FlowHeader({
@@ -33,7 +36,9 @@ export function FlowHeader({
   isRunningFlow,
   flowHasBlocks,
   onStartFlow,
-  onSaveFlow
+  onSaveFlow,
+  viewMode = 'steps',
+  onViewModeChange
 }: FlowHeaderProps) {
   const navigate = useNavigate();
   
@@ -53,7 +58,14 @@ export function FlowHeader({
         Back
       </Button>
       
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
+        {onViewModeChange && (
+          <ViewToggle 
+            viewMode={viewMode} 
+            onViewModeChange={onViewModeChange} 
+          />
+        )}
+        
         <Button
           variant="outline"
           onClick={() => setShowAIPrompt(!showAIPrompt)}
