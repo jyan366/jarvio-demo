@@ -11,8 +11,9 @@ import {
   Edge,
   Connection,
   NodeTypes,
+  EdgeTypes,
   MarkerType,
-  useReactFlow,
+  Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -21,6 +22,8 @@ import { BlockStepNode } from './nodes/BlockStepNode';
 import { AgentStepNode } from './nodes/AgentStepNode';
 import { AddStepPanel } from './AddStepDialog';
 import { ReactFlowToolbar } from './ReactFlowToolbar';
+import { CustomEdge } from './CustomEdge';
+import { FlowTriggers } from './FlowTriggers';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ReactFlowCanvasProps {
@@ -29,6 +32,10 @@ interface ReactFlowCanvasProps {
   onStepsChange: (steps: FlowStep[]) => void;
   onBlocksChange: (blocks: FlowBlock[]) => void;
   availableBlockOptions?: Record<string, string[]>;
+  flowTrigger?: string;
+  onTriggerChange?: (trigger: string) => void;
+  onStartFlow?: () => void;
+  isRunningFlow?: boolean;
 }
 
 // Custom node types
@@ -37,12 +44,21 @@ const nodeTypes: NodeTypes = {
   agentStep: AgentStepNode,
 };
 
+// Custom edge types
+const edgeTypes: EdgeTypes = {
+  custom: CustomEdge,
+};
+
 export function ReactFlowCanvas({
   steps,
   blocks,
   onStepsChange,
   onBlocksChange,
-  availableBlockOptions
+  availableBlockOptions,
+  flowTrigger = 'manual',
+  onTriggerChange = () => {},
+  onStartFlow = () => {},
+  isRunningFlow = false
 }: ReactFlowCanvasProps) {
   
   // Convert steps to React Flow nodes
@@ -86,6 +102,8 @@ export function ReactFlowCanvas({
           },
           availableBlockOptions
         },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
         draggable: true,
         selectable: true,
       };
@@ -104,12 +122,12 @@ export function ReactFlowCanvas({
         id: `edge-${currentStep.id}-${nextStep.id}`,
         source: currentStep.id,
         target: nextStep.id,
-        type: 'smoothstep',
+        type: 'custom',
         animated: false,
-        style: { stroke: '#e5e7eb', strokeWidth: 2 },
+        style: { stroke: '#6b7280', strokeWidth: 2 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: '#e5e7eb',
+          color: '#6b7280',
         },
       });
     }
@@ -232,12 +250,14 @@ export function ReactFlowCanvas({
         onConnect={onConnect}
         onNodeDragStop={handleNodeDragStop}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         fitView
         snapToGrid
         snapGrid={[20, 20]}
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         minZoom={0.2}
         maxZoom={2}
+        
         className="bg-gray-50"
       >
         <Background color="#e5e7eb" gap={20} />
@@ -261,6 +281,13 @@ export function ReactFlowCanvas({
           className="bg-white border border-gray-200 rounded-lg"
         />
       </ReactFlow>
+      
+      <FlowTriggers
+        selectedTrigger={flowTrigger}
+        onTriggerChange={onTriggerChange}
+        onStartFlow={onStartFlow}
+        isRunning={isRunningFlow}
+      />
     </div>
   );
 }
