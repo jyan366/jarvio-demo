@@ -272,9 +272,13 @@ export function FlowStepsEditor({
                           placeholder="Step name (e.g., Get Amazon Sales for last 30 days)"
                           className="text-base font-semibold border-none shadow-none p-0 h-auto"
                         />
-                        {stepBlock && (
+                        {stepBlock ? (
                           <Badge variant="outline" className="text-xs capitalize">
                             {stepBlock.type}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">
+                            Agent
                           </Badge>
                         )}
                       </div>
@@ -285,15 +289,19 @@ export function FlowStepsEditor({
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-500">No instructions yet</span>
-                          {stepBlock && (
-                            <GenerateInstructionsButton
-                              step={step}
-                              block={stepBlock}
-                              onInstructionsGenerated={(instructions) => 
-                                handleInstructionsGenerated(step.id, instructions)
-                              }
-                            />
+                          {stepBlock ? (
+                            <>
+                              <span className="text-sm text-gray-500">No instructions yet</span>
+                              <GenerateInstructionsButton
+                                step={step}
+                                block={stepBlock}
+                                onInstructionsGenerated={(instructions) => 
+                                  handleInstructionsGenerated(step.id, instructions)
+                                }
+                              />
+                            </>
+                          ) : (
+                            <span className="text-sm text-gray-500">Agent step - no block attached</span>
                           )}
                         </div>
                       )}
