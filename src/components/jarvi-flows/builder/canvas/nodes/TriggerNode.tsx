@@ -113,6 +113,7 @@ export function TriggerNode({ data }: TriggerNodeProps) {
       <Handle
         type="source"
         position={Position.Right}
+        id="trigger-source"
         className="!bg-gray-400 !border-gray-600 !w-3 !h-3"
         style={{ top: '50px' }}
       />

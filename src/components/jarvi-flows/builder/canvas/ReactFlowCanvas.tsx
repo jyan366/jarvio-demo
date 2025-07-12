@@ -138,7 +138,9 @@ export function ReactFlowCanvas({
       edges.push({
         id: 'trigger-to-first',
         source: 'trigger',
+        sourceHandle: 'trigger-source',
         target: steps[0].id,
+        targetHandle: null,
         type: 'custom',
         animated: false,
         style: { stroke: '#6b7280', strokeWidth: 2 },
