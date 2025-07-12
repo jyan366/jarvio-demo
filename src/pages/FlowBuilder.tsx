@@ -14,7 +14,7 @@ import { FlowHeader } from '@/components/jarvi-flows/builder/FlowHeader';
 import { AIPromptSection } from '@/components/jarvi-flows/builder/AIPromptSection';
 import { FlowDetailsSection } from '@/components/jarvi-flows/builder/FlowDetailsSection';
 import { FlowStepsEditor } from '@/components/jarvi-flows/builder/FlowStepsEditor';
-import { FlowCanvas } from '@/components/jarvi-flows/builder/canvas/FlowCanvas';
+import { ReactFlowCanvas } from '@/components/jarvi-flows/builder/canvas/ReactFlowCanvas';
 import { BlockCategory, flowBlockOptions } from '@/data/flowBlockOptions';
 import { agentsData } from '@/data/agentsData';
 import { useFlowBlockConfig } from '@/hooks/useFlowBlockConfig';
@@ -656,39 +656,78 @@ export default function FlowBuilder() {
     <MainLayout>
       <FlowBlockDatabaseSync />
 
-      <div className="space-y-6">
-        <FlowHeader
-          showAIPrompt={showAIPrompt}
-          setShowAIPrompt={setShowAIPrompt}
-          isManualTrigger={flow.trigger === 'manual'}
-          isRunningFlow={isRunningFlow}
-          flowHasBlocks={flow.steps.length > 0}
-          onStartFlow={handleStartFlow}
-          onSaveFlow={saveFlow}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
-        
-        {showAIPrompt && (
-          <AIPromptSection
-            form={aiPromptForm}
-            onSubmit={handleAIStepsGenerated}
-            isGenerating={isGenerating}
-            aiError={aiError}
-          />
-        )}
-        
+      {viewMode === 'canvas' ? (
+        // Full screen canvas mode
+        <div className="h-[calc(100vh-4rem)] w-full">
+          <div className="flex items-center justify-between p-4 border-b bg-white">
+            <FlowHeader
+              showAIPrompt={showAIPrompt}
+              setShowAIPrompt={setShowAIPrompt}
+              isManualTrigger={flow.trigger === 'manual'}
+              isRunningFlow={isRunningFlow}
+              flowHasBlocks={flow.steps.length > 0}
+              onStartFlow={handleStartFlow}
+              onSaveFlow={saveFlow}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+            />
+          </div>
+          
+          {showAIPrompt && (
+            <div className="p-4 border-b bg-gray-50">
+              <AIPromptSection
+                form={aiPromptForm}
+                onSubmit={handleAIStepsGenerated}
+                isGenerating={isGenerating}
+                aiError={aiError}
+              />
+            </div>
+          )}
+          
+          <div className="h-[calc(100%-4rem)]">
+            <ReactFlowCanvas
+              steps={flow.steps}
+              blocks={flow.blocks}
+              onStepsChange={updateFlowSteps}
+              onBlocksChange={updateFlowBlocks}
+              availableBlockOptions={availableBlockOptions}
+            />
+          </div>
+        </div>
+      ) : (
+        // Traditional steps mode
         <div className="space-y-6">
-          <FlowDetailsSection
-            name={flow.name}
-            setName={updateFlowName}
-            description={flow.description}
-            setDescription={updateFlowDescription}
-            trigger={flow.trigger}
-            setTrigger={updateFlowTrigger}
+          <FlowHeader
+            showAIPrompt={showAIPrompt}
+            setShowAIPrompt={setShowAIPrompt}
+            isManualTrigger={flow.trigger === 'manual'}
+            isRunningFlow={isRunningFlow}
+            flowHasBlocks={flow.steps.length > 0}
+            onStartFlow={handleStartFlow}
+            onSaveFlow={saveFlow}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
           />
           
-          {viewMode === 'steps' ? (
+          {showAIPrompt && (
+            <AIPromptSection
+              form={aiPromptForm}
+              onSubmit={handleAIStepsGenerated}
+              isGenerating={isGenerating}
+              aiError={aiError}
+            />
+          )}
+          
+          <div className="space-y-6">
+            <FlowDetailsSection
+              name={flow.name}
+              setName={updateFlowName}
+              description={flow.description}
+              setDescription={updateFlowDescription}
+              trigger={flow.trigger}
+              setTrigger={updateFlowTrigger}
+            />
+            
             <FlowStepsEditor
               steps={flow.steps}
               blocks={flow.blocks}
@@ -696,19 +735,9 @@ export default function FlowBuilder() {
               onBlocksChange={updateFlowBlocks}
               availableBlockOptions={availableBlockOptions}
             />
-          ) : (
-            <div className="h-[600px] border rounded-lg overflow-hidden">
-              <FlowCanvas
-                steps={flow.steps}
-                blocks={flow.blocks}
-                onStepsChange={updateFlowSteps}
-                onBlocksChange={updateFlowBlocks}
-                availableBlockOptions={availableBlockOptions}
-              />
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </MainLayout>
   );
 }
