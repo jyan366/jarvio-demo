@@ -682,7 +682,7 @@ export default function FlowBuilder() {
       )}
 
       {viewMode === 'canvas' ? (
-        // Full viewport canvas mode positioned below all header content
+        // Full viewport canvas mode - canvas has its own toolbar
         <div className="fixed top-[calc(4rem+80px)] left-2.5 right-2.5 bottom-2.5 bg-white z-0">
           <ReactFlowCanvas
             steps={flow.steps}
