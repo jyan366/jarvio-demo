@@ -144,7 +144,7 @@ export function ReactFlowCanvas({
     [setEdges]
   );
 
-  const handleAddStep = (type: 'block' | 'agent') => {
+  const handleAddStep = (type: 'block' | 'agent', blockData?: any) => {
     const stepId = uuidv4();
     
     if (type === 'agent') {
@@ -167,14 +167,22 @@ export function ReactFlowCanvas({
       const blockId = uuidv4();
       const newBlock: FlowBlock = {
         id: blockId,
-        type: 'collect',
-        option: availableBlockOptions?.collect?.[0] || 'User Text',
-        name: 'New Block Step'
+        type: blockData?.category || 'collect',
+        option: blockData?.name || availableBlockOptions?.collect?.[0] || 'User Text',
+        name: blockData?.name || 'New Block Step',
+        ...(blockData && {
+          summary: blockData.summary,
+          description: blockData.description,
+          icon: blockData.icon,
+          logo: blockData.logo,
+          needsConnection: blockData.needsConnection,
+          connectionService: blockData.connectionService
+        })
       };
       const newStep: FlowStep = {
         id: stepId,
-        title: 'New Block Step',
-        description: '',
+        title: blockData?.name || 'New Block Step',
+        description: blockData?.summary || '',
         completed: false,
         order: steps.length,
         blockId: blockId,
