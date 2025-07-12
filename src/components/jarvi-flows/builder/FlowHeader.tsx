@@ -58,7 +58,7 @@ export function FlowHeader({
         Back
       </Button>
       
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 items-center z-50 relative">
         {onViewModeChange && (
           <ViewToggle 
             viewMode={viewMode} 
