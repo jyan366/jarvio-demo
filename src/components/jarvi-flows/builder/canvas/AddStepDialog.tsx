@@ -57,50 +57,59 @@ export function AddStepPanel({ onAddStep, isOpen, onClose }: AddStepPanelProps) 
       </div>
       
       <div className="flex flex-col gap-4 p-4 flex-1 overflow-hidden">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search blocks..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        {/* Quick Step Options */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">Quick Add</h4>
+          
+          {/* Simple Step */}
+          <div className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors" onClick={handleAgentSelect}>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Search className="h-4 w-4 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-sm">Simple Step</h4>
+                <p className="text-xs text-gray-600">Add a step without a block (becomes an agent step)</p>
+              </div>
+              <Badge variant="outline" className="text-xs">Step</Badge>
+            </div>
+          </div>
         </div>
 
-        {/* Categories */}
-        <div className="flex gap-2 flex-wrap">
-          <Button
-            variant={selectedCategory === null ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedCategory(null)}
-          >
-            All
-          </Button>
-          {categories.map((category) => (
+        <div className="border-t pt-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Or add step with block</h4>
+          
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search blocks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Categories */}
+          <div className="flex gap-2 flex-wrap mt-3">
             <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
+              variant={selectedCategory === null ? "default" : "outline"}
               size="sm"
-              onClick={() => setSelectedCategory(category)}
-              className="capitalize"
+              onClick={() => setSelectedCategory(null)}
             >
-              {category}
+              All
             </Button>
-          ))}
-        </div>
-
-        {/* Agent Option */}
-        <div className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors" onClick={handleAgentSelect}>
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Search className="h-4 w-4 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium text-sm">Agent Step</h4>
-              <p className="text-xs text-gray-600">Add a custom AI agent</p>
-            </div>
-            <Badge variant="outline" className="text-xs">Agent</Badge>
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className="capitalize"
+              >
+                {category}
+              </Button>
+            ))}
           </div>
         </div>
 

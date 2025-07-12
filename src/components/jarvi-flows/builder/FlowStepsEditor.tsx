@@ -88,24 +88,16 @@ export function FlowStepsEditor({
   const addStep = () => {
     if (!newStepTitle.trim()) return;
 
-    const blockId = uuidv4();
     const stepId = uuidv4();
-    const newBlock: FlowBlock = {
-      id: blockId,
-      type: 'collect',
-      option: availableBlockOptions?.collect?.[0] || 'User Text',
-      name: newStepTitle
-    };
     const newStep: FlowStep = {
       id: stepId,
       title: newStepTitle,
       description: '', // Will be generated when user clicks "Generate Instructions"
       completed: false,
       order: steps.length,
-      blockId: blockId
+      isAgentStep: true // Start as agent step, block can be attached later
     };
     onStepsChange([...steps, newStep]);
-    onBlocksChange([...blocks, newBlock]);
     setNewStepTitle('');
     setIsAddingStep(false);
   };
