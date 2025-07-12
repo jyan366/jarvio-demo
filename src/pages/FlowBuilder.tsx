@@ -652,59 +652,52 @@ export default function FlowBuilder() {
     );
   }
 
-  if (viewMode === 'canvas') {
-    // Full width canvas mode - break out of MainLayout constraints
-    return (
-      <div className="h-screen w-screen bg-white flex flex-col">
-        <FlowBlockDatabaseSync />
-        
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
-          <FlowHeader
-            showAIPrompt={showAIPrompt}
-            setShowAIPrompt={setShowAIPrompt}
-            isManualTrigger={flow.trigger === 'manual'}
-            isRunningFlow={isRunningFlow}
-            flowHasBlocks={flow.steps.length > 0}
-            onStartFlow={handleStartFlow}
-            onSaveFlow={saveFlow}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-          />
-        </div>
-        
-        {/* AI Prompt Section */}
-        {showAIPrompt && (
-          <div className="px-6 py-4 border-b bg-gray-50">
-            <AIPromptSection
-              form={aiPromptForm}
-              onSubmit={handleAIStepsGenerated}
-              isGenerating={isGenerating}
-              aiError={aiError}
-            />
-          </div>
-        )}
-        
-        {/* Full Width Canvas */}
-        <div className="flex-1 w-full">
-          <ReactFlowCanvas
-            steps={flow.steps}
-            blocks={flow.blocks}
-            onStepsChange={updateFlowSteps}
-            onBlocksChange={updateFlowBlocks}
-            availableBlockOptions={availableBlockOptions}
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <MainLayout>
       <FlowBlockDatabaseSync />
 
-      {/* Traditional steps mode */}
-      <div className="space-y-6">
+      {viewMode === 'canvas' ? (
+        // Wide canvas mode within MainLayout
+        <div className="w-screen -mx-6 h-[calc(100vh-4rem)] bg-white">
+          <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
+            <FlowHeader
+              showAIPrompt={showAIPrompt}
+              setShowAIPrompt={setShowAIPrompt}
+              isManualTrigger={flow.trigger === 'manual'}
+              isRunningFlow={isRunningFlow}
+              flowHasBlocks={flow.steps.length > 0}
+              onStartFlow={handleStartFlow}
+              onSaveFlow={saveFlow}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+            />
+          </div>
+          
+          {showAIPrompt && (
+            <div className="px-6 py-4 border-b bg-gray-50">
+              <AIPromptSection
+                form={aiPromptForm}
+                onSubmit={handleAIStepsGenerated}
+                isGenerating={isGenerating}
+                aiError={aiError}
+              />
+            </div>
+          )}
+          
+          <div className="h-[calc(100%-5rem)]">
+            <ReactFlowCanvas
+              steps={flow.steps}
+              blocks={flow.blocks}
+              onStepsChange={updateFlowSteps}
+              onBlocksChange={updateFlowBlocks}
+              availableBlockOptions={availableBlockOptions}
+            />
+          </div>
+        </div>
+      ) : (
+        // Traditional steps mode
+        <div className="space-y-6">
           <FlowHeader
             showAIPrompt={showAIPrompt}
             setShowAIPrompt={setShowAIPrompt}
@@ -745,6 +738,7 @@ export default function FlowBuilder() {
             />
           </div>
         </div>
+      )}
     </MainLayout>
   );
 }
