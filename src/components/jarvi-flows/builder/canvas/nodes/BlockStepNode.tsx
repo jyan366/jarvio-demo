@@ -59,7 +59,12 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
 
   return (
     <>
-      <Handle type="target" position={Position.Left} className="w-3 h-3" />
+      <Handle 
+        type="target" 
+        position={Position.Left} 
+        className="w-3 h-3" 
+        style={{ top: '50px' }} 
+      />
       
       <Card className={`w-72 transition-all duration-200 ${getBlockColor(block?.type)} border-2`}>
         <CardContent className="p-4">
@@ -117,7 +122,12 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
         </CardContent>
       </Card>
 
-      <Handle type="source" position={Position.Right} className="w-3 h-3" />
+      <Handle 
+        type="source" 
+        position={Position.Right} 
+        className="w-3 h-3" 
+        style={{ top: '50px' }} 
+      />
     </>
   );
 });
