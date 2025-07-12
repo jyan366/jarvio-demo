@@ -14,6 +14,7 @@ interface EditableDescriptionProps {
   onStepUpdate: (updates: Partial<FlowStep>) => void;
   onBlockAttach: (blockType: string, blockOption: string) => void;
   onBlockDetach: () => void;
+  renderBlockReference?: (description: string, stepBlock: FlowBlock | null) => React.ReactNode;
 }
 
 export function EditableDescription({
@@ -21,7 +22,8 @@ export function EditableDescription({
   stepBlock,
   onStepUpdate,
   onBlockAttach,
-  onBlockDetach
+  onBlockDetach,
+  renderBlockReference
 }: EditableDescriptionProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState(step.description || '');
@@ -70,7 +72,7 @@ export function EditableDescription({
             className="text-sm text-gray-700 leading-relaxed cursor-pointer hover:bg-gray-50 p-2 rounded"
             onClick={() => setIsEditing(true)}
           >
-            {step.description}
+            {renderBlockReference ? renderBlockReference(step.description, stepBlock) : step.description}
           </div>
         ) : (
           <div 

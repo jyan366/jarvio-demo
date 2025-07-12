@@ -324,6 +324,7 @@ export function FlowStepsEditor({
                         onStepUpdate={(updates) => updateStep(step.id, updates)}
                         onBlockAttach={(blockType, blockOption) => handleBlockAttach(step.id, blockType, blockOption)}
                         onBlockDetach={() => handleBlockDetach(step.id)}
+                        renderBlockReference={renderBlockReference}
                       />
                     </div>
 
