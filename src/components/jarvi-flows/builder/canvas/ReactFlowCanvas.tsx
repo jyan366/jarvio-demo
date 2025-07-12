@@ -54,8 +54,8 @@ export function ReactFlowCanvas({
         id: step.id,
         type: isAgent ? 'agentStep' : 'blockStep',
         position: step.canvasPosition || {
-          x: 100 + (index % 4) * 320,
-          y: 100 + Math.floor(index / 4) * 200
+          x: 100 + index * 320, // Horizontal layout
+          y: 100
         },
         data: {
           step,
@@ -158,8 +158,8 @@ export function ReactFlowCanvas({
         agentPrompt: '',
         selectedBlocks: [],
         canvasPosition: {
-          x: 100 + (steps.length % 4) * 320,
-          y: 100 + Math.floor(steps.length / 4) * 200
+          x: 100 + steps.length * 320, // Horizontal layout
+          y: 100
         }
       };
       onStepsChange([...steps, newStep]);
@@ -179,8 +179,8 @@ export function ReactFlowCanvas({
         order: steps.length,
         blockId: blockId,
         canvasPosition: {
-          x: 100 + (steps.length % 4) * 320,
-          y: 100 + Math.floor(steps.length / 4) * 200
+          x: 100 + steps.length * 320, // Horizontal layout
+          y: 100
         }
       };
       onStepsChange([...steps, newStep]);
@@ -192,8 +192,8 @@ export function ReactFlowCanvas({
     const updatedSteps = steps.map((step, index) => ({
       ...step,
       canvasPosition: {
-        x: 100 + (index % 4) * 320,
-        y: 100 + Math.floor(index / 4) * 200
+        x: 100 + index * 320, // Horizontal layout
+        y: 100
       }
     }));
     onStepsChange(updatedSteps);
