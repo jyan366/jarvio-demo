@@ -657,86 +657,60 @@ export default function FlowBuilder() {
     <MainLayout>
       <FlowBlockDatabaseSync />
 
+      {/* Header - always in same position */}
+      <div className="space-y-6">
+        <FlowHeader
+          showAIPrompt={showAIPrompt}
+          setShowAIPrompt={setShowAIPrompt}
+          isManualTrigger={flow.trigger === 'manual'}
+          isRunningFlow={isRunningFlow}
+          flowHasBlocks={flow.steps.length > 0}
+          onStartFlow={handleStartFlow}
+          onSaveFlow={saveFlow}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+        />
+        
+        {showAIPrompt && (
+          <AIPromptSection
+            form={aiPromptForm}
+            onSubmit={handleAIStepsGenerated}
+            isGenerating={isGenerating}
+            aiError={aiError}
+          />
+        )}
+      </div>
+
       {viewMode === 'canvas' ? (
-        // Wide canvas mode within MainLayout
-        <div className="w-screen -mx-6 h-[calc(100vh-4rem)] bg-white">
-          <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
-            <FlowHeader
-              showAIPrompt={showAIPrompt}
-              setShowAIPrompt={setShowAIPrompt}
-              isManualTrigger={flow.trigger === 'manual'}
-              isRunningFlow={isRunningFlow}
-              flowHasBlocks={flow.steps.length > 0}
-              onStartFlow={handleStartFlow}
-              onSaveFlow={saveFlow}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-            />
-          </div>
-          
-          {showAIPrompt && (
-            <div className="px-6 py-4 border-b bg-gray-50">
-              <AIPromptSection
-                form={aiPromptForm}
-                onSubmit={handleAIStepsGenerated}
-                isGenerating={isGenerating}
-                aiError={aiError}
-              />
-            </div>
-          )}
-          
-          <div className="h-[calc(100%-5rem)]">
-            <ReactFlowCanvas
-              steps={flow.steps}
-              blocks={flow.blocks}
-              onStepsChange={updateFlowSteps}
-              onBlocksChange={updateFlowBlocks}
-              availableBlockOptions={availableBlockOptions}
-            />
-          </div>
+        // Wide canvas mode that extends around the header
+        <div className="w-screen -mx-6 h-[calc(100vh-12rem)] bg-white -mt-6">
+          <ReactFlowCanvas
+            steps={flow.steps}
+            blocks={flow.blocks}
+            onStepsChange={updateFlowSteps}
+            onBlocksChange={updateFlowBlocks}
+            availableBlockOptions={availableBlockOptions}
+          />
         </div>
       ) : (
         // Traditional steps mode
         <div className="space-y-6">
-          <FlowHeader
-            showAIPrompt={showAIPrompt}
-            setShowAIPrompt={setShowAIPrompt}
-            isManualTrigger={flow.trigger === 'manual'}
-            isRunningFlow={isRunningFlow}
-            flowHasBlocks={flow.steps.length > 0}
-            onStartFlow={handleStartFlow}
-            onSaveFlow={saveFlow}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
+          <FlowDetailsSection
+            name={flow.name}
+            setName={updateFlowName}
+            description={flow.description}
+            setDescription={updateFlowDescription}
+            trigger={flow.trigger}
+            setTrigger={updateFlowTrigger}
           />
           
-          {showAIPrompt && (
-            <AIPromptSection
-              form={aiPromptForm}
-              onSubmit={handleAIStepsGenerated}
-              isGenerating={isGenerating}
-              aiError={aiError}
-            />
-          )}
-          
-          <div className="space-y-6">
-            <FlowDetailsSection
-              name={flow.name}
-              setName={updateFlowName}
-              description={flow.description}
-              setDescription={updateFlowDescription}
-              trigger={flow.trigger}
-              setTrigger={updateFlowTrigger}
-            />
-            
-            <FlowStepsEditor
-              steps={flow.steps}
-              blocks={flow.blocks}
-              onStepsChange={updateFlowSteps}
-              onBlocksChange={updateFlowBlocks}
-              availableBlockOptions={availableBlockOptions}
-            />
-          </div>
+          <FlowStepsEditor
+            steps={flow.steps}
+            blocks={flow.blocks}
+            onStepsChange={updateFlowSteps}
+            onBlocksChange={updateFlowBlocks}
+            availableBlockOptions={availableBlockOptions}
+          />
         </div>
       )}
     </MainLayout>
