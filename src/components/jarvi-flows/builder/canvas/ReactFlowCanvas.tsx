@@ -204,53 +204,37 @@ export function ReactFlowCanvas({
   const handleAddStep = (type: 'block' | 'agent', blockData?: any) => {
     const stepId = uuidv4();
     
-    if (type === 'agent') {
-      const newStep: FlowStep = {
-        id: stepId,
-        title: 'New Agent Step',
-        description: '',
-        completed: false,
-        order: steps.length,
-        isAgentStep: true,
-        agentPrompt: '',
-        selectedBlocks: [],
-        canvasPosition: {
-          x: 100 + steps.length * 400, // Increased spacing from 320 to 400
-          y: 100
-        }
-      };
-      onStepsChange([...steps, newStep]);
-    } else {
+    // Always create just a step first, blocks are attached optionally
+    const newStep: FlowStep = {
+      id: stepId,
+      title: type === 'agent' ? 'New Agent Step' : (blockData?.name || 'New Step'),
+      description: blockData?.summary || '',
+      completed: false,
+      order: steps.length,
+      isAgentStep: type === 'agent' || !blockData, // Agent step if no block data
+      agentPrompt: '',
+      selectedBlocks: [],
+      canvasPosition: {
+        x: 100 + steps.length * 400,
+        y: 100
+      }
+    };
+
+    // Only create block if blockData is provided and it's a block type
+    if (type === 'block' && blockData) {
       const blockId = uuidv4();
       const newBlock: FlowBlock = {
         id: blockId,
-        type: blockData?.category || 'collect',
-        option: blockData?.name || availableBlockOptions?.collect?.[0] || 'User Text',
-        name: blockData?.name || 'New Block Step',
-        ...(blockData && {
-          summary: blockData.summary,
-          description: blockData.description,
-          icon: blockData.icon,
-          logo: blockData.logo,
-          needsConnection: blockData.needsConnection,
-          connectionService: blockData.connectionService
-        })
+        type: blockData.category || 'collect',
+        option: blockData.name || availableBlockOptions?.collect?.[0] || 'User Text',
+        name: blockData.name || 'New Block Step'
       };
-      const newStep: FlowStep = {
-        id: stepId,
-        title: blockData?.name || 'New Block Step',
-        description: blockData?.summary || '',
-        completed: false,
-        order: steps.length,
-        blockId: blockId,
-        canvasPosition: {
-          x: 100 + steps.length * 400, // Increased spacing from 320 to 400
-          y: 100
-        }
-      };
-      onStepsChange([...steps, newStep]);
+      newStep.blockId = blockId;
+      newStep.isAgentStep = false;
       onBlocksChange([...blocks, newBlock]);
     }
+
+    onStepsChange([...steps, newStep]);
   };
 
   const handleAutoArrange = () => {
