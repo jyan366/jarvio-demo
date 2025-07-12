@@ -58,66 +58,64 @@ export function FlowHeader({
         Back
       </Button>
       
-      <div className="flex gap-2 items-center">
-        {onViewModeChange && (
-          <ViewToggle 
-            viewMode={viewMode} 
-            onViewModeChange={onViewModeChange} 
-          />
-        )}
-        
-        <Button
-          variant="outline"
-          onClick={() => setShowAIPrompt(!showAIPrompt)}
-          className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+      {onViewModeChange && (
+        <ViewToggle 
+          viewMode={viewMode} 
+          onViewModeChange={onViewModeChange} 
+        />
+      )}
+      
+      <Button
+        variant="outline"
+        onClick={() => setShowAIPrompt(!showAIPrompt)}
+        className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+      >
+        <WandSparkles className="h-4 w-4 mr-2" />
+        {showAIPrompt ? "Hide AI Builder" : "Create with AI"}
+      </Button>
+      
+      {isManualTrigger && (
+        <Button 
+          onClick={onStartFlow}
+          className="bg-green-600 hover:bg-green-700 text-white"
+          disabled={isRunningFlow || !flowHasBlocks}
         >
-          <WandSparkles className="h-4 w-4 mr-2" />
-          {showAIPrompt ? "Hide AI Builder" : "Create with AI"}
+          {isRunningFlow ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Running...
+            </>
+          ) : (
+            <>
+              <Play className="h-4 w-4 mr-2" />
+              Start Flow
+            </>
+          )}
         </Button>
-        
-        {isManualTrigger && (
+      )}
+      
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button 
-            onClick={onStartFlow}
-            className="bg-green-600 hover:bg-green-700 text-white"
-            disabled={isRunningFlow || !flowHasBlocks}
+            className="bg-[#4457ff] hover:bg-[#4457ff]/90"
           >
-            {isRunningFlow ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Running...
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4 mr-2" />
-                Start Flow
-              </>
-            )}
+            <Save className="h-4 w-4 mr-2" />
+            Save Flow
+            <ChevronDown className="h-4 w-4 ml-2" />
           </Button>
-        )}
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              className="bg-[#4457ff] hover:bg-[#4457ff]/90"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Flow
-              <ChevronDown className="h-4 w-4 ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-white shadow-lg border border-gray-200">
-            <DropdownMenuItem onClick={onSaveFlow}>
-              Save
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log("Save as new flow")}>
-              Save as New Flow
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log("Export flow")}>
-              Export Flow JSON
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="bg-white shadow-lg border border-gray-200">
+          <DropdownMenuItem onClick={onSaveFlow}>
+            Save
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => console.log("Save as new flow")}>
+            Save as New Flow
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => console.log("Export flow")}>
+            Export Flow JSON
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
