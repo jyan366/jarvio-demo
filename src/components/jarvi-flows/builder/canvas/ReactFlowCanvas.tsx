@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -19,6 +19,7 @@ import '@xyflow/react/dist/style.css';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { BlockStepNode } from './nodes/BlockStepNode';
 import { AgentStepNode } from './nodes/AgentStepNode';
+import { AddStepPanel } from './AddStepDialog';
 import { ReactFlowToolbar } from './ReactFlowToolbar';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -207,11 +208,20 @@ export function ReactFlowCanvas({
     onStepsChange(updatedSteps);
   };
 
+  const [addPanelOpen, setAddPanelOpen] = useState(false);
+
   return (
     <div className="w-full h-full relative bg-gray-50">
       <ReactFlowToolbar
         onAddStep={handleAddStep}
         onAutoArrange={handleAutoArrange}
+        onToggleAddPanel={() => setAddPanelOpen(!addPanelOpen)}
+      />
+      
+      <AddStepPanel
+        onAddStep={handleAddStep}
+        isOpen={addPanelOpen}
+        onClose={() => setAddPanelOpen(false)}
       />
       
       <ReactFlow
