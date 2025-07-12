@@ -20,10 +20,10 @@ import '@xyflow/react/dist/style.css';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { BlockStepNode } from './nodes/BlockStepNode';
 import { AgentStepNode } from './nodes/AgentStepNode';
+import { TriggerNode } from './nodes/TriggerNode';
 import { AddStepPanel } from './AddStepDialog';
 import { ReactFlowToolbar } from './ReactFlowToolbar';
 import { CustomEdge } from './CustomEdge';
-import { FlowTriggers } from './FlowTriggers';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ReactFlowCanvasProps {
@@ -40,6 +40,7 @@ interface ReactFlowCanvasProps {
 
 // Custom node types
 const nodeTypes: NodeTypes = {
+  trigger: TriggerNode,
   blockStep: BlockStepNode,
   agentStep: AgentStepNode,
 };
@@ -63,17 +64,32 @@ export function ReactFlowCanvas({
   
   // Convert steps to React Flow nodes
   const convertToNodes = useCallback((): Node[] => {
-    return steps.map((step, index) => {
+    const nodes: Node[] = [];
+    
+    // Add trigger node as the first node
+    nodes.push({
+      id: 'trigger',
+      type: 'trigger',
+      position: { x: 50, y: 100 },
+      data: {
+        triggerType: flowTrigger,
+        onTriggerChange,
+        onStartFlow,
+        isRunning: isRunningFlow,
+      },
+      draggable: true,
+      selectable: true,
+    });
+
+    // Add step nodes
+    const stepNodes = steps.map((step, index) => {
       const isAgent = step.isAgentStep || !step.blockId;
       const block = step.blockId ? blocks.find(b => b.id === step.blockId) : null;
       
       return {
         id: step.id,
-        type: isAgent ? 'agentStep' : 'blockStep',
-        position: step.canvasPosition || {
-          x: 100 + index * 400, // Increased spacing from 320 to 400
-          y: 100
-        },
+        type: step.isAgentStep ? 'agentStep' : 'blockStep',
+        position: step.canvasPosition || { x: 300 + index * 400, y: 100 }, // Start after trigger
         data: {
           step,
           block,
@@ -108,12 +124,32 @@ export function ReactFlowCanvas({
         selectable: true,
       };
     });
-  }, [steps, blocks, onStepsChange, onBlocksChange, availableBlockOptions]);
+    
+    nodes.push(...stepNodes);
+    return nodes;
+  }, [steps, blocks, onStepsChange, onBlocksChange, availableBlockOptions, flowTrigger, onTriggerChange, onStartFlow, isRunningFlow]);
 
   // Convert steps to React Flow edges
   const convertToEdges = useCallback((): Edge[] => {
     const edges: Edge[] = [];
     
+    // Connect trigger to first step
+    if (steps.length > 0) {
+      edges.push({
+        id: 'trigger-to-first',
+        source: 'trigger',
+        target: steps[0].id,
+        type: 'custom',
+        animated: false,
+        style: { stroke: '#6b7280', strokeWidth: 2 },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#6b7280',
+        },
+      });
+    }
+    
+    // Connect steps to each other
     for (let i = 0; i < steps.length - 1; i++) {
       const currentStep = steps[i];
       const nextStep = steps[i + 1];
@@ -281,13 +317,6 @@ export function ReactFlowCanvas({
           className="bg-white border border-gray-200 rounded-lg"
         />
       </ReactFlow>
-      
-      <FlowTriggers
-        selectedTrigger={flowTrigger}
-        onTriggerChange={onTriggerChange}
-        onStartFlow={onStartFlow}
-        isRunning={isRunningFlow}
-      />
     </div>
   );
 }
