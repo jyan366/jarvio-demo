@@ -658,32 +658,32 @@ export default function FlowBuilder() {
       <FlowBlockDatabaseSync />
 
       {/* Header - always in same position */}
-      <div className="space-y-6">
-        <FlowHeader
-          showAIPrompt={showAIPrompt}
-          setShowAIPrompt={setShowAIPrompt}
-          isManualTrigger={flow.trigger === 'manual'}
-          isRunningFlow={isRunningFlow}
-          flowHasBlocks={flow.steps.length > 0}
-          onStartFlow={handleStartFlow}
-          onSaveFlow={saveFlow}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
-        
-        {showAIPrompt && (
+      <FlowHeader
+        showAIPrompt={showAIPrompt}
+        setShowAIPrompt={setShowAIPrompt}
+        isManualTrigger={flow.trigger === 'manual'}
+        isRunningFlow={isRunningFlow}
+        flowHasBlocks={flow.steps.length > 0}
+        onStartFlow={handleStartFlow}
+        onSaveFlow={saveFlow}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
+      
+      {showAIPrompt && (
+        <div className="mt-6">
           <AIPromptSection
             form={aiPromptForm}
             onSubmit={handleAIStepsGenerated}
             isGenerating={isGenerating}
             aiError={aiError}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {viewMode === 'canvas' ? (
         // Wide canvas mode that extends around the header
-        <div className="w-screen -mx-6 h-[calc(100vh-12rem)] bg-white -mt-6">
+        <div className="w-screen -mx-6 h-[calc(100vh-12rem)] bg-white mt-6">
           <ReactFlowCanvas
             steps={flow.steps}
             blocks={flow.blocks}
@@ -694,7 +694,7 @@ export default function FlowBuilder() {
         </div>
       ) : (
         // Traditional steps mode
-        <div className="space-y-6">
+        <div className="space-y-6 mt-6">
           <FlowDetailsSection
             name={flow.name}
             setName={updateFlowName}
