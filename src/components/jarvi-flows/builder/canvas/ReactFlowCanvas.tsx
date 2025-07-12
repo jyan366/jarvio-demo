@@ -73,8 +73,8 @@ export function ReactFlowCanvas({
       position: { x: 50, y: 100 },
       data: {
         triggerType: flowTrigger,
-        onTriggerChange,
-        onStartFlow,
+        onTriggerChange: onTriggerChange,
+        onStartFlow: onStartFlow,
         isRunning: isRunningFlow,
       },
       draggable: true,
@@ -127,7 +127,7 @@ export function ReactFlowCanvas({
     
     nodes.push(...stepNodes);
     return nodes;
-  }, [steps, blocks, onStepsChange, onBlocksChange, availableBlockOptions, flowTrigger, onTriggerChange, onStartFlow, isRunningFlow]);
+  }, [steps, blocks, flowTrigger, isRunningFlow]);
 
   // Convert steps to React Flow edges
   const convertToEdges = useCallback((): Edge[] => {
@@ -171,18 +171,18 @@ export function ReactFlowCanvas({
     return edges;
   }, [steps]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(convertToNodes());
-  const [edges, setEdges, onEdgesChange] = useEdgesState(convertToEdges());
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  // Update nodes when steps/blocks change
+  // Update nodes when steps change - but use a stable reference
   useEffect(() => {
     setNodes(convertToNodes());
-  }, [steps, blocks, convertToNodes, setNodes]);
+  }, [convertToNodes]);
 
   // Update edges when steps change
   useEffect(() => {
     setEdges(convertToEdges());
-  }, [steps, convertToEdges, setEdges]);
+  }, [convertToEdges]);
 
   // Handle node position changes
   const handleNodeDragStop = useCallback((event: any, node: Node) => {
