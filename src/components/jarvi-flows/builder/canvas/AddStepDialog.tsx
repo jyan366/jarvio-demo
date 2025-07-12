@@ -47,7 +47,7 @@ export function AddStepPanel({ onAddStep, isOpen, onClose }: AddStepPanelProps) 
   };
 
   return (
-    <div className="absolute top-16 right-4 w-80 bg-white border rounded-lg shadow-lg z-20 flex flex-col max-h-[calc(100vh-300px)]">
+    <div className="absolute top-16 left-4 bottom-4 w-80 bg-white border rounded-lg shadow-lg z-20 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <h3 className="font-semibold">Add a New Step</h3>
