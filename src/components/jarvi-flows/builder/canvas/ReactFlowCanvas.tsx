@@ -54,7 +54,7 @@ export function ReactFlowCanvas({
         id: step.id,
         type: isAgent ? 'agentStep' : 'blockStep',
         position: step.canvasPosition || {
-          x: 100 + index * 320, // Horizontal layout
+          x: 100 + index * 400, // Increased spacing from 320 to 400
           y: 100
         },
         data: {
@@ -158,7 +158,7 @@ export function ReactFlowCanvas({
         agentPrompt: '',
         selectedBlocks: [],
         canvasPosition: {
-          x: 100 + steps.length * 320, // Horizontal layout
+          x: 100 + steps.length * 400, // Increased spacing from 320 to 400
           y: 100
         }
       };
@@ -179,7 +179,7 @@ export function ReactFlowCanvas({
         order: steps.length,
         blockId: blockId,
         canvasPosition: {
-          x: 100 + steps.length * 320, // Horizontal layout
+          x: 100 + steps.length * 400, // Increased spacing from 320 to 400
           y: 100
         }
       };
@@ -192,7 +192,7 @@ export function ReactFlowCanvas({
     const updatedSteps = steps.map((step, index) => ({
       ...step,
       canvasPosition: {
-        x: 100 + index * 320, // Horizontal layout
+        x: 100 + index * 400, // Increased spacing from 320 to 400
         y: 100
       }
     }));
