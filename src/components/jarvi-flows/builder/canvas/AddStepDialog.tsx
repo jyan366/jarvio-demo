@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search } from 'lucide-react';
@@ -51,19 +51,19 @@ export function AddStepDialog({ onAddStep }: AddStepDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <Button size="sm" className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Add Step
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Add a New Step</DialogTitle>
-        </DialogHeader>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-[500px] sm:w-[600px] flex flex-col">
+        <SheetHeader>
+          <SheetTitle>Add a New Step</SheetTitle>
+        </SheetHeader>
         
-        <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+        <div className="flex flex-col gap-4 flex-1 overflow-hidden mt-4">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -152,7 +152,7 @@ export function AddStepDialog({ onAddStep }: AddStepDialogProps) {
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
