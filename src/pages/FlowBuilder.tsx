@@ -682,8 +682,8 @@ export default function FlowBuilder() {
       )}
 
       {viewMode === 'canvas' ? (
-        // Full viewport canvas mode
-        <div className="fixed top-[calc(4rem+10px)] left-2.5 right-2.5 bottom-2.5 bg-white z-10">
+        // Full viewport canvas mode positioned below all header content
+        <div className="fixed top-[calc(4rem+80px)] left-2.5 right-2.5 bottom-2.5 bg-white z-0">
           <ReactFlowCanvas
             steps={flow.steps}
             blocks={flow.blocks}
