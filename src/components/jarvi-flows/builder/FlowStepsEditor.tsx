@@ -12,6 +12,7 @@ import { agentsData } from '@/data/agentsData';
 import { UnifiedTask } from '@/types/unifiedTask';
 import { BlockConfigDialog } from './BlockConfigDialog';
 import { GenerateInstructionsButton } from './GenerateInstructionsButton';
+import { EditableDescription } from './EditableDescription';
 
 interface FlowStepsEditorProps {
   steps: FlowStep[];
@@ -221,6 +222,40 @@ export function FlowStepsEditor({
     });
   };
 
+  const handleBlockAttach = (stepId: string, blockType: string, blockOption: string) => {
+    const blockId = uuidv4();
+    const newBlock: FlowBlock = {
+      id: blockId,
+      type: blockType as 'collect' | 'think' | 'act' | 'agent',
+      option: blockOption,
+      name: blockOption
+    };
+    
+    // Update step to reference the block
+    updateStep(stepId, { 
+      blockId: blockId,
+      isAgentStep: false 
+    });
+    
+    // Add the new block
+    onBlocksChange([...blocks, newBlock]);
+  };
+
+  const handleBlockDetach = (stepId: string) => {
+    const step = steps.find(s => s.id === stepId);
+    if (step?.blockId) {
+      // Remove the block
+      const updatedBlocks = blocks.filter(b => b.id !== step.blockId);
+      onBlocksChange(updatedBlocks);
+      
+      // Update step to be an agent step
+      updateStep(stepId, { 
+        blockId: undefined,
+        isAgentStep: true 
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -283,28 +318,13 @@ export function FlowStepsEditor({
                         )}
                       </div>
                       
-                      {step.description ? (
-                        <div className="text-sm text-gray-700 leading-relaxed">
-                          {renderBlockReference(step.description, stepBlock)}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          {stepBlock ? (
-                            <>
-                              <span className="text-sm text-gray-500">No instructions yet</span>
-                              <GenerateInstructionsButton
-                                step={step}
-                                block={stepBlock}
-                                onInstructionsGenerated={(instructions) => 
-                                  handleInstructionsGenerated(step.id, instructions)
-                                }
-                              />
-                            </>
-                          ) : (
-                            <span className="text-sm text-gray-500">Agent step - no block attached</span>
-                          )}
-                        </div>
-                      )}
+                      <EditableDescription
+                        step={step}
+                        stepBlock={stepBlock}
+                        onStepUpdate={(updates) => updateStep(step.id, updates)}
+                        onBlockAttach={(blockType, blockOption) => handleBlockAttach(step.id, blockType, blockOption)}
+                        onBlockDetach={() => handleBlockDetach(step.id)}
+                      />
                     </div>
 
                     <div className="flex items-center gap-1">
