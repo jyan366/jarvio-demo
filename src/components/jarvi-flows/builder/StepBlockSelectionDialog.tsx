@@ -32,6 +32,7 @@ export function StepBlockSelectionDialog({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [blocks, setBlocks] = useState<BlockOption[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showManualBlocks, setShowManualBlocks] = useState(false);
 
   // Load blocks from database
   useEffect(() => {
@@ -102,6 +103,15 @@ export function StepBlockSelectionDialog({
   const resetState = () => {
     setSearchTerm('');
     setSelectedCategory(null);
+    setShowManualBlocks(false);
+  };
+
+  const handleManualBlockSelect = () => {
+    setShowManualBlocks(true);
+  };
+
+  const handleBackToChoice = () => {
+    setShowManualBlocks(false);
   };
 
   // Helper function to get icon for block type
@@ -140,59 +150,69 @@ export function StepBlockSelectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] p-0">
         <DialogHeader className="p-6 pb-4">
-          <DialogTitle>Connect Block or Use Agent</DialogTitle>
+          <DialogTitle>
+            {showManualBlocks ? (
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={handleBackToChoice}>
+                  ← Back
+                </Button>
+                Choose a Block
+              </div>
+            ) : (
+              "Connect Block or Use Agent"
+            )}
+          </DialogTitle>
         </DialogHeader>
         
-        <div className="px-6 pb-6 space-y-6">
-          {/* Quick Options */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-gray-700">Quick Options</h4>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {/* Agent Option */}
-              <div 
-                className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors border-orange-200 bg-orange-50"
-                onClick={handleAgentSelect}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <User className="h-5 w-5 text-orange-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-sm">AI Agent Step</h4>
-                    <p className="text-xs text-gray-600">Use an AI agent with custom prompts and tools</p>
-                    <p className="text-xs text-orange-600 font-medium mt-1">
-                      Configure: System prompt, tools, parameters
-                    </p>
+        <div className="px-6 pb-6">
+          {!showManualBlocks ? (
+            // Initial choice between AI Agent or Manual Block
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Agent Option */}
+                <div 
+                  className="border rounded-lg p-6 hover:bg-orange-50 cursor-pointer transition-colors border-orange-200 bg-orange-50/50"
+                  onClick={handleAgentSelect}
+                >
+                  <div className="flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <User className="h-6 w-6 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-base mb-1">AI Agent</h3>
+                      <p className="text-sm text-gray-600 mb-2">Use an AI agent with custom prompts and tools</p>
+                      <p className="text-xs text-orange-600 font-medium">
+                        Configure: System prompt, tools, parameters
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Manual Block Option */}
-              <div className="border rounded-lg p-4 border-dashed border-gray-300">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <Settings className="h-5 w-5 text-gray-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-sm">Manual Block</h4>
-                    <p className="text-xs text-gray-600">Choose from available pre-built blocks</p>
-                    <p className="text-xs text-gray-500 font-medium mt-1">
-                      Search below to see all available blocks
-                    </p>
+                {/* Manual Block Option */}
+                <div 
+                  className="border rounded-lg p-6 hover:bg-gray-50 cursor-pointer transition-colors border-gray-300"
+                  onClick={handleManualBlockSelect}
+                >
+                  <div className="flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Settings className="h-6 w-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-base mb-1">Manual Block</h3>
+                      <p className="text-sm text-gray-600 mb-2">Choose from available pre-built blocks</p>
+                      <p className="text-xs text-gray-500 font-medium">
+                        Browse {blocks.length} available blocks
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Manual Blocks Section */}
-          <div className="space-y-4">
-            <div className="border-t pt-4">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Available Blocks</h4>
-              
+          ) : (
+            // Manual blocks selection interface
+            <div className="space-y-4">
               {/* Search */}
-              <div className="relative mb-3">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   placeholder="Search blocks by name or description..."
@@ -203,7 +223,7 @@ export function StepBlockSelectionDialog({
               </div>
 
               {/* Categories */}
-              <div className="flex gap-2 flex-wrap mb-4">
+              <div className="flex gap-2 flex-wrap">
                 <Button
                   variant={selectedCategory === null ? "default" : "outline"}
                   size="sm"
@@ -222,64 +242,64 @@ export function StepBlockSelectionDialog({
                   </Button>
                 ))}
               </div>
-            </div>
 
-            {/* Blocks List */}
-            <div className="max-h-64 overflow-y-auto space-y-2">
-              {loading ? (
-                <div className="text-center py-8 text-gray-500 text-sm">
-                  Loading blocks...
-                </div>
-              ) : filteredBlocks.length === 0 ? (
-                <div className="text-center py-8 text-gray-500 text-sm">
-                  No blocks found matching your search.
-                </div>
-              ) : (
-                filteredBlocks.map((block, index) => {
-                  const IconComponent = getIconForType(block.type);
-                  const colorClass = getColorForType(block.type);
-                  
-                  return (
-                    <div
-                      key={index}
-                      className={`border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors ${colorClass.includes('border') ? colorClass : `border-gray-200 ${colorClass}`}`}
-                      onClick={() => handleBlockSelect(block)}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClass}`}>
-                          <IconComponent className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium text-sm truncate">{block.name}</h4>
-                            <Badge variant="outline" className="text-xs capitalize flex-shrink-0">
-                              {getCategoryDisplayName(block.type)}
-                            </Badge>
+              {/* Blocks List */}
+              <div className="max-h-96 overflow-y-auto space-y-2">
+                {loading ? (
+                  <div className="text-center py-8 text-gray-500 text-sm">
+                    Loading blocks...
+                  </div>
+                ) : filteredBlocks.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 text-sm">
+                    No blocks found matching your search.
+                  </div>
+                ) : (
+                  filteredBlocks.map((block, index) => {
+                    const IconComponent = getIconForType(block.type);
+                    const colorClass = getColorForType(block.type);
+                    
+                    return (
+                      <div
+                        key={index}
+                        className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => handleBlockSelect(block)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClass}`}>
+                            <IconComponent className="h-5 w-5" />
                           </div>
-                          <p className="text-xs text-gray-600 line-clamp-2 mb-1">{block.description}</p>
-                          {block.parameters && block.parameters.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              <span className="text-xs text-gray-500">Parameters:</span>
-                              {block.parameters.slice(0, 3).map((param, i) => (
-                                <span key={i} className="text-xs bg-gray-100 px-1 rounded">
-                                  {param}
-                                </span>
-                              ))}
-                              {block.parameters.length > 3 && (
-                                <span className="text-xs text-gray-500">
-                                  +{block.parameters.length - 3} more
-                                </span>
-                              )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-medium text-base truncate">{block.name}</h4>
+                              <Badge variant="outline" className="text-xs capitalize flex-shrink-0">
+                                {getCategoryDisplayName(block.type)}
+                              </Badge>
                             </div>
-                          )}
+                            <p className="text-sm text-gray-600 mb-2">{block.description}</p>
+                            {block.parameters && block.parameters.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                <span className="text-xs text-gray-500">Parameters:</span>
+                                {block.parameters.slice(0, 4).map((param, i) => (
+                                  <span key={i} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                    {param}
+                                  </span>
+                                ))}
+                                {block.parameters.length > 4 && (
+                                  <span className="text-xs text-gray-500">
+                                    +{block.parameters.length - 4} more
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
