@@ -421,7 +421,7 @@ export function FlowStepsEditor({
                                   <ChevronDown className="h-3 w-3" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent className="w-64 max-h-64 overflow-y-auto">
+                              <DropdownMenuContent className="w-80 max-h-64 overflow-y-auto" onCloseAutoFocus={(e) => e.preventDefault()}>
                                 <DropdownMenuLabel className="text-xs">Select Tools</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {allBlocks.map((blockName) => (
@@ -429,6 +429,7 @@ export function FlowStepsEditor({
                                     key={blockName}
                                     checked={getStepSelectedBlocks(step.id).includes(blockName)}
                                     onCheckedChange={() => handleStepBlockToggle(step.id, blockName)}
+                                    onSelect={(e) => e.preventDefault()}
                                     className="text-xs"
                                   >
                                     {blockName}

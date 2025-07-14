@@ -134,7 +134,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64 max-h-64 overflow-y-auto">
+                <DropdownMenuContent className="w-80 max-h-64 overflow-y-auto" onCloseAutoFocus={(e) => e.preventDefault()}>
                   <DropdownMenuLabel className="text-xs">Select Tools</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {allBlocks.map((blockName) => (
@@ -142,6 +142,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                       key={blockName}
                       checked={selectedBlocks.includes(blockName)}
                       onCheckedChange={() => handleBlockToggle(blockName)}
+                      onSelect={(e) => e.preventDefault()}
                       className="text-xs"
                     >
                       {blockName}
