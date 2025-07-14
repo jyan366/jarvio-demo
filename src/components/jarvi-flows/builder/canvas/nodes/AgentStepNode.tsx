@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { User, Settings, Trash2, Check, Link, ChevronDown } from 'lucide-react';
+import { User, Settings, Trash2, Check, Link, ChevronDown, Unlink } from 'lucide-react';
 import { FlowStep } from '@/types/flowTypes';
 import { blocksData } from '../../../data/blocksData';
 import { flowBlockOptions } from '@/data/flowBlockOptions';
@@ -156,8 +156,8 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
               />
             </div>
 
-            {/* Attach Block Option */}
-            <div className="pt-2 border-t border-purple-200">
+            {/* Action buttons */}
+            <div className="pt-2 border-t border-purple-200 space-y-2">
               <Button
                 size="sm"
                 variant="outline"
@@ -166,6 +166,21 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
               >
                 <Link className="h-3 w-3 mr-1" />
                 Attach Block Instead
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  onStepUpdate({ 
+                    isAgentStep: false, 
+                    stepType: 'unselected',
+                    agentPrompt: ''
+                  });
+                }}
+                className="w-full h-8 text-xs border-purple-200 hover:border-purple-300 text-red-600 hover:text-red-700"
+              >
+                <Unlink className="h-3 w-3 mr-1" />
+                Disconnect Agent
               </Button>
             </div>
 
