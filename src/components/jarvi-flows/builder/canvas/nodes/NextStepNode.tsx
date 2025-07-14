@@ -33,13 +33,7 @@ export function NextStepNode({ data }: NextStepNodeProps) {
 
   const handleClick = () => {
     console.log('NextStepNode clicked!');
-    alert('NextStepNode clicked!');
     setShowSelectionDialog(true);
-  };
-
-  const handleTestClick = () => {
-    console.log('Test button clicked!');
-    alert('Test button works!');
   };
 
   return (
@@ -65,15 +59,6 @@ export function NextStepNode({ data }: NextStepNodeProps) {
         <div className="flex flex-col items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors pointer-events-none">
           <Plus className="h-8 w-8 group-hover:scale-110 transition-transform" />
           <span className="text-base font-medium">Add Next Step</span>
-          <button 
-            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded pointer-events-auto"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleTestClick();
-            }}
-          >
-            Test Button
-          </button>
         </div>
       </div>
 
