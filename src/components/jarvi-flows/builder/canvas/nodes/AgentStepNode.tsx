@@ -56,6 +56,14 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
     );
   };
 
+  const handleSelectAll = () => {
+    setSelectedBlocks(allBlocks);
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedBlocks([]);
+  };
+
   const handlePromptChange = (prompt: string) => {
     onStepUpdate({ agentPrompt: prompt });
   };
@@ -156,6 +164,25 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-80 max-h-64 overflow-y-auto" onCloseAutoFocus={(e) => e.preventDefault()}>
                   <DropdownMenuLabel className="text-xs">Select Tools</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <div className="px-2 py-1 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleSelectAll}
+                      className="flex-1 h-6 text-xs"
+                    >
+                      Select All
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleDeselectAll}
+                      className="flex-1 h-6 text-xs"
+                    >
+                      Deselect All
+                    </Button>
+                  </div>
                   <DropdownMenuSeparator />
                   {allBlocks.map((blockName) => (
                     <DropdownMenuCheckboxItem
