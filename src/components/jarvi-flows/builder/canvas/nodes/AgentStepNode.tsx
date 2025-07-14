@@ -224,54 +224,72 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
       {/* Connected Tools View */}
       {showToolsView && selectedBlocks.length > 0 && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-10">
-          {/* Connection lines */}
-          <div className="flex justify-center mb-2">
-            <div className="h-4 w-px bg-purple-300"></div>
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-6 z-10">
+          {/* Main connection line down from agent */}
+          <div className="flex justify-center mb-4">
+            <div className="h-8 w-px bg-purple-300"></div>
           </div>
-          <div className="grid grid-cols-3 gap-2 max-w-xs">
-            {getSelectedToolsData().slice(0, 9).map((tool, index) => (
-              <div
-                key={tool.name}
-                className="relative"
-              >
-                {/* Connection line to agent */}
-                <div 
-                  className="absolute bottom-full left-1/2 transform -translate-x-1/2 h-6 w-px bg-purple-300"
-                  style={{
-                    background: `linear-gradient(to top, #a855f7, transparent)`
-                  }}
-                ></div>
-                {/* Tool item */}
-                <div className="bg-white border border-purple-200 rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex flex-col items-center gap-1">
+          
+          {/* Tools arranged horizontally */}
+          <div className="flex justify-center gap-6 relative" style={{ minWidth: `${Math.max(getSelectedToolsData().length * 100, 400)}px` }}>
+            {getSelectedToolsData().map((tool, index) => {
+              const totalTools = getSelectedToolsData().length;
+              const isCenter = index === Math.floor(totalTools / 2);
+              const distanceFromCenter = index - Math.floor(totalTools / 2);
+              
+              return (
+                <div
+                  key={tool.name}
+                  className="relative flex flex-col items-center"
+                >
+                  {/* Curved connection line to agent */}
+                  <svg 
+                    className="absolute bottom-full left-1/2 transform -translate-x-1/2"
+                    width="2" 
+                    height="40"
+                    style={{
+                      overflow: 'visible'
+                    }}
+                  >
+                    <path
+                      d={`M 0 40 Q ${distanceFromCenter * -20} 20 ${distanceFromCenter * -40} 0`}
+                      stroke="#a855f7"
+                      strokeWidth="1"
+                      strokeDasharray="3,3"
+                      fill="none"
+                      opacity="0.7"
+                    />
+                  </svg>
+                  
+                  {/* Tool item */}
+                  <div className="bg-white border border-purple-200 rounded-full p-3 shadow-sm hover:shadow-md transition-shadow w-16 h-16 flex items-center justify-center">
                     {tool.logo ? (
-                      <div className="w-6 h-6 rounded overflow-hidden bg-gray-50 flex items-center justify-center">
-                        <img 
-                          src={tool.logo} 
-                          alt={tool.name}
-                          className="w-4 h-4 object-contain"
-                        />
-                      </div>
+                      <img 
+                        src={tool.logo} 
+                        alt={tool.name}
+                        className="w-8 h-8 object-contain"
+                      />
                     ) : (
-                      <div className="w-6 h-6 rounded bg-purple-100 flex items-center justify-center">
-                        <div className="w-3 h-3 bg-purple-400 rounded"></div>
+                      <div className="w-8 h-8 bg-purple-100 rounded flex items-center justify-center">
+                        <div className="w-4 h-4 bg-purple-400 rounded"></div>
                       </div>
                     )}
-                    <span className="text-xs text-center text-gray-700 font-medium leading-tight">
-                      {tool.name.length > 12 ? `${tool.name.substring(0, 12)}...` : tool.name}
+                  </div>
+                  
+                  {/* Tool name */}
+                  <div className="mt-2 text-center">
+                    <span className="text-xs text-gray-700 font-medium leading-tight block max-w-20">
+                      {tool.name.length > 15 ? `${tool.name.substring(0, 15)}...` : tool.name}
                     </span>
+                    {tool.description && (
+                      <span className="text-xs text-gray-500 leading-tight block max-w-20 mt-1">
+                        {tool.description.length > 20 ? `${tool.description.substring(0, 20)}...` : tool.description}
+                      </span>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
-            {selectedBlocks.length > 9 && (
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 flex items-center justify-center">
-                <span className="text-xs text-purple-600 font-medium">
-                  +{selectedBlocks.length - 9} more
-                </span>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       )}
