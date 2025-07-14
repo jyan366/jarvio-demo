@@ -38,11 +38,18 @@ export function NextStepNode({ data }: NextStepNodeProps) {
   };
 
   return (
-    <>
-      <Handle type="target" position={Position.Left} />
+    <div className="relative">
+      <Handle type="target" position={Position.Left} style={{ top: '70px' }} />
+      
+      {/* Floating title above the block */}
+      <div className="absolute -top-8 left-0 w-72 mb-2">
+        <div className="text-sm font-medium text-gray-900 text-center px-2">
+          Add Next Step
+        </div>
+      </div>
       
       <div
-        className="w-80 h-48 border-2 border-dashed border-primary/30 rounded-lg
+        className="w-72 min-h-[120px] border-2 border-dashed border-primary/30 rounded-lg
                    flex items-center justify-center relative
                    transition-all duration-200 bg-background/50 hover:bg-background/80
                    hover:border-primary/50 hover:shadow-md
@@ -62,7 +69,7 @@ export function NextStepNode({ data }: NextStepNodeProps) {
         >
           <div className="flex flex-col items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors">
             <Plus className="h-8 w-8 group-hover:scale-110 transition-transform" />
-            <span className="text-base font-medium">Add Next Step</span>
+            <span className="text-sm font-medium">Click to add step</span>
           </div>
         </button>
       </div>
@@ -73,6 +80,6 @@ export function NextStepNode({ data }: NextStepNodeProps) {
         onBlockSelected={handleBlockSelected}
         onAgentSelected={handleAgentSelected}
       />
-    </>
+    </div>
   );
 }

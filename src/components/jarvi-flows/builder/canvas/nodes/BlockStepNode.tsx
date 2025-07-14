@@ -59,87 +59,91 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
   };
 
   return (
-    <>
+    <div className="relative">
       <Handle 
         type="target" 
         position={Position.Left} 
         className="w-3 h-3" 
-        style={{ top: '50%' }} 
+        style={{ top: '70px' }} 
       />
       
-      <div className="w-96 space-y-4">
-        {/* Step Information - Floating above the block */}
-        <div className="text-center space-y-2 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-lg text-gray-900">
-            {step.title}
-          </h3>
+      {/* Floating step name and description above the block */}
+      <div className="absolute -top-12 left-0 w-72 space-y-1 mb-2">
+        <div className="text-sm font-medium text-gray-900 text-center px-2">
+          {step.title || 'Block Step'}
         </div>
-
-        {/* Connected Block Container - Larger and Clickable */}
-        <Card 
-          className="border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 cursor-pointer"
-          onClick={onBlockClick}
-        >
-          <CardContent className="p-8">
-            <div className="space-y-4">
-              {/* Block Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-base font-medium text-gray-700">
-                    Connected block:
-                  </span>
-                  <span className="text-base font-semibold text-gray-900">
-                    {block?.option || block?.name || 'No block attached'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {block && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onBlockClick?.();
-                      }}
-                      className="h-9 px-4 text-sm"
-                    >
-                      <Settings className="h-4 w-4 mr-1" />
-                      Config
-                    </Button>
-                  )}
+        <div className="text-xs text-gray-600 text-center px-2">
+          {step.description || 'Connected block action'}
+        </div>
+      </div>
+      
+      <Card 
+        className={`w-72 min-h-[120px] transition-all duration-200 cursor-pointer border-2 ${getBlockColor(block?.type)}`}
+        onClick={onBlockClick}
+      >
+        <CardContent className="p-4 h-full flex flex-col justify-center">
+          <div className="space-y-3">
+            {/* Block Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {getBlockIcon(block?.type)}
+                <Badge className={`${getBadgeColor(block?.type)} text-xs`}>
+                  {block?.type || 'Block'}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-1">
+                {block && (
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDelete();
+                      onBlockClick?.();
                     }}
-                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                    className="h-6 w-6 p-0"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Settings className="h-3 w-3" />
                   </Button>
-                </div>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
               </div>
-
-              {/* Step completion indicator */}
-              {step.completed && (
-                <div className="flex items-center gap-2 text-sm text-green-600 pt-3 border-t border-gray-100">
-                  <Check className="w-4 h-4" />
-                  Completed
-                </div>
-              )}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+
+            {/* Block Name */}
+            <div className="text-center">
+              <span className="text-sm font-semibold text-gray-900">
+                {block?.option || block?.name || 'No block attached'}
+              </span>
+            </div>
+
+            {/* Step completion indicator */}
+            {step.completed && (
+              <div className="flex items-center gap-2 text-xs text-green-600 pt-2 border-t border-gray-200">
+                <Check className="w-3 h-3" />
+                Completed
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <Handle 
         type="source" 
         position={Position.Right} 
         className="w-3 h-3" 
-        style={{ top: '50%' }} 
+        style={{ top: '70px' }} 
       />
-    </>
+    </div>
   );
 });
 

@@ -27,32 +27,36 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
   const isAgentStep = step.isAgentStep;
 
   return (
-    <>
+    <div className="relative">
       <Handle 
         type="target" 
         position={Position.Left} 
         className="w-3 h-3" 
-        style={{ top: '50%' }} 
+        style={{ top: '70px' }} 
       />
       
-      <Card className="w-80 border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 shadow-sm">
-        <CardContent className="p-6">
-          <div className="space-y-4">
+      {/* Floating step name and description above the block */}
+      <div className="absolute -top-12 left-0 w-72 space-y-1 mb-2">
+        <Input
+          placeholder="Step name..."
+          value={step.title || ''}
+          onChange={(e) => onStepUpdate({ title: e.target.value })}
+          className="text-xs h-7 bg-transparent border-none shadow-none p-1 font-medium placeholder:text-gray-400"
+        />
+        <Input
+          placeholder="Step description..."
+          value={step.description || ''}
+          onChange={(e) => onStepUpdate({ description: e.target.value })}
+          className="text-xs h-6 bg-transparent border-none shadow-none p-1 placeholder:text-gray-400"
+        />
+      </div>
+      
+      <Card className="w-72 min-h-[120px] border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 shadow-sm">
+        <CardContent className="p-4 h-full flex flex-col justify-center">
+          <div className="space-y-3">
             {/* Step Header */}
             <div className="flex items-start justify-between">
-              <div className="flex-1 space-y-2">
-                <Input
-                  placeholder="Step name..."
-                  value={step.title || ''}
-                  onChange={(e) => onStepUpdate({ title: e.target.value })}
-                  className="text-sm font-semibold border-gray-200 focus:border-gray-300"
-                />
-                <Input
-                  placeholder="Step description..."
-                  value={step.description || ''}
-                  onChange={(e) => onStepUpdate({ description: e.target.value })}
-                  className="text-sm border-gray-200 focus:border-gray-300"
-                />
+              <div className="flex-1">
                 {isAgentStep && (
                   <Badge variant="secondary" className="text-xs w-fit">
                     <Bot className="w-3 h-3 mr-1" />
@@ -64,17 +68,17 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                 size="sm"
                 variant="ghost"
                 onClick={onDelete}
-                className="h-8 w-8 p-0 text-red-500 hover:text-red-700 ml-2"
+                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3 w-3" />
               </Button>
             </div>
 
             {/* Block Section */}
-            <div className="border-t border-gray-100 pt-4">
+            <div className="pt-2">
               {isUnselected ? (
-                <div className="text-center space-y-3">
-                  <div className="text-sm text-gray-600 mb-3">
+                <div className="text-center space-y-2">
+                  <div className="text-xs text-gray-600 mb-2">
                     Choose step type
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -84,34 +88,32 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                       onClick={() => {
                         onStepUpdate({ 
                           isAgentStep: true, 
-                          stepType: 'agent',
-                          title: 'AI Agent Step',
-                          description: 'Let AI handle this step' 
+                          stepType: 'agent'
                         });
                       }}
-                      className="h-12 flex flex-col items-center justify-center text-xs"
+                      className="h-10 flex flex-col items-center justify-center text-xs"
                     >
-                      <Bot className="h-4 w-4 mb-1" />
+                      <Bot className="h-3 w-3 mb-1" />
                       Agent
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={onAttachBlock}
-                      className="h-12 flex flex-col items-center justify-center text-xs"
+                      className="h-10 flex flex-col items-center justify-center text-xs"
                     >
-                      <Plus className="h-4 w-4 mb-1" />
+                      <Plus className="h-3 w-3 mb-1" />
                       Block
                     </Button>
                   </div>
                 </div>
               ) : block ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="text-center">
-                    <span className="text-lg font-semibold text-gray-900 block">
+                    <span className="text-sm font-semibold text-gray-900 block">
                       {block.option || block.name}
                     </span>
-                    <span className="text-sm font-medium text-gray-600">
+                    <span className="text-xs font-medium text-gray-600">
                       Action
                     </span>
                   </div>
@@ -120,10 +122,10 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                       size="sm"
                       variant="outline"
                       onClick={onConfigureBlock}
-                      className="flex-1 h-9"
+                      className="flex-1 h-7 text-xs"
                     >
-                      <Settings className="h-4 w-4 mr-2" />
-                      Configure
+                      <Settings className="h-3 w-3 mr-1" />
+                      Config
                     </Button>
                     {onDetachBlock && (
                       <Button
@@ -133,17 +135,17 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                           console.log('Detach button clicked');
                           onDetachBlock();
                         }}
-                        className="h-9 px-3"
+                        className="h-7 px-2 text-xs"
                         title="Detach block"
                       >
-                        <Unlink className="h-4 w-4" />
+                        <Unlink className="h-3 w-3" />
                       </Button>
                     )}
                   </div>
                 </div>
               ) : isAgentStep ? (
                 <div className="text-center">
-                  <div className="text-sm text-gray-600 mb-2">
+                  <div className="text-xs text-gray-600 mb-2">
                     AI Agent will handle this step
                   </div>
                   <Badge variant="outline" className="text-xs">
@@ -152,14 +154,14 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                 </div>
               ) : (
                 <div className="text-center">
-                  <div className="text-sm text-gray-600 mb-2">
+                  <div className="text-xs text-gray-600 mb-2">
                     No action attached
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={onAttachBlock}
-                    className="h-8 px-3 text-xs"
+                    className="h-7 px-3 text-xs"
                   >
                     <Plus className="h-3 w-3 mr-1" />
                     Attach Action
@@ -170,8 +172,8 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
 
             {/* Step completion indicator */}
             {step.completed && (
-              <div className="flex items-center gap-2 text-sm text-green-600 pt-2 border-t border-gray-100">
-                <Check className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-xs text-green-600 pt-2 border-t border-gray-100">
+                <Check className="w-3 h-3" />
                 Completed
               </div>
             )}
@@ -183,9 +185,9 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
         type="source" 
         position={Position.Right} 
         className="w-3 h-3" 
-        style={{ top: '50%' }} 
+        style={{ top: '70px' }} 
       />
-    </>
+    </div>
   );
 });
 

@@ -53,70 +53,78 @@ export function TriggerNode({ data }: TriggerNodeProps) {
   const TriggerIcon = currentTrigger.icon;
 
   return (
-    <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4 min-w-[200px] shadow-sm">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-          <TriggerIcon className="w-4 h-4 text-gray-600" />
-        </div>
-        <div>
-          <h3 className="font-medium text-sm">Flow Trigger</h3>
-          <p className="text-xs text-gray-500">How this flow starts</p>
+    <div className="relative">
+      {/* Floating trigger title above the block */}
+      <div className="absolute -top-8 left-0 w-72 mb-2">
+        <div className="text-sm font-medium text-gray-900 text-center px-2">
+          Flow Trigger
         </div>
       </div>
-
-      <div className="space-y-3">
-        <Select value={triggerType} onValueChange={onTriggerChange}>
-          <SelectTrigger className="w-full h-8 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {triggerOptions.map((trigger) => (
-              <SelectItem key={trigger.value} value={trigger.value}>
-                <div className="flex items-center gap-2">
-                  <trigger.icon className="w-3 h-3" />
-                  <span className="text-xs">{trigger.label}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div className={`p-2 rounded border ${currentTrigger.color}`}>
-          <div className="flex items-center gap-2">
-            <TriggerIcon className="w-3 h-3" />
-            <span className="text-xs font-medium">{currentTrigger.label}</span>
+      
+      <div className="w-72 min-h-[120px] bg-white border-2 border-gray-300 rounded-lg p-4 shadow-sm">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+            <TriggerIcon className="w-4 h-4 text-gray-600" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">How this flow starts</p>
           </div>
         </div>
 
-        {triggerType === 'manual' && (
-          <Button
-            size="sm"
-            onClick={onStartFlow}
-            disabled={isRunning}
-            className="w-full h-7 text-xs bg-green-600 hover:bg-green-700"
-          >
-            {isRunning ? (
-              <>
-                <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin mr-1" />
-                Running...
-              </>
-            ) : (
-              <>
-                <Play className="w-3 h-3 mr-1" />
-                Start Flow
-              </>
-            )}
-          </Button>
-        )}
-      </div>
+        <div className="space-y-3">
+          <Select value={triggerType} onValueChange={onTriggerChange}>
+            <SelectTrigger className="w-full h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {triggerOptions.map((trigger) => (
+                <SelectItem key={trigger.value} value={trigger.value}>
+                  <div className="flex items-center gap-2">
+                    <trigger.icon className="w-3 h-3" />
+                    <span className="text-xs">{trigger.label}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="trigger-source"
-        className="!bg-gray-400 !border-gray-600 !w-3 !h-3"
-        style={{ top: '50px' }}
-      />
+          <div className={`p-2 rounded border ${currentTrigger.color}`}>
+            <div className="flex items-center gap-2">
+              <TriggerIcon className="w-3 h-3" />
+              <span className="text-xs font-medium">{currentTrigger.label}</span>
+            </div>
+          </div>
+
+          {triggerType === 'manual' && (
+            <Button
+              size="sm"
+              onClick={onStartFlow}
+              disabled={isRunning}
+              className="w-full h-7 text-xs bg-green-600 hover:bg-green-700"
+            >
+              {isRunning ? (
+                <>
+                  <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin mr-1" />
+                  Running...
+                </>
+              ) : (
+                <>
+                  <Play className="w-3 h-3 mr-1" />
+                  Start Flow
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+
+        <Handle
+          type="source"
+          position={Position.Right}
+          id="trigger-source"
+          className="!bg-gray-400 !border-gray-600 !w-3 !h-3"
+          style={{ top: '70px' }}
+        />
+      </div>
     </div>
   );
 }
