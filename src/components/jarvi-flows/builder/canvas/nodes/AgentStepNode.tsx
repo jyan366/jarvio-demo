@@ -224,40 +224,39 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
       {/* Connected Tools View */}
       {showToolsView && selectedBlocks.length > 0 && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-6 z-10">
-          {/* Main connection line down from agent */}
-          <div className="flex justify-center mb-4">
-            <div className="h-8 w-px bg-purple-300"></div>
-          </div>
-          
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-10">
           {/* Tools arranged horizontally */}
           <div className="flex justify-center gap-6 relative" style={{ minWidth: `${Math.max(getSelectedToolsData().length * 100, 400)}px` }}>
             {getSelectedToolsData().map((tool, index) => {
               const totalTools = getSelectedToolsData().length;
-              const isCenter = index === Math.floor(totalTools / 2);
               const distanceFromCenter = index - Math.floor(totalTools / 2);
               
               return (
                 <div
                   key={tool.name}
                   className="relative flex flex-col items-center"
+                  style={{ marginTop: '60px' }}
                 >
                   {/* Curved connection line to agent */}
                   <svg 
-                    className="absolute bottom-full left-1/2 transform -translate-x-1/2"
-                    width="2" 
-                    height="40"
+                    className="absolute"
+                    width="200" 
+                    height="80"
                     style={{
-                      overflow: 'visible'
+                      left: '50%',
+                      top: '-60px',
+                      transform: 'translateX(-50%)',
+                      overflow: 'visible',
+                      pointerEvents: 'none'
                     }}
                   >
                     <path
-                      d={`M 0 40 Q ${distanceFromCenter * -20} 20 ${distanceFromCenter * -40} 0`}
+                      d={`M 100 80 Q ${100 + distanceFromCenter * -30} 40 ${100 + distanceFromCenter * -60} 0`}
                       stroke="#a855f7"
-                      strokeWidth="1"
-                      strokeDasharray="3,3"
+                      strokeWidth="1.5"
+                      strokeDasharray="4,4"
                       fill="none"
-                      opacity="0.7"
+                      opacity="0.8"
                     />
                   </svg>
                   
