@@ -130,7 +130,8 @@ export function FlowStepsEditor({
       description: '', // Will be generated when user clicks "Generate Instructions"
       completed: false,
       order: steps.length,
-      isAgentStep: true // Start as agent step, block can be attached later
+      stepType: 'unselected',
+      isAgentStep: false
     };
     onStepsChange([...steps, newStep]);
     setNewStepTitle('');
@@ -280,7 +281,8 @@ export function FlowStepsEditor({
       description: '',
       completed: false,
       order: steps.length,
-      isAgentStep: true // Start without a block attached
+      stepType: 'unselected',
+      isAgentStep: false
     };
     onStepsChange([...steps, newStep]);
   };
@@ -366,11 +368,11 @@ export function FlowStepsEditor({
                           <Badge variant="outline" className="text-xs capitalize">
                             {stepBlock.type}
                           </Badge>
-                        ) : (
+                        ) : step.stepType === 'agent' ? (
                           <Badge variant="outline" className="text-xs">
                             Agent
                           </Badge>
-                        )}
+                        ) : null}
                       </div>
                       
                       <Textarea
