@@ -171,33 +171,41 @@ export function StepBlockPlaceholder({
     return (
       <Card className="mt-3 border-dashed border-gray-300">
         <CardContent className="p-3 space-y-3">
-          <div className="text-sm font-medium text-gray-700">Connect Block or Use Agent</div>
+          <div className="text-sm font-medium text-gray-700 mb-2">Connect Block or Use Agent</div>
           
-          <div className="grid grid-cols-2 gap-2">
-            <Select value={selectedType} onValueChange={(value: any) => setSelectedType(value)}>
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="collect">Collect Data</SelectItem>
-                <SelectItem value="think">Process & Analyze</SelectItem>
-                <SelectItem value="act">Take Action</SelectItem>
-                <SelectItem value="agent">Use AI Agent</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-gray-600 mb-1 block">Block Type</label>
+              <Select value={selectedType} onValueChange={(value: any) => setSelectedType(value)}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="collect">📊 Collect Data</SelectItem>
+                  <SelectItem value="think">🧠 Process & Analyze</SelectItem>
+                  <SelectItem value="act">⚡ Take Action</SelectItem>
+                  <SelectItem value="agent">🤖 Use AI Agent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select value={selectedOption} onValueChange={setSelectedOption}>
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Choose option..." />
-              </SelectTrigger>
-              <SelectContent>
-                {availableOptions.map(option => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div>
+              <label className="text-xs text-gray-600 mb-1 block">
+                {selectedType === 'agent' ? 'Agent Type' : 'Block Option'}
+              </label>
+              <Select value={selectedOption} onValueChange={setSelectedOption}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Choose option..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableOptions.map(option => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex gap-2">
