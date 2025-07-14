@@ -224,45 +224,56 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
       {/* Connected Tools View */}
       {showToolsView && selectedBlocks.length > 0 && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-10">
-          {/* Tools arranged horizontally - moved further down */}
-          <div className="flex justify-center gap-6 relative" style={{ 
-            minWidth: `${Math.max(getSelectedToolsData().length * 100, 400)}px`,
-            marginTop: '120px'
-          }}>
-            {getSelectedToolsData().map((tool, index) => {
-              const totalTools = getSelectedToolsData().length;
-              const distanceFromCenter = index - Math.floor(totalTools / 2);
-              const horizontalOffset = distanceFromCenter * 100; // Distance from center in pixels
-              
-              return (
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 z-10">
+          {/* Connection lines container */}
+          <div className="relative" style={{ width: `${Math.max(getSelectedToolsData().length * 120, 600)}px`, height: '200px' }}>
+            {/* Single SVG for all connection lines */}
+            <svg 
+              className="absolute top-0 left-1/2 transform -translate-x-1/2"
+              width="100%" 
+              height="200"
+              style={{
+                overflow: 'visible',
+                pointerEvents: 'none'
+              }}
+            >
+              {getSelectedToolsData().map((tool, index) => {
+                const totalTools = getSelectedToolsData().length;
+                const centerIndex = (totalTools - 1) / 2;
+                const offsetFromCenter = (index - centerIndex) * 120;
+                const startX = "50%";
+                const endX = `calc(50% + ${offsetFromCenter}px)`;
+                
+                return (
+                  <path
+                    key={tool.name}
+                    d={`M 50% 0 Q 50% 100 calc(50% + ${offsetFromCenter}px) 180`}
+                    stroke="#a855f7"
+                    strokeWidth="2"
+                    strokeDasharray="6,6"
+                    fill="none"
+                    opacity="0.7"
+                    transform={`translate(${offsetFromCenter * 0}, 0)`}
+                  />
+                );
+              })}
+            </svg>
+            
+            {/* Tools positioned at the bottom */}
+            <div 
+              className="absolute flex justify-center gap-6"
+              style={{ 
+                bottom: '0',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '100%'
+              }}
+            >
+              {getSelectedToolsData().map((tool, index) => (
                 <div
                   key={tool.name}
-                  className="relative flex flex-col items-center"
+                  className="flex flex-col items-center"
                 >
-                  {/* Smooth curved connection line from bottom center of agent block */}
-                  <svg 
-                    className="absolute"
-                    width="400" 
-                    height="140"
-                    style={{
-                      left: '50%',
-                      top: '-120px',
-                      transform: `translateX(calc(-50% + ${-horizontalOffset}px))`,
-                      overflow: 'visible',
-                      pointerEvents: 'none'
-                    }}
-                  >
-                    <path
-                      d={`M 200 0 Q 200 70 ${200 + horizontalOffset} 140`}
-                      stroke="#a855f7"
-                      strokeWidth="2"
-                      strokeDasharray="5,5"
-                      fill="none"
-                      opacity="0.8"
-                    />
-                  </svg>
-                  
                   {/* Tool item */}
                   <div className="bg-white border border-purple-200 rounded-full p-3 shadow-sm hover:shadow-md transition-shadow w-16 h-16 flex items-center justify-center">
                     {tool.logo ? (
@@ -279,19 +290,19 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                   </div>
                   
                   {/* Tool name */}
-                  <div className="mt-2 text-center">
-                    <span className="text-xs text-gray-700 font-medium leading-tight block max-w-20">
+                  <div className="mt-2 text-center max-w-20">
+                    <span className="text-xs text-gray-700 font-medium leading-tight block">
                       {tool.name.length > 15 ? `${tool.name.substring(0, 15)}...` : tool.name}
                     </span>
                     {tool.description && (
-                      <span className="text-xs text-gray-500 leading-tight block max-w-20 mt-1">
+                      <span className="text-xs text-gray-500 leading-tight block mt-1">
                         {tool.description.length > 20 ? `${tool.description.substring(0, 20)}...` : tool.description}
                       </span>
                     )}
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
       )}
