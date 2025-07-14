@@ -96,13 +96,12 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
             {/* Block Section */}
             <div className="pt-2">
               {isUnselected ? (
-                <div className="text-center space-y-2">
-                  <div className="text-xs text-gray-600 mb-2">
+                <div className="text-center space-y-4">
+                  <div className="text-sm text-gray-600">
                     Choose step type
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-3 px-4">
                     <Button
-                      size="sm"
                       variant="outline"
                       onClick={() => {
                         onStepUpdate({ 
@@ -110,18 +109,17 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                           stepType: 'agent'
                         });
                       }}
-                      className="h-10 flex flex-col items-center justify-center text-xs"
+                      className="w-full h-12 flex items-center justify-center gap-2 text-sm"
                     >
-                      <Bot className="h-3 w-3 mb-1" />
+                      <Bot className="h-4 w-4" />
                       Agent
                     </Button>
                     <Button
-                      size="sm"
                       variant="outline"
                       onClick={onAttachBlock}
-                      className="h-10 flex flex-col items-center justify-center text-xs"
+                      className="w-full h-12 flex items-center justify-center gap-2 text-sm"
                     >
-                      <Plus className="h-3 w-3 mb-1" />
+                      <Plus className="h-4 w-4" />
                       Block
                     </Button>
                   </div>
