@@ -10,6 +10,7 @@ interface HoverAddStepNodeProps {
 }
 
 export function HoverAddStepNode({ data }: HoverAddStepNodeProps) {
+  console.log('HoverAddStepNode component is rendering!', data);
   const [isHovered, setIsHovered] = useState(false);
   const [showSelectionDialog, setShowSelectionDialog] = useState(false);
 

@@ -128,6 +128,7 @@ export function ReactFlowCanvas({
   
   // Convert steps to React Flow nodes
   const convertToNodes = useCallback((): Node[] => {
+    console.log('convertToNodes called with steps:', steps.length);
     const nodes: Node[] = [];
     
     // Add trigger node as the first node
