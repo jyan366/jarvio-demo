@@ -29,7 +29,7 @@ import { BlockConfigDialog } from '../BlockConfigDialog';
 import { AttachBlockDialog } from './AttachBlockDialog';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Play, TestTube } from 'lucide-react';
+import { Play, TestTube, Plus } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -444,17 +444,41 @@ export function ReactFlowCanvas({
       />
       */}
       
-      {/* Test Button & Theme Toggle - Theme-aware styling */}
-      <div className="absolute top-6 right-6 z-10 flex items-center gap-3">
+      {/* Theme Toggle - Top right */}
+      <div className="absolute top-6 right-6 z-10">
         <ThemeToggle />
+      </div>
+
+      {/* Add Step Button - Top left */}
+      <div className="absolute top-6 left-6 z-10">
+        <Button
+          onClick={() => setAddPanelOpen(true)}
+          className="gap-2 bg-card hover:bg-accent border border-border text-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-lg"
+        >
+          <Plus className="w-4 h-4" />
+          Add Step
+        </Button>
+      </div>
+
+      {/* Flow Control Buttons - Bottom right */}
+      <div className="absolute bottom-6 right-6 z-10 flex items-center gap-3">
+        <Button
+          onClick={onStartFlow}
+          disabled={isRunningFlow || steps.length === 0}
+          className="gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-lg"
+        >
+          <Play className="w-4 h-4" />
+          {isRunningFlow ? "Running..." : "Start Flow"}
+        </Button>
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               disabled={isTestRunning || steps.length === 0}
-              className="gap-2 bg-card hover:bg-accent border border-border text-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-lg"
+              className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-lg"
             >
               <TestTube className="w-4 h-4" />
-              {isTestRunning ? "Running..." : "Test Flow"}
+              {isTestRunning ? "Testing..." : "Test Flow"}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
@@ -511,9 +535,10 @@ export function ReactFlowCanvas({
         />
         <Controls 
           showInteractive={false} 
-          className="bg-card border border-border rounded-lg shadow-lg [&>button]:bg-card [&>button]:border-border [&>button]:text-foreground [&>button:hover]:bg-accent"
+          className="bg-card border border-border rounded-lg shadow-lg [&>button]:bg-card [&>button]:border-border [&>button]:text-foreground [&>button:hover]:bg-accent absolute bottom-20 left-6"
         />
         <MiniMap 
+          position="bottom-left"
           nodeStrokeColor="hsl(var(--primary))"
           nodeColor={(node) => {
             if (node.type === 'agentStep') return '#8b5cf6';
@@ -533,7 +558,7 @@ export function ReactFlowCanvas({
           maskColor="hsla(var(--background), 0.8)"
           pannable
           zoomable
-          className="bg-card border border-border rounded-lg shadow-lg"
+          className="bg-card border border-border rounded-lg shadow-lg !absolute !bottom-6 !left-6"
         />
       </ReactFlow>
 
