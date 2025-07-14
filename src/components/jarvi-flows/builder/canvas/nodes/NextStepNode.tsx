@@ -32,6 +32,7 @@ export function NextStepNode({ data }: NextStepNodeProps) {
   }, [handleAddStep]);
 
   const handleClick = () => {
+    console.log('NextStepNode clicked!');
     setShowSelectionDialog(true);
   };
 
@@ -41,13 +42,22 @@ export function NextStepNode({ data }: NextStepNodeProps) {
       
       <div
         className="w-80 h-48 border-2 border-dashed border-primary/30 rounded-lg
-                   flex items-center justify-center cursor-pointer
+                   flex items-center justify-center cursor-pointer select-none
                    transition-all duration-200 bg-background/50 hover:bg-background/80
-                   hover:border-primary/50 hover:shadow-md"
+                   hover:border-primary/50 hover:shadow-md active:scale-95
+                   hover:scale-105 group"
         onClick={handleClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
       >
-        <div className="flex flex-col items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
-          <Plus className="h-8 w-8" />
+        <div className="flex flex-col items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors pointer-events-none">
+          <Plus className="h-8 w-8 group-hover:scale-110 transition-transform" />
           <span className="text-base font-medium">Add Next Step</span>
         </div>
       </div>
