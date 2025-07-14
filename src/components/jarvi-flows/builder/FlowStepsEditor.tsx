@@ -253,20 +253,28 @@ export function FlowStepsEditor({
   };
 
   const handleAgentSelected = (stepId: string) => {
+    // Find the current step to preserve its title and description
+    const currentStep = steps.find(s => s.id === stepId);
+    
     // Create a virtual agent "block" to represent the agent selection
     const agentBlock: FlowBlock = {
       id: uuidv4(),
       type: 'agent',
       option: 'AI Agent',
-      name: 'AI Agent Step'
+      name: currentStep?.title || 'AI Agent Step'
     };
     
     // Add this virtual block and attach it to the step
     const updatedBlocks = [...blocks, agentBlock];
     onBlocksChange(updatedBlocks);
     
-    // Update the step to reference this agent block
-    updateStep(stepId, { blockId: agentBlock.id, isAgentStep: true, stepType: 'agent' });
+    // Update the step to reference this agent block while preserving existing data
+    updateStep(stepId, { 
+      blockId: agentBlock.id, 
+      isAgentStep: true, 
+      stepType: 'agent'
+      // Don't override title or description - they should remain as user entered them
+    });
   };
 
   const handleBlockConfigured = (updatedBlock: FlowBlock) => {
