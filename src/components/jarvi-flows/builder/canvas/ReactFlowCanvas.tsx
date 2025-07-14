@@ -18,13 +18,14 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
-import { BlockStepNode } from './nodes/BlockStepNode';
+import { WorkflowStepNode } from './nodes/WorkflowStepNode';
 import { AgentStepNode } from './nodes/AgentStepNode';
 import { TriggerNode } from './nodes/TriggerNode';
 import { AddStepPanel } from './AddStepDialog';
 import { ReactFlowToolbar } from './ReactFlowToolbar';
 import { CustomEdge } from './CustomEdge';
 import { BlockConfigDialog } from '../BlockConfigDialog';
+import { AttachBlockDialog } from './AttachBlockDialog';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ReactFlowCanvasProps {
@@ -42,7 +43,7 @@ interface ReactFlowCanvasProps {
 // Custom node types
 const nodeTypes: NodeTypes = {
   trigger: TriggerNode,
-  blockStep: BlockStepNode,
+  workflowStep: WorkflowStepNode,
   agentStep: AgentStepNode,
 };
 
@@ -65,6 +66,8 @@ export function ReactFlowCanvas({
   const [addPanelOpen, setAddPanelOpen] = useState(false);
   const [selectedBlock, setSelectedBlock] = useState<FlowBlock | null>(null);
   const [showBlockConfig, setShowBlockConfig] = useState(false);
+  const [attachBlockDialogOpen, setAttachBlockDialogOpen] = useState(false);
+  const [selectedStepForAttach, setSelectedStepForAttach] = useState<string | null>(null);
 
   const handleBlockClick = useCallback((block: FlowBlock) => {
     setSelectedBlock(block);
@@ -97,8 +100,8 @@ export function ReactFlowCanvas({
       
       return {
         id: step.id,
-        type: step.isAgentStep ? 'agentStep' : 'blockStep',
-        position: step.canvasPosition || { x: 300 + index * 400, y: 100 }, // Start after trigger
+        type: 'workflowStep',
+        position: step.canvasPosition || { x: 300 + index * 400, y: 100 },
         data: {
           step,
           block,
@@ -125,7 +128,11 @@ export function ReactFlowCanvas({
             onStepsChange(updatedSteps);
             onBlocksChange(updatedBlocks);
           },
-          onBlockClick: block ? () => handleBlockClick(block) : undefined,
+          onAttachBlock: () => {
+            setSelectedStepForAttach(step.id);
+            setAttachBlockDialogOpen(true);
+          },
+          onConfigureBlock: block ? () => handleBlockClick(block) : undefined,
           availableBlockOptions
         },
         sourcePosition: Position.Right,
@@ -214,37 +221,49 @@ export function ReactFlowCanvas({
   const handleAddStep = (type: 'block' | 'agent', blockData?: any) => {
     const stepId = uuidv4();
     
-    // Always create just a step first, blocks are attached optionally
+    // Always create just a step first, blocks are attached separately
     const newStep: FlowStep = {
       id: stepId,
-      title: type === 'agent' ? 'New Agent Step' : (blockData?.name || 'New Step'),
-      description: blockData?.summary || '',
+      title: type === 'agent' ? 'New Agent Step' : 'New Step',
+      description: type === 'agent' ? 'AI will handle this step automatically' : 'Configure what action this step should perform',
       completed: false,
       order: steps.length,
-      isAgentStep: type === 'agent' || !blockData, // Agent step if no block data
+      isAgentStep: type === 'agent',
       agentPrompt: '',
       selectedBlocks: [],
       canvasPosition: {
-        x: 100 + steps.length * 400,
+        x: 300 + steps.length * 400,
         y: 100
       }
     };
 
-    // Only create block if blockData is provided and it's a block type
-    if (type === 'block' && blockData) {
-      const blockId = uuidv4();
-      const newBlock: FlowBlock = {
-        id: blockId,
-        type: blockData.category || 'collect',
-        option: blockData.name || availableBlockOptions?.collect?.[0] || 'User Text',
-        name: blockData.name || 'New Block Step'
-      };
-      newStep.blockId = blockId;
-      newStep.isAgentStep = false;
-      onBlocksChange([...blocks, newBlock]);
-    }
-
     onStepsChange([...steps, newStep]);
+  };
+
+  const handleAttachBlock = (stepId: string, blockData: any) => {
+    const blockId = uuidv4();
+    const newBlock: FlowBlock = {
+      id: blockId,
+      type: blockData.category || 'collect',
+      option: blockData.name,
+      name: blockData.name
+    };
+
+    // Update the step to reference this block
+    const updatedSteps = steps.map(step =>
+      step.id === stepId 
+        ? { 
+            ...step, 
+            blockId: blockId,
+            isAgentStep: false,
+            title: blockData.name,
+            description: blockData.summary
+          }
+        : step
+    );
+
+    onStepsChange(updatedSteps);
+    onBlocksChange([...blocks, newBlock]);
   };
 
   const handleAutoArrange = () => {
@@ -320,6 +339,20 @@ export function ReactFlowCanvas({
           setShowBlockConfig(false);
           setSelectedBlock(null);
         }}
+      />
+
+      <AttachBlockDialog
+        isOpen={attachBlockDialogOpen}
+        onClose={() => {
+          setAttachBlockDialogOpen(false);
+          setSelectedStepForAttach(null);
+        }}
+        onAttachBlock={(blockData) => {
+          if (selectedStepForAttach) {
+            handleAttachBlock(selectedStepForAttach, blockData);
+          }
+        }}
+        stepId={selectedStepForAttach || ''}
       />
     </div>
   );
