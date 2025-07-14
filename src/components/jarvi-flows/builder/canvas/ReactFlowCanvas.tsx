@@ -21,7 +21,7 @@ import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { WorkflowStepNode } from './nodes/WorkflowStepNode';
 import { AgentStepNode } from './nodes/AgentStepNode';
 import { TriggerNode } from './nodes/TriggerNode';
-import { HoverAddStepNode } from './nodes/HoverAddStepNode';
+import { NextStepNode } from './nodes/NextStepNode';
 import { AddStepPanel } from './AddStepDialog';
 import { ReactFlowToolbar } from './ReactFlowToolbar';
 import { CustomEdge } from './CustomEdge';
@@ -47,7 +47,7 @@ const nodeTypes: NodeTypes = {
   trigger: TriggerNode,
   workflowStep: WorkflowStepNode,
   agentStep: AgentStepNode,
-  hoverAddStep: HoverAddStepNode,
+  nextStep: NextStepNode,
 };
 
 // Custom edge types
@@ -195,7 +195,28 @@ export function ReactFlowCanvas({
       };
     });
     
+    
     nodes.push(...stepNodes);
+    
+    // Add "Next Step" node after the last step (only if there are steps)
+    if (steps.length > 0) {
+      const lastStepPosition = steps[steps.length - 1].canvasPosition || { x: 400 + (steps.length - 1) * 450, y: 100 };
+      
+      const nextStepNode = {
+        id: 'next-step',
+        type: 'nextStep',
+        position: { x: lastStepPosition.x + 450, y: lastStepPosition.y },
+        data: {
+          onAddStep: handleAddStep,
+        },
+        draggable: false,
+        selectable: false,
+        deletable: false,
+      };
+      
+      nodes.push(nextStepNode);
+    }
+    
     
     console.log('All nodes created:', nodes.map(n => ({ id: n.id, type: n.type, position: n.position })));
     return nodes;
@@ -311,16 +332,6 @@ export function ReactFlowCanvas({
   };
 
 
-  // Calculate position for the floating "Add Step" area
-  const lastStepPosition = steps.length > 0 
-    ? (steps[steps.length - 1].canvasPosition || { x: 400 + (steps.length - 1) * 450, y: 100 })
-    : { x: 400, y: 100 };
-  
-  const addStepPosition = { 
-    x: lastStepPosition.x + 350, 
-    y: lastStepPosition.y 
-  };
-
   return (
     <div className="w-full h-full relative bg-gray-50">
       <ReactFlowToolbar
@@ -335,18 +346,6 @@ export function ReactFlowCanvas({
         onClose={() => setAddPanelOpen(false)}
         availableBlockOptions={availableBlockOptions}
       />
-
-      {/* Floating Add Step Area */}
-      <div 
-        className="absolute z-50 pointer-events-auto"
-        style={{
-          left: `${addStepPosition.x}px`,
-          top: `${addStepPosition.y}px`,
-          transform: 'translate(-50%, -50%)'
-        }}
-      >
-        <HoverAddStepNode data={{ onAddStep: handleAddStep }} />
-      </div>
       
       <ReactFlow
         nodes={nodes}
