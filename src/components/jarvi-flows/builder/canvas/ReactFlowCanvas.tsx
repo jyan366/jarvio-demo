@@ -127,14 +127,13 @@ export function ReactFlowCanvas({
   }, [steps, blocks, onStepsChange, onBlocksChange]);
 
   const handleDetachBlock = useCallback((stepId: string) => {
-    // Convert workflow step to agent step by removing block reference
+    // Remove block reference but keep as workflow step (not agent step)
     const updatedSteps = steps.map(step =>
       step.id === stepId 
         ? { 
             ...step, 
             blockId: undefined,
-            isAgentStep: true,
-            agentPrompt: step.agentPrompt || ''
+            isAgentStep: false  // Keep as workflow step, just without block
           }
         : step
     );
