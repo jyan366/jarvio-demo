@@ -657,20 +657,18 @@ export default function FlowBuilder() {
     <MainLayout>
       <FlowBlockDatabaseSync />
 
-      {/* Header - only show in steps view mode */}
-      {viewMode === 'steps' && (
-        <FlowHeader
-          showAIPrompt={showAIPrompt}
-          setShowAIPrompt={setShowAIPrompt}
-          isManualTrigger={flow.trigger === 'manual'}
-          isRunningFlow={isRunningFlow}
-          flowHasBlocks={flow.steps.length > 0}
-          onStartFlow={handleStartFlow}
-          onSaveFlow={saveFlow}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
-      )}
+      {/* Header - always in same position */}
+      <FlowHeader
+        showAIPrompt={showAIPrompt}
+        setShowAIPrompt={setShowAIPrompt}
+        isManualTrigger={flow.trigger === 'manual'}
+        isRunningFlow={isRunningFlow}
+        flowHasBlocks={flow.steps.length > 0}
+        onStartFlow={handleStartFlow}
+        onSaveFlow={saveFlow}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
       
       {showAIPrompt && (
         <div className="mt-6">
