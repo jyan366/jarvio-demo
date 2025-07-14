@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Settings, Trash2, Check, Link } from 'lucide-react';
+import { User, Settings, Trash2, Check, Link, ChevronDown, ChevronUp } from 'lucide-react';
 import { FlowStep } from '@/types/flowTypes';
+import { blocksData } from '../../../data/blocksData';
+import { flowBlockOptions } from '@/data/flowBlockOptions';
 
 interface AgentStepNodeData {
   step: FlowStep;
@@ -19,6 +21,22 @@ interface AgentStepNodeData {
 
 const AgentStepNode = memo(({ data }: NodeProps) => {
   const { step, onStepUpdate, onDelete, onAttachBlock } = data as unknown as AgentStepNodeData;
+  const [showAllBlocks, setShowAllBlocks] = React.useState(false);
+
+  // Get all available blocks from blocksData
+  const allBlocks = React.useMemo(() => {
+    const blocks: string[] = [];
+    Object.values(blocksData).forEach((category: any) => {
+      if (Array.isArray(category)) {
+        category.forEach((block: any) => {
+          blocks.push(block.name);
+        });
+      }
+    });
+    return blocks;
+  }, []);
+
+  const totalBlockCount = allBlocks.length;
 
   const handlePromptChange = (prompt: string) => {
     onStepUpdate({ agentPrompt: prompt });
@@ -86,18 +104,52 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
               />
             </div>
 
-            {/* Tools dropdown */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700">Tools:</label>
-              <Select defaultValue="all">
-                <SelectTrigger className="h-8 text-xs border-purple-200 focus:border-purple-300">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All selected by default</SelectItem>
-                  <SelectItem value="custom">Custom selection</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Tools section */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-gray-700">Tools:</label>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowAllBlocks(!showAllBlocks)}
+                  className="h-6 px-2 text-xs text-purple-600 hover:text-purple-700"
+                >
+                  {showAllBlocks ? (
+                    <>
+                      <ChevronUp className="h-3 w-3 mr-1" />
+                      Hide
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-3 w-3 mr-1" />
+                      Show
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              <div className="bg-green-50 border border-green-200 rounded-md p-2">
+                <div className="flex items-center gap-2 text-xs text-green-700">
+                  <Check className="h-3 w-3" />
+                  <span className="font-medium">{totalBlockCount}/{totalBlockCount} selected</span>
+                </div>
+                <div className="text-xs text-green-600 mt-1">
+                  All blocks available by default
+                </div>
+              </div>
+
+              {showAllBlocks && (
+                <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
+                  <div className="space-y-1">
+                    {allBlocks.map((blockName, index) => (
+                      <div key={index} className="flex items-center gap-2 text-xs">
+                        <Check className="h-3 w-3 text-green-600 flex-shrink-0" />
+                        <span className="text-gray-700">{blockName}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* System prompt */}
