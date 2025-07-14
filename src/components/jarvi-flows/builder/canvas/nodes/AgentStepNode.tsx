@@ -231,10 +231,11 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
             <svg 
               className="absolute top-0 left-1/2 transform -translate-x-1/2"
               width="100%" 
-              height="400"
+              height="450"
               style={{
                 overflow: 'visible',
-                pointerEvents: 'none'
+                pointerEvents: 'none',
+                top: '-50px'
               }}
             >
               {getSelectedToolsData().map((tool, index) => {
@@ -248,7 +249,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 return (
                   <path
                     key={tool.name}
-                    d={`M ${startX} 0 Q ${startX} 200 ${endX} 380`}
+                    d={`M ${startX} 50 Q ${startX} 225 ${endX} 430`}
                     stroke="#a855f7"
                     strokeWidth="2"
                     strokeDasharray="6,6"
