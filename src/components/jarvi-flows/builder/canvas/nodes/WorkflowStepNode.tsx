@@ -70,22 +70,22 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
             {/* Block Section */}
             <div className="border-t border-gray-100 pt-4">
               {block ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-700">
-                      Action:
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900">
+                <div className="space-y-3">
+                  <div className="text-center">
+                    <span className="text-lg font-semibold text-gray-900 block">
                       {block.option || block.name}
+                    </span>
+                    <span className="text-sm font-medium text-gray-600">
+                      Action
                     </span>
                   </div>
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
                     onClick={onConfigureBlock}
-                    className="h-8 px-3 text-xs"
+                    className="w-full h-9"
                   >
-                    <Settings className="h-3 w-3 mr-1" />
+                    <Settings className="h-4 w-4 mr-2" />
                     Configure
                   </Button>
                 </div>
