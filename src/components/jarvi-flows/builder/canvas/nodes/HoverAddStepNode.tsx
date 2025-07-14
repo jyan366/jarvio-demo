@@ -33,21 +33,21 @@ export function HoverAddStepNode({ data }: HoverAddStepNodeProps) {
 
   return (
     <>
-      {/* Add Step Box */}
+      {/* Add Step Box - matching the size of other step nodes */}
       <div
         className={`
-          w-32 h-20 border-2 border-dashed border-gray-300 rounded-lg
+          w-80 h-48 border-2 border-dashed border-gray-300 rounded-lg
           flex items-center justify-center cursor-pointer
-          transition-opacity duration-200 bg-white/50
-          ${isHovered ? 'opacity-80 border-gray-400' : 'opacity-30'}
+          transition-all duration-200 bg-white/30
+          ${isHovered ? 'opacity-100 border-gray-400 bg-white/60' : 'opacity-40'}
         `}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => setShowSelectionDialog(true)}
       >
-        <div className="flex flex-col items-center gap-1 text-gray-600">
-          <Plus className="h-5 w-5" />
-          <span className="text-xs font-medium">Add Step</span>
+        <div className="flex flex-col items-center gap-3 text-gray-500">
+          <Plus className="h-8 w-8" />
+          <span className="text-base font-medium">Add Step</span>
         </div>
       </div>
 
