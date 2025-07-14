@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { FlowBlock } from '@/types/flowTypes';
 import { Database, Brain, Zap, User, Play, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BlockConfigDialogProps {
   block: FlowBlock | null;
@@ -20,17 +21,47 @@ export function BlockConfigDialog({ block, isOpen, onClose }: BlockConfigDialogP
   const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [testOutput, setTestOutput] = useState<string | null>(null);
+  const [blockConfig, setBlockConfig] = useState<any>(null);
   const { toast } = useToast();
 
   // Initialize block parameters state
   const [blockParams, setBlockParams] = useState<Record<string, any>>({});
 
-  React.useEffect(() => {
-    if (block) {
-      const defaultParams = getBlockDefaults(block.option);
-      setBlockParams(defaultParams);
-      setTestOutput(null);
-    }
+  useEffect(() => {
+    const fetchBlockConfig = async () => {
+      if (!block) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('flow_block_configs')
+          .select('*')
+          .eq('block_name', block.option)
+          .single();
+
+        if (error) {
+          console.error('Error fetching block config:', error);
+          return;
+        }
+
+        setBlockConfig(data);
+        
+        // Initialize parameters with default values
+        const configData = data?.config_data as { parameters?: string[] } | null;
+        const parameters = configData?.parameters || ['Configuration', 'Enabled'];
+        const defaultParams: Record<string, any> = {};
+        parameters.forEach((param: string) => {
+          defaultParams[param] = '';
+        });
+        defaultParams['Enabled'] = true;
+        
+        setBlockParams(defaultParams);
+        setTestOutput(null);
+      } catch (error) {
+        console.error('Failed to fetch block config:', error);
+      }
+    };
+
+    fetchBlockConfig();
   }, [block]);
 
   if (!block) return null;
@@ -316,7 +347,15 @@ Ready for analysis or next processing step.
     }));
   };
 
-  const blockDetails = getBlockDetails(block.option);
+  // Use blockConfig from database instead of hardcoded data
+  const blockDetails = blockConfig ? {
+    description: blockConfig.credentials?.description || 
+      `Execute the ${blockConfig.block_name} operation with configured parameters.`,
+    parameters: (blockConfig.config_data as { parameters?: string[] })?.parameters || ['Configuration', 'Enabled']
+  } : {
+    description: `Execute the ${block.option} operation with configured parameters.`,
+    parameters: ['Configuration', 'Enabled']
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
