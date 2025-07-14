@@ -100,7 +100,7 @@ export function ReactFlowCanvas({
       
       return {
         id: step.id,
-        type: 'workflowStep',
+        type: isAgent ? 'agentStep' : 'workflowStep',
         position: step.canvasPosition || { x: 400 + index * 450, y: 100 }, // Start further from trigger
         data: {
           step,
