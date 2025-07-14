@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Database, Brain, Zap, User, X, Settings } from 'lucide-react';
 import { FlowBlock, FlowStep } from '@/types/flowTypes';
-import { agentsData } from '@/data/agentsData';
-import { v4 as uuidv4 } from 'uuid';
-import { supabase } from '@/integrations/supabase/client';
 import { BlockConfigDialog } from './BlockConfigDialog';
+import { StepBlockSelectionDialog } from './StepBlockSelectionDialog';
+import { v4 as uuidv4 } from 'uuid';
 
 interface StepBlockPlaceholderProps {
   step: FlowStep;
@@ -27,43 +25,8 @@ export function StepBlockPlaceholder({
   attachedBlock,
   availableBlockOptions = {}
 }: StepBlockPlaceholderProps) {
-  const [isAttaching, setIsAttaching] = useState(false);
-  const [selectedType, setSelectedType] = useState<'collect' | 'think' | 'act' | 'agent'>('collect');
-  const [selectedOption, setSelectedOption] = useState<string>('');
-  const [availableOptions, setAvailableOptions] = useState<string[]>([]);
   const [showBlockConfig, setShowBlockConfig] = useState(false);
-
-  // Load available options from database when type changes
-  useEffect(() => {
-    const loadOptionsForType = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('flow_block_configs')
-          .select('block_name')
-          .eq('block_type', selectedType)
-          .order('block_name');
-
-        if (error) {
-          console.error('Error fetching block options:', error);
-          setAvailableOptions(availableBlockOptions[selectedType] || []);
-          return;
-        }
-
-        const options = data?.map(item => item.block_name) || [];
-        setAvailableOptions(options);
-        
-        // Set first option as default
-        if (options.length > 0 && !selectedOption) {
-          setSelectedOption(options[0]);
-        }
-      } catch (error) {
-        console.error('Error loading options:', error);
-        setAvailableOptions(availableBlockOptions[selectedType] || []);
-      }
-    };
-
-    loadOptionsForType();
-  }, [selectedType, availableBlockOptions]);
+  const [showSelectionDialog, setShowSelectionDialog] = useState(false);
 
   const getBlockIcon = (type: string) => {
     switch (type) {
@@ -95,19 +58,19 @@ export function StepBlockPlaceholder({
     }
   };
 
-  const handleAttachBlock = () => {
-    if (!selectedOption) return;
+  const handleBlockSelected = (block: FlowBlock) => {
+    onBlockAttached(step.id, block);
+  };
 
-    const newBlock: FlowBlock = {
+  const handleAgentSelected = () => {
+    // Create an agent step with default configuration
+    const agentBlock: FlowBlock = {
       id: uuidv4(),
-      type: selectedType,
-      option: selectedOption,
-      name: selectedOption
+      type: 'agent',
+      option: 'AI Agent',
+      name: 'AI Agent Step'
     };
-
-    onBlockAttached(step.id, newBlock);
-    setIsAttaching(false);
-    setSelectedOption('');
+    onBlockAttached(step.id, agentBlock);
   };
 
   const handleDetachBlock = () => {
@@ -120,6 +83,17 @@ export function StepBlockPlaceholder({
     }
   };
 
+  const getCategoryDisplayName = (type: string) => {
+    switch (type) {
+      case 'collect': return 'Collect Data';
+      case 'think': return 'Process & Analyze';
+      case 'act': return 'Take Action';
+      case 'agent': return 'AI Agent';
+      default: return type;
+    }
+  };
+
+  // Show attached block
   if (attachedBlock) {
     return (
       <>
@@ -129,7 +103,7 @@ export function StepBlockPlaceholder({
               <div className="flex items-center gap-2">
                 {getBlockIcon(attachedBlock.type)}
                 <Badge variant="outline" className="capitalize text-xs">
-                  {attachedBlock.type}
+                  {getCategoryDisplayName(attachedBlock.type)}
                 </Badge>
                 <span className="text-sm font-medium">{attachedBlock.name}</span>
               </div>
@@ -140,6 +114,7 @@ export function StepBlockPlaceholder({
                   variant="ghost"
                   onClick={handleConfigureBlock}
                   className="h-6 w-6 p-0"
+                  title="Configure block parameters"
                 >
                   <Settings className="h-3 w-3" />
                 </Button>
@@ -148,11 +123,22 @@ export function StepBlockPlaceholder({
                   variant="ghost"
                   onClick={handleDetachBlock}
                   className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                  title="Remove block"
                 >
                   <X className="h-3 w-3" />
                 </Button>
               </div>
             </div>
+
+            {/* Show configuration hint for agents */}
+            {attachedBlock.type === 'agent' && (
+              <div className="mt-2 pt-2 border-t border-orange-200">
+                <p className="text-xs text-orange-700">
+                  <Settings className="inline w-3 h-3 mr-1" />
+                  Click configure to set system prompt, tools, and parameters
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -167,83 +153,29 @@ export function StepBlockPlaceholder({
     );
   }
 
-  if (isAttaching) {
-    return (
-      <Card className="mt-3 border-dashed border-gray-300">
-        <CardContent className="p-3 space-y-3">
-          <div className="text-sm font-medium text-gray-700 mb-2">Connect Block or Use Agent</div>
-          
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs text-gray-600 mb-1 block">Block Type</label>
-              <Select value={selectedType} onValueChange={(value: any) => setSelectedType(value)}>
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="collect">📊 Collect Data</SelectItem>
-                  <SelectItem value="think">🧠 Process & Analyze</SelectItem>
-                  <SelectItem value="act">⚡ Take Action</SelectItem>
-                  <SelectItem value="agent">🤖 Use AI Agent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-600 mb-1 block">
-                {selectedType === 'agent' ? 'Agent Type' : 'Block Option'}
-              </label>
-              <Select value={selectedOption} onValueChange={setSelectedOption}>
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Choose option..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableOptions.map(option => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              onClick={handleAttachBlock} 
-              disabled={!selectedOption}
-              className="h-7 text-xs"
-            >
-              Attach Block
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => setIsAttaching(false)}
-              className="h-7 text-xs"
-            >
-              Cancel
-            </Button>
-          </div>
+  // Show placeholder for adding block/agent
+  return (
+    <>
+      <Card className="mt-3 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer">
+        <CardContent className="p-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSelectionDialog(true)}
+            className="w-full h-8 text-gray-600 hover:text-gray-800 justify-start"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Connect Block or Use Agent
+          </Button>
         </CardContent>
       </Card>
-    );
-  }
 
-  return (
-    <Card className="mt-3 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer">
-      <CardContent className="p-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsAttaching(true)}
-          className="w-full h-8 text-gray-600 hover:text-gray-800 justify-start"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Connect Block or Use Agent
-        </Button>
-      </CardContent>
-    </Card>
+      <StepBlockSelectionDialog
+        open={showSelectionDialog}
+        onOpenChange={setShowSelectionDialog}
+        onBlockSelected={handleBlockSelected}
+        onAgentSelected={handleAgentSelected}
+      />
+    </>
   );
 }
