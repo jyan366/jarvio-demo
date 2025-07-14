@@ -27,6 +27,9 @@ import { ReactFlowToolbar } from './ReactFlowToolbar';
 import { CustomEdge } from './CustomEdge';
 import { BlockConfigDialog } from '../BlockConfigDialog';
 import { AttachBlockDialog } from './AttachBlockDialog';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Play, TestTube } from 'lucide-react';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -71,6 +74,11 @@ export function ReactFlowCanvas({
   const [showBlockConfig, setShowBlockConfig] = useState(false);
   const [attachBlockDialogOpen, setAttachBlockDialogOpen] = useState(false);
   const [selectedStepForAttach, setSelectedStepForAttach] = useState<string | null>(null);
+  
+  // Test execution states
+  const [isTestRunning, setIsTestRunning] = useState(false);
+  const [executionStates, setExecutionStates] = useState<Record<string, 'idle' | 'running' | 'success' | 'failed'>>({});
+  const [activeEdges, setActiveEdges] = useState<Set<string>>(new Set());
 
   const handleBlockClick = useCallback((block: FlowBlock) => {
     setSelectedBlock(block);
@@ -187,6 +195,7 @@ export function ReactFlowCanvas({
           step,
           block,
           isAgent,
+          executionState: executionStates[step.id] || 'idle',
           onStepUpdate: (updates: Partial<FlowStep>) => {
             const updatedSteps = steps.map(s =>
               s.id === step.id ? { ...s, ...updates } : s
@@ -255,7 +264,7 @@ export function ReactFlowCanvas({
     
     console.log('All nodes created:', nodes.map(n => ({ id: n.id, type: n.type, position: n.position })));
     return nodes;
-  }, [steps, blocks, flowTrigger, isRunningFlow, handleBlockClick, handleAddStep, handleDetachBlock]);
+  }, [steps, blocks, flowTrigger, isRunningFlow, executionStates, handleBlockClick, handleAddStep, handleDetachBlock]);
 
   // Convert steps to React Flow edges
   const convertToEdges = useCallback((): Edge[] => {
@@ -263,18 +272,24 @@ export function ReactFlowCanvas({
     
     // Connect trigger to first step
     if (steps.length > 0) {
+      const triggerEdgeId = 'trigger-to-first';
+      const isActive = activeEdges.has(triggerEdgeId);
+      
       edges.push({
-        id: 'trigger-to-first',
+        id: triggerEdgeId,
         source: 'trigger',
         sourceHandle: 'trigger-source',
         target: steps[0].id,
         targetHandle: null,
         type: 'custom',
-        animated: false,
-        style: { stroke: '#6b7280', strokeWidth: 2 },
+        animated: isActive,
+        style: { 
+          stroke: isActive ? '#3b82f6' : '#6b7280', 
+          strokeWidth: isActive ? 3 : 2 
+        },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: '#6b7280',
+          color: isActive ? '#3b82f6' : '#6b7280',
         },
       });
     }
@@ -283,23 +298,28 @@ export function ReactFlowCanvas({
     for (let i = 0; i < steps.length - 1; i++) {
       const currentStep = steps[i];
       const nextStep = steps[i + 1];
+      const edgeId = `edge-${currentStep.id}-${nextStep.id}`;
+      const isActive = activeEdges.has(edgeId);
       
       edges.push({
-        id: `edge-${currentStep.id}-${nextStep.id}`,
+        id: edgeId,
         source: currentStep.id,
         target: nextStep.id,
         type: 'custom',
-        animated: false,
-        style: { stroke: '#6b7280', strokeWidth: 2 },
+        animated: isActive,
+        style: { 
+          stroke: isActive ? '#3b82f6' : '#6b7280', 
+          strokeWidth: isActive ? 3 : 2 
+        },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: '#6b7280',
+          color: isActive ? '#3b82f6' : '#6b7280',
         },
       });
     }
     
     return edges;
-  }, [steps]);
+  }, [steps, activeEdges]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -366,6 +386,52 @@ export function ReactFlowCanvas({
     onStepsChange(updatedSteps);
   };
 
+  // Test execution logic
+  const simulateFlowExecution = async (shouldFail: boolean) => {
+    if (steps.length === 0) return;
+    
+    setIsTestRunning(true);
+    setExecutionStates({});
+    setActiveEdges(new Set());
+    
+    // Reset all states
+    const resetStates: Record<string, 'idle' | 'running' | 'success' | 'failed'> = {};
+    steps.forEach(step => resetStates[step.id] = 'idle');
+    setExecutionStates(resetStates);
+    
+    // Execute steps sequentially
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      const edgeId = i === 0 ? 'trigger-to-first' : `edge-${steps[i-1].id}-${step.id}`;
+      
+      // Animate edge
+      setActiveEdges(prev => new Set([...prev, edgeId]));
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Start step execution
+      setExecutionStates(prev => ({ ...prev, [step.id]: 'running' }));
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Check if should fail on step 3 (index 2)
+      if (shouldFail && i === 2) {
+        setExecutionStates(prev => ({ ...prev, [step.id]: 'failed' }));
+        setActiveEdges(new Set());
+        setIsTestRunning(false);
+        return;
+      }
+      
+      // Mark as success
+      setExecutionStates(prev => ({ ...prev, [step.id]: 'success' }));
+      setActiveEdges(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(edgeId);
+        return newSet;
+      });
+    }
+    
+    setIsTestRunning(false);
+  };
+
 
   return (
     <div className="w-full h-full relative bg-gray-50">
@@ -374,6 +440,32 @@ export function ReactFlowCanvas({
         onAutoArrange={handleAutoArrange}
         onToggleAddPanel={() => setAddPanelOpen(!addPanelOpen)}
       />
+      
+      {/* Test Button */}
+      <div className="absolute top-4 right-4 z-10">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="default" 
+              disabled={isTestRunning || steps.length === 0}
+              className="gap-2"
+            >
+              <TestTube className="w-4 h-4" />
+              {isTestRunning ? "Running..." : "Test Flow"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => simulateFlowExecution(false)}>
+              <Play className="w-4 h-4 mr-2" />
+              Test Success
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => simulateFlowExecution(true)}>
+              <Play className="w-4 h-4 mr-2 text-destructive" />
+              Test Fail (Step 3)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       
       <AddStepPanel
         onAddStep={handleAddStep}

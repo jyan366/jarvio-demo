@@ -11,6 +11,7 @@ import { blocksData } from '../../../data/blocksData';
 interface WorkflowStepNodeData {
   step: FlowStep;
   block: FlowBlock | null;
+  executionState?: 'idle' | 'running' | 'success' | 'failed';
   onStepUpdate: (updates: Partial<FlowStep>) => void;
   onBlockUpdate: (updates: Partial<FlowBlock>) => void;
   onDelete: () => void;
@@ -22,10 +23,41 @@ interface WorkflowStepNodeData {
 }
 
 const WorkflowStepNode = memo(({ data }: NodeProps) => {
-  const { step, block, onStepUpdate, onDelete, onAttachBlock, onDetachBlock, onConfigureBlock, onConvertToAgent } = data as unknown as WorkflowStepNodeData;
+  const { step, block, executionState = 'idle', onStepUpdate, onDelete, onAttachBlock, onDetachBlock, onConfigureBlock, onConvertToAgent } = data as unknown as WorkflowStepNodeData;
 
   const isUnselected = step.stepType === 'unselected' || (!step.isAgentStep && !block && !step.blockId);
   const isAgentStep = step.isAgentStep;
+  
+  // Get execution state styling
+  const getExecutionStateStyle = () => {
+    switch (executionState) {
+      case 'running':
+        return 'border-blue-500 bg-blue-50 animate-pulse';
+      case 'success':
+        return 'border-green-500 bg-green-50';
+      case 'failed':
+        return 'border-red-500 bg-red-50';
+      default:
+        return 'border-gray-200 bg-white';
+    }
+  };
+  
+  const getExecutionStateIndicator = () => {
+    switch (executionState) {
+      case 'running':
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-pulse" />;
+      case 'success':
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+          <Check className="w-2 h-2 text-white" />
+        </div>;
+      case 'failed':
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+          <span className="text-white text-xs">×</span>
+        </div>;
+      default:
+        return null;
+    }
+  };
 
   // Find block logo from blocksData
   const getBlockLogo = (blockName?: string) => {
@@ -70,7 +102,8 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
         />
       </div>
       
-      <Card className="w-72 h-72 border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 shadow-sm relative">
+      <Card className={`w-72 h-72 border-2 hover:border-gray-300 transition-all duration-200 shadow-sm relative ${getExecutionStateStyle()}`}>
+        {getExecutionStateIndicator()}
         {/* Delete button positioned at top right */}
         <Button
           size="sm"

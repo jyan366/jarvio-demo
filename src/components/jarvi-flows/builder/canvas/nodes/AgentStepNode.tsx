@@ -15,16 +15,48 @@ import { flowBlockOptions } from '@/data/flowBlockOptions';
 interface AgentStepNodeData {
   step: FlowStep;
   isAgent: boolean;
+  executionState?: 'idle' | 'running' | 'success' | 'failed';
   onStepUpdate: (updates: Partial<FlowStep>) => void;
   onDelete: () => void;
   onAttachBlock?: () => void;
 }
 
 const AgentStepNode = memo(({ data }: NodeProps) => {
-  const { step, onStepUpdate, onDelete, onAttachBlock } = data as unknown as AgentStepNodeData;
+  const { step, executionState = 'idle', onStepUpdate, onDelete, onAttachBlock } = data as unknown as AgentStepNodeData;
   const [selectedBlocks, setSelectedBlocks] = React.useState<string[]>([]);
   const [showToolsView, setShowToolsView] = React.useState(false);
   const isInitialMount = React.useRef(true);
+  
+  // Get execution state styling
+  const getExecutionStateStyle = () => {
+    switch (executionState) {
+      case 'running':
+        return 'bg-blue-50 border-blue-500 animate-pulse';
+      case 'success':
+        return 'bg-green-50 border-green-500';
+      case 'failed':
+        return 'bg-red-50 border-red-500';
+      default:
+        return 'bg-purple-50 border-purple-200';
+    }
+  };
+  
+  const getExecutionStateIndicator = () => {
+    switch (executionState) {
+      case 'running':
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-pulse" />;
+      case 'success':
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+          <Check className="w-2 h-2 text-white" />
+        </div>;
+      case 'failed':
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+          <span className="text-white text-xs">×</span>
+        </div>;
+      default:
+        return null;
+    }
+  };
 
   // Get all available blocks from blocksData
   const allBlocks = React.useMemo(() => {
@@ -110,7 +142,8 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
         />
       </div>
       
-      <Card className="w-72 min-h-[120px] transition-all duration-200 bg-purple-50 border-purple-200 hover:bg-purple-100 border-2">
+      <Card className={`w-72 min-h-[120px] transition-all duration-200 hover:bg-purple-100 border-2 relative ${getExecutionStateStyle()}`}>
+        {getExecutionStateIndicator()}
         <CardContent className="p-4">
           <div className="space-y-3">
             {/* Header */}
