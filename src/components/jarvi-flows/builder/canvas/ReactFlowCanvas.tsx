@@ -221,23 +221,50 @@ export function ReactFlowCanvas({
   const handleAddStep = (type: 'block' | 'agent', blockData?: any) => {
     const stepId = uuidv4();
     
-    // Always create just a step first, blocks are attached separately
-    const newStep: FlowStep = {
-      id: stepId,
-      title: type === 'agent' ? 'New Agent Step' : 'New Step',
-      description: type === 'agent' ? 'AI will handle this step automatically' : 'Configure what action this step should perform',
-      completed: false,
-      order: steps.length,
-      isAgentStep: type === 'agent',
-      agentPrompt: '',
-      selectedBlocks: [],
-      canvasPosition: {
-        x: 400 + steps.length * 450, // Start further from trigger
-        y: 100
-      }
-    };
+    if (type === 'agent') {
+      // Create agent step
+      const newStep: FlowStep = {
+        id: stepId,
+        title: '',
+        description: '',
+        completed: false,
+        order: steps.length,
+        isAgentStep: true,
+        agentPrompt: '',
+        selectedBlocks: [],
+        canvasPosition: {
+          x: 400 + steps.length * 450,
+          y: 100
+        }
+      };
+      onStepsChange([...steps, newStep]);
+    } else if (type === 'block' && blockData) {
+      // Create workflow step with block attached
+      const blockId = uuidv4();
+      const newBlock: FlowBlock = {
+        id: blockId,
+        type: blockData.type || 'collect',
+        option: blockData.name,
+        name: blockData.name
+      };
 
-    onStepsChange([...steps, newStep]);
+      const newStep: FlowStep = {
+        id: stepId,
+        title: '',
+        description: '',
+        completed: false,
+        order: steps.length,
+        blockId: blockId,
+        isAgentStep: false,
+        canvasPosition: {
+          x: 400 + steps.length * 450,
+          y: 100
+        }
+      };
+
+      onStepsChange([...steps, newStep]);
+      onBlocksChange([...blocks, newBlock]);
+    }
   };
 
   const handleAttachBlock = (stepId: string, blockData: any) => {

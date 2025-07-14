@@ -3,6 +3,7 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Settings, Trash2, Check, Plus, Bot } from 'lucide-react';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 
@@ -18,7 +19,7 @@ interface WorkflowStepNodeData {
 }
 
 const WorkflowStepNode = memo(({ data }: NodeProps) => {
-  const { step, block, onDelete, onAttachBlock, onConfigureBlock } = data as unknown as WorkflowStepNodeData;
+  const { step, block, onStepUpdate, onDelete, onAttachBlock, onConfigureBlock } = data as unknown as WorkflowStepNodeData;
 
   const isAgentStep = step.isAgentStep || !block;
 
@@ -36,22 +37,24 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
           <div className="space-y-4">
             {/* Step Header */}
             <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-semibold text-lg text-gray-900">
-                    {step.title}
-                  </h3>
-                  {isAgentStep && (
-                    <Badge variant="secondary" className="text-xs">
-                      <Bot className="w-3 h-3 mr-1" />
-                      Agent
-                    </Badge>
-                  )}
-                </div>
-                {step.description && (
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {step.description}
-                  </p>
+              <div className="flex-1 space-y-2">
+                <Input
+                  placeholder="Step name..."
+                  value={step.title || ''}
+                  onChange={(e) => onStepUpdate({ title: e.target.value })}
+                  className="text-sm font-semibold border-gray-200 focus:border-gray-300"
+                />
+                <Input
+                  placeholder="Step description..."
+                  value={step.description || ''}
+                  onChange={(e) => onStepUpdate({ description: e.target.value })}
+                  className="text-sm border-gray-200 focus:border-gray-300"
+                />
+                {isAgentStep && (
+                  <Badge variant="secondary" className="text-xs w-fit">
+                    <Bot className="w-3 h-3 mr-1" />
+                    Agent
+                  </Badge>
                 )}
               </div>
               <Button

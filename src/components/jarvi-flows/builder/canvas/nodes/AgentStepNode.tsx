@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Settings, Trash2, Check } from 'lucide-react';
 import { FlowStep } from '@/types/flowTypes';
@@ -70,14 +71,18 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
             {/* Step name and description */}
             <div className="space-y-1">
-              <div className="font-medium text-xs text-gray-800">
-                {step.title}
-              </div>
-              {step.description && (
-                <div className="text-xs text-gray-600">
-                  {step.description}
-                </div>
-              )}
+              <Input
+                placeholder="Step name..."
+                value={step.title || ''}
+                onChange={(e) => onStepUpdate({ title: e.target.value })}
+                className="text-xs h-7 border-purple-200 focus:border-purple-300 font-medium"
+              />
+              <Input
+                placeholder="Step description..."
+                value={step.description || ''}
+                onChange={(e) => onStepUpdate({ description: e.target.value })}
+                className="text-xs h-7 border-purple-200 focus:border-purple-300"
+              />
             </div>
 
             {/* Tools dropdown */}

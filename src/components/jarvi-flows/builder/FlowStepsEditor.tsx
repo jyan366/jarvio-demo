@@ -283,28 +283,12 @@ export function FlowStepsEditor({
                         )}
                       </div>
                       
-                      {step.description ? (
-                        <div className="text-sm text-gray-700 leading-relaxed">
-                          {renderBlockReference(step.description, stepBlock)}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          {stepBlock ? (
-                            <>
-                              <span className="text-sm text-gray-500">No instructions yet</span>
-                              <GenerateInstructionsButton
-                                step={step}
-                                block={stepBlock}
-                                onInstructionsGenerated={(instructions) => 
-                                  handleInstructionsGenerated(step.id, instructions)
-                                }
-                              />
-                            </>
-                          ) : (
-                            <span className="text-sm text-gray-500">Agent step - no block attached</span>
-                          )}
-                        </div>
-                      )}
+                      <Textarea
+                        value={step.description || ''}
+                        onChange={(e) => updateStep(step.id, { description: e.target.value })}
+                        placeholder="Step description (optional)"
+                        className="text-sm border-gray-200 focus:border-gray-300 min-h-[60px] resize-none"
+                      />
                     </div>
 
                     <div className="flex items-center gap-1">
