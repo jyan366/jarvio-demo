@@ -101,7 +101,7 @@ export function ReactFlowCanvas({
       return {
         id: step.id,
         type: 'workflowStep',
-        position: step.canvasPosition || { x: 300 + index * 400, y: 100 },
+        position: step.canvasPosition || { x: 400 + index * 450, y: 100 }, // Start further from trigger
         data: {
           step,
           block,
@@ -232,7 +232,7 @@ export function ReactFlowCanvas({
       agentPrompt: '',
       selectedBlocks: [],
       canvasPosition: {
-        x: 300 + steps.length * 400,
+        x: 400 + steps.length * 450, // Start further from trigger
         y: 100
       }
     };
@@ -270,7 +270,7 @@ export function ReactFlowCanvas({
     const updatedSteps = steps.map((step, index) => ({
       ...step,
       canvasPosition: {
-        x: 100 + index * 400, // Increased spacing from 320 to 400
+        x: 400 + index * 450, // Start further from trigger, increased spacing
         y: 100
       }
     }));
