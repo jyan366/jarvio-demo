@@ -55,7 +55,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
       />
       
       {/* Floating step name and description above the block */}
-      <div className="absolute -top-12 left-0 w-72 space-y-1 mb-2">
+      <div className="absolute -top-16 left-0 w-72 space-y-1 mb-4">
         <Input
           placeholder="Step name..."
           value={step.title || ''}
@@ -70,7 +70,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
         />
       </div>
       
-      <Card className="w-72 min-h-[160px] border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 shadow-sm">
+      <Card className="w-72 h-72 border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 shadow-sm">
         <CardContent className="p-4 h-full flex flex-col justify-center">
           <div className="space-y-3">
             {/* Step Header */}
