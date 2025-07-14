@@ -27,17 +27,17 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
   const [showToolsView, setShowToolsView] = React.useState(false);
   const isInitialMount = React.useRef(true);
   
-  // Get execution state styling - Clean dark theme
+  // Get execution state styling - Theme-aware styling
   const getExecutionStateStyle = () => {
     switch (executionState) {
       case 'running':
-        return 'bg-[#1e293b] border-blue-500 shadow-lg shadow-blue-500/20';
+        return 'bg-card border-blue-500 shadow-lg shadow-blue-500/20';
       case 'success':
-        return 'bg-[#1e293b] border-green-500 shadow-lg shadow-green-500/20';
+        return 'bg-card border-green-500 shadow-lg shadow-green-500/20';
       case 'failed':
-        return 'bg-[#1e293b] border-red-500 shadow-lg shadow-red-500/20';
+        return 'bg-card border-red-500 shadow-lg shadow-red-500/20';
       default:
-        return 'bg-[#1e293b] border-[#475569] shadow-lg';
+        return 'bg-card border-purple-500/50 shadow-lg';
     }
   };
   
@@ -132,25 +132,25 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
           placeholder="Step name..."
           value={step.title || ''}
           onChange={(e) => onStepUpdate({ title: e.target.value })}
-          className="text-xs h-7 bg-transparent border-none shadow-none p-1 font-medium placeholder:text-gray-400"
+          className="text-xs h-7 bg-transparent border-none shadow-none p-1 font-medium placeholder:text-muted-foreground text-foreground"
         />
         <Input
           placeholder="Step description..."
           value={step.description || ''}
           onChange={(e) => onStepUpdate({ description: e.target.value })}
-          className="text-xs h-6 bg-transparent border-none shadow-none p-1 placeholder:text-gray-400"
+          className="text-xs h-6 bg-transparent border-none shadow-none p-1 placeholder:text-muted-foreground text-muted-foreground"
         />
       </div>
       
-      <Card className={`w-72 min-h-[120px] transition-all duration-200 hover:border-blue-400 border-2 relative rounded-xl ${getExecutionStateStyle()}`}>
+      <Card className={`w-72 min-h-[120px] transition-all duration-200 hover:border-primary border-2 relative rounded-xl ${getExecutionStateStyle()}`}>
         {getExecutionStateIndicator()}
         <CardContent className="p-4">
           <div className="space-y-3">
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-purple-600" />
-                <Badge className="bg-purple-100 text-purple-700 border-purple-200 text-xs">
+                <User className="w-4 h-4 text-purple-500" />
+                <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
                   Agent
                 </Badge>
               </div>
@@ -158,7 +158,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-6 w-6 p-0"
+                  className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
                 >
                   <Settings className="h-3 w-3" />
                 </Button>
@@ -166,7 +166,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                   size="sm"
                   variant="ghost"
                   onClick={onDelete}
-                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                  className="h-6 w-6 p-0 text-destructive hover:text-destructive/80"
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
@@ -176,12 +176,12 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
             {/* Tools dropdown */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-gray-700">Tools:</label>
+                <label className="text-xs font-medium text-foreground">Tools:</label>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => setShowToolsView(!showToolsView)}
-                  className="h-5 w-5 p-0 text-purple-600 hover:text-purple-700"
+                  className="h-5 w-5 p-0 text-purple-500 hover:text-purple-400"
                   title={showToolsView ? "Hide tools view" : "Show tools view"}
                 >
                   {showToolsView ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
@@ -191,13 +191,13 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="w-full h-8 text-xs border-purple-200 focus:border-purple-300 justify-between"
+                    className="w-full h-8 text-xs border-border focus:border-purple-500 justify-between"
                   >
                     <span>{selectedCount}/{totalBlockCount} selected</span>
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-80 max-h-64 overflow-y-auto" onCloseAutoFocus={(e) => e.preventDefault()}>
+                <DropdownMenuContent className="w-80 max-h-64 overflow-y-auto bg-popover border-border z-50" onCloseAutoFocus={(e) => e.preventDefault()}>
                   <DropdownMenuLabel className="text-xs">Select Tools</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <div className="px-2 py-1 flex gap-2">
@@ -236,22 +236,22 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
             {/* System prompt */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700">System prompt:</label>
+              <label className="text-xs font-medium text-foreground">System prompt:</label>
               <Textarea
                 placeholder="Explain what the agent should do..."
                 value={step.agentPrompt || ''}
                 onChange={(e) => handlePromptChange(e.target.value)}
-                className="text-xs min-h-[40px] resize-none border-purple-200 focus:border-purple-300"
+                className="text-xs min-h-[40px] resize-none border-border focus:border-purple-500"
               />
             </div>
 
             {/* Action buttons */}
-            <div className="pt-2 border-t border-purple-200 space-y-2">
+            <div className="pt-2 border-t border-border space-y-2">
               <Button
                 size="sm"
                 variant="outline"
                 onClick={onAttachBlock}
-                className="w-full h-8 text-xs border-purple-200 hover:border-purple-300"
+                className="w-full h-8 text-xs border-border hover:border-primary"
               >
                 <Link className="h-3 w-3 mr-1" />
                 Attach Block Instead
@@ -266,7 +266,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                     agentPrompt: ''
                   });
                 }}
-                className="w-full h-8 text-xs border-purple-200 hover:border-purple-300 text-red-600 hover:text-red-700"
+                className="w-full h-8 text-xs border-destructive/50 hover:border-destructive text-destructive hover:text-destructive"
               >
                 <Unlink className="h-3 w-3 mr-1" />
                 Disconnect Agent
@@ -275,7 +275,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
             {/* Step completion indicator */}
             {step.completed && (
-              <div className="flex items-center gap-2 text-xs text-green-600">
+              <div className="flex items-center gap-2 text-xs text-green-500">
                 <Check className="w-3 h-3" />
                 Completed
               </div>
@@ -338,7 +338,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                   className="flex flex-col items-center"
                 >
                   {/* Tool item */}
-                  <div className="bg-white border border-purple-200 rounded-full p-3 shadow-sm hover:shadow-md transition-shadow w-16 h-16 flex items-center justify-center">
+                  <div className="bg-card border border-border rounded-full p-3 shadow-sm hover:shadow-md transition-shadow w-16 h-16 flex items-center justify-center">
                     {tool.logo ? (
                       <img 
                         src={tool.logo} 
@@ -346,19 +346,19 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                         className="w-8 h-8 object-contain"
                       />
                     ) : (
-                      <div className="w-8 h-8 bg-purple-100 rounded flex items-center justify-center">
-                        <div className="w-4 h-4 bg-purple-400 rounded"></div>
+                      <div className="w-8 h-8 bg-purple-500/20 rounded flex items-center justify-center">
+                        <div className="w-4 h-4 bg-purple-500 rounded"></div>
                       </div>
                     )}
                   </div>
                   
                   {/* Tool name */}
                   <div className="mt-2 text-center max-w-20">
-                    <span className="text-xs text-gray-700 font-medium leading-tight block">
+                    <span className="text-xs text-foreground font-medium leading-tight block">
                       {tool.name.length > 15 ? `${tool.name.substring(0, 15)}...` : tool.name}
                     </span>
                     {tool.description && (
-                      <span className="text-xs text-gray-500 leading-tight block mt-1">
+                      <span className="text-xs text-muted-foreground leading-tight block mt-1">
                         {tool.description.length > 20 ? `${tool.description.substring(0, 20)}...` : tool.description}
                       </span>
                     )}

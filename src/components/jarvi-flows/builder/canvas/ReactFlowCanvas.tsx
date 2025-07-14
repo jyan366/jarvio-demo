@@ -30,6 +30,7 @@ import { AttachBlockDialog } from './AttachBlockDialog';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Play, TestTube } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -434,7 +435,7 @@ export function ReactFlowCanvas({
 
 
   return (
-    <div className="w-full h-full relative bg-[#0a0a0b] font-inter">
+    <div className="w-full h-full relative bg-background font-inter transition-colors duration-200">
       {/* Hide the toolbar - keeping it commented out for potential future use
       <ReactFlowToolbar
         onAddStep={handleAddStep}
@@ -443,31 +444,35 @@ export function ReactFlowCanvas({
       />
       */}
       
-      {/* Test Button - Clean Dark Style */}
-      <div className="absolute top-6 right-6 z-10">
+      {/* Test Button & Theme Toggle - Theme-aware styling */}
+      <div className="absolute top-6 right-6 z-10 flex items-center gap-3">
+        <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               disabled={isTestRunning || steps.length === 0}
-              className="gap-2 bg-[#1e293b] hover:bg-[#334155] border border-[#475569] text-white font-medium px-4 py-2 rounded-lg transition-all duration-200"
+              className="gap-2 bg-card hover:bg-accent border border-border text-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-lg"
             >
               <TestTube className="w-4 h-4" />
               {isTestRunning ? "Running..." : "Test Flow"}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-[#1e293b] border border-[#475569] text-white rounded-lg">
+          <DropdownMenuContent 
+            align="end" 
+            className="bg-popover border border-border text-popover-foreground rounded-lg shadow-lg z-50"
+          >
             <DropdownMenuItem 
               onClick={() => simulateFlowExecution(false)}
-              className="hover:bg-[#334155] focus:bg-[#334155]"
+              className="hover:bg-accent focus:bg-accent"
             >
-              <Play className="w-4 h-4 mr-2 text-green-400" />
+              <Play className="w-4 h-4 mr-2 text-green-500" />
               Test Success
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => simulateFlowExecution(true)}
-              className="hover:bg-[#334155] focus:bg-[#334155]"
+              className="hover:bg-accent focus:bg-accent"
             >
-              <Play className="w-4 h-4 mr-2 text-red-400" />
+              <Play className="w-4 h-4 mr-2 text-red-500" />
               Test Fail (Step 3)
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -499,17 +504,17 @@ export function ReactFlowCanvas({
         className="bg-transparent"
       >
         <Background 
-          color="#374151" 
+          color="hsl(var(--border))" 
           gap={40} 
           size={0.5}
-          className="opacity-30"
+          className="opacity-30 dark:opacity-20"
         />
         <Controls 
           showInteractive={false} 
-          className="bg-[#1e293b] border border-[#475569] rounded-lg [&>button]:bg-transparent [&>button]:border-[#475569] [&>button]:text-white [&>button:hover]:bg-[#334155]"
+          className="bg-card border border-border rounded-lg shadow-lg [&>button]:bg-card [&>button]:border-border [&>button]:text-foreground [&>button:hover]:bg-accent"
         />
         <MiniMap 
-          nodeStrokeColor="#3b82f6"
+          nodeStrokeColor="hsl(var(--primary))"
           nodeColor={(node) => {
             if (node.type === 'agentStep') return '#8b5cf6';
             const nodeData = node.data as any;
@@ -525,10 +530,10 @@ export function ReactFlowCanvas({
               default: return '#64748b';
             }
           }}
-          maskColor="rgba(10, 10, 11, 0.8)"
+          maskColor="hsla(var(--background), 0.8)"
           pannable
           zoomable
-          className="bg-[#1e293b] border border-[#475569] rounded-lg"
+          className="bg-card border border-border rounded-lg shadow-lg"
         />
       </ReactFlow>
 
