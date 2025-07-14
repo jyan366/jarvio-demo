@@ -67,22 +67,22 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
         style={{ top: '50%' }} 
       />
       
-      <div className="w-80 space-y-3">
-        {/* Step Information - Outside the block */}
-        <div className="text-center space-y-1">
-          <h3 className="font-semibold text-base text-gray-900">
+      <div className="w-96 space-y-4">
+        {/* Step Information - Floating above the block */}
+        <div className="text-center space-y-2 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-sm border border-gray-100">
+          <h3 className="font-semibold text-lg text-gray-900">
             {step.title}
           </h3>
           {step.description && (
-            <p className="text-sm text-gray-600 leading-relaxed">
+            <p className="text-sm text-gray-600 leading-relaxed max-w-sm mx-auto">
               {step.description}
             </p>
           )}
         </div>
 
-        {/* Connected Block Container */}
+        {/* Connected Block Container - Larger */}
         <Card className="border-2 border-gray-200 hover:border-gray-300 transition-all duration-200">
-          <CardContent className="p-4">
+          <CardContent className="p-6">
             <div className="space-y-3">
               {/* Block Header */}
               <div className="flex items-center justify-between">
