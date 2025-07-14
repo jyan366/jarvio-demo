@@ -24,6 +24,7 @@ import { TriggerNode } from './nodes/TriggerNode';
 import { AddStepPanel } from './AddStepDialog';
 import { ReactFlowToolbar } from './ReactFlowToolbar';
 import { CustomEdge } from './CustomEdge';
+import { BlockConfigDialog } from '../BlockConfigDialog';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ReactFlowCanvasProps {
@@ -61,6 +62,14 @@ export function ReactFlowCanvas({
   onStartFlow = () => {},
   isRunningFlow = false
 }: ReactFlowCanvasProps) {
+  const [addPanelOpen, setAddPanelOpen] = useState(false);
+  const [selectedBlock, setSelectedBlock] = useState<FlowBlock | null>(null);
+  const [showBlockConfig, setShowBlockConfig] = useState(false);
+
+  const handleBlockClick = useCallback((block: FlowBlock) => {
+    setSelectedBlock(block);
+    setShowBlockConfig(true);
+  }, []);
   
   // Convert steps to React Flow nodes
   const convertToNodes = useCallback((): Node[] => {
@@ -116,6 +125,7 @@ export function ReactFlowCanvas({
             onStepsChange(updatedSteps);
             onBlocksChange(updatedBlocks);
           },
+          onBlockClick: block ? () => handleBlockClick(block) : undefined,
           availableBlockOptions
         },
         sourcePosition: Position.Right,
@@ -127,7 +137,7 @@ export function ReactFlowCanvas({
     
     nodes.push(...stepNodes);
     return nodes;
-  }, [steps, blocks, flowTrigger, isRunningFlow]);
+  }, [steps, blocks, flowTrigger, isRunningFlow, handleBlockClick]);
 
   // Convert steps to React Flow edges
   const convertToEdges = useCallback((): Edge[] => {
@@ -248,7 +258,6 @@ export function ReactFlowCanvas({
     onStepsChange(updatedSteps);
   };
 
-  const [addPanelOpen, setAddPanelOpen] = useState(false);
 
   return (
     <div className="w-full h-full relative bg-gray-50">
@@ -303,6 +312,15 @@ export function ReactFlowCanvas({
           className="bg-white border border-gray-200 rounded-lg"
         />
       </ReactFlow>
+
+      <BlockConfigDialog
+        block={selectedBlock}
+        isOpen={showBlockConfig}
+        onClose={() => {
+          setShowBlockConfig(false);
+          setSelectedBlock(null);
+        }}
+      />
     </div>
   );
 }

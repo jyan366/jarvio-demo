@@ -12,11 +12,12 @@ interface BlockStepNodeData {
   onStepUpdate: (updates: Partial<FlowStep>) => void;
   onBlockUpdate: (updates: Partial<FlowBlock>) => void;
   onDelete: () => void;
+  onBlockClick?: () => void;
   availableBlockOptions?: Record<string, string[]>;
 }
 
 const BlockStepNode = memo(({ data }: NodeProps) => {
-  const { step, block, onDelete } = data as unknown as BlockStepNodeData;
+  const { step, block, onDelete, onBlockClick } = data as unknown as BlockStepNodeData;
 
   const getBlockIcon = (type?: string) => {
     switch (type) {
@@ -84,7 +85,9 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
                 <Button
                   size="sm"
                   variant="ghost"
+                  onClick={onBlockClick}
                   className="h-6 w-6 p-0"
+                  disabled={!onBlockClick}
                 >
                   <Settings className="h-3 w-3" />
                 </Button>
