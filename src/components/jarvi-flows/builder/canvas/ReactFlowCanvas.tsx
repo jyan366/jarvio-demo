@@ -170,7 +170,8 @@ export function ReactFlowCanvas({
 
     // Add step nodes
     const stepNodes = steps.map((step, index) => {
-      const isAgent = step.isAgentStep || !step.blockId;
+      // Agent step is ONLY when explicitly marked as agent step
+      const isAgent = step.isAgentStep === true;
       const block = step.blockId ? blocks.find(b => b.id === step.blockId) : null;
       
       return {
