@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Settings, Trash2, Check } from 'lucide-react';
+import { User, Settings, Trash2, Check, Link } from 'lucide-react';
 import { FlowStep } from '@/types/flowTypes';
 
 interface AgentStepNodeData {
@@ -14,10 +14,11 @@ interface AgentStepNodeData {
   isAgent: boolean;
   onStepUpdate: (updates: Partial<FlowStep>) => void;
   onDelete: () => void;
+  onAttachBlock?: () => void;
 }
 
 const AgentStepNode = memo(({ data }: NodeProps) => {
-  const { step, onStepUpdate, onDelete } = data as unknown as AgentStepNodeData;
+  const { step, onStepUpdate, onDelete, onAttachBlock } = data as unknown as AgentStepNodeData;
 
   const handlePromptChange = (prompt: string) => {
     onStepUpdate({ agentPrompt: prompt });
@@ -108,6 +109,19 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 onChange={(e) => handlePromptChange(e.target.value)}
                 className="text-xs min-h-[60px] resize-none border-purple-200 focus:border-purple-300"
               />
+            </div>
+
+            {/* Attach Block Option */}
+            <div className="pt-2 border-t border-purple-200">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={onAttachBlock}
+                className="w-full h-8 text-xs border-purple-200 hover:border-purple-300"
+              >
+                <Link className="h-3 w-3 mr-1" />
+                Attach Block Instead
+              </Button>
             </div>
 
             {/* Step completion indicator */}

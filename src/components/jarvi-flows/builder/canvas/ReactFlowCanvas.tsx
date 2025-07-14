@@ -125,6 +125,29 @@ export function ReactFlowCanvas({
       onBlocksChange([...blocks, newBlock]);
     }
   }, [steps, blocks, onStepsChange, onBlocksChange]);
+
+  const handleDetachBlock = useCallback((stepId: string) => {
+    // Convert workflow step to agent step by removing block reference
+    const updatedSteps = steps.map(step =>
+      step.id === stepId 
+        ? { 
+            ...step, 
+            blockId: undefined,
+            isAgentStep: true,
+            agentPrompt: step.agentPrompt || ''
+          }
+        : step
+    );
+    
+    // Remove the block from blocks array
+    const stepToUpdate = steps.find(s => s.id === stepId);
+    if (stepToUpdate?.blockId) {
+      const updatedBlocks = blocks.filter(b => b.id !== stepToUpdate.blockId);
+      onBlocksChange(updatedBlocks);
+    }
+    
+    onStepsChange(updatedSteps);
+  }, [steps, blocks, onStepsChange, onBlocksChange]);
   
   // Convert steps to React Flow nodes
   const convertToNodes = useCallback((): Node[] => {
@@ -185,6 +208,7 @@ export function ReactFlowCanvas({
             setSelectedStepForAttach(step.id);
             setAttachBlockDialogOpen(true);
           },
+          onDetachBlock: block ? () => handleDetachBlock(step.id) : undefined,
           onConfigureBlock: block ? () => handleBlockClick(block) : undefined,
           availableBlockOptions
         },
@@ -220,7 +244,7 @@ export function ReactFlowCanvas({
     
     console.log('All nodes created:', nodes.map(n => ({ id: n.id, type: n.type, position: n.position })));
     return nodes;
-  }, [steps, blocks, flowTrigger, isRunningFlow, handleBlockClick, handleAddStep]);
+  }, [steps, blocks, flowTrigger, isRunningFlow, handleBlockClick, handleAddStep, handleDetachBlock]);
 
   // Convert steps to React Flow edges
   const convertToEdges = useCallback((): Edge[] => {

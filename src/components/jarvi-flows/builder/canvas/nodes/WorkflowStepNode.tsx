@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Settings, Trash2, Check, Plus, Bot } from 'lucide-react';
+import { Settings, Trash2, Check, Plus, Bot, Unlink } from 'lucide-react';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 
 interface WorkflowStepNodeData {
@@ -14,12 +14,13 @@ interface WorkflowStepNodeData {
   onBlockUpdate: (updates: Partial<FlowBlock>) => void;
   onDelete: () => void;
   onAttachBlock?: () => void;
+  onDetachBlock?: () => void;
   onConfigureBlock?: () => void;
   availableBlockOptions?: Record<string, string[]>;
 }
 
 const WorkflowStepNode = memo(({ data }: NodeProps) => {
-  const { step, block, onStepUpdate, onDelete, onAttachBlock, onConfigureBlock } = data as unknown as WorkflowStepNodeData;
+  const { step, block, onStepUpdate, onDelete, onAttachBlock, onDetachBlock, onConfigureBlock } = data as unknown as WorkflowStepNodeData;
 
   const isAgentStep = step.isAgentStep || !block;
 
@@ -79,15 +80,26 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                       Action
                     </span>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={onConfigureBlock}
-                    className="w-full h-9"
-                  >
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configure
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={onConfigureBlock}
+                      className="flex-1 h-9"
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configure
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={onDetachBlock}
+                      className="h-9 px-3"
+                      title="Detach block"
+                    >
+                      <Unlink className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ) : isAgentStep ? (
                 <div className="text-center">
