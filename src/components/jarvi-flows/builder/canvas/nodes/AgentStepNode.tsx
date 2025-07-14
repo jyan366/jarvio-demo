@@ -60,15 +60,31 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
   };
 
   return (
-    <>
+    <div className="relative">
       <Handle 
         type="target" 
         position={Position.Left} 
         className="w-3 h-3" 
-        style={{ top: '50px' }} 
+        style={{ top: '70px' }} 
       />
       
-      <Card className="w-72 transition-all duration-200 bg-purple-50 border-purple-200 hover:bg-purple-100 border-2">
+      {/* Floating step name and description above the block */}
+      <div className="absolute -top-12 left-0 w-72 space-y-1 mb-2">
+        <Input
+          placeholder="Step name..."
+          value={step.title || ''}
+          onChange={(e) => onStepUpdate({ title: e.target.value })}
+          className="text-xs h-7 bg-transparent border-none shadow-none p-1 font-medium placeholder:text-gray-400"
+        />
+        <Input
+          placeholder="Step description..."
+          value={step.description || ''}
+          onChange={(e) => onStepUpdate({ description: e.target.value })}
+          className="text-xs h-6 bg-transparent border-none shadow-none p-1 placeholder:text-gray-400"
+        />
+      </div>
+      
+      <Card className="w-72 min-h-[120px] transition-all duration-200 bg-purple-50 border-purple-200 hover:bg-purple-100 border-2">
         <CardContent className="p-4">
           <div className="space-y-3">
             {/* Header */}
@@ -96,29 +112,6 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
-            </div>
-
-            {/* Title */}
-            <div>
-              <h3 className="font-semibold text-sm text-gray-900">
-                Agent Step
-              </h3>
-            </div>
-
-            {/* Step name and description */}
-            <div className="space-y-1">
-              <Input
-                placeholder="Step name..."
-                value={step.title || ''}
-                onChange={(e) => onStepUpdate({ title: e.target.value })}
-                className="text-xs h-7 border-purple-200 focus:border-purple-300 font-medium"
-              />
-              <Input
-                placeholder="Step description..."
-                value={step.description || ''}
-                onChange={(e) => onStepUpdate({ description: e.target.value })}
-                className="text-xs h-7 border-purple-200 focus:border-purple-300"
-              />
             </div>
 
             {/* Tools dropdown */}
@@ -159,7 +152,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 placeholder="Explain what the agent should do..."
                 value={step.agentPrompt || ''}
                 onChange={(e) => handlePromptChange(e.target.value)}
-                className="text-xs min-h-[60px] resize-none border-purple-200 focus:border-purple-300"
+                className="text-xs min-h-[40px] resize-none border-purple-200 focus:border-purple-300"
               />
             </div>
 
@@ -191,9 +184,9 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
         type="source" 
         position={Position.Right} 
         className="w-3 h-3" 
-        style={{ top: '50px' }} 
+        style={{ top: '70px' }} 
       />
-    </>
+    </div>
   );
 });
 
