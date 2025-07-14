@@ -246,9 +246,14 @@ export function FlowStepsEditor({
       const updatedBlocks = blocks.filter(b => b.id !== step.blockId);
       onBlocksChange(updatedBlocks);
       
-      // Update the step to remove block reference
-      updateStep(stepId, { blockId: undefined, isAgentStep: true });
+      // Update the step to remove block reference and set to unselected state
+      updateStep(stepId, { blockId: undefined, isAgentStep: false, stepType: 'unselected' });
     }
+  };
+
+  const handleAgentSelected = (stepId: string) => {
+    // Update the step to be an agent step
+    updateStep(stepId, { isAgentStep: true, stepType: 'agent', blockId: undefined });
   };
 
   const handleBlockConfigured = (updatedBlock: FlowBlock) => {
@@ -363,8 +368,8 @@ export function FlowStepsEditor({
                         className="text-sm border-gray-200 focus:border-gray-300 min-h-[60px] resize-none"
                       />
                       
-                      {/* Agent System Prompt */}
-                      {!stepBlock && step.isAgentStep && (
+                      {/* Agent System Prompt - only show if explicitly an agent step without block */}
+                      {!stepBlock && step.isAgentStep && step.stepType !== 'unselected' && (
                         <div className="mt-2">
                           <label className="text-xs font-medium text-gray-700 block mb-1">
                             System prompt:
@@ -375,11 +380,11 @@ export function FlowStepsEditor({
                             placeholder="Explain what the agent should do..."
                             className="text-sm border-orange-200 focus:border-orange-300 min-h-[60px] resize-none bg-orange-50"
                           />
-                          </div>
-                        )}
+                        </div>
+                      )}
                         
-                        {/* Agent Tools Dropdown */}
-                        {!stepBlock && step.isAgentStep && (
+                        {/* Agent Tools Dropdown - only show if explicitly an agent step without block */}
+                        {!stepBlock && step.isAgentStep && step.stepType !== 'unselected' && (
                           <div className="mt-2">
                             <label className="text-xs font-medium text-gray-700 block mb-1">
                               Tools:
@@ -467,6 +472,7 @@ export function FlowStepsEditor({
                     onBlockAttached={handleBlockAttached}
                     onBlockDetached={handleBlockDetached}
                     onBlockConfigured={handleBlockConfigured}
+                    onAgentSelected={handleAgentSelected}
                     availableBlockOptions={availableBlockOptions}
                   />
                 </CardContent>

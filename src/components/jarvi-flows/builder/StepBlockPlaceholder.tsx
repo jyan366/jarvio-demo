@@ -13,6 +13,7 @@ interface StepBlockPlaceholderProps {
   onBlockAttached: (stepId: string, block: FlowBlock) => void;
   onBlockDetached: (stepId: string) => void;
   onBlockConfigured: (block: FlowBlock) => void;
+  onAgentSelected?: (stepId: string) => void;
   attachedBlock?: FlowBlock | null;
   availableBlockOptions?: Record<string, string[]>;
 }
@@ -22,6 +23,7 @@ export function StepBlockPlaceholder({
   onBlockAttached,
   onBlockDetached,
   onBlockConfigured,
+  onAgentSelected,
   attachedBlock,
   availableBlockOptions = {}
 }: StepBlockPlaceholderProps) {
@@ -63,14 +65,10 @@ export function StepBlockPlaceholder({
   };
 
   const handleAgentSelected = () => {
-    // Create an agent step with default configuration
-    const agentBlock: FlowBlock = {
-      id: uuidv4(),
-      type: 'agent',
-      option: 'AI Agent',
-      name: 'AI Agent Step'
-    };
-    onBlockAttached(step.id, agentBlock);
+    // Call the parent's agent selection handler if provided
+    if (onAgentSelected) {
+      onAgentSelected(step.id);
+    }
   };
 
   const handleDetachBlock = () => {
