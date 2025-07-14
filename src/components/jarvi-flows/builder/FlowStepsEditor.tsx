@@ -12,6 +12,7 @@ import { agentsData } from '@/data/agentsData';
 import { UnifiedTask } from '@/types/unifiedTask';
 import { BlockConfigDialog } from './BlockConfigDialog';
 import { GenerateInstructionsButton } from './GenerateInstructionsButton';
+import { StepBlockPlaceholder } from './StepBlockPlaceholder';
 
 interface FlowStepsEditorProps {
   steps: FlowStep[];
@@ -195,6 +196,44 @@ export function FlowStepsEditor({
     updateStep(stepId, { description: instructions });
   };
 
+  const handleBlockAttached = (stepId: string, block: FlowBlock) => {
+    // Add the block to the blocks array
+    const updatedBlocks = [...blocks, block];
+    onBlocksChange(updatedBlocks);
+    
+    // Update the step to reference the block
+    updateStep(stepId, { blockId: block.id, isAgentStep: false });
+  };
+
+  const handleBlockDetached = (stepId: string) => {
+    const step = steps.find(s => s.id === stepId);
+    if (step?.blockId) {
+      // Remove the block from blocks array
+      const updatedBlocks = blocks.filter(b => b.id !== step.blockId);
+      onBlocksChange(updatedBlocks);
+      
+      // Update the step to remove block reference
+      updateStep(stepId, { blockId: undefined, isAgentStep: true });
+    }
+  };
+
+  const handleBlockConfigured = (updatedBlock: FlowBlock) => {
+    updateBlock(updatedBlock.id, updatedBlock);
+  };
+
+  const addStepQuick = () => {
+    const stepId = uuidv4();
+    const newStep: FlowStep = {
+      id: stepId,
+      title: `Step ${steps.length + 1}`,
+      description: '',
+      completed: false,
+      order: steps.length,
+      isAgentStep: true // Start without a block attached
+    };
+    onStepsChange([...steps, newStep]);
+  };
+
   const renderBlockReference = (description: string, stepBlock: FlowBlock | null) => {
     if (!description) return null;
     
@@ -337,6 +376,18 @@ export function FlowStepsEditor({
                   </div>
                 </CardHeader>
 
+                {/* Add the StepBlockPlaceholder component */}
+                <CardContent className="pt-0">
+                  <StepBlockPlaceholder
+                    step={step}
+                    attachedBlock={stepBlock}
+                    onBlockAttached={handleBlockAttached}
+                    onBlockDetached={handleBlockDetached}
+                    onBlockConfigured={handleBlockConfigured}
+                    availableBlockOptions={availableBlockOptions}
+                  />
+                </CardContent>
+
                 {isExpanded && stepBlock && (
                   <CardContent className="pt-0">
                     <div className={`p-3 rounded-lg border ${getBlockColor(stepBlock.type)}`}>
@@ -421,7 +472,21 @@ export function FlowStepsEditor({
                 )}
               </Card>
             );
-          })}
+           })}
+          
+          {/* Quick Add Step Button at the end */}
+          <Card className="border-dashed border-gray-300 hover:border-gray-400 transition-colors">
+            <CardContent className="p-4">
+              <Button
+                variant="ghost"
+                onClick={addStepQuick}
+                className="w-full h-12 text-gray-600 hover:text-gray-800 justify-center"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add Step
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       )}
 
