@@ -201,7 +201,7 @@ export function ReactFlowCanvas({
       ? (steps[steps.length - 1].canvasPosition || { x: 400 + (steps.length - 1) * 450, y: 100 })
       : { x: 400, y: 100 };
     
-    nodes.push({
+    const hoverAddStepNode = {
       id: 'hover-add-step',
       type: 'hoverAddStep',
       position: { x: lastStepPosition.x + 350, y: lastStepPosition.y },
@@ -211,8 +211,12 @@ export function ReactFlowCanvas({
       draggable: false,
       selectable: false,
       deletable: false,
-    });
+    };
     
+    console.log('Creating hover add step node:', hoverAddStepNode);
+    nodes.push(hoverAddStepNode);
+    
+    console.log('All nodes created:', nodes.map(n => ({ id: n.id, type: n.type, position: n.position })));
     return nodes;
   }, [steps, blocks, flowTrigger, isRunningFlow, handleBlockClick, handleAddStep]);
 
