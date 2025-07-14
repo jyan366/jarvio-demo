@@ -328,6 +328,21 @@ export function FlowStepsEditor({
                         placeholder="Step description (optional)"
                         className="text-sm border-gray-200 focus:border-gray-300 min-h-[60px] resize-none"
                       />
+                      
+                      {/* Agent System Prompt */}
+                      {!stepBlock && step.isAgentStep && (
+                        <div className="mt-2">
+                          <label className="text-xs font-medium text-gray-700 block mb-1">
+                            System prompt:
+                          </label>
+                          <Textarea
+                            value={step.agentPrompt || ''}
+                            onChange={(e) => updateStep(step.id, { agentPrompt: e.target.value })}
+                            placeholder="Explain what the agent should do..."
+                            className="text-sm border-orange-200 focus:border-orange-300 min-h-[60px] resize-none bg-orange-50"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-1">
