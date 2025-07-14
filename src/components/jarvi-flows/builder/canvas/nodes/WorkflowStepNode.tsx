@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Settings, Trash2, Check, Plus, Bot, Unlink } from 'lucide-react';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
+import { blocksData } from '../../../data/blocksData';
 
 interface WorkflowStepNodeData {
   step: FlowStep;
@@ -25,6 +26,24 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
 
   const isUnselected = step.stepType === 'unselected' || (!step.isAgentStep && !block && !step.blockId);
   const isAgentStep = step.isAgentStep;
+
+  // Find block logo from blocksData
+  const getBlockLogo = (blockName?: string) => {
+    if (!blockName) return null;
+    
+    // Search through all categories in blocksData
+    for (const category of Object.values(blocksData)) {
+      if (Array.isArray(category)) {
+        const foundBlock = category.find(b => b.name === blockName || b.name === block?.option);
+        if (foundBlock?.logo) {
+          return foundBlock.logo;
+        }
+      }
+    }
+    return null;
+  };
+
+  const blockLogo = getBlockLogo(block?.name || block?.option);
 
   return (
     <div className="relative">
@@ -110,6 +129,15 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
               ) : block ? (
                 <div className="space-y-2">
                   <div className="text-center">
+                    {blockLogo && (
+                      <div className="w-12 h-12 mx-auto mb-2 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                        <img 
+                          src={blockLogo} 
+                          alt={block.option || block.name}
+                          className="w-8 h-8 object-contain"
+                        />
+                      </div>
+                    )}
                     <span className="text-sm font-semibold text-gray-900 block">
                       {block.option || block.name}
                     </span>

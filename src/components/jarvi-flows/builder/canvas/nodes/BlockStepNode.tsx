@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Database, Brain, Zap, Settings, Trash2, Check } from 'lucide-react';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
+import { blocksData } from '../../../data/blocksData';
 
 interface BlockStepNodeData {
   step: FlowStep;
@@ -18,6 +19,24 @@ interface BlockStepNodeData {
 
 const BlockStepNode = memo(({ data }: NodeProps) => {
   const { step, block, onDelete, onBlockClick } = data as unknown as BlockStepNodeData;
+
+  // Find block logo from blocksData
+  const getBlockLogo = (blockName?: string) => {
+    if (!blockName) return null;
+    
+    // Search through all categories in blocksData
+    for (const category of Object.values(blocksData)) {
+      if (Array.isArray(category)) {
+        const foundBlock = category.find(b => b.name === blockName || b.name === block?.option);
+        if (foundBlock?.logo) {
+          return foundBlock.logo;
+        }
+      }
+    }
+    return null;
+  };
+
+  const blockLogo = getBlockLogo(block?.name || block?.option);
 
   const getBlockIcon = (type?: string) => {
     switch (type) {
@@ -119,8 +138,17 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
               </div>
             </div>
 
-            {/* Block Name */}
+            {/* Block Name and Logo */}
             <div className="text-center">
+              {blockLogo && (
+                <div className="w-12 h-12 mx-auto mb-2 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                  <img 
+                    src={blockLogo} 
+                    alt={block?.option || block?.name || 'Block'}
+                    className="w-8 h-8 object-contain"
+                  />
+                </div>
+              )}
               <span className="text-sm font-semibold text-gray-900">
                 {block?.option || block?.name || 'No block attached'}
               </span>
