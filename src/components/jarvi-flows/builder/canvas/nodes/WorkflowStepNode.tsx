@@ -172,13 +172,29 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                   </div>
                 </div>
               ) : isAgentStep ? (
-                <div className="text-center">
-                  <div className="text-xs text-gray-600 mb-2">
+                <div className="text-center space-y-3">
+                  <div className="text-xs text-gray-600">
                     AI Agent will handle this step
                   </div>
-                  <Badge variant="outline" className="text-xs">
-                    No configuration needed
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs flex-1">
+                      No configuration needed
+                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        onStepUpdate({ 
+                          isAgentStep: false, 
+                          stepType: 'unselected'
+                        });
+                      }}
+                      className="h-7 px-2 text-xs"
+                      title="Disconnect agent"
+                    >
+                      <Unlink className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center">
