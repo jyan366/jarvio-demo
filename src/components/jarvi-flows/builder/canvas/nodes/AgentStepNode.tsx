@@ -24,6 +24,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
   const { step, onStepUpdate, onDelete, onAttachBlock } = data as unknown as AgentStepNodeData;
   const [selectedBlocks, setSelectedBlocks] = React.useState<string[]>([]);
   const [showToolsView, setShowToolsView] = React.useState(false);
+  const isInitialMount = React.useRef(true);
 
   // Get all available blocks from blocksData
   const allBlocks = React.useMemo(() => {
@@ -40,10 +41,11 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
   // Initialize with all blocks selected by default
   React.useEffect(() => {
-    if (selectedBlocks.length === 0) {
+    if (isInitialMount.current && allBlocks.length > 0) {
       setSelectedBlocks(allBlocks);
+      isInitialMount.current = false;
     }
-  }, [allBlocks, selectedBlocks.length]);
+  }, [allBlocks]);
 
   const totalBlockCount = allBlocks.length;
   const selectedCount = selectedBlocks.length;
