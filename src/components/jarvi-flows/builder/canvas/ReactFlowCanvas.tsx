@@ -434,33 +434,40 @@ export function ReactFlowCanvas({
 
 
   return (
-    <div className="w-full h-full relative bg-gray-50">
+    <div className="w-full h-full relative bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900">
+      {/* Hide the toolbar - keeping it commented out for potential future use
       <ReactFlowToolbar
         onAddStep={handleAddStep}
         onAutoArrange={handleAutoArrange}
         onToggleAddPanel={() => setAddPanelOpen(!addPanelOpen)}
       />
+      */}
       
-      {/* Test Button */}
-      <div className="absolute top-4 right-4 z-10">
+      {/* Test Button - Futuristic Jarvis Style */}
+      <div className="absolute top-6 right-6 z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
-              variant="default" 
               disabled={isTestRunning || steps.length === 0}
-              className="gap-2"
+              className="gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 border border-cyan-400/50 text-white shadow-lg shadow-cyan-500/25 transition-all duration-300 hover:shadow-cyan-500/40 hover:scale-105"
             >
               <TestTube className="w-4 h-4" />
               {isTestRunning ? "Running..." : "Test Flow"}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => simulateFlowExecution(false)}>
-              <Play className="w-4 h-4 mr-2" />
+          <DropdownMenuContent align="end" className="bg-slate-800/95 border border-cyan-500/30 text-cyan-100 backdrop-blur-md">
+            <DropdownMenuItem 
+              onClick={() => simulateFlowExecution(false)}
+              className="hover:bg-cyan-500/20 focus:bg-cyan-500/20"
+            >
+              <Play className="w-4 h-4 mr-2 text-green-400" />
               Test Success
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => simulateFlowExecution(true)}>
-              <Play className="w-4 h-4 mr-2 text-destructive" />
+            <DropdownMenuItem 
+              onClick={() => simulateFlowExecution(true)}
+              className="hover:bg-red-500/20 focus:bg-red-500/20"
+            >
+              <Play className="w-4 h-4 mr-2 text-red-400" />
               Test Fail (Step 3)
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -489,28 +496,39 @@ export function ReactFlowCanvas({
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         minZoom={0.2}
         maxZoom={2}
-        
-        className="bg-gray-50"
+        className="bg-transparent"
       >
-        <Background color="#e5e7eb" gap={20} />
-        <Controls showInteractive={false} />
+        <Background 
+          color="#00d4ff" 
+          gap={30} 
+          size={1}
+          className="opacity-20"
+        />
+        <Controls 
+          showInteractive={false} 
+          className="bg-slate-800/90 border border-cyan-500/30 backdrop-blur-md [&>button]:bg-transparent [&>button]:border-cyan-500/20 [&>button]:text-cyan-100 [&>button:hover]:bg-cyan-500/20"
+        />
         <MiniMap 
-          nodeStrokeColor="#374151"
+          nodeStrokeColor="#00d4ff"
           nodeColor={(node) => {
-            if (node.type === 'agentStep') return '#fb923c';
+            if (node.type === 'agentStep') return '#a855f7';
             const nodeData = node.data as any;
+            const executionState = nodeData?.executionState;
+            if (executionState === 'running') return '#3b82f6';
+            if (executionState === 'success') return '#10b981';
+            if (executionState === 'failed') return '#ef4444';
             const block = blocks.find(b => b.id === nodeData?.step?.blockId);
             switch (block?.type) {
-              case 'collect': return '#3b82f6';
+              case 'collect': return '#06b6d4';
               case 'think': return '#8b5cf6';
               case 'act': return '#10b981';
-              default: return '#6b7280';
+              default: return '#64748b';
             }
           }}
-          maskColor="rgba(255, 255, 255, 0.2)"
+          maskColor="rgba(15, 23, 42, 0.8)"
           pannable
           zoomable
-          className="bg-white border border-gray-200 rounded-lg"
+          className="bg-slate-800/90 border border-cyan-500/30 backdrop-blur-md rounded-lg"
         />
       </ReactFlow>
 

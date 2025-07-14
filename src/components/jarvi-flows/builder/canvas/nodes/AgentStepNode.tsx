@@ -31,27 +31,27 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
   const getExecutionStateStyle = () => {
     switch (executionState) {
       case 'running':
-        return 'bg-blue-50 border-blue-500 animate-pulse';
+        return 'bg-gradient-to-br from-cyan-950/80 to-blue-950/80 border-cyan-400 animate-pulse shadow-lg shadow-cyan-500/25';
       case 'success':
-        return 'bg-green-50 border-green-500';
+        return 'bg-gradient-to-br from-green-950/80 to-emerald-950/80 border-green-400 shadow-lg shadow-green-500/25';
       case 'failed':
-        return 'bg-red-50 border-red-500';
+        return 'bg-gradient-to-br from-red-950/80 to-rose-950/80 border-red-400 shadow-lg shadow-red-500/25';
       default:
-        return 'bg-purple-50 border-purple-200';
+        return 'bg-gradient-to-br from-purple-950/80 to-indigo-950/80 border-purple-500/50 shadow-lg shadow-purple-900/20';
     }
   };
   
   const getExecutionStateIndicator = () => {
     switch (executionState) {
       case 'running':
-        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-pulse" />;
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse shadow-lg shadow-cyan-500/50" />;
       case 'success':
-        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/50">
           <Check className="w-2 h-2 text-white" />
         </div>;
       case 'failed':
-        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-          <span className="text-white text-xs">×</span>
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-red-400 to-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-red-500/50">
+          <span className="text-white text-xs font-bold">×</span>
         </div>;
       default:
         return null;

@@ -32,27 +32,27 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
   const getExecutionStateStyle = () => {
     switch (executionState) {
       case 'running':
-        return 'border-blue-500 bg-blue-50 animate-pulse';
+        return 'border-cyan-400 bg-gradient-to-br from-cyan-950/80 to-blue-950/80 animate-pulse shadow-lg shadow-cyan-500/25';
       case 'success':
-        return 'border-green-500 bg-green-50';
+        return 'border-green-400 bg-gradient-to-br from-green-950/80 to-emerald-950/80 shadow-lg shadow-green-500/25';
       case 'failed':
-        return 'border-red-500 bg-red-50';
+        return 'border-red-400 bg-gradient-to-br from-red-950/80 to-rose-950/80 shadow-lg shadow-red-500/25';
       default:
-        return 'border-gray-200 bg-white';
+        return 'border-slate-600/50 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-md shadow-lg shadow-slate-900/20';
     }
   };
   
   const getExecutionStateIndicator = () => {
     switch (executionState) {
       case 'running':
-        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-pulse" />;
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse shadow-lg shadow-cyan-500/50" />;
       case 'success':
-        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/50">
           <Check className="w-2 h-2 text-white" />
         </div>;
       case 'failed':
-        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-          <span className="text-white text-xs">×</span>
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-red-400 to-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-red-500/50">
+          <span className="text-white text-xs font-bold">×</span>
         </div>;
       default:
         return null;
@@ -92,24 +92,24 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
           placeholder="Step name..."
           value={step.title || ''}
           onChange={(e) => onStepUpdate({ title: e.target.value })}
-          className="text-xs h-7 bg-transparent border-none shadow-none p-1 font-medium placeholder:text-gray-400"
+          className="text-xs h-7 bg-transparent border-none shadow-none p-1 font-medium placeholder:text-cyan-400/60 text-cyan-100"
         />
         <Input
           placeholder="Step description..."
           value={step.description || ''}
           onChange={(e) => onStepUpdate({ description: e.target.value })}
-          className="text-xs h-6 bg-transparent border-none shadow-none p-1 placeholder:text-gray-400"
+          className="text-xs h-6 bg-transparent border-none shadow-none p-1 placeholder:text-cyan-400/60 text-cyan-200"
         />
       </div>
       
-      <Card className={`w-72 h-72 border-2 hover:border-gray-300 transition-all duration-200 shadow-sm relative ${getExecutionStateStyle()}`}>
+      <Card className={`w-72 h-72 border-2 hover:border-cyan-400/60 transition-all duration-300 shadow-sm relative ${getExecutionStateStyle()}`}>
         {getExecutionStateIndicator()}
         {/* Delete button positioned at top right */}
         <Button
           size="sm"
           variant="ghost"
           onClick={onDelete}
-          className="absolute top-2 right-2 h-6 w-6 p-0 text-red-500 hover:text-red-700 z-10"
+          className="absolute top-2 right-2 h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/20 z-10 transition-colors duration-200"
         >
           <Trash2 className="h-3 w-3" />
         </Button>
@@ -132,7 +132,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
             <div className="pt-2">
               {isUnselected ? (
                 <div className="text-center space-y-4">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-cyan-300">
                     Choose step type
                   </div>
                   <div className="flex flex-col gap-3 px-4">
@@ -144,7 +144,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                           stepType: 'agent'
                         });
                       }}
-                      className="w-full h-12 flex items-center justify-center gap-2 text-sm"
+                      className="w-full h-12 flex items-center justify-center gap-2 text-sm bg-purple-500/20 border-purple-400/50 text-purple-200 hover:bg-purple-400/30"
                     >
                       <Bot className="h-4 w-4" />
                       Agent
@@ -152,7 +152,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                     <Button
                       variant="outline"
                       onClick={onAttachBlock}
-                      className="w-full h-12 flex items-center justify-center gap-2 text-sm"
+                      className="w-full h-12 flex items-center justify-center gap-2 text-sm bg-cyan-500/20 border-cyan-400/50 text-cyan-200 hover:bg-cyan-400/30"
                     >
                       <Plus className="h-4 w-4" />
                       Block
@@ -163,7 +163,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                 <div className="space-y-2">
                   <div className="text-center">
                     {blockLogo && (
-                      <div className="w-12 h-12 mx-auto mb-2 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                      <div className="w-12 h-12 mx-auto mb-2 rounded-lg overflow-hidden bg-slate-700/50 flex items-center justify-center border border-cyan-400/30">
                         <img 
                           src={blockLogo} 
                           alt={block.option || block.name}
@@ -171,10 +171,10 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                         />
                       </div>
                     )}
-                    <span className="text-sm font-semibold text-gray-900 block">
+                    <span className="text-sm font-semibold text-cyan-100 block">
                       {block.option || block.name}
                     </span>
-                    <span className="text-xs font-medium text-gray-600">
+                    <span className="text-xs font-medium text-cyan-300">
                       Action
                     </span>
                   </div>
@@ -183,7 +183,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                       size="sm"
                       variant="outline"
                       onClick={onConfigureBlock}
-                      className="flex-1 h-7 text-xs"
+                      className="flex-1 h-7 text-xs bg-cyan-500/20 border-cyan-400/50 text-cyan-200 hover:bg-cyan-400/30"
                     >
                       <Settings className="h-3 w-3 mr-1" />
                       Config
@@ -196,7 +196,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                           console.log('Detach button clicked');
                           onDetachBlock();
                         }}
-                        className="h-7 px-2 text-xs"
+                        className="h-7 px-2 text-xs bg-red-500/20 border-red-400/50 text-red-200 hover:bg-red-400/30"
                         title="Detach block"
                       >
                         <Unlink className="h-3 w-3" />
