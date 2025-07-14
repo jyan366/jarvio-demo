@@ -241,11 +241,14 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 const totalTools = getSelectedToolsData().length;
                 const centerIndex = (totalTools - 1) / 2;
                 const offsetFromCenter = (index - centerIndex) * 120;
+                const containerWidth = Math.max(totalTools * 120, 600);
+                const startX = containerWidth / 2;
+                const endX = containerWidth / 2 + offsetFromCenter;
                 
                 return (
                   <path
                     key={tool.name}
-                    d={`M 50% 0 Q 50% 200 calc(50% + ${offsetFromCenter}px) 380`}
+                    d={`M ${startX} 0 Q ${startX} 200 ${endX} 380`}
                     stroke="#a855f7"
                     strokeWidth="2"
                     strokeDasharray="6,6"
