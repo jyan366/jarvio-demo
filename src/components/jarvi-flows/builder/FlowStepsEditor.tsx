@@ -99,7 +99,7 @@ export function FlowStepsEditor({
       case 'act':
         return <Zap className="w-4 h-4 text-green-600" />;
       case 'agent':
-        return <User className="w-4 h-4 text-orange-600" />;
+        return <User className="w-4 h-4 text-purple-600" />;
       default:
         return null;
     }
@@ -114,7 +114,7 @@ export function FlowStepsEditor({
       case 'act':
         return 'bg-green-50 border-green-200';
       case 'agent':
-        return 'bg-orange-50 border-orange-200';
+        return 'bg-purple-50 border-purple-200';
       default:
         return 'bg-gray-50 border-gray-200';
     }
@@ -392,7 +392,7 @@ export function FlowStepsEditor({
                             value={step.agentPrompt || ''}
                             onChange={(e) => updateStep(step.id, { agentPrompt: e.target.value })}
                             placeholder="Explain what the agent should do..."
-                            className="text-sm border-orange-200 focus:border-orange-300 min-h-[60px] resize-none bg-orange-50"
+                            className="text-sm border-purple-200 focus:border-purple-300 min-h-[60px] resize-none bg-purple-50"
                           />
                         </div>
                       )}
@@ -407,7 +407,7 @@ export function FlowStepsEditor({
                               <DropdownMenuTrigger asChild>
                                 <Button 
                                   variant="outline" 
-                                  className="w-full h-8 text-xs border-orange-200 focus:border-orange-300 justify-between bg-orange-50"
+                                  className="w-full h-8 text-xs border-purple-200 focus:border-purple-300 justify-between bg-purple-50"
                                 >
                                   <span>{getStepSelectedBlocks(step.id).length}/{allBlocks.length} selected</span>
                                   <ChevronDown className="h-3 w-3" />
