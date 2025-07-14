@@ -70,11 +70,21 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
         />
       </div>
       
-      <Card className="w-72 h-72 border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 shadow-sm">
+      <Card className="w-72 h-72 border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 shadow-sm relative">
+        {/* Delete button positioned at top right */}
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onDelete}
+          className="absolute top-2 right-2 h-6 w-6 p-0 text-red-500 hover:text-red-700 z-10"
+        >
+          <Trash2 className="h-3 w-3" />
+        </Button>
+        
         <CardContent className="p-4 h-full flex flex-col justify-center">
           <div className="space-y-3">
             {/* Step Header */}
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-start">
               <div className="flex-1">
                 {isAgentStep && (
                   <Badge variant="secondary" className="text-xs w-fit">
@@ -83,14 +93,6 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                   </Badge>
                 )}
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={onDelete}
-                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
             </div>
 
             {/* Block Section */}
