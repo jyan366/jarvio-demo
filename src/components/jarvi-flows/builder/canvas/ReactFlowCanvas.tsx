@@ -21,11 +21,13 @@ import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { WorkflowStepNode } from './nodes/WorkflowStepNode';
 import { AgentStepNode } from './nodes/AgentStepNode';
 import { TriggerNode } from './nodes/TriggerNode';
+import { HoverAddStepNode } from './nodes/HoverAddStepNode';
 import { AddStepPanel } from './AddStepDialog';
 import { ReactFlowToolbar } from './ReactFlowToolbar';
 import { CustomEdge } from './CustomEdge';
 import { BlockConfigDialog } from '../BlockConfigDialog';
 import { AttachBlockDialog } from './AttachBlockDialog';
+
 import { v4 as uuidv4 } from 'uuid';
 
 interface ReactFlowCanvasProps {
@@ -45,6 +47,7 @@ const nodeTypes: NodeTypes = {
   trigger: TriggerNode,
   workflowStep: WorkflowStepNode,
   agentStep: AgentStepNode,
+  hoverAddStep: HoverAddStepNode,
 };
 
 // Custom edge types
@@ -73,6 +76,55 @@ export function ReactFlowCanvas({
     setSelectedBlock(block);
     setShowBlockConfig(true);
   }, []);
+
+  const handleAddStep = useCallback((type: 'block' | 'agent', blockData?: any) => {
+    const stepId = uuidv4();
+    
+    if (type === 'agent') {
+      // Create agent step
+      const newStep: FlowStep = {
+        id: stepId,
+        title: '',
+        description: '',
+        completed: false,
+        order: steps.length,
+        isAgentStep: true,
+        agentPrompt: '',
+        selectedBlocks: [],
+        canvasPosition: {
+          x: 400 + steps.length * 450,
+          y: 100
+        }
+      };
+      onStepsChange([...steps, newStep]);
+    } else if (type === 'block' && blockData) {
+      // Create workflow step with block attached
+      const blockId = uuidv4();
+      const newBlock: FlowBlock = {
+        id: blockId,
+        type: blockData.type || 'collect',
+        option: blockData.name,
+        name: blockData.name
+      };
+
+      const newStep: FlowStep = {
+        id: stepId,
+        title: '',
+        description: '',
+        completed: false,
+        order: steps.length,
+        blockId: blockId,
+        isAgentStep: false,
+        canvasPosition: {
+          x: 400 + steps.length * 450,
+          y: 100
+        }
+      };
+
+      onStepsChange([...steps, newStep]);
+      onBlocksChange([...blocks, newBlock]);
+    }
+  }, [steps, blocks, onStepsChange, onBlocksChange]);
   
   // Convert steps to React Flow nodes
   const convertToNodes = useCallback((): Node[] => {
@@ -143,8 +195,26 @@ export function ReactFlowCanvas({
     });
     
     nodes.push(...stepNodes);
+    
+    // Add hover "Add Step" area after the last step
+    const lastStepPosition = steps.length > 0 
+      ? (steps[steps.length - 1].canvasPosition || { x: 400 + (steps.length - 1) * 450, y: 100 })
+      : { x: 400, y: 100 };
+    
+    nodes.push({
+      id: 'hover-add-step',
+      type: 'hoverAddStep',
+      position: { x: lastStepPosition.x + 350, y: lastStepPosition.y },
+      data: {
+        onAddStep: handleAddStep,
+      },
+      draggable: false,
+      selectable: false,
+      deletable: false,
+    });
+    
     return nodes;
-  }, [steps, blocks, flowTrigger, isRunningFlow, handleBlockClick]);
+  }, [steps, blocks, flowTrigger, isRunningFlow, handleBlockClick, handleAddStep]);
 
   // Convert steps to React Flow edges
   const convertToEdges = useCallback((): Edge[] => {
@@ -217,55 +287,6 @@ export function ReactFlowCanvas({
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
-
-  const handleAddStep = (type: 'block' | 'agent', blockData?: any) => {
-    const stepId = uuidv4();
-    
-    if (type === 'agent') {
-      // Create agent step
-      const newStep: FlowStep = {
-        id: stepId,
-        title: '',
-        description: '',
-        completed: false,
-        order: steps.length,
-        isAgentStep: true,
-        agentPrompt: '',
-        selectedBlocks: [],
-        canvasPosition: {
-          x: 400 + steps.length * 450,
-          y: 100
-        }
-      };
-      onStepsChange([...steps, newStep]);
-    } else if (type === 'block' && blockData) {
-      // Create workflow step with block attached
-      const blockId = uuidv4();
-      const newBlock: FlowBlock = {
-        id: blockId,
-        type: blockData.type || 'collect',
-        option: blockData.name,
-        name: blockData.name
-      };
-
-      const newStep: FlowStep = {
-        id: stepId,
-        title: '',
-        description: '',
-        completed: false,
-        order: steps.length,
-        blockId: blockId,
-        isAgentStep: false,
-        canvasPosition: {
-          x: 400 + steps.length * 450,
-          y: 100
-        }
-      };
-
-      onStepsChange([...steps, newStep]);
-      onBlocksChange([...blocks, newBlock]);
-    }
-  };
 
   const handleAttachBlock = (stepId: string, blockData: any) => {
     const blockId = uuidv4();
