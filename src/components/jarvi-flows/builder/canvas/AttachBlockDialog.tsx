@@ -109,8 +109,21 @@ export function AttachBlockDialog({ isOpen, onClose, onAttachBlock, stepId }: At
                 onClick={() => handleAttachBlock(block)}
               >
                 <div className="flex items-start gap-3">
+                  {/* Block Logo */}
                   <div className="flex-shrink-0 mt-1">
-                    {getIconForCategory(block.category)}
+                    {block.logo ? (
+                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                        <img 
+                          src={block.logo} 
+                          alt={block.name}
+                          className="w-7 h-7 object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                        {getIconForCategory(block.category)}
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
