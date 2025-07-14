@@ -39,7 +39,7 @@ export function StepBlockPlaceholder({
       case 'act':
         return <Zap className="w-4 h-4 text-green-600" />;
       case 'agent':
-        return <User className="w-4 h-4 text-orange-600" />;
+        return <User className="w-4 h-4 text-purple-600" />;
       default:
         return null;
     }
@@ -54,7 +54,7 @@ export function StepBlockPlaceholder({
       case 'act':
         return 'bg-green-50 border-green-200 hover:bg-green-100';
       case 'agent':
-        return 'bg-orange-50 border-orange-200 hover:bg-orange-100';
+        return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
       default:
         return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
     }
@@ -130,8 +130,8 @@ export function StepBlockPlaceholder({
 
             {/* Show configuration hint for agents */}
             {attachedBlock.type === 'agent' && (
-              <div className="mt-2 pt-2 border-t border-orange-200">
-                <p className="text-xs text-orange-700">
+              <div className="mt-2 pt-2 border-t border-purple-200">
+                <p className="text-xs text-purple-700">
                   <Settings className="inline w-3 h-3 mr-1" />
                   Click configure to set system prompt, tools, and parameters
                 </p>
