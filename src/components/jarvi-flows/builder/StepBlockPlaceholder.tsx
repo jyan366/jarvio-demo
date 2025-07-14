@@ -7,6 +7,7 @@ import { FlowBlock, FlowStep } from '@/types/flowTypes';
 import { BlockConfigDialog } from './BlockConfigDialog';
 import { StepBlockSelectionDialog } from './StepBlockSelectionDialog';
 import { v4 as uuidv4 } from 'uuid';
+
 interface StepBlockPlaceholderProps {
   step: FlowStep;
   onBlockAttached: (stepId: string, block: FlowBlock) => void;
@@ -16,6 +17,7 @@ interface StepBlockPlaceholderProps {
   attachedBlock?: FlowBlock | null;
   availableBlockOptions?: Record<string, string[]>;
 }
+
 export function StepBlockPlaceholder({
   step,
   onBlockAttached,
@@ -27,6 +29,7 @@ export function StepBlockPlaceholder({
 }: StepBlockPlaceholderProps) {
   const [showBlockConfig, setShowBlockConfig] = useState(false);
   const [showSelectionDialog, setShowSelectionDialog] = useState(false);
+
   const getBlockIcon = (type: string) => {
     switch (type) {
       case 'collect':
@@ -41,6 +44,7 @@ export function StepBlockPlaceholder({
         return null;
     }
   };
+
   const getBlockColor = (type: string) => {
     switch (type) {
       case 'collect':
@@ -55,41 +59,42 @@ export function StepBlockPlaceholder({
         return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
     }
   };
+
   const handleBlockSelected = (block: FlowBlock) => {
     onBlockAttached(step.id, block);
   };
+
   const handleAgentSelected = () => {
     // Call the parent's agent selection handler if provided
     if (onAgentSelected) {
       onAgentSelected(step.id);
     }
   };
+
   const handleDetachBlock = () => {
     onBlockDetached(step.id);
   };
+
   const handleConfigureBlock = () => {
     if (attachedBlock) {
       setShowBlockConfig(true);
     }
   };
+
   const getCategoryDisplayName = (type: string) => {
     switch (type) {
-      case 'collect':
-        return 'Collect Data';
-      case 'think':
-        return 'Process & Analyze';
-      case 'act':
-        return 'Take Action';
-      case 'agent':
-        return 'AI Agent';
-      default:
-        return type;
+      case 'collect': return 'Collect Data';
+      case 'think': return 'Process & Analyze';
+      case 'act': return 'Take Action';
+      case 'agent': return 'AI Agent';
+      default: return type;
     }
   };
 
   // Show attached block
   if (attachedBlock) {
-    return <>
+    return (
+      <>
         <Card className={`mt-3 transition-colors ${getBlockColor(attachedBlock.type)}`}>
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
@@ -102,38 +107,73 @@ export function StepBlockPlaceholder({
               </div>
               
               <div className="flex items-center gap-1">
-                
-                <Button size="sm" variant="ghost" onClick={handleDetachBlock} className="h-6 w-6 p-0 text-red-500 hover:text-red-700" title="Remove block">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleConfigureBlock}
+                  className="h-6 w-6 p-0"
+                  title="Configure block parameters"
+                >
+                  <Settings className="h-3 w-3" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleDetachBlock}
+                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                  title="Remove block"
+                >
                   <X className="h-3 w-3" />
                 </Button>
               </div>
             </div>
 
             {/* Show configuration hint for agents */}
-            {attachedBlock.type === 'agent' && <div className="mt-2 pt-2 border-t border-purple-200">
+            {attachedBlock.type === 'agent' && (
+              <div className="mt-2 pt-2 border-t border-purple-200">
                 <p className="text-xs text-purple-700">
                   <Settings className="inline w-3 h-3 mr-1" />
                   Click configure to set system prompt, tools, and parameters
                 </p>
-              </div>}
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {showBlockConfig && <BlockConfigDialog isOpen={showBlockConfig} onClose={() => setShowBlockConfig(false)} block={attachedBlock} />}
-      </>;
+        {showBlockConfig && (
+          <BlockConfigDialog
+            isOpen={showBlockConfig}
+            onClose={() => setShowBlockConfig(false)}
+            block={attachedBlock}
+          />
+        )}
+      </>
+    );
   }
 
   // Show placeholder for adding block/agent
-  return <>
+  return (
+    <>
       <Card className="mt-3 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer">
         <CardContent className="p-3">
-          <Button variant="ghost" size="sm" onClick={() => setShowSelectionDialog(true)} className="w-full h-8 text-gray-600 hover:text-gray-800 justify-start">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSelectionDialog(true)}
+            className="w-full h-8 text-gray-600 hover:text-gray-800 justify-start"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Connect Block or Use Agent
           </Button>
         </CardContent>
       </Card>
 
-      <StepBlockSelectionDialog open={showSelectionDialog} onOpenChange={setShowSelectionDialog} onBlockSelected={handleBlockSelected} onAgentSelected={handleAgentSelected} />
-    </>;
+      <StepBlockSelectionDialog
+        open={showSelectionDialog}
+        onOpenChange={setShowSelectionDialog}
+        onBlockSelected={handleBlockSelected}
+        onAgentSelected={handleAgentSelected}
+      />
+    </>
+  );
 }
