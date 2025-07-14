@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Settings, Trash2, Check } from 'lucide-react';
 import { FlowStep } from '@/types/flowTypes';
 
@@ -30,14 +31,14 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
         style={{ top: '50px' }} 
       />
       
-      <Card className="w-72 transition-all duration-200 bg-orange-50 border-orange-200 hover:bg-orange-100 border-2">
+      <Card className="w-72 transition-all duration-200 bg-purple-50 border-purple-200 hover:bg-purple-100 border-2">
         <CardContent className="p-4">
           <div className="space-y-3">
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-orange-600" />
-                <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-xs">
+                <User className="w-4 h-4 text-purple-600" />
+                <Badge className="bg-purple-100 text-purple-700 border-purple-200 text-xs">
                   Agent
                 </Badge>
               </div>
@@ -62,21 +63,45 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
             {/* Title */}
             <div>
-              <h3 className="font-medium text-sm line-clamp-2 text-gray-900">
-                {step.title}
+              <h3 className="font-semibold text-sm text-gray-900">
+                Agent Step
               </h3>
             </div>
 
-            {/* Agent-specific content */}
-            <div className="space-y-2">
-              <div className="text-xs text-gray-600">
-                24/24 blocks selected
+            {/* Step name and description */}
+            <div className="space-y-1">
+              <div className="font-medium text-xs text-gray-800">
+                {step.title}
               </div>
+              {step.description && (
+                <div className="text-xs text-gray-600">
+                  {step.description}
+                </div>
+              )}
+            </div>
+
+            {/* Tools dropdown */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-700">Tools:</label>
+              <Select defaultValue="all">
+                <SelectTrigger className="h-8 text-xs border-purple-200 focus:border-purple-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All selected by default</SelectItem>
+                  <SelectItem value="custom">Custom selection</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* System prompt */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-700">System prompt:</label>
               <Textarea
-                placeholder="Enter agent prompt..."
+                placeholder="Explain what the agent should do..."
                 value={step.agentPrompt || ''}
                 onChange={(e) => handlePromptChange(e.target.value)}
-                className="text-xs min-h-[60px] resize-none border-orange-200 focus:border-orange-300"
+                className="text-xs min-h-[60px] resize-none border-purple-200 focus:border-purple-300"
               />
             </div>
 
