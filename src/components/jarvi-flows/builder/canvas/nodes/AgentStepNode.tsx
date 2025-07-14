@@ -225,36 +225,39 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
       {/* Connected Tools View */}
       {showToolsView && selectedBlocks.length > 0 && (
         <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-10">
-          {/* Tools arranged horizontally */}
-          <div className="flex justify-center gap-6 relative" style={{ minWidth: `${Math.max(getSelectedToolsData().length * 100, 400)}px` }}>
+          {/* Tools arranged horizontally - moved further down */}
+          <div className="flex justify-center gap-6 relative" style={{ 
+            minWidth: `${Math.max(getSelectedToolsData().length * 100, 400)}px`,
+            marginTop: '120px'
+          }}>
             {getSelectedToolsData().map((tool, index) => {
               const totalTools = getSelectedToolsData().length;
               const distanceFromCenter = index - Math.floor(totalTools / 2);
+              const horizontalOffset = distanceFromCenter * 100; // Distance from center in pixels
               
               return (
                 <div
                   key={tool.name}
                   className="relative flex flex-col items-center"
-                  style={{ marginTop: '60px' }}
                 >
-                  {/* Curved connection line to agent */}
+                  {/* Smooth curved connection line from bottom center of agent block */}
                   <svg 
                     className="absolute"
-                    width="200" 
-                    height="80"
+                    width="400" 
+                    height="140"
                     style={{
                       left: '50%',
-                      top: '-60px',
-                      transform: 'translateX(-50%)',
+                      top: '-120px',
+                      transform: `translateX(calc(-50% + ${-horizontalOffset}px))`,
                       overflow: 'visible',
                       pointerEvents: 'none'
                     }}
                   >
                     <path
-                      d={`M 100 80 Q ${100 + distanceFromCenter * -30} 40 ${100 + distanceFromCenter * -60} 0`}
+                      d={`M 200 0 Q 200 70 ${200 + horizontalOffset} 140`}
                       stroke="#a855f7"
-                      strokeWidth="1.5"
-                      strokeDasharray="4,4"
+                      strokeWidth="2"
+                      strokeDasharray="5,5"
                       fill="none"
                       opacity="0.8"
                     />
