@@ -51,7 +51,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
         />
       </div>
       
-      <Card className="w-72 min-h-[120px] border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 shadow-sm">
+      <Card className="w-72 min-h-[160px] border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 shadow-sm">
         <CardContent className="p-4 h-full flex flex-col justify-center">
           <div className="space-y-3">
             {/* Step Header */}
