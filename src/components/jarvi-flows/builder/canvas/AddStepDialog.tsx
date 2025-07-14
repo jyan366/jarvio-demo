@@ -57,12 +57,23 @@ export function AddStepPanel({ onAddStep, isOpen, onClose, availableBlockOptions
   const filteredBlocks = blocks.filter(block => {
     const matchesSearch = block.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          block.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || block.type === selectedCategory;
+    
+    // Map database categories to simplified categories
+    let blockCategory = 'collect'; // default
+    if (['think', 'amazon_analysis', 'image_analysis'].includes(block.type)) {
+      blockCategory = 'think';
+    } else if (['act', 'communication', 'integration'].includes(block.type)) {
+      blockCategory = 'act';
+    } else if (['collect', 'amazon_api', 'amazon_scraping', 'scraping', 'junglescout', 'keyword_research', 'jarvio', 'amazon_support'].includes(block.type)) {
+      blockCategory = 'collect';
+    }
+    
+    const matchesCategory = !selectedCategory || blockCategory === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // Get available categories from blocks
-  const categories = [...new Set(blocks.map(block => block.type))];
+  // Simplified categories
+  const categories = ['collect', 'think', 'act'];
 
   const handleBlockSelect = (block: any) => {
     onAddStep('block', {
@@ -175,8 +186,16 @@ export function AddStepPanel({ onAddStep, isOpen, onClose, availableBlockOptions
         {/* Blocks List */}
         <div className="flex-1 overflow-y-auto space-y-2">
           {filteredBlocks.map((block, index) => {
-            const IconComponent = getIconForType(block.type);
-            const colorClass = getColorForType(block.type);
+            // Map database type to simplified category for display
+            let displayCategory = 'collect';
+            if (['think', 'amazon_analysis', 'image_analysis'].includes(block.type)) {
+              displayCategory = 'think';
+            } else if (['act', 'communication', 'integration'].includes(block.type)) {
+              displayCategory = 'act';
+            }
+            
+            const IconComponent = getIconForType(displayCategory);
+            const colorClass = getColorForType(displayCategory);
             
             return (
               <div
@@ -194,7 +213,7 @@ export function AddStepPanel({ onAddStep, isOpen, onClose, availableBlockOptions
                   </div>
                   <div className="flex flex-col gap-1">
                     <Badge variant="outline" className="text-xs capitalize">
-                      {block.type}
+                      {displayCategory}
                     </Badge>
                   </div>
                 </div>
