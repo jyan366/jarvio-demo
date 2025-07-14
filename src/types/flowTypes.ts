@@ -11,6 +11,7 @@ export interface FlowStep {
   isAgentStep?: boolean;
   agentPrompt?: string;
   selectedBlocks?: string[]; // Block IDs for agent steps
+  stepType?: 'unselected' | 'agent' | 'block'; // New field to track step type
 }
 
 export interface FlowBlock {

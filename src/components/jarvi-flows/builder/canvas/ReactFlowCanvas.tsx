@@ -89,6 +89,7 @@ export function ReactFlowCanvas({
         completed: false,
         order: steps.length,
         isAgentStep: true,
+        stepType: 'agent',
         agentPrompt: '',
         selectedBlocks: [],
         canvasPosition: {
@@ -115,6 +116,7 @@ export function ReactFlowCanvas({
         order: steps.length,
         blockId: blockId,
         isAgentStep: false,
+        stepType: 'block',
         canvasPosition: {
           x: 400 + steps.length * 450,
           y: 100
@@ -127,13 +129,16 @@ export function ReactFlowCanvas({
   }, [steps, blocks, onStepsChange, onBlocksChange]);
 
   const handleDetachBlock = useCallback((stepId: string) => {
-    // Remove block reference but keep as workflow step (not agent step)
+    // Remove block reference and set to unselected state
     const updatedSteps = steps.map(step =>
       step.id === stepId 
         ? { 
             ...step, 
             blockId: undefined,
-            isAgentStep: false  // Keep as workflow step, just without block
+            isAgentStep: false,
+            stepType: 'unselected' as const,
+            title: '',
+            description: ''
           }
         : step
     );
@@ -170,7 +175,8 @@ export function ReactFlowCanvas({
 
     // Add step nodes
     const stepNodes = steps.map((step, index) => {
-      const isAgent = step.isAgentStep || !step.blockId;
+      const isAgent = step.isAgentStep === true;
+      const isUnselected = step.stepType === 'unselected' || (!step.isAgentStep && !step.blockId && step.stepType !== 'block');
       const block = step.blockId ? blocks.find(b => b.id === step.blockId) : null;
       
       return {
@@ -204,6 +210,12 @@ export function ReactFlowCanvas({
             onBlocksChange(updatedBlocks);
           },
           onAttachBlock: () => {
+            // Update step type to block when attaching
+            onStepsChange(steps.map(s => 
+              s.id === step.id 
+                ? { ...s, stepType: 'block', isAgentStep: false }
+                : s
+            ));
             setSelectedStepForAttach(step.id);
             setAttachBlockDialogOpen(true);
           },

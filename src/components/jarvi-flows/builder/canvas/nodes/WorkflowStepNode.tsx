@@ -16,13 +16,15 @@ interface WorkflowStepNodeData {
   onAttachBlock?: () => void;
   onDetachBlock?: () => void;
   onConfigureBlock?: () => void;
+  onConvertToAgent?: () => void;
   availableBlockOptions?: Record<string, string[]>;
 }
 
 const WorkflowStepNode = memo(({ data }: NodeProps) => {
-  const { step, block, onStepUpdate, onDelete, onAttachBlock, onDetachBlock, onConfigureBlock } = data as unknown as WorkflowStepNodeData;
+  const { step, block, onStepUpdate, onDelete, onAttachBlock, onDetachBlock, onConfigureBlock, onConvertToAgent } = data as unknown as WorkflowStepNodeData;
 
-  const isAgentStep = step.isAgentStep || !block;
+  const isUnselected = step.stepType === 'unselected' || (!step.isAgentStep && !block && !step.blockId);
+  const isAgentStep = step.isAgentStep;
 
   return (
     <>
@@ -70,7 +72,40 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
 
             {/* Block Section */}
             <div className="border-t border-gray-100 pt-4">
-              {block ? (
+              {isUnselected ? (
+                <div className="text-center space-y-3">
+                  <div className="text-sm text-gray-600 mb-3">
+                    Choose step type
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        onStepUpdate({ 
+                          isAgentStep: true, 
+                          stepType: 'agent',
+                          title: 'AI Agent Step',
+                          description: 'Let AI handle this step' 
+                        });
+                      }}
+                      className="h-12 flex flex-col items-center justify-center text-xs"
+                    >
+                      <Bot className="h-4 w-4 mb-1" />
+                      Agent
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={onAttachBlock}
+                      className="h-12 flex flex-col items-center justify-center text-xs"
+                    >
+                      <Plus className="h-4 w-4 mb-1" />
+                      Block
+                    </Button>
+                  </div>
+                </div>
+              ) : block ? (
                 <div className="space-y-3">
                   <div className="text-center">
                     <span className="text-lg font-semibold text-gray-900 block">
