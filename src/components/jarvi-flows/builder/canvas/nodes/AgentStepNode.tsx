@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Settings, Trash2, Check, Link, ChevronDown, ChevronUp } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { User, Settings, Trash2, Check, Link, ChevronDown } from 'lucide-react';
 import { FlowStep } from '@/types/flowTypes';
 import { blocksData } from '../../../data/blocksData';
 import { flowBlockOptions } from '@/data/flowBlockOptions';
@@ -21,7 +22,7 @@ interface AgentStepNodeData {
 
 const AgentStepNode = memo(({ data }: NodeProps) => {
   const { step, onStepUpdate, onDelete, onAttachBlock } = data as unknown as AgentStepNodeData;
-  const [showAllBlocks, setShowAllBlocks] = React.useState(false);
+  const [selectedBlocks, setSelectedBlocks] = React.useState<string[]>([]);
 
   // Get all available blocks from blocksData
   const allBlocks = React.useMemo(() => {
@@ -36,7 +37,23 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
     return blocks;
   }, []);
 
+  // Initialize with all blocks selected by default
+  React.useEffect(() => {
+    if (selectedBlocks.length === 0) {
+      setSelectedBlocks(allBlocks);
+    }
+  }, [allBlocks, selectedBlocks.length]);
+
   const totalBlockCount = allBlocks.length;
+  const selectedCount = selectedBlocks.length;
+
+  const handleBlockToggle = (blockName: string) => {
+    setSelectedBlocks(prev => 
+      prev.includes(blockName) 
+        ? prev.filter(b => b !== blockName)
+        : [...prev, blockName]
+    );
+  };
 
   const handlePromptChange = (prompt: string) => {
     onStepUpdate({ agentPrompt: prompt });
@@ -104,52 +121,34 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
               />
             </div>
 
-            {/* Tools section */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-gray-700">Tools:</label>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setShowAllBlocks(!showAllBlocks)}
-                  className="h-6 px-2 text-xs text-purple-600 hover:text-purple-700"
-                >
-                  {showAllBlocks ? (
-                    <>
-                      <ChevronUp className="h-3 w-3 mr-1" />
-                      Hide
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="h-3 w-3 mr-1" />
-                      Show
-                    </>
-                  )}
-                </Button>
-              </div>
-              
-              <div className="bg-green-50 border border-green-200 rounded-md p-2">
-                <div className="flex items-center gap-2 text-xs text-green-700">
-                  <Check className="h-3 w-3" />
-                  <span className="font-medium">{totalBlockCount}/{totalBlockCount} selected</span>
-                </div>
-                <div className="text-xs text-green-600 mt-1">
-                  All blocks available by default
-                </div>
-              </div>
-
-              {showAllBlocks && (
-                <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
-                  <div className="space-y-1">
-                    {allBlocks.map((blockName, index) => (
-                      <div key={index} className="flex items-center gap-2 text-xs">
-                        <Check className="h-3 w-3 text-green-600 flex-shrink-0" />
-                        <span className="text-gray-700">{blockName}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            {/* Tools dropdown */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-700">Tools:</label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-8 text-xs border-purple-200 focus:border-purple-300 justify-between"
+                  >
+                    <span>{selectedCount}/{totalBlockCount} selected</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64 max-h-64 overflow-y-auto">
+                  <DropdownMenuLabel className="text-xs">Select Tools</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {allBlocks.map((blockName) => (
+                    <DropdownMenuCheckboxItem
+                      key={blockName}
+                      checked={selectedBlocks.includes(blockName)}
+                      onCheckedChange={() => handleBlockToggle(blockName)}
+                      className="text-xs"
+                    >
+                      {blockName}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* System prompt */}
