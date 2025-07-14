@@ -170,11 +170,7 @@ export function ReactFlowCanvas({
 
     // Add step nodes
     const stepNodes = steps.map((step, index) => {
-      // Determine if it's an agent step:
-      // - Explicitly marked as agent step, OR
-      // - Has agent prompt but no block (legacy agent steps)
-      const isAgent = step.isAgentStep === true || 
-                      (step.isAgentStep !== false && !step.blockId && step.agentPrompt);
+      const isAgent = step.isAgentStep || !step.blockId;
       const block = step.blockId ? blocks.find(b => b.id === step.blockId) : null;
       
       return {
