@@ -1,39 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, X } from 'lucide-react';
-import { blocksData } from '../../data/blocksData';
+import { Search, X, Database, Brain, Zap, User } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AddStepPanelProps {
   onAddStep: (type: 'block' | 'agent', blockData?: any) => void;
   isOpen: boolean;
   onClose: () => void;
+  availableBlockOptions?: Record<string, string[]>;
 }
 
-export function AddStepPanel({ onAddStep, isOpen, onClose }: AddStepPanelProps) {
+export function AddStepPanel({ onAddStep, isOpen, onClose, availableBlockOptions }: AddStepPanelProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [blocks, setBlocks] = useState<Array<{ name: string; description: string; type: string }>>([]);
+
+  // Load blocks from database
+  useEffect(() => {
+    const loadBlocks = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('flow_block_configs')
+          .select('block_name, block_type, config_data')
+          .eq('is_functional', true)
+          .order('block_name');
+
+        if (error) {
+          console.error('Error fetching blocks:', error);
+          return;
+        }
+
+        if (data) {
+          const formattedBlocks = data.map(block => ({
+            name: block.block_name,
+            type: block.block_type,
+            description: (block.config_data as any)?.description || '',
+            parameters: (block.config_data as any)?.parameters || []
+          }));
+          setBlocks(formattedBlocks);
+        }
+      } catch (error) {
+        console.error('Error loading blocks:', error);
+      }
+    };
+
+    if (isOpen) {
+      loadBlocks();
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  // Flatten all blocks from all categories
-  const allBlocks = Object.entries(blocksData).flatMap(([category, blocks]) =>
-    blocks.map(block => ({ ...block, category }))
-  );
-
   // Filter blocks based on search term and category
-  const filteredBlocks = allBlocks.filter(block => {
+  const filteredBlocks = blocks.filter(block => {
     const matchesSearch = block.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         block.summary.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || block.category === selectedCategory;
+                         block.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || block.type === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const categories = Object.keys(blocksData);
+  // Get available categories from blocks
+  const categories = [...new Set(blocks.map(block => block.type))];
 
   const handleBlockSelect = (block: any) => {
-    onAddStep('block', block);
+    onAddStep('block', {
+      name: block.name,
+      type: block.type,
+      description: block.description,
+      parameters: block.parameters
+    });
     onClose();
     setSearchTerm('');
     setSelectedCategory(null);
@@ -44,6 +81,28 @@ export function AddStepPanel({ onAddStep, isOpen, onClose }: AddStepPanelProps) 
     onClose();
     setSearchTerm('');
     setSelectedCategory(null);
+  };
+
+  // Helper function to get icon for block type
+  const getIconForType = (type: string) => {
+    switch (type) {
+      case 'collect': return Database;
+      case 'think': return Brain;
+      case 'act': return Zap;
+      case 'agent': return User;
+      default: return Database;
+    }
+  };
+
+  // Helper function to get color for block type
+  const getColorForType = (type: string) => {
+    switch (type) {
+      case 'collect': return 'bg-blue-100 text-blue-600';
+      case 'think': return 'bg-green-100 text-green-600';
+      case 'act': return 'bg-orange-100 text-orange-600';
+      case 'agent': return 'bg-purple-100 text-purple-600';
+      default: return 'bg-gray-100 text-gray-600';
+    }
   };
 
   return (
@@ -64,14 +123,14 @@ export function AddStepPanel({ onAddStep, isOpen, onClose }: AddStepPanelProps) 
           {/* Simple Step */}
           <div className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors" onClick={handleAgentSelect}>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Search className="h-4 w-4 text-blue-600" />
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                <User className="h-4 w-4 text-purple-600" />
               </div>
               <div className="flex-1">
-                <h4 className="font-medium text-sm">Simple Step</h4>
-                <p className="text-xs text-gray-600">Add a step without a block (becomes an agent step)</p>
+                <h4 className="font-medium text-sm">Agent Step</h4>
+                <p className="text-xs text-gray-600">Add an AI agent step with custom tools and prompts</p>
               </div>
-              <Badge variant="outline" className="text-xs">Step</Badge>
+              <Badge variant="outline" className="text-xs">Agent</Badge>
             </div>
           </div>
         </div>
@@ -115,37 +174,33 @@ export function AddStepPanel({ onAddStep, isOpen, onClose }: AddStepPanelProps) 
 
         {/* Blocks List */}
         <div className="flex-1 overflow-y-auto space-y-2">
-          {filteredBlocks.map((block, index) => (
-            <div
-              key={index}
-              className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors"
-              onClick={() => handleBlockSelect(block)}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                  {block.logo ? (
-                    <img src={block.logo} alt={block.name} className="w-4 h-4" />
-                  ) : (
-                    <block.icon className="h-4 w-4 text-gray-600" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-sm truncate">{block.name}</h4>
-                  <p className="text-xs text-gray-600 line-clamp-2">{block.summary}</p>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Badge variant="outline" className="text-xs capitalize">
-                    {block.category}
-                  </Badge>
-                  {block.needsConnection && (
-                    <Badge variant="secondary" className="text-xs">
-                      Connection
+          {filteredBlocks.map((block, index) => {
+            const IconComponent = getIconForType(block.type);
+            const colorClass = getColorForType(block.type);
+            
+            return (
+              <div
+                key={index}
+                className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                onClick={() => handleBlockSelect(block)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClass}`}>
+                    <IconComponent className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-sm truncate">{block.name}</h4>
+                    <p className="text-xs text-gray-600 line-clamp-2">{block.description}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Badge variant="outline" className="text-xs capitalize">
+                      {block.type}
                     </Badge>
-                  )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {filteredBlocks.length === 0 && (

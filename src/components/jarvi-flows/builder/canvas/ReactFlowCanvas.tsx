@@ -290,6 +290,7 @@ export function ReactFlowCanvas({
         onAddStep={handleAddStep}
         isOpen={addPanelOpen}
         onClose={() => setAddPanelOpen(false)}
+        availableBlockOptions={availableBlockOptions}
       />
       
       <ReactFlow
