@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Plus, Trash2, GripVertical, ChevronRight, ChevronDown, Database, Brain, Zap, User, Check } from 'lucide-react';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +14,7 @@ import { UnifiedTask } from '@/types/unifiedTask';
 import { BlockConfigDialog } from './BlockConfigDialog';
 import { GenerateInstructionsButton } from './GenerateInstructionsButton';
 import { StepBlockPlaceholder } from './StepBlockPlaceholder';
+import { blocksData } from '../data/blocksData';
 
 interface FlowStepsEditorProps {
   steps: FlowStep[];
@@ -36,6 +38,20 @@ export function FlowStepsEditor({
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set());
   const [selectedBlock, setSelectedBlock] = useState<FlowBlock | null>(null);
   const [showBlockConfig, setShowBlockConfig] = useState(false);
+  const [stepSelectedBlocks, setStepSelectedBlocks] = useState<Record<string, string[]>>({});
+
+  // Get all available blocks from blocksData
+  const allBlocks = React.useMemo(() => {
+    const blocks: string[] = [];
+    Object.values(blocksData).forEach((category: any) => {
+      if (Array.isArray(category)) {
+        category.forEach((block: any) => {
+          blocks.push(block.name);
+        });
+      }
+    });
+    return blocks;
+  }, []);
 
   // Sync steps completion status with task data
   useEffect(() => {
@@ -55,6 +71,24 @@ export function FlowStepsEditor({
       }
     }
   }, [task?.steps_completed, steps.length]);
+
+  // Initialize selected blocks for steps (all blocks selected by default)
+  const getStepSelectedBlocks = (stepId: string) => {
+    return stepSelectedBlocks[stepId] || allBlocks;
+  };
+
+  const handleStepBlockToggle = (stepId: string, blockName: string) => {
+    setStepSelectedBlocks(prev => {
+      const currentBlocks = prev[stepId] || allBlocks;
+      const newBlocks = currentBlocks.includes(blockName) 
+        ? currentBlocks.filter(b => b !== blockName)
+        : [...currentBlocks, blockName];
+      return {
+        ...prev,
+        [stepId]: newBlocks
+      };
+    });
+  };
 
   const getBlockIcon = (type: string) => {
     switch (type) {
@@ -341,8 +375,42 @@ export function FlowStepsEditor({
                             placeholder="Explain what the agent should do..."
                             className="text-sm border-orange-200 focus:border-orange-300 min-h-[60px] resize-none bg-orange-50"
                           />
-                        </div>
-                      )}
+                          </div>
+                        )}
+                        
+                        {/* Agent Tools Dropdown */}
+                        {!stepBlock && step.isAgentStep && (
+                          <div className="mt-2">
+                            <label className="text-xs font-medium text-gray-700 block mb-1">
+                              Tools:
+                            </label>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  className="w-full h-8 text-xs border-orange-200 focus:border-orange-300 justify-between bg-orange-50"
+                                >
+                                  <span>{getStepSelectedBlocks(step.id).length}/{allBlocks.length} selected</span>
+                                  <ChevronDown className="h-3 w-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-64 max-h-64 overflow-y-auto">
+                                <DropdownMenuLabel className="text-xs">Select Tools</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {allBlocks.map((blockName) => (
+                                  <DropdownMenuCheckboxItem
+                                    key={blockName}
+                                    checked={getStepSelectedBlocks(step.id).includes(blockName)}
+                                    onCheckedChange={() => handleStepBlockToggle(step.id, blockName)}
+                                    className="text-xs"
+                                  >
+                                    {blockName}
+                                  </DropdownMenuCheckboxItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-1">
