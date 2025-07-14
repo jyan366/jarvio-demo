@@ -249,7 +249,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 return (
                   <path
                     key={tool.name}
-                    d={`M ${startX} 240 Q ${startX} 390 ${endX} 540`}
+                    d={`M ${startX} 0 Q ${startX} 150 ${endX} 300`}
                     stroke="#a855f7"
                     strokeWidth="2"
                     strokeDasharray="6,6"
