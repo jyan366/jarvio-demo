@@ -224,14 +224,14 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
       {/* Connected Tools View */}
       {showToolsView && selectedBlocks.length > 0 && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 z-10">
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 z-10" style={{ marginTop: '30px' }}>
           {/* Connection lines container */}
-          <div className="relative" style={{ width: `${Math.max(getSelectedToolsData().length * 120, 600)}px`, height: '200px' }}>
+          <div className="relative" style={{ width: `${Math.max(getSelectedToolsData().length * 120, 600)}px`, height: '280px' }}>
             {/* Single SVG for all connection lines */}
             <svg 
               className="absolute top-0 left-1/2 transform -translate-x-1/2"
               width="100%" 
-              height="200"
+              height="280"
               style={{
                 overflow: 'visible',
                 pointerEvents: 'none'
@@ -241,19 +241,16 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 const totalTools = getSelectedToolsData().length;
                 const centerIndex = (totalTools - 1) / 2;
                 const offsetFromCenter = (index - centerIndex) * 120;
-                const startX = "50%";
-                const endX = `calc(50% + ${offsetFromCenter}px)`;
                 
                 return (
                   <path
                     key={tool.name}
-                    d={`M 50% 0 Q 50% 100 calc(50% + ${offsetFromCenter}px) 180`}
+                    d={`M 50% 0 Q 50% 140 calc(50% + ${offsetFromCenter}px) 260`}
                     stroke="#a855f7"
                     strokeWidth="2"
                     strokeDasharray="6,6"
                     fill="none"
                     opacity="0.7"
-                    transform={`translate(${offsetFromCenter * 0}, 0)`}
                   />
                 );
               })}
