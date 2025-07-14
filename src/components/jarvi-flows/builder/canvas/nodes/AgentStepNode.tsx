@@ -224,18 +224,18 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
       {/* Connected Tools View */}
       {showToolsView && selectedBlocks.length > 0 && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 z-10" style={{ marginTop: '50px' }}>
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 z-10" style={{ marginTop: '240px' }}>
           {/* Connection lines container */}
-          <div className="relative" style={{ width: `${Math.max(getSelectedToolsData().length * 120, 600)}px`, height: '400px' }}>
+          <div className="relative" style={{ width: `${Math.max(getSelectedToolsData().length * 120, 600)}px`, height: '300px' }}>
             {/* Single SVG for all connection lines */}
             <svg 
               className="absolute top-0 left-1/2 transform -translate-x-1/2"
               width="100%" 
-              height="450"
+              height="540"
               style={{
                 overflow: 'visible',
                 pointerEvents: 'none',
-                top: '-50px'
+                top: '-240px'
               }}
             >
               {getSelectedToolsData().map((tool, index) => {
@@ -249,7 +249,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
                 return (
                   <path
                     key={tool.name}
-                    d={`M ${startX} 50 Q ${startX} 225 ${endX} 430`}
+                    d={`M ${startX} 240 Q ${startX} 390 ${endX} 540`}
                     stroke="#a855f7"
                     strokeWidth="2"
                     strokeDasharray="6,6"
