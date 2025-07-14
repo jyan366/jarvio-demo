@@ -75,12 +75,23 @@ export function StepBlockSelectionDialog({
   const filteredBlocks = blocks.filter(block => {
     const matchesSearch = block.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          block.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || block.type === selectedCategory;
+    
+    // Map database categories to simplified categories
+    let blockCategory = 'collect'; // default
+    if (['think', 'amazon_analysis', 'image_analysis'].includes(block.type)) {
+      blockCategory = 'think';
+    } else if (['act', 'communication', 'integration'].includes(block.type)) {
+      blockCategory = 'act';
+    } else if (['collect', 'amazon_api', 'amazon_scraping', 'scraping', 'junglescout', 'keyword_research', 'jarvio', 'amazon_support'].includes(block.type)) {
+      blockCategory = 'collect';
+    }
+    
+    const matchesCategory = !selectedCategory || blockCategory === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // Get available categories from blocks
-  const categories = [...new Set(blocks.map(block => block.type))];
+  // Simplified categories
+  const categories = ['collect', 'think', 'act'];
 
   const handleBlockSelect = (block: BlockOption) => {
     const flowBlock: FlowBlock = {
@@ -255,8 +266,16 @@ export function StepBlockSelectionDialog({
                   </div>
                 ) : (
                   filteredBlocks.map((block, index) => {
-                    const IconComponent = getIconForType(block.type);
-                    const colorClass = getColorForType(block.type);
+                    // Map database type to simplified category for display
+                    let displayCategory = 'collect';
+                    if (['think', 'amazon_analysis', 'image_analysis'].includes(block.type)) {
+                      displayCategory = 'think';
+                    } else if (['act', 'communication', 'integration'].includes(block.type)) {
+                      displayCategory = 'act';
+                    }
+                    
+                    const IconComponent = getIconForType(displayCategory);
+                    const colorClass = getColorForType(displayCategory);
                     
                     return (
                       <div
@@ -272,7 +291,7 @@ export function StepBlockSelectionDialog({
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-medium text-base truncate">{block.name}</h4>
                               <Badge variant="outline" className="text-xs capitalize flex-shrink-0">
-                                {getCategoryDisplayName(block.type)}
+                                {getCategoryDisplayName(displayCategory)}
                               </Badge>
                             </div>
                             <p className="text-sm text-gray-600 mb-2">{block.description}</p>
