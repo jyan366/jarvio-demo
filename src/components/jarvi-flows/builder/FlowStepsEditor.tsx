@@ -252,8 +252,20 @@ export function FlowStepsEditor({
   };
 
   const handleAgentSelected = (stepId: string) => {
-    // Update the step to be an agent step
-    updateStep(stepId, { isAgentStep: true, stepType: 'agent', blockId: undefined });
+    // Create a virtual agent "block" to represent the agent selection
+    const agentBlock: FlowBlock = {
+      id: uuidv4(),
+      type: 'agent',
+      option: 'AI Agent',
+      name: 'AI Agent Step'
+    };
+    
+    // Add this virtual block and attach it to the step
+    const updatedBlocks = [...blocks, agentBlock];
+    onBlocksChange(updatedBlocks);
+    
+    // Update the step to reference this agent block
+    updateStep(stepId, { blockId: agentBlock.id, isAgentStep: true, stepType: 'agent' });
   };
 
   const handleBlockConfigured = (updatedBlock: FlowBlock) => {
@@ -368,8 +380,8 @@ export function FlowStepsEditor({
                         className="text-sm border-gray-200 focus:border-gray-300 min-h-[60px] resize-none"
                       />
                       
-                      {/* Agent System Prompt - only show if explicitly an agent step without block */}
-                      {!stepBlock && step.isAgentStep && step.stepType !== 'unselected' && (
+                      {/* Agent System Prompt - show for agent steps or agent blocks */}
+                      {((!stepBlock && step.isAgentStep && step.stepType !== 'unselected') || (stepBlock && stepBlock.type === 'agent')) && (
                         <div className="mt-2">
                           <label className="text-xs font-medium text-gray-700 block mb-1">
                             System prompt:
@@ -383,8 +395,8 @@ export function FlowStepsEditor({
                         </div>
                       )}
                         
-                        {/* Agent Tools Dropdown - only show if explicitly an agent step without block */}
-                        {!stepBlock && step.isAgentStep && step.stepType !== 'unselected' && (
+                        {/* Agent Tools Dropdown - show for agent steps or agent blocks */}
+                        {((!stepBlock && step.isAgentStep && step.stepType !== 'unselected') || (stepBlock && stepBlock.type === 'agent')) && (
                           <div className="mt-2">
                             <label className="text-xs font-medium text-gray-700 block mb-1">
                               Tools:
