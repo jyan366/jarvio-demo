@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { User, Settings, Trash2, Check, Link, ChevronDown, Unlink } from 'lucide-react';
+import { User, Settings, Trash2, Check, Link, ChevronDown, Unlink, Eye, EyeOff } from 'lucide-react';
 import { FlowStep } from '@/types/flowTypes';
 import { blocksData } from '../../../data/blocksData';
 import { flowBlockOptions } from '@/data/flowBlockOptions';
@@ -23,6 +23,7 @@ interface AgentStepNodeData {
 const AgentStepNode = memo(({ data }: NodeProps) => {
   const { step, onStepUpdate, onDelete, onAttachBlock } = data as unknown as AgentStepNodeData;
   const [selectedBlocks, setSelectedBlocks] = React.useState<string[]>([]);
+  const [showToolsView, setShowToolsView] = React.useState(false);
 
   // Get all available blocks from blocksData
   const allBlocks = React.useMemo(() => {
@@ -57,6 +58,21 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
   const handlePromptChange = (prompt: string) => {
     onStepUpdate({ agentPrompt: prompt });
+  };
+
+  // Get block data for selected tools
+  const getSelectedToolsData = () => {
+    const toolsData = [];
+    Object.values(blocksData).forEach((category: any) => {
+      if (Array.isArray(category)) {
+        category.forEach((block: any) => {
+          if (selectedBlocks.includes(block.name)) {
+            toolsData.push(block);
+          }
+        });
+      }
+    });
+    return toolsData;
   };
 
   return (
@@ -116,7 +132,18 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
 
             {/* Tools dropdown */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700">Tools:</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-gray-700">Tools:</label>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowToolsView(!showToolsView)}
+                  className="h-5 w-5 p-0 text-purple-600 hover:text-purple-700"
+                  title={showToolsView ? "Hide tools view" : "Show tools view"}
+                >
+                  {showToolsView ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                </Button>
+              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -194,6 +221,60 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Connected Tools View */}
+      {showToolsView && selectedBlocks.length > 0 && (
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-10">
+          {/* Connection lines */}
+          <div className="flex justify-center mb-2">
+            <div className="h-4 w-px bg-purple-300"></div>
+          </div>
+          <div className="grid grid-cols-3 gap-2 max-w-xs">
+            {getSelectedToolsData().slice(0, 9).map((tool, index) => (
+              <div
+                key={tool.name}
+                className="relative"
+              >
+                {/* Connection line to agent */}
+                <div 
+                  className="absolute bottom-full left-1/2 transform -translate-x-1/2 h-6 w-px bg-purple-300"
+                  style={{
+                    background: `linear-gradient(to top, #a855f7, transparent)`
+                  }}
+                ></div>
+                {/* Tool item */}
+                <div className="bg-white border border-purple-200 rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex flex-col items-center gap-1">
+                    {tool.logo ? (
+                      <div className="w-6 h-6 rounded overflow-hidden bg-gray-50 flex items-center justify-center">
+                        <img 
+                          src={tool.logo} 
+                          alt={tool.name}
+                          className="w-4 h-4 object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-6 h-6 rounded bg-purple-100 flex items-center justify-center">
+                        <div className="w-3 h-3 bg-purple-400 rounded"></div>
+                      </div>
+                    )}
+                    <span className="text-xs text-center text-gray-700 font-medium leading-tight">
+                      {tool.name.length > 12 ? `${tool.name.substring(0, 12)}...` : tool.name}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {selectedBlocks.length > 9 && (
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 flex items-center justify-center">
+                <span className="text-xs text-purple-600 font-medium">
+                  +{selectedBlocks.length - 9} more
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <Handle 
         type="source" 
