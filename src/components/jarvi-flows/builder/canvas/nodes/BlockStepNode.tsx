@@ -64,72 +64,76 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
         type="target" 
         position={Position.Left} 
         className="w-3 h-3" 
-        style={{ top: '50px' }} 
+        style={{ top: '50%' }} 
       />
       
-      <Card className={`w-72 transition-all duration-200 ${getBlockColor(block?.type)} border-2`}>
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                {getBlockIcon(block?.type)}
-                <Badge 
-                  variant="outline" 
-                  className={`text-xs ${getBadgeColor(block?.type)}`}
-                >
-                  {block?.type || 'collect'}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-1">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={onBlockClick}
-                  className="h-6 w-6 p-0"
-                  disabled={!onBlockClick}
-                >
-                  <Settings className="h-3 w-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={onDelete}
-                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
+      <div className="w-80 space-y-3">
+        {/* Step Information - Outside the block */}
+        <div className="text-center space-y-1">
+          <h3 className="font-semibold text-base text-gray-900">
+            {step.title}
+          </h3>
+          {step.description && (
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {step.description}
+            </p>
+          )}
+        </div>
 
-            {/* Title and Block Name */}
-            <div>
-              <h3 className="font-medium text-sm line-clamp-2 text-gray-900">
-                {step.title}
-              </h3>
-              {block && (
-                <p className="text-xs text-gray-600 mt-1 line-clamp-1">
-                  {block.name}
-                </p>
+        {/* Connected Block Container */}
+        <Card className="border-2 border-gray-200 hover:border-gray-300 transition-all duration-200">
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              {/* Block Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Connected block:
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {block?.option || block?.name || 'No block attached'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {block && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={onBlockClick}
+                      className="h-8 px-3 text-xs"
+                    >
+                      <Settings className="h-3 w-3 mr-1" />
+                      Config
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={onDelete}
+                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Step completion indicator */}
+              {step.completed && (
+                <div className="flex items-center gap-2 text-xs text-green-600 pt-2 border-t border-gray-100">
+                  <Check className="w-3 h-3" />
+                  Completed
+                </div>
               )}
             </div>
-
-            {/* Step completion indicator */}
-            {step.completed && (
-              <div className="flex items-center gap-2 text-xs text-green-600">
-                <Check className="w-3 h-3" />
-                Completed
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       <Handle 
         type="source" 
         position={Position.Right} 
         className="w-3 h-3" 
-        style={{ top: '50px' }} 
+        style={{ top: '50%' }} 
       />
     </>
   );
