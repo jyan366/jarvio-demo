@@ -90,15 +90,20 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                       <Settings className="h-4 w-4 mr-2" />
                       Configure
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={onDetachBlock}
-                      className="h-9 px-3"
-                      title="Detach block"
-                    >
-                      <Unlink className="h-4 w-4" />
-                    </Button>
+                    {onDetachBlock && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          console.log('Detach button clicked');
+                          onDetachBlock();
+                        }}
+                        className="h-9 px-3"
+                        title="Detach block"
+                      >
+                        <Unlink className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ) : isAgentStep ? (
