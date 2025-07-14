@@ -69,7 +69,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
       />
       
       {/* Floating step name and description above the block */}
-      <div className="absolute -top-12 left-0 w-72 space-y-1 mb-2">
+      <div className="absolute -top-16 left-0 w-72 space-y-1 mb-4">
         <Input
           placeholder="Step name..."
           value={step.title || ''}
