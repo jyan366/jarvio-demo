@@ -73,54 +73,58 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
           <h3 className="font-semibold text-lg text-gray-900">
             {step.title}
           </h3>
-          {step.description && (
-            <p className="text-sm text-gray-600 leading-relaxed max-w-sm mx-auto">
-              {step.description}
-            </p>
-          )}
         </div>
 
-        {/* Connected Block Container - Larger */}
-        <Card className="border-2 border-gray-200 hover:border-gray-300 transition-all duration-200">
-          <CardContent className="p-6">
-            <div className="space-y-3">
+        {/* Connected Block Container - Larger and Clickable */}
+        <Card 
+          className="border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 cursor-pointer"
+          onClick={onBlockClick}
+        >
+          <CardContent className="p-8">
+            <div className="space-y-4">
               {/* Block Header */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-700">
+                <div className="flex items-center gap-3">
+                  <span className="text-base font-medium text-gray-700">
                     Connected block:
                   </span>
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-base font-semibold text-gray-900">
                     {block?.option || block?.name || 'No block attached'}
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   {block && (
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={onBlockClick}
-                      className="h-8 px-3 text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onBlockClick?.();
+                      }}
+                      className="h-9 px-4 text-sm"
                     >
-                      <Settings className="h-3 w-3 mr-1" />
+                      <Settings className="h-4 w-4 mr-1" />
                       Config
                     </Button>
                   )}
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={onDelete}
-                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
                   >
-                    <Trash2 className="h-3 w-3" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
 
               {/* Step completion indicator */}
               {step.completed && (
-                <div className="flex items-center gap-2 text-xs text-green-600 pt-2 border-t border-gray-100">
-                  <Check className="w-3 h-3" />
+                <div className="flex items-center gap-2 text-sm text-green-600 pt-3 border-t border-gray-100">
+                  <Check className="w-4 h-4" />
                   Completed
                 </div>
               )}
