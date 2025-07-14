@@ -27,30 +27,30 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
   const [showToolsView, setShowToolsView] = React.useState(false);
   const isInitialMount = React.useRef(true);
   
-  // Get execution state styling
+  // Get execution state styling - Clean dark theme
   const getExecutionStateStyle = () => {
     switch (executionState) {
       case 'running':
-        return 'bg-gradient-to-br from-cyan-950/80 to-blue-950/80 border-cyan-400 animate-pulse shadow-lg shadow-cyan-500/25';
+        return 'bg-[#1e293b] border-blue-500 shadow-lg shadow-blue-500/20';
       case 'success':
-        return 'bg-gradient-to-br from-green-950/80 to-emerald-950/80 border-green-400 shadow-lg shadow-green-500/25';
+        return 'bg-[#1e293b] border-green-500 shadow-lg shadow-green-500/20';
       case 'failed':
-        return 'bg-gradient-to-br from-red-950/80 to-rose-950/80 border-red-400 shadow-lg shadow-red-500/25';
+        return 'bg-[#1e293b] border-red-500 shadow-lg shadow-red-500/20';
       default:
-        return 'bg-gradient-to-br from-purple-950/80 to-indigo-950/80 border-purple-500/50 shadow-lg shadow-purple-900/20';
+        return 'bg-[#1e293b] border-[#475569] shadow-lg';
     }
   };
   
   const getExecutionStateIndicator = () => {
     switch (executionState) {
       case 'running':
-        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse shadow-lg shadow-cyan-500/50" />;
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-pulse" />;
       case 'success':
-        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/50">
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
           <Check className="w-2 h-2 text-white" />
         </div>;
       case 'failed':
-        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-red-400 to-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-red-500/50">
+        return <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
           <span className="text-white text-xs font-bold">×</span>
         </div>;
       default:
@@ -142,7 +142,7 @@ const AgentStepNode = memo(({ data }: NodeProps) => {
         />
       </div>
       
-      <Card className={`w-72 min-h-[120px] transition-all duration-200 hover:bg-purple-100 border-2 relative ${getExecutionStateStyle()}`}>
+      <Card className={`w-72 min-h-[120px] transition-all duration-200 hover:border-blue-400 border-2 relative rounded-xl ${getExecutionStateStyle()}`}>
         {getExecutionStateIndicator()}
         <CardContent className="p-4">
           <div className="space-y-3">

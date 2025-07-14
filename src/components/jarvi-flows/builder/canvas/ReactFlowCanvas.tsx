@@ -434,7 +434,7 @@ export function ReactFlowCanvas({
 
 
   return (
-    <div className="w-full h-full relative bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900">
+    <div className="w-full h-full relative bg-[#0a0a0b] font-inter">
       {/* Hide the toolbar - keeping it commented out for potential future use
       <ReactFlowToolbar
         onAddStep={handleAddStep}
@@ -443,29 +443,29 @@ export function ReactFlowCanvas({
       />
       */}
       
-      {/* Test Button - Futuristic Jarvis Style */}
+      {/* Test Button - Clean Dark Style */}
       <div className="absolute top-6 right-6 z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               disabled={isTestRunning || steps.length === 0}
-              className="gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 border border-cyan-400/50 text-white shadow-lg shadow-cyan-500/25 transition-all duration-300 hover:shadow-cyan-500/40 hover:scale-105"
+              className="gap-2 bg-[#1e293b] hover:bg-[#334155] border border-[#475569] text-white font-medium px-4 py-2 rounded-lg transition-all duration-200"
             >
               <TestTube className="w-4 h-4" />
               {isTestRunning ? "Running..." : "Test Flow"}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-slate-800/95 border border-cyan-500/30 text-cyan-100 backdrop-blur-md">
+          <DropdownMenuContent align="end" className="bg-[#1e293b] border border-[#475569] text-white rounded-lg">
             <DropdownMenuItem 
               onClick={() => simulateFlowExecution(false)}
-              className="hover:bg-cyan-500/20 focus:bg-cyan-500/20"
+              className="hover:bg-[#334155] focus:bg-[#334155]"
             >
               <Play className="w-4 h-4 mr-2 text-green-400" />
               Test Success
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => simulateFlowExecution(true)}
-              className="hover:bg-red-500/20 focus:bg-red-500/20"
+              className="hover:bg-[#334155] focus:bg-[#334155]"
             >
               <Play className="w-4 h-4 mr-2 text-red-400" />
               Test Fail (Step 3)
@@ -499,19 +499,19 @@ export function ReactFlowCanvas({
         className="bg-transparent"
       >
         <Background 
-          color="#00d4ff" 
-          gap={30} 
-          size={1}
-          className="opacity-20"
+          color="#374151" 
+          gap={40} 
+          size={0.5}
+          className="opacity-30"
         />
         <Controls 
           showInteractive={false} 
-          className="bg-slate-800/90 border border-cyan-500/30 backdrop-blur-md [&>button]:bg-transparent [&>button]:border-cyan-500/20 [&>button]:text-cyan-100 [&>button:hover]:bg-cyan-500/20"
+          className="bg-[#1e293b] border border-[#475569] rounded-lg [&>button]:bg-transparent [&>button]:border-[#475569] [&>button]:text-white [&>button:hover]:bg-[#334155]"
         />
         <MiniMap 
-          nodeStrokeColor="#00d4ff"
+          nodeStrokeColor="#3b82f6"
           nodeColor={(node) => {
-            if (node.type === 'agentStep') return '#a855f7';
+            if (node.type === 'agentStep') return '#8b5cf6';
             const nodeData = node.data as any;
             const executionState = nodeData?.executionState;
             if (executionState === 'running') return '#3b82f6';
@@ -525,10 +525,10 @@ export function ReactFlowCanvas({
               default: return '#64748b';
             }
           }}
-          maskColor="rgba(15, 23, 42, 0.8)"
+          maskColor="rgba(10, 10, 11, 0.8)"
           pannable
           zoomable
-          className="bg-slate-800/90 border border-cyan-500/30 backdrop-blur-md rounded-lg"
+          className="bg-[#1e293b] border border-[#475569] rounded-lg"
         />
       </ReactFlow>
 
