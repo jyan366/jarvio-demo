@@ -10,15 +10,25 @@ import { Database, Brain, Zap, User, Play, Loader2, AlertCircle, Settings, Save 
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+interface StepExecutionResult {
+  stepId: string;
+  stepTitle: string;
+  blockName: string;
+  data: Record<string, any>;
+  executedAt: string;
+}
+
 interface BlockTestDialogProps {
   block: FlowBlock | null;
   step: FlowStep | null;
   isOpen: boolean;
   onClose: () => void;
   steps: FlowStep[];
+  stepExecutionResults?: StepExecutionResult[];
+  onStepExecuted?: (result: StepExecutionResult) => void;
 }
 
-export function BlockTestDialog({ block, step, isOpen, onClose, steps }: BlockTestDialogProps) {
+export function BlockTestDialog({ block, step, isOpen, onClose, steps, stepExecutionResults = [], onStepExecuted }: BlockTestDialogProps) {
   const [isExecuting, setIsExecuting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [executionResults, setExecutionResults] = useState<string>('');
@@ -250,6 +260,23 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps }: BlockTe
     }
   };
 
+  // Check if all previous steps have been executed
+  const getPreviousExecutedSteps = () => {
+    const currentIndex = getCurrentStepIndex();
+    const previousSteps = steps.slice(0, currentIndex);
+    return previousSteps.filter(prevStep => 
+      stepExecutionResults.some(result => result.stepId === prevStep.id)
+    );
+  };
+
+  const getUnexecutedPreviousSteps = () => {
+    const currentIndex = getCurrentStepIndex();
+    const previousSteps = steps.slice(0, currentIndex);
+    return previousSteps.filter(prevStep => 
+      !stepExecutionResults.some(result => result.stepId === prevStep.id)
+    );
+  };
+
   // Get previous steps that need to be executed
   const getCurrentStepIndex = () => {
     return steps.findIndex(s => s.id === step.id);
@@ -258,6 +285,12 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps }: BlockTe
   const getPreviousSteps = () => {
     const currentIndex = getCurrentStepIndex();
     return steps.slice(0, currentIndex);
+  };
+
+  // Check if current step can be executed (all previous steps executed)
+  const canExecuteCurrentStep = () => {
+    const unexpectedSteps = getUnexecutedPreviousSteps();
+    return unexpectedSteps.length === 0;
   };
 
   const generateMockOutput = () => {
@@ -485,7 +518,6 @@ Available Data Fields:
   const handleExecutePreviousSteps = async () => {
     setIsExecuting(true);
     const newPreviousStepData: Record<string, any> = {};
-    const newAvailableFields: Record<string, string[]> = {};
 
     try {
       const previousSteps = getPreviousSteps();
@@ -498,6 +530,15 @@ Available Data Fields:
         for (let i = 0; i < previousSteps.length; i++) {
           const prevStep = previousSteps[i];
           const stepTitle = prevStep.title || `Step ${i + 1}`;
+          
+          // Check if this step has already been executed
+          const existingResult = stepExecutionResults.find(r => r.stepId === prevStep.id);
+          if (existingResult) {
+            results += `${i + 1}. ${stepTitle}: ✅ Already executed (using cached data)\n`;
+            newPreviousStepData[prevStep.id] = existingResult.data;
+            continue;
+          }
+          
           results += `${i + 1}. ${stepTitle}: `;
           setExecutionResults(results + '⏳ Running...');
           
@@ -507,7 +548,17 @@ Available Data Fields:
           // Generate and store structured data for this step
           const stepData = generatePreviousStepData(stepTitle);
           newPreviousStepData[prevStep.id] = stepData;
-          newAvailableFields[stepTitle] = Object.keys(stepData);
+          
+          // Store execution result for chain tracking
+          const executionResult: StepExecutionResult = {
+            stepId: prevStep.id,
+            stepTitle,
+            blockName: prevStep.blockId ? 'Connected Block' : 'Agent',
+            data: stepData,
+            executedAt: new Date().toISOString()
+          };
+          
+          onStepExecuted?.(executionResult);
           
           results += '✅ Completed\n';
           setExecutionResults(results);
@@ -523,7 +574,6 @@ Available Data Fields:
 
       // Store the data for use in config auto-population
       setPreviousStepData(newPreviousStepData);
-      setAvailableFields(newAvailableFields);
 
       toast({
         title: "Previous Steps Complete",
@@ -544,39 +594,30 @@ Available Data Fields:
   };
 
   const handleExecuteSteps = async () => {
+    // Check if previous steps need to be executed first
+    const unexpectedSteps = getUnexecutedPreviousSteps();
+    if (unexpectedSteps.length > 0) {
+      setExecutionResults(`⚠️ Chain Execution Required
+
+Cannot execute Step ${getCurrentStepIndex() + 1} (${step.title || block.option}) because the following previous steps haven't been executed yet:
+
+${unexpectedSteps.map((s, idx) => `${steps.findIndex(st => st.id === s.id) + 1}. ${s.title || 'Untitled Step'}`).join('\n')}
+
+Please execute the previous steps first to maintain the data flow chain.`);
+
+      toast({
+        title: "Chain Execution Required",
+        description: `Please execute step ${steps.findIndex(st => st.id === unexpectedSteps[0].id) + 1} first.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsExecuting(true);
     setExecutionResults('');
 
     try {
       let results = '';
-
-      // Check if we have previous step data, if not execute previous steps first
-      if (Object.keys(previousStepData).length === 0) {
-        const previousSteps = getPreviousSteps();
-        const newPreviousStepData: Record<string, any> = {};
-
-        if (previousSteps.length > 0) {
-          results += '📋 Executing Previous Steps...\n\n';
-          
-          for (let i = 0; i < previousSteps.length; i++) {
-            const prevStep = previousSteps[i];
-            const stepTitle = prevStep.title || `Step ${i + 1}`;
-            results += `${i + 1}. ${stepTitle}: `;
-            setExecutionResults(results + '⏳ Running...');
-            
-            await new Promise(resolve => setTimeout(resolve, 800));
-            
-            const stepData = generatePreviousStepData(stepTitle);
-            newPreviousStepData[prevStep.id] = stepData;
-            
-            results += '✅ Completed\n';
-            setExecutionResults(results);
-          }
-          
-          setPreviousStepData(newPreviousStepData);
-          results += '\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
-        }
-      }
 
       results += `🚀 Executing Current Step: ${step.title || block.option}\n\n`;
       setExecutionResults(results + '⏳ Processing...');
@@ -587,9 +628,21 @@ Available Data Fields:
       results += generateMockOutput();
       setExecutionResults(results);
 
+      // Store execution result for this step
+      const currentStepData = generatePreviousStepData(step.title || block.option);
+      const executionResult: StepExecutionResult = {
+        stepId: step.id,
+        stepTitle: step.title || `Step ${getCurrentStepIndex() + 1}`,
+        blockName: block.option,
+        data: currentStepData,
+        executedAt: new Date().toISOString()
+      };
+
+      onStepExecuted?.(executionResult);
+
       toast({
         title: "Execution Complete",
-        description: `Successfully executed ${block.option} block with test data.`,
+        description: `Successfully executed ${block.option} block. Data is now available for subsequent steps.`,
       });
 
     } catch (error) {
@@ -628,16 +681,24 @@ Available Data Fields:
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
               <div className="space-y-3 mb-4">
-                {Object.keys(previousStepData).length > 0 ? (
+                {/* Show actual execution results from chain */}
+                {getPreviousExecutedSteps().length > 0 ? (
                   <div className="space-y-4 max-h-[500px] overflow-y-auto">
-                    <div className="text-sm font-medium text-green-600">✅ Data Available for Auto-Population</div>
-                    {Object.entries(previousStepData).map(([stepId, data], idx) => {
-                      const stepTitle = getPreviousSteps().find(s => s.id === stepId)?.title || `Step ${idx + 1}`;
+                    <div className="text-sm font-medium text-green-600">✅ Executed Previous Steps Data</div>
+                    {getPreviousExecutedSteps().map((prevStep, idx) => {
+                      const executionResult = stepExecutionResults.find(r => r.stepId === prevStep.id);
+                      if (!executionResult) return null;
+                      
                       return (
-                        <div key={stepId} className="bg-green-50 border border-green-200 p-3 rounded-lg">
-                          <div className="font-medium text-sm mb-2">{stepTitle}</div>
+                        <div key={prevStep.id} className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                          <div className="font-medium text-sm mb-2">
+                            Step {steps.findIndex(s => s.id === prevStep.id) + 1}: {executionResult.stepTitle}
+                          </div>
                           <div className="text-xs bg-background p-2 rounded border">
-                            <pre className="whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre>
+                            <pre className="whitespace-pre-wrap">{JSON.stringify(executionResult.data, null, 2)}</pre>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Executed: {new Date(executionResult.executedAt).toLocaleString()}
                           </div>
                         </div>
                       );

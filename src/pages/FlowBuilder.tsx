@@ -204,6 +204,13 @@ export default function FlowBuilder() {
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'steps' | 'canvas'>('steps');
+  const [stepExecutionResults, setStepExecutionResults] = useState<Array<{
+    stepId: string;
+    stepTitle: string;
+    blockName: string;
+    data: Record<string, any>;
+    executedAt: string;
+  }>>([]);
   const { blockConfigs, updateBlockConfig } = useFlowBlockConfig();
 
   const aiPromptForm = useForm<AIPromptFormValues>({
@@ -638,6 +645,22 @@ export default function FlowBuilder() {
     setFlow(prev => ({ ...prev, blocks }));
   };
 
+  // Handler for step execution results
+  const handleStepExecuted = (result: {
+    stepId: string;
+    stepTitle: string;
+    blockName: string;
+    data: Record<string, any>;
+    executedAt: string;
+  }) => {
+    setStepExecutionResults(prev => {
+      // Remove existing result for this step if it exists
+      const filtered = prev.filter(r => r.stepId !== result.stepId);
+      // Add new result
+      return [...filtered, result];
+    });
+  };
+
   if (isCreatingTask) {
     return (
       <MainLayout>
@@ -690,6 +713,12 @@ export default function FlowBuilder() {
             onStepsChange={updateFlowSteps}
             onBlocksChange={updateFlowBlocks}
             availableBlockOptions={availableBlockOptions}
+            flowTrigger={flow.trigger}
+            onTriggerChange={updateFlowTrigger}
+            onStartFlow={handleStartFlow}
+            isRunningFlow={isRunningFlow}
+            stepExecutionResults={stepExecutionResults}
+            onStepExecuted={handleStepExecuted}
           />
         </div>
       ) : (

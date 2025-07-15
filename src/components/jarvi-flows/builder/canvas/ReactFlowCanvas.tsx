@@ -46,6 +46,20 @@ interface ReactFlowCanvasProps {
   onTriggerChange?: (trigger: string) => void;
   onStartFlow?: () => void;
   isRunningFlow?: boolean;
+  stepExecutionResults?: Array<{
+    stepId: string;
+    stepTitle: string;
+    blockName: string;
+    data: Record<string, any>;
+    executedAt: string;
+  }>;
+  onStepExecuted?: (result: {
+    stepId: string;
+    stepTitle: string;
+    blockName: string;
+    data: Record<string, any>;
+    executedAt: string;
+  }) => void;
 }
 
 // Custom node types
@@ -71,7 +85,9 @@ export function ReactFlowCanvas({
   flowTrigger = 'manual',
   onTriggerChange = () => {},
   onStartFlow = () => {},
-  isRunningFlow = false
+  isRunningFlow = false,
+  stepExecutionResults = [],
+  onStepExecuted = () => {}
 }: ReactFlowCanvasProps) {
   const [addPanelOpen, setAddPanelOpen] = useState(false);
   const [selectedBlock, setSelectedBlock] = useState<FlowBlock | null>(null);
@@ -597,6 +613,8 @@ export function ReactFlowCanvas({
           setSelectedStep(null);
         }}
         steps={steps}
+        stepExecutionResults={stepExecutionResults}
+        onStepExecuted={onStepExecuted}
       />
 
       <AttachBlockDialog
