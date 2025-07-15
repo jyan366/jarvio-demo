@@ -24,6 +24,8 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps }: BlockTe
   const [executionResults, setExecutionResults] = useState<string>('');
   const [blockParams, setBlockParams] = useState<Record<string, any>>({});
   const [blockConfig, setBlockConfig] = useState<any>(null);
+  const [previousStepData, setPreviousStepData] = useState<Record<string, any>>({});
+  const [availableFields, setAvailableFields] = useState<Record<string, string[]>>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -144,6 +146,54 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps }: BlockTe
     }));
   };
 
+  // Auto-populate field from previous step data
+  const handleAutoPopulate = (paramName: string, sourceStep: string, sourceField: string) => {
+    const stepData = previousStepData[sourceStep];
+    if (stepData && stepData[sourceField]) {
+      const value = Array.isArray(stepData[sourceField]) 
+        ? stepData[sourceField][0] // Take first item if array
+        : stepData[sourceField];
+      
+      setBlockParams(prev => ({
+        ...prev,
+        [paramName]: value
+      }));
+
+      toast({
+        title: "Field Auto-Populated",
+        description: `${paramName} set to: ${value}`,
+      });
+    }
+  };
+
+  // Get available data for auto-population
+  const getAvailableDataForField = (paramName: string) => {
+    const suggestions: Array<{stepId: string, stepTitle: string, field: string, value: any}> = [];
+    
+    Object.entries(previousStepData).forEach(([stepId, data]) => {
+      Object.entries(data).forEach(([field, value]) => {
+        // Smart matching based on parameter name
+        const paramLower = paramName.toLowerCase();
+        const fieldLower = field.toLowerCase();
+        
+        if (
+          paramLower.includes('asin') && fieldLower.includes('asin') ||
+          paramLower.includes('category') && fieldLower.includes('categor') ||
+          paramLower.includes('product') && fieldLower.includes('product') ||
+          paramLower.includes('keyword') && fieldLower.includes('keyword') ||
+          paramLower.includes('email') && fieldLower.includes('email') ||
+          paramLower.includes('price') && fieldLower.includes('price') ||
+          paramLower.includes('sku') && fieldLower.includes('sku')
+        ) {
+          const stepTitle = getPreviousSteps().find(s => s.id === stepId)?.title || 'Unknown Step';
+          suggestions.push({ stepId, stepTitle, field, value });
+        }
+      });
+    });
+    
+    return suggestions;
+  };
+
   const handleSaveConfig = async () => {
     setIsSaving(true);
     
@@ -215,20 +265,25 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps }: BlockTe
       'All Listing Info': `Successfully retrieved listing data:
 
 • Product A: Premium Wireless Earbuds
-  Price: $79.99 | Sales: 245 units | Rating: 4.6★
-  ASIN: B08XYZ123 | BSR: #1,234 in Electronics
+  ASIN: B08XYZ123 | Price: $79.99 | Sales: 245 units | Rating: 4.6★
+  BSR: #1,234 in Electronics | Stock: 156 units
+  Category: Electronics > Audio > Headphones
 
-• Product B: Bluetooth Speaker
-  Price: $49.99 | Sales: 189 units | Rating: 4.4★
-  ASIN: B08ABC456 | BSR: #2,567 in Electronics
+• Product B: Bluetooth Speaker  
+  ASIN: B08ABC456 | Price: $49.99 | Sales: 189 units | Rating: 4.4★
+  BSR: #2,567 in Electronics | Stock: 89 units
+  Category: Electronics > Audio > Speakers
 
 • Product C: USB Charging Cable
-  Price: $12.99 | Sales: 567 units | Rating: 4.2★
-  ASIN: B08DEF789 | BSR: #890 in Accessories
+  ASIN: B08DEF789 | Price: $12.99 | Sales: 567 units | Rating: 4.2★
+  BSR: #890 in Accessories | Stock: 234 units
+  Category: Electronics > Accessories > Cables
 
-Total Revenue: $24,567.89
-Average Rating: 4.4/5
-Data fetched for last 30 days`,
+Available Data Fields:
+- ASINs: B08XYZ123, B08ABC456, B08DEF789
+- Categories: Electronics, Audio, Headphones, Speakers, Accessories
+- Price Range: $12.99 - $79.99
+- Stock Levels: 89 - 234 units`,
 
       'Send Email': `Email successfully sent!
 
@@ -238,15 +293,15 @@ Delivery Status: ✅ Delivered
 
 Email Content Preview:
 - Weekly sales summary
-- Top performing products
+- Top performing products  
 - Inventory alerts
 - Performance charts attached
 
-Delivery Metrics:
-• Sent: 2 emails
-• Delivered: 2 emails
-• Open Rate: 85%
-• Click Rate: 23%`,
+Available Data Fields:
+- Email IDs: team@company.com, manager@company.com
+- Email Subject: Weekly Performance Report
+- Delivery Time: ${new Date().toLocaleString()}
+- Attachment Names: performance_report.pdf, sales_summary.xlsx`,
 
       'Basic AI Analysis': `AI Analysis Complete ✨
 
@@ -258,15 +313,16 @@ Key Insights:
 
 Trending Products:
 1. Wireless Earbuds - Strong upward trend
-2. Bluetooth Speakers - Stable performance
+2. Bluetooth Speakers - Stable performance  
 3. USB Cables - Seasonal increase
 
-Recommendations:
-• Increase inventory for top performers
-• Adjust pricing on 2 underperforming items
-• Consider promotional campaigns for slow movers
-
-Confidence Score: 94%`,
+Available Data Fields:
+- Growth Rate: 23%
+- Top Product: Premium Wireless Earbuds
+- Growth Percentage: 45%
+- Low Stock Count: 3
+- Optimization Opportunities: 5
+- Trend Categories: Electronics, Audio, Accessories`,
 
       'AI Summary': `Executive Summary Generated 📊
 
@@ -274,7 +330,7 @@ Period: Last 30 days
 Analysis Date: ${new Date().toLocaleDateString()}
 
 Key Highlights:
-Your Amazon business demonstrates strong growth momentum with significant improvements across multiple metrics. The data reveals strategic opportunities for continued expansion.
+Your Amazon business demonstrates strong growth momentum with significant improvements across multiple metrics.
 
 Performance Overview:
 ✅ Revenue Growth: 23% increase
@@ -282,35 +338,35 @@ Performance Overview:
 ✅ Customer Satisfaction: 4.4/5 average rating
 ⚠️ Inventory Turnover: Needs attention
 
-Strategic Recommendations:
-1. Scale successful product lines
-2. Optimize inventory management
-3. Enhance marketing for underperformers
-
-Next Steps: Review pricing strategy and inventory levels`,
+Available Data Fields:
+- Time Period: 30 days
+- Revenue Growth: 23%
+- Unit Sales Growth: 18%
+- Average Rating: 4.4
+- Analysis Date: ${new Date().toLocaleDateString()}
+- Key Metrics: Revenue, Sales, Rating, Inventory`,
 
       'Get Keywords': `Keyword Research Results 🔍
 
 Product Category: Electronics
 Search Volume: High Traffic Keywords
-Competition Analysis: Medium-High
 
 Top Keywords Found:
-🔥 "wireless earbuds" - 245K monthly searches
-   Competition: High | CPC: $1.23 | Opportunity Score: 8/10
-
-🔥 "bluetooth headphones" - 189K monthly searches
-   Competition: High | CPC: $0.98 | Opportunity Score: 7/10
-
-🔥 "noise cancelling" - 167K monthly searches
-   Competition: Medium | CPC: $1.45 | Opportunity Score: 9/10
+🔥 "wireless earbuds" - 245K monthly searches | CPC: $1.23
+🔥 "bluetooth headphones" - 189K monthly searches | CPC: $0.98  
+🔥 "noise cancelling" - 167K monthly searches | CPC: $1.45
 
 Long-tail Opportunities:
 • "best wireless earbuds 2024" - 23K searches
 • "budget bluetooth headphones" - 18K searches
 • "waterproof wireless earbuds" - 15K searches
 
-Total Keywords: 47 high-value terms identified`,
+Available Data Fields:
+- Keywords: wireless earbuds, bluetooth headphones, noise cancelling
+- Search Volumes: 245K, 189K, 167K, 23K, 18K, 15K
+- CPC Values: $1.23, $0.98, $1.45
+- Categories: Electronics, Audio, Headphones
+- Competition Levels: High, Medium, Low`,
 
       'User Text': `User Input Successfully Collected ✏️
 
@@ -320,46 +376,45 @@ Validation: ✅ All required fields completed
 Collected Data:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 Product Name: "Advanced Noise-Cancelling Headphones"
-Category: Electronics > Audio > Headphones
+ASIN: B09XYZ789
+Category: Electronics > Audio > Headphones  
 Target Price: $150-200
-Key Features: 
-• Active noise cancellation
-• 30-hour battery life
-• Quick charge capability
-• Premium materials
-
 Market Position: Premium segment
 Target Audience: Professionals & Audiophiles
-━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ Input validation passed
-✅ Ready for next processing step`,
+Available Data Fields:
+- Product Name: Advanced Noise-Cancelling Headphones
+- ASIN: B09XYZ789  
+- Category: Electronics > Audio > Headphones
+- Price Range: $150-200
+- Market Segment: Premium
+- Audience: Professionals, Audiophiles`,
 
       'Upload Sheet': `Spreadsheet Processing Complete 📋
 
-File Details:
-📄 File: product_inventory_2024.xlsx
-📊 Sheet: Product Data
-📈 Rows Processed: 234 products
-⏱️ Processing Time: 1.2 seconds
+File: product_inventory_2024.xlsx
+Sheet: Product Data | Rows Processed: 234 products
 
 Data Summary:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 Total Products: 234
 Categories: 12 unique
-Price Range: $8.99 - $299.99
+Price Range: $8.99 - $299.99  
 Active Listings: 221 (94.4%)
 Out of Stock: 13 items
-━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Column Mapping:
-✅ SKU → Product ID
-✅ Title → Product Name  
-✅ Price → Current Price
-✅ Stock → Inventory Count
-✅ Sales → Monthly Sales
+Sample Product Data:
+- ASIN: B08XYZ111, B08ABC222, B08DEF333
+- SKUs: WE-001, BS-002, UC-003
+- Categories: Electronics, Home & Garden, Sports
+- Brands: TechPro, AudioMax, CableWorks
 
-Ready for analysis pipeline!`
+Available Data Fields:
+- ASINs: B08XYZ111, B08ABC222, B08DEF333, B08GHI444
+- SKUs: WE-001, BS-002, UC-003, HG-004  
+- Categories: Electronics, Home & Garden, Sports, Automotive
+- Price Range: $8.99 - $299.99
+- Stock Status: In Stock, Low Stock, Out of Stock`
     };
 
     return outputs[block.option] || `Test execution completed for ${block.option}
@@ -369,14 +424,69 @@ Ready for analysis pipeline!`
 📊 Data processed: Sample dataset
 🎯 Output generated: Mock results
 
-The ${block.option} block is properly configured and ready for production use. All parameters have been validated and the execution completed without errors.
+Available Data Fields:
+- Block Name: ${block.option}
+- Execution Time: 1.8 seconds
+- Status: Success
+- Output Type: Mock Data`;
+  };
 
-Sample output data has been generated for testing purposes.`;
+  // Generate structured data from previous steps
+  const generatePreviousStepData = (stepTitle: string) => {
+    const dataOutputs: Record<string, Record<string, any>> = {
+      'Gather Current Inventory Data': {
+        ASINs: ['B08XYZ123', 'B08ABC456', 'B08DEF789'],
+        SKUs: ['WE-001', 'BS-002', 'UC-003'],
+        Categories: ['Electronics', 'Audio', 'Accessories'],
+        StockLevels: [156, 89, 234],
+        Prices: [79.99, 49.99, 12.99],
+        ProductNames: ['Premium Wireless Earbuds', 'Bluetooth Speaker', 'USB Charging Cable']
+      },
+      'All Listing Info': {
+        ASINs: ['B08XYZ123', 'B08ABC456', 'B08DEF789'],
+        Categories: ['Electronics > Audio > Headphones', 'Electronics > Audio > Speakers', 'Electronics > Accessories'],
+        BSR: [1234, 2567, 890],
+        Ratings: [4.6, 4.4, 4.2],
+        SalesUnits: [245, 189, 567],
+        ProductTitles: ['Premium Wireless Earbuds', 'Bluetooth Speaker', 'USB Charging Cable']
+      },
+      'Send Email': {
+        EmailRecipients: ['team@company.com', 'manager@company.com'],
+        EmailSubject: 'Weekly Performance Report',
+        AttachmentNames: ['performance_report.pdf', 'sales_summary.xlsx'],
+        DeliveryTime: new Date().toISOString(),
+        EmailIDs: ['email_001', 'email_002']
+      },
+      'Basic AI Analysis': {
+        GrowthRate: 23,
+        TopProduct: 'Premium Wireless Earbuds',
+        GrowthPercentage: 45,
+        LowStockCount: 3,
+        OptimizationOpportunities: 5,
+        TrendCategories: ['Electronics', 'Audio', 'Accessories'],
+        PerformanceMetrics: ['Revenue', 'Sales', 'Rating', 'Inventory']
+      },
+      'Get Keywords': {
+        Keywords: ['wireless earbuds', 'bluetooth headphones', 'noise cancelling'],
+        SearchVolumes: [245000, 189000, 167000],
+        CPCValues: [1.23, 0.98, 1.45],
+        CompetitionLevels: ['High', 'Medium', 'Low'],
+        Categories: ['Electronics', 'Audio', 'Headphones']
+      }
+    };
+
+    return dataOutputs[stepTitle] || {
+      OutputData: `Data from ${stepTitle}`,
+      Timestamp: new Date().toISOString(),
+      Status: 'Completed'
+    };
   };
 
   const handleExecuteSteps = async () => {
     setIsExecuting(true);
     setExecutionResults('');
+    const newPreviousStepData: Record<string, any> = {};
+    const newAvailableFields: Record<string, string[]> = {};
 
     try {
       const previousSteps = getPreviousSteps();
@@ -387,11 +497,17 @@ Sample output data has been generated for testing purposes.`;
         
         for (let i = 0; i < previousSteps.length; i++) {
           const prevStep = previousSteps[i];
-          results += `${i + 1}. ${prevStep.title || `Step ${i + 1}`}: `;
+          const stepTitle = prevStep.title || `Step ${i + 1}`;
+          results += `${i + 1}. ${stepTitle}: `;
           setExecutionResults(results + '⏳ Running...');
           
           // Simulate step execution
           await new Promise(resolve => setTimeout(resolve, 800));
+          
+          // Generate and store structured data for this step
+          const stepData = generatePreviousStepData(stepTitle);
+          newPreviousStepData[prevStep.id] = stepData;
+          newAvailableFields[stepTitle] = Object.keys(stepData);
           
           results += '✅ Completed\n';
           setExecutionResults(results);
@@ -399,6 +515,10 @@ Sample output data has been generated for testing purposes.`;
         
         results += '\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
       }
+
+      // Store the data for use in config auto-population
+      setPreviousStepData(newPreviousStepData);
+      setAvailableFields(newAvailableFields);
 
       results += `🚀 Executing Current Step: ${step.title || block.option}\n\n`;
       setExecutionResults(results + '⏳ Processing...');
@@ -508,36 +628,82 @@ Sample output data has been generated for testing purposes.`;
               <div className="space-y-3 flex-1 overflow-y-auto">
                 <Label className="text-sm font-medium">Block Parameters</Label>
                 
-                {getBlockDefaults(block.option).parameters.map((param) => (
-                  <div key={param} className="space-y-1">
-                    <Label className="text-xs font-medium">{param}</Label>
-                    {typeof blockParams[param] === 'boolean' ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={blockParams[param] || false}
-                          onChange={(e) => handleParamChange(param, e.target.checked)}
-                          className="w-4 h-4"
-                        />
-                        <span className="text-xs">Enabled</span>
+                {getBlockDefaults(block.option).parameters.map((param) => {
+                  const suggestions = getAvailableDataForField(param);
+                  
+                  return (
+                    <div key={param} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-medium">{param}</Label>
+                        {suggestions.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-green-600">📊 {suggestions.length} available</span>
+                          </div>
+                        )}
                       </div>
-                    ) : typeof blockParams[param] === 'number' ? (
-                      <Input
-                        type="number"
-                        value={blockParams[param] || 0}
-                        onChange={(e) => handleParamChange(param, parseInt(e.target.value) || 0)}
-                        className="text-sm h-8"
-                      />
-                    ) : (
-                      <Input
-                        value={blockParams[param] || ''}
-                        onChange={(e) => handleParamChange(param, e.target.value)}
-                        className="text-sm h-8"
-                        placeholder={`Enter ${param.toLowerCase()}`}
-                      />
-                    )}
-                  </div>
-                ))}
+                      
+                      {typeof blockParams[param] === 'boolean' ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={blockParams[param] || false}
+                            onChange={(e) => handleParamChange(param, e.target.checked)}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-xs">Enabled</span>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          {typeof blockParams[param] === 'number' ? (
+                            <Input
+                              type="number"
+                              value={blockParams[param] || 0}
+                              onChange={(e) => handleParamChange(param, parseInt(e.target.value) || 0)}
+                              className="text-sm h-8"
+                            />
+                          ) : (
+                            <Input
+                              value={blockParams[param] || ''}
+                              onChange={(e) => handleParamChange(param, e.target.value)}
+                              className="text-sm h-8"
+                              placeholder={`Enter ${param.toLowerCase()}`}
+                            />
+                          )}
+                          
+                          {/* Auto-populate suggestions */}
+                          {suggestions.length > 0 && (
+                            <div className="bg-green-50 border border-green-200 rounded p-2 space-y-1">
+                              <div className="text-xs text-green-700 font-medium">
+                                📊 Available from previous steps:
+                              </div>
+                              {suggestions.slice(0, 3).map((suggestion, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => handleAutoPopulate(param, suggestion.stepId, suggestion.field)}
+                                  className="block w-full text-left text-xs p-1 hover:bg-green-100 rounded"
+                                >
+                                  <span className="font-medium text-green-700">{suggestion.stepTitle}</span>
+                                  <span className="text-green-600"> → {suggestion.field}: </span>
+                                  <span className="text-gray-700">
+                                    {Array.isArray(suggestion.value) 
+                                      ? suggestion.value.slice(0, 2).join(', ') + (suggestion.value.length > 2 ? '...' : '')
+                                      : String(suggestion.value).slice(0, 30) + (String(suggestion.value).length > 30 ? '...' : '')
+                                    }
+                                  </span>
+                                </button>
+                              ))}
+                              {suggestions.length > 3 && (
+                                <div className="text-xs text-green-600">
+                                  +{suggestions.length - 3} more options available
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="space-y-2 pt-4 border-t">
