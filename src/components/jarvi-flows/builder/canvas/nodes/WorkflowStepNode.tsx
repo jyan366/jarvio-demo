@@ -234,20 +234,20 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                   <Settings className="h-3 w-3 mr-1" />
                   Config
                 </Button>
-                {onDetachBlock && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      console.log('Detach button clicked');
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    console.log('Detach button clicked');
+                    if (onDetachBlock) {
                       onDetachBlock();
-                    }}
-                    className="h-7 px-2 text-xs bg-destructive/20 border-destructive/50 text-destructive hover:bg-destructive/30"
-                    title="Detach block"
-                  >
-                    <Unlink className="h-3 w-3" />
-                  </Button>
-                )}
+                    }
+                  }}
+                  className="h-7 px-2 text-xs text-destructive border-destructive/30 bg-destructive/10 hover:bg-destructive/20 hover:border-destructive/50"
+                  title="Disconnect block"
+                >
+                  <Unlink className="h-3 w-3" />
+                </Button>
               </div>
             </div>
           )}
