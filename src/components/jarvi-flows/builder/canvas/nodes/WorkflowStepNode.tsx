@@ -61,7 +61,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
 
   // Find block logo from blocksData
   const getBlockLogo = (blockName?: string) => {
-    if (!blockName) return null;
+    if (!blockName) return '/logo.svg';
     
     // Search through all categories in blocksData
     for (const category of Object.values(blocksData)) {
@@ -72,7 +72,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
         }
       }
     }
-    return null;
+    return '/logo.svg'; // Use Jarvio logo as fallback
   };
 
   const blockLogo = getBlockLogo(block?.name || block?.option);
@@ -162,15 +162,13 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
               ) : block ? (
                 <div className="space-y-2">
                   <div className="text-center">
-                    {blockLogo && (
-                      <div className="w-12 h-12 mx-auto mb-2 rounded-lg overflow-hidden bg-secondary flex items-center justify-center border border-border">
-                        <img 
-                          src={blockLogo} 
-                          alt={block.option || block.name}
-                          className="w-8 h-8 object-contain"
-                        />
-                      </div>
-                    )}
+                    <div className="w-12 h-12 mx-auto mb-2 rounded-lg overflow-hidden bg-secondary flex items-center justify-center border border-border">
+                      <img 
+                        src={blockLogo} 
+                        alt={block.option || block.name}
+                        className="w-8 h-8 object-contain"
+                      />
+                    </div>
                     <span className="text-sm font-semibold text-foreground block">
                       {block.option || block.name}
                     </span>
