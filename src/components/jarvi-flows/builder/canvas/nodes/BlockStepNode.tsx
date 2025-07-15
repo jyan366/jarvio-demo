@@ -14,11 +14,12 @@ interface BlockStepNodeData {
   onBlockUpdate: (updates: Partial<FlowBlock>) => void;
   onDelete: () => void;
   onBlockClick?: () => void;
+  onBlockDoubleClick?: () => void;
   availableBlockOptions?: Record<string, string[]>;
 }
 
 const BlockStepNode = memo(({ data }: NodeProps) => {
-  const { step, block, onDelete, onBlockClick } = data as unknown as BlockStepNodeData;
+  const { step, block, onDelete, onBlockClick, onBlockDoubleClick } = data as unknown as BlockStepNodeData;
 
   // Find block logo from blocksData
   const getBlockLogo = (blockName?: string) => {
@@ -99,6 +100,7 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
       <Card 
         className={`w-72 min-h-[120px] transition-all duration-200 cursor-pointer border-2 ${getBlockColor(block?.type)} relative`}
         onClick={onBlockClick}
+        onDoubleClick={onBlockDoubleClick}
       >
         <CardContent className="p-4 h-full flex flex-col relative">
           <div className="flex-1 flex flex-col">

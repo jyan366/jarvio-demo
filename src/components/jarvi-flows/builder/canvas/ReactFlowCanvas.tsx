@@ -19,6 +19,7 @@ import '@xyflow/react/dist/style.css';
 
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { WorkflowStepNode } from './nodes/WorkflowStepNode';
+import { BlockStepNode } from './nodes/BlockStepNode';
 import { AgentStepNode } from './nodes/AgentStepNode';
 import { TriggerNode } from './nodes/TriggerNode';
 import { NextStepNode } from './nodes/NextStepNode';
@@ -26,6 +27,7 @@ import { AddStepPanel } from './AddStepDialog';
 import { ReactFlowToolbar } from './ReactFlowToolbar';
 import { CustomEdge } from './CustomEdge';
 import { BlockConfigDialog } from '../BlockConfigDialog';
+import { BlockTestDialog } from '../BlockTestDialog';
 import { AttachBlockDialog } from './AttachBlockDialog';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -50,6 +52,7 @@ interface ReactFlowCanvasProps {
 const nodeTypes: NodeTypes = {
   trigger: TriggerNode,
   workflowStep: WorkflowStepNode,
+  blockStep: BlockStepNode,
   agentStep: AgentStepNode,
   nextStep: NextStepNode,
 };
@@ -72,7 +75,9 @@ export function ReactFlowCanvas({
 }: ReactFlowCanvasProps) {
   const [addPanelOpen, setAddPanelOpen] = useState(false);
   const [selectedBlock, setSelectedBlock] = useState<FlowBlock | null>(null);
+  const [selectedStep, setSelectedStep] = useState<FlowStep | null>(null);
   const [showBlockConfig, setShowBlockConfig] = useState(false);
+  const [showBlockTest, setShowBlockTest] = useState(false);
   const [attachBlockDialogOpen, setAttachBlockDialogOpen] = useState(false);
   const [selectedStepForAttach, setSelectedStepForAttach] = useState<string | null>(null);
   
@@ -84,6 +89,12 @@ export function ReactFlowCanvas({
   const handleBlockClick = useCallback((block: FlowBlock) => {
     setSelectedBlock(block);
     setShowBlockConfig(true);
+  }, []);
+
+  const handleBlockDoubleClick = useCallback((block: FlowBlock, step: FlowStep) => {
+    setSelectedBlock(block);
+    setSelectedStep(step);
+    setShowBlockTest(true);
   }, []);
 
   const handleAddStep = useCallback((type: 'block' | 'agent', blockData?: any) => {
@@ -188,9 +199,12 @@ export function ReactFlowCanvas({
       const isUnselected = step.stepType === 'unselected' || (!step.isAgentStep && !step.blockId && step.stepType !== 'block');
       const block = step.blockId ? blocks.find(b => b.id === step.blockId) : null;
       
+      // Determine node type - use blockStep for steps with blocks
+      const nodeType = isAgent ? 'agentStep' : (block ? 'blockStep' : 'workflowStep');
+      
       return {
         id: step.id,
-        type: isAgent ? 'agentStep' : 'workflowStep',
+        type: nodeType,
         position: step.canvasPosition || { x: 400 + index * 450, y: 100 }, // Start further from trigger
         data: {
           step,
@@ -231,6 +245,8 @@ export function ReactFlowCanvas({
           },
           onDetachBlock: block ? () => handleDetachBlock(step.id) : undefined,
           onConfigureBlock: block ? () => handleBlockClick(block) : undefined,
+          onBlockClick: block ? () => handleBlockClick(block) : undefined,
+          onBlockDoubleClick: block ? () => handleBlockDoubleClick(block, step) : undefined,
           availableBlockOptions
         },
         sourcePosition: Position.Right,
@@ -569,6 +585,18 @@ export function ReactFlowCanvas({
           setShowBlockConfig(false);
           setSelectedBlock(null);
         }}
+      />
+
+      <BlockTestDialog
+        block={selectedBlock}
+        step={selectedStep}
+        isOpen={showBlockTest}
+        onClose={() => {
+          setShowBlockTest(false);
+          setSelectedBlock(null);
+          setSelectedStep(null);
+        }}
+        steps={steps}
       />
 
       <AttachBlockDialog
