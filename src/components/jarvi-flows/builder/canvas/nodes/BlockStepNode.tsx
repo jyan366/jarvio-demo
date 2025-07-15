@@ -111,19 +111,6 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
                 </Badge>
               </div>
               <div className="flex items-center gap-1">
-                {block && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onBlockClick?.();
-                    }}
-                    className="h-6 w-6 p-0"
-                  >
-                    <Settings className="h-3 w-3" />
-                  </Button>
-                )}
                 <Button
                   size="sm"
                   variant="ghost"
@@ -140,25 +127,38 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
 
             {/* Block Name and Logo */}
             <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-2 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+              <div className="w-20 h-20 mx-auto mb-2 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
                 <img 
                   src={blockLogo} 
                   alt={block?.option || block?.name || 'Block'}
-                  className="w-8 h-8 object-contain"
+                  className="w-16 h-16 object-contain"
                 />
               </div>
               <span className="text-sm font-semibold text-gray-900">
                 {block?.option || block?.name || 'No block attached'}
               </span>
+              <span className="text-xs text-gray-600 block">
+                Action
+              </span>
             </div>
 
-            {/* Step completion indicator */}
-            {step.completed && (
-              <div className="flex items-center gap-2 text-xs text-green-600 pt-2 border-t border-gray-200">
-                <Check className="w-3 h-3" />
-                Completed
-              </div>
-            )}
+            {/* Config Button */}
+            <div className="flex gap-2 mt-4">
+              {block && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBlockClick?.();
+                  }}
+                  className="flex-1 h-8 text-xs"
+                >
+                  <Settings className="h-3 w-3 mr-1" />
+                  Config
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

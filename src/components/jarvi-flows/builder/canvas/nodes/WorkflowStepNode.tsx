@@ -162,11 +162,11 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
               ) : block ? (
                 <div className="space-y-2">
                   <div className="text-center">
-                    <div className="w-12 h-12 mx-auto mb-2 rounded-lg overflow-hidden bg-secondary flex items-center justify-center border border-border">
+                    <div className="w-20 h-20 mx-auto mb-2 rounded-lg overflow-hidden bg-secondary flex items-center justify-center border border-border">
                       <img 
                         src={blockLogo} 
                         alt={block.option || block.name}
-                        className="w-8 h-8 object-contain"
+                        className="w-16 h-16 object-contain"
                       />
                     </div>
                     <span className="text-sm font-semibold text-foreground block">
@@ -176,7 +176,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                       Action
                     </span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-4">
                     <Button
                       size="sm"
                       variant="outline"
@@ -244,14 +244,6 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                 </div>
               )}
             </div>
-
-            {/* Step completion indicator */}
-            {step.completed && (
-              <div className="flex items-center gap-2 text-xs text-green-600 pt-2 border-t border-gray-100">
-                <Check className="w-3 h-3" />
-                Completed
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
