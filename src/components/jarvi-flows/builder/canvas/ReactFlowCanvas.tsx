@@ -31,7 +31,7 @@ import { BlockTestDialog } from '../BlockTestDialog';
 import { AttachBlockDialog } from './AttachBlockDialog';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Play, TestTube, Plus } from 'lucide-react';
+import { Play, TestTube, Plus, ArrowUpDown } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -494,6 +494,15 @@ export function ReactFlowCanvas({
 
       {/* Flow Control Buttons - Bottom right */}
       <div className="absolute bottom-6 right-6 z-10 flex items-center gap-3">
+        <Button
+          onClick={handleAutoArrange}
+          disabled={steps.length === 0}
+          className="gap-2 bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-lg"
+        >
+          <ArrowUpDown className="w-4 h-4" />
+          Auto Arrange
+        </Button>
+        
         <Button
           onClick={onStartFlow}
           disabled={isRunningFlow || steps.length === 0}
