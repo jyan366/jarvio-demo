@@ -618,17 +618,32 @@ Available Data Fields:
         </DialogHeader>
         
         <div className="flex gap-4 flex-1 min-h-0">
-          {/* Left Panel - Execute Previous Steps */}
+          {/* Left Panel - Previous Steps Output */}
           <Card className="w-1/3 flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Play className="w-5 h-5" />
-                Execute Previous Steps
+                Previous Steps Output
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
               <div className="space-y-3 mb-4">
-                {previousSteps.length > 0 ? (
+                {Object.keys(previousStepData).length > 0 ? (
+                  <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                    <div className="text-sm font-medium text-green-600">✅ Data Available for Auto-Population</div>
+                    {Object.entries(previousStepData).map(([stepId, data], idx) => {
+                      const stepTitle = getPreviousSteps().find(s => s.id === stepId)?.title || `Step ${idx + 1}`;
+                      return (
+                        <div key={stepId} className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                          <div className="font-medium text-sm mb-2">{stepTitle}</div>
+                          <div className="text-xs bg-background p-2 rounded border">
+                            <pre className="whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
                   <>
                     <p className="text-sm text-gray-600">
                       Execute these steps first to generate data for auto-population:
@@ -669,13 +684,6 @@ Available Data Fields:
                       </Button>
                     </div>
                   </>
-                ) : (
-                  <div className="flex items-center gap-2 p-4 bg-blue-50 rounded-lg text-center">
-                    <AlertCircle className="w-5 h-5 text-blue-600" />
-                    <span className="text-blue-700">
-                      This is the first step - no previous steps to execute
-                    </span>
-                  </div>
                 )}
               </div>
             </CardContent>
@@ -826,12 +834,12 @@ Available Data Fields:
             </CardContent>
           </Card>
 
-          {/* Right Panel - Output */}
+          {/* Right Panel - Current Step Output */}
           <Card className="w-1/3 flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Database className="w-5 h-5" />
-                Output
+                Current Step Output
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col min-h-0">
