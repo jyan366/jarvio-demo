@@ -3,9 +3,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { FlowBlock, FlowStep } from '@/types/flowTypes';
-import { Database, Brain, Zap, User, Play, Loader2, AlertCircle } from 'lucide-react';
+import { Database, Brain, Zap, User, Play, Loader2, AlertCircle, Settings, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BlockTestDialogProps {
   block: FlowBlock | null;
@@ -17,16 +20,155 @@ interface BlockTestDialogProps {
 
 export function BlockTestDialog({ block, step, isOpen, onClose, steps }: BlockTestDialogProps) {
   const [isExecuting, setIsExecuting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [executionResults, setExecutionResults] = useState<string>('');
+  const [blockParams, setBlockParams] = useState<Record<string, any>>({});
+  const [blockConfig, setBlockConfig] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
+    const fetchBlockConfig = async () => {
+      if (!block) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('flow_block_configs')
+          .select('*')
+          .eq('block_name', block.option)
+          .maybeSingle();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching block config:', error);
+          return;
+        }
+
+        setBlockConfig(data);
+        
+        // Initialize parameters with default values
+        const configData = data?.config_data as { parameters?: string[] } | null;
+        const parameters = configData?.parameters || getBlockDefaults(block.option).parameters;
+        const defaultParams = getBlockDefaults(block.option);
+        
+        setBlockParams(defaultParams);
+      } catch (error) {
+        console.error('Failed to fetch block config:', error);
+      }
+    };
+
     if (isOpen) {
       setExecutionResults('');
+      fetchBlockConfig();
     }
   }, [isOpen, block]);
 
   if (!block || !step) return null;
+
+  const getBlockDefaults = (option: string) => {
+    const defaults: Record<string, any> = {
+      'All Listing Info': {
+        'Number of Days': 30,
+        'Marketplace': 'US',
+        'Include Images': true,
+        'ASIN Filter': 'All Active',
+        parameters: ['Number of Days', 'Marketplace', 'Include Images', 'ASIN Filter']
+      },
+      'Send Email': {
+        'Recipients': 'team@company.com',
+        'Subject': 'Weekly Performance Report',
+        'Template': 'default',
+        'Include Attachments': false,
+        parameters: ['Recipients', 'Subject', 'Template', 'Include Attachments']
+      },
+      'Basic AI Analysis': {
+        'Analysis Type': 'Performance Trends',
+        'Confidence Threshold': 0.8,
+        'Output Format': 'Summary',
+        'Include Recommendations': true,
+        parameters: ['Analysis Type', 'Confidence Threshold', 'Output Format', 'Include Recommendations']
+      },
+      'AI Summary': {
+        'Summary Length': 'Medium',
+        'Focus Areas': 'Key Insights',
+        'Language': 'English',
+        'Include Charts': true,
+        parameters: ['Summary Length', 'Focus Areas', 'Language', 'Include Charts']
+      },
+      'Get Keywords': {
+        'Product Category': 'Electronics',
+        'Search Volume': 'High',
+        'Competition Level': 'Medium',
+        'Keyword Count': 50,
+        parameters: ['Product Category', 'Search Volume', 'Competition Level', 'Keyword Count']
+      },
+      'User Text': {
+        'Input Type': 'Text',
+        'Required Fields': 'Product Name',
+        'Validation': 'Not Empty',
+        'Max Length': 500,
+        parameters: ['Input Type', 'Required Fields', 'Validation', 'Max Length']
+      },
+      'Upload Sheet': {
+        'File Format': 'Excel',
+        'Sheet Name': 'Products',
+        'Column Mapping': 'Auto-detect',
+        'Skip Rows': 1,
+        parameters: ['File Format', 'Sheet Name', 'Column Mapping', 'Skip Rows']
+      }
+    };
+
+    return defaults[option] || {
+      'Configuration': 'Default',
+      'Enabled': true,
+      parameters: ['Configuration', 'Enabled']
+    };
+  };
+
+  const getBlockDescription = (option: string) => {
+    const descriptions: Record<string, string> = {
+      'All Listing Info': 'Fetches comprehensive listing information including titles, descriptions, prices, and performance metrics from Amazon.',
+      'Send Email': 'Sends automated emails with customizable templates and dynamic content insertion.',
+      'Basic AI Analysis': 'Performs intelligent analysis on data using AI to identify patterns, trends, and insights.',
+      'AI Summary': 'Generates comprehensive summaries of data using AI with customizable output formats.',
+      'Get Keywords': 'Research and gather relevant keywords for your products and market analysis.',
+      'User Text': 'Gather custom input and instructions from you to proceed with the task.',
+      'Upload Sheet': 'Process uploaded spreadsheets and extract data for analysis.'
+    };
+
+    return descriptions[option] || `Execute the ${option} operation with configured parameters.`;
+  };
+
+  const handleParamChange = (paramName: string, value: any) => {
+    setBlockParams(prev => ({
+      ...prev,
+      [paramName]: value
+    }));
+  };
+
+  const handleSaveConfig = async () => {
+    setIsSaving(true);
+    
+    try {
+      // Simulate saving configuration
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Configuration Saved",
+        description: `Parameters for ${block.option} have been saved successfully.`,
+      });
+      
+      console.log(`Saved configuration for ${block.option}:`, blockParams);
+      
+    } catch (error) {
+      console.error('Save failed:', error);
+      toast({
+        title: "Save Failed",
+        description: "Failed to save block configuration.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const getBlockIcon = (type: string) => {
     switch (type) {
@@ -289,7 +431,7 @@ Sample output data has been generated for testing purposes.`;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {getBlockIcon(block.type)}
@@ -299,7 +441,7 @@ Sample output data has been generated for testing purposes.`;
         
         <div className="flex gap-4 flex-1 min-h-0">
           {/* Left Panel - Execute Previous Steps */}
-          <Card className="w-1/2 flex flex-col">
+          <Card className="w-1/3 flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Play className="w-5 h-5" />
@@ -337,38 +479,101 @@ Sample output data has been generated for testing purposes.`;
                     </span>
                   </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
 
-                <div className="pt-4 border-t">
-                  <div className={`p-3 rounded-lg ${getBlockColor(block.type)}`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      {getBlockIcon(block.type)}
-                      <Badge variant="outline" className="text-xs">
-                        {block.type}
-                      </Badge>
-                      <span className="font-medium text-sm">Current: {block.option}</span>
-                    </div>
-                    <p className="text-xs text-gray-600">
-                      {step.description || 'This block will be tested with sample data'}
-                    </p>
-                  </div>
+          {/* Middle Panel - Block Configuration & Test */}
+          <Card className="w-1/3 flex flex-col">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Block Configuration & Test
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col space-y-4">
+              <div className={`p-3 rounded-lg ${getBlockColor(block.type)}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {getBlockIcon(block.type)}
+                  <Badge variant="outline" className="text-xs">
+                    {block.type}
+                  </Badge>
+                  <span className="font-medium text-sm">{block.option}</span>
                 </div>
+                <p className="text-xs text-gray-600">
+                  {getBlockDescription(block.option)}
+                </p>
               </div>
 
-              <div className="mt-auto pt-4">
+              <div className="space-y-3 flex-1 overflow-y-auto">
+                <Label className="text-sm font-medium">Block Parameters</Label>
+                
+                {getBlockDefaults(block.option).parameters.map((param) => (
+                  <div key={param} className="space-y-1">
+                    <Label className="text-xs font-medium">{param}</Label>
+                    {typeof blockParams[param] === 'boolean' ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={blockParams[param] || false}
+                          onChange={(e) => handleParamChange(param, e.target.checked)}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-xs">Enabled</span>
+                      </div>
+                    ) : typeof blockParams[param] === 'number' ? (
+                      <Input
+                        type="number"
+                        value={blockParams[param] || 0}
+                        onChange={(e) => handleParamChange(param, parseInt(e.target.value) || 0)}
+                        className="text-sm h-8"
+                      />
+                    ) : (
+                      <Input
+                        value={blockParams[param] || ''}
+                        onChange={(e) => handleParamChange(param, e.target.value)}
+                        className="text-sm h-8"
+                        placeholder={`Enter ${param.toLowerCase()}`}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2 pt-4 border-t">
                 <Button
-                  onClick={handleExecuteSteps}
-                  disabled={isExecuting}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
-                  size="lg"
+                  onClick={handleSaveConfig}
+                  disabled={isSaving}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white h-8"
+                  size="sm"
                 >
-                  {isExecuting ? (
+                  {isSaving ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Executing...
+                      <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                      Saving...
                     </>
                   ) : (
                     <>
-                      <Play className="w-4 h-4 mr-2" />
+                      <Save className="w-3 h-3 mr-2" />
+                      Save Config
+                    </>
+                  )}
+                </Button>
+                
+                <Button
+                  onClick={handleExecuteSteps}
+                  disabled={isExecuting}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white h-8"
+                  size="sm"
+                >
+                  {isExecuting ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                      Testing...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-3 h-3 mr-2" />
                       Execute & Test
                     </>
                   )}
@@ -378,7 +583,7 @@ Sample output data has been generated for testing purposes.`;
           </Card>
 
           {/* Right Panel - Output */}
-          <Card className="w-1/2 flex flex-col">
+          <Card className="w-1/3 flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Database className="w-5 h-5" />
@@ -406,6 +611,7 @@ Sample output data has been generated for testing purposes.`;
                   onClick={onClose}
                   variant="outline"
                   className="w-full"
+                  size="sm"
                 >
                   Close
                 </Button>
