@@ -22,7 +22,7 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
 
   // Find block logo from blocksData
   const getBlockLogo = (blockName?: string) => {
-    if (!blockName) return '/logo.svg';
+    if (!blockName) return '/lovable-uploads/4f8a2e0e-6a95-4713-93f8-c4add0710fbb.png';
     
     // Search through all categories in blocksData
     for (const category of Object.values(blocksData)) {
@@ -33,7 +33,7 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
         }
       }
     }
-    return '/logo.svg'; // Use Jarvio logo as fallback
+    return '/lovable-uploads/4f8a2e0e-6a95-4713-93f8-c4add0710fbb.png'; // Use Jarvio logo as fallback
   };
 
   const blockLogo = getBlockLogo(block?.name || block?.option);
