@@ -195,7 +195,7 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps, stepExecu
           paramLower.includes('price') && fieldLower.includes('price') ||
           paramLower.includes('sku') && fieldLower.includes('sku')
         ) {
-          const stepTitle = getPreviousSteps().find(s => s.id === stepId)?.title || 'Unknown Step';
+          const stepTitle = steps.find(s => s.id === stepId)?.title || 'Unknown Step';
           suggestions.push({ stepId, stepTitle, field, value });
         }
       });
@@ -260,37 +260,44 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps, stepExecu
     }
   };
 
-  // Check if all previous steps have been executed
-  const getPreviousExecutedSteps = () => {
-    const currentIndex = getCurrentStepIndex();
-    const previousSteps = steps.slice(0, currentIndex);
-    return previousSteps.filter(prevStep => 
-      stepExecutionResults.some(result => result.stepId === prevStep.id)
-    );
+  // Get the current step index
+  const getCurrentStepIndex = () => {
+    return steps.findIndex(s => s.id === step.id);
   };
 
+  // Get the immediate previous step
+  const getImmediatePreviousStep = () => {
+    const currentIndex = getCurrentStepIndex();
+    if (currentIndex <= 0) return null;
+    return steps[currentIndex - 1];
+  };
+
+  // Check if immediate previous step has been executed
+  const hasImmediatePreviousStepExecuted = () => {
+    const prevStep = getImmediatePreviousStep();
+    if (!prevStep) return true; // If no previous step, consider it "executed"
+    return stepExecutionResults.some(result => result.stepId === prevStep.id);
+  };
+
+  // Get execution result for immediate previous step
+  const getImmediatePreviousStepResult = () => {
+    const prevStep = getImmediatePreviousStep();
+    if (!prevStep) return null;
+    return stepExecutionResults.find(result => result.stepId === prevStep.id);
+  };
+
+  // Check if current step can be executed (immediate previous step executed)
+  const canExecuteCurrentStep = () => {
+    return hasImmediatePreviousStepExecuted();
+  };
+
+  // Get all unexecuted previous steps for error messaging
   const getUnexecutedPreviousSteps = () => {
     const currentIndex = getCurrentStepIndex();
     const previousSteps = steps.slice(0, currentIndex);
     return previousSteps.filter(prevStep => 
       !stepExecutionResults.some(result => result.stepId === prevStep.id)
     );
-  };
-
-  // Get previous steps that need to be executed
-  const getCurrentStepIndex = () => {
-    return steps.findIndex(s => s.id === step.id);
-  };
-
-  const getPreviousSteps = () => {
-    const currentIndex = getCurrentStepIndex();
-    return steps.slice(0, currentIndex);
-  };
-
-  // Check if current step can be executed (all previous steps executed)
-  const canExecuteCurrentStep = () => {
-    const unexpectedSteps = getUnexecutedPreviousSteps();
-    return unexpectedSteps.length === 0;
   };
 
   const generateMockOutput = () => {
@@ -520,7 +527,8 @@ Available Data Fields:
     const newPreviousStepData: Record<string, any> = {};
 
     try {
-      const previousSteps = getPreviousSteps();
+      const currentIndex = getCurrentStepIndex();
+      const previousSteps = steps.slice(0, currentIndex);
       let results = '';
 
       if (previousSteps.length > 0) {
@@ -658,7 +666,17 @@ Please execute the previous steps first to maintain the data flow chain.`);
     }
   };
 
-  const previousSteps = getPreviousSteps();
+  // Get all previous steps for UI display
+  const getAllPreviousSteps = () => {
+    const currentIndex = getCurrentStepIndex();
+    return steps.slice(0, currentIndex);
+  };
+
+  // Show immediate previous step result only
+  const getImmediatePreviousStepForDisplay = () => {
+    const prevStepResult = getImmediatePreviousStepResult();
+    return prevStepResult ? [prevStepResult] : [];
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -671,28 +689,28 @@ Please execute the previous steps first to maintain the data flow chain.`);
         </DialogHeader>
         
         <div className="flex gap-4 flex-1 min-h-0">
-          {/* Left Panel - Previous Steps Output */}
+          {/* Left Panel - Previous Step Output (Only Immediate Previous) */}
           <Card className="w-1/3 flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Play className="w-5 h-5" />
-                Previous Steps Output
+                Previous Step Output
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
               <div className="space-y-3 mb-4">
-                {/* Show actual execution results from chain */}
-                {getPreviousExecutedSteps().length > 0 ? (
+                {/* Show only immediate previous step result */}
+                 {hasImmediatePreviousStepExecuted() && getImmediatePreviousStepResult() ? (
                   <div className="space-y-4 max-h-[500px] overflow-y-auto">
-                    <div className="text-sm font-medium text-green-600">✅ Executed Previous Steps Data</div>
-                    {getPreviousExecutedSteps().map((prevStep, idx) => {
-                      const executionResult = stepExecutionResults.find(r => r.stepId === prevStep.id);
+                    <div className="text-sm font-medium text-green-600">✅ Previous Step Data Available</div>
+                    {(() => {
+                      const executionResult = getImmediatePreviousStepResult();
                       if (!executionResult) return null;
                       
                       return (
-                        <div key={prevStep.id} className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                        <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
                           <div className="font-medium text-sm mb-2">
-                            Step {steps.findIndex(s => s.id === prevStep.id) + 1}: {executionResult.stepTitle}
+                            Step {getCurrentStepIndex()}: {executionResult.stepTitle}
                           </div>
                           <div className="text-xs bg-background p-2 rounded border">
                             <pre className="whitespace-pre-wrap">{JSON.stringify(executionResult.data, null, 2)}</pre>
@@ -702,48 +720,32 @@ Please execute the previous steps first to maintain the data flow chain.`);
                           </div>
                         </div>
                       );
-                    })}
+                    })()}
                   </div>
                 ) : (
                   <>
                     <p className="text-sm text-gray-600">
-                      Execute these steps first to generate data for auto-population:
+                      {getCurrentStepIndex() === 0 
+                        ? "This is the first step - no previous step data needed."
+                        : `Execute Step ${getCurrentStepIndex()} first to generate data for auto-population.`
+                      }
                     </p>
-                    <div className="space-y-2">
-                      {previousSteps.map((prevStep, index) => (
-                        <div 
-                          key={prevStep.id} 
-                          className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm"
-                        >
-                          <span className="text-gray-500 font-mono">
-                            {index + 1}.
-                          </span>
-                          <span className="font-medium">
-                            {prevStep.title || `Step ${index + 1}`}
+                    {getCurrentStepIndex() > 0 && !hasImmediatePreviousStepExecuted() && (
+                      <div className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertCircle className="w-4 h-4 text-orange-600" />
+                          <span className="text-sm font-medium text-orange-700">
+                            Missing Previous Step
                           </span>
                         </div>
-                      ))}
-                    </div>
-                    <div className="pt-3">
-                      <Button
-                        onClick={handleExecutePreviousSteps}
-                        disabled={isExecuting}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white h-8"
-                        size="sm"
-                      >
-                        {isExecuting ? (
-                          <>
-                            <Loader2 className="w-3 h-3 mr-2 animate-spin" />
-                            Executing...
-                          </>
-                        ) : (
-                          <>
-                            <Play className="w-3 h-3 mr-2" />
-                            Execute Previous Steps
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                        <p className="text-xs text-orange-600 mb-2">
+                          Step {getCurrentStepIndex()} must be executed before Step {getCurrentStepIndex() + 1}.
+                        </p>
+                        <div className="text-xs font-medium text-orange-700">
+                          Required: {getImmediatePreviousStep()?.title || `Step ${getCurrentStepIndex()}`}
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
