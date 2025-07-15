@@ -3,7 +3,7 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Database, Brain, Zap, Settings, Trash2, Check } from 'lucide-react';
+import { Database, Brain, Zap, Settings, Trash2, Check, Unlink } from 'lucide-react';
 import { FlowStep, FlowBlock } from '@/types/flowTypes';
 import { blocksData } from '../../../data/blocksData';
 
@@ -15,11 +15,12 @@ interface BlockStepNodeData {
   onDelete: () => void;
   onBlockClick?: () => void;
   onBlockDoubleClick?: () => void;
+  onDetachBlock?: () => void;
   availableBlockOptions?: Record<string, string[]>;
 }
 
 const BlockStepNode = memo(({ data }: NodeProps) => {
-  const { step, block, onDelete, onBlockClick, onBlockDoubleClick } = data as unknown as BlockStepNodeData;
+  const { step, block, onDelete, onBlockClick, onBlockDoubleClick, onDetachBlock } = data as unknown as BlockStepNodeData;
 
   // Find block logo from blocksData
   const getBlockLogo = (blockName?: string) => {
@@ -147,21 +148,35 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
             </div>
           </div>
 
-          {/* Config Button - Fixed at bottom */}
+          {/* Config and Disconnect Buttons - Fixed at bottom */}
           {block && (
             <div className="mt-4">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onBlockClick?.();
-                }}
-                className="w-full h-8 text-xs"
-              >
-                <Settings className="h-3 w-3 mr-1" />
-                Config
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBlockClick?.();
+                  }}
+                  className="flex-1 h-8 text-xs"
+                >
+                  <Settings className="h-3 w-3 mr-1" />
+                  Config
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDetachBlock?.();
+                  }}
+                  className="h-8 px-2 text-xs text-destructive border-destructive/30 bg-destructive/10 hover:bg-destructive/20 hover:border-destructive/50"
+                  title="Disconnect block"
+                >
+                  <Unlink className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
