@@ -49,7 +49,7 @@ export function NextStepNode({ data }: NextStepNodeProps) {
       </div>
       
       <div
-        className="w-72 min-h-[120px] border-2 border-dashed border-primary/30 rounded-lg
+        className="w-72 h-[240px] border-2 border-dashed border-primary/30 rounded-lg
                    flex items-center justify-center relative
                    transition-all duration-200 bg-background/50 hover:bg-background/80
                    hover:border-primary/50 hover:shadow-md
