@@ -97,13 +97,13 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
       </div>
       
       <Card 
-        className={`w-72 min-h-[120px] transition-all duration-200 cursor-pointer border-2 ${getBlockColor(block?.type)}`}
+        className={`w-72 min-h-[120px] transition-all duration-200 cursor-pointer border-2 ${getBlockColor(block?.type)} relative`}
         onClick={onBlockClick}
       >
-        <CardContent className="p-4 h-full flex flex-col justify-center">
-          <div className="space-y-3">
+        <CardContent className="p-4 h-full flex flex-col relative">
+          <div className="flex-1 flex flex-col">
             {/* Block Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 {getBlockIcon(block?.type)}
                 <Badge className={`${getBadgeColor(block?.type)} text-xs`}>
@@ -125,41 +125,41 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
               </div>
             </div>
 
-            {/* Block Name and Logo */}
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-2 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+            {/* Block Name and Logo - Centered */}
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <div className="w-24 h-24 mx-auto mb-3 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
                 <img 
                   src={blockLogo} 
                   alt={block?.option || block?.name || 'Block'}
-                  className="w-16 h-16 object-contain"
+                  className="w-20 h-20 object-contain"
                 />
               </div>
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-gray-900 text-center">
                 {block?.option || block?.name || 'No block attached'}
               </span>
-              <span className="text-xs text-gray-600 block">
+              <span className="text-xs text-gray-600 block text-center">
                 Action
               </span>
             </div>
-
-            {/* Config Button */}
-            <div className="flex gap-2 mt-4">
-              {block && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onBlockClick?.();
-                  }}
-                  className="flex-1 h-8 text-xs"
-                >
-                  <Settings className="h-3 w-3 mr-1" />
-                  Config
-                </Button>
-              )}
-            </div>
           </div>
+
+          {/* Config Button - Fixed at bottom */}
+          {block && (
+            <div className="mt-4">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onBlockClick?.();
+                }}
+                className="w-full h-8 text-xs"
+              >
+                <Settings className="h-3 w-3 mr-1" />
+                Config
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -114,10 +114,10 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
           <Trash2 className="h-3 w-3" />
         </Button>
         
-        <CardContent className="p-4 h-full flex flex-col justify-center">
-          <div className="space-y-3">
+        <CardContent className="p-4 h-full flex flex-col relative">
+          <div className="flex-1 flex flex-col">
             {/* Step Header */}
-            <div className="flex items-start justify-start">
+            <div className="flex items-start justify-start mb-3">
               <div className="flex-1">
                 {isAgentStep && (
                   <Badge variant="secondary" className="text-xs w-fit">
@@ -129,7 +129,7 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
             </div>
 
             {/* Block Section */}
-            <div className="pt-2">
+            <div className="flex-1 flex flex-col justify-center">
               {isUnselected ? (
                 <div className="text-center space-y-4">
                   <div className="text-sm text-foreground font-medium">
@@ -160,46 +160,21 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
                   </div>
                 </div>
               ) : block ? (
-                <div className="space-y-2">
-                  <div className="text-center">
-                    <div className="w-20 h-20 mx-auto mb-2 rounded-lg overflow-hidden bg-secondary flex items-center justify-center border border-border">
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="w-24 h-24 mx-auto mb-3 rounded-lg overflow-hidden bg-secondary flex items-center justify-center border border-border">
                       <img 
                         src={blockLogo} 
                         alt={block.option || block.name}
-                        className="w-16 h-16 object-contain"
+                        className="w-20 h-20 object-contain"
                       />
                     </div>
-                    <span className="text-sm font-semibold text-foreground block">
+                    <span className="text-sm font-semibold text-foreground block text-center">
                       {block.option || block.name}
                     </span>
-                    <span className="text-xs font-medium text-muted-foreground">
+                    <span className="text-xs font-medium text-muted-foreground text-center">
                       Action
                     </span>
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={onConfigureBlock}
-                      className="flex-1 h-7 text-xs bg-accent hover:bg-accent/80 font-medium"
-                    >
-                      <Settings className="h-3 w-3 mr-1" />
-                      Config
-                    </Button>
-                    {onDetachBlock && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          console.log('Detach button clicked');
-                          onDetachBlock();
-                        }}
-                        className="h-7 px-2 text-xs bg-destructive/20 border-destructive/50 text-destructive hover:bg-destructive/30"
-                        title="Detach block"
-                      >
-                        <Unlink className="h-3 w-3" />
-                      </Button>
-                    )}
                   </div>
                 </div>
               ) : isAgentStep ? (
@@ -245,6 +220,37 @@ const WorkflowStepNode = memo(({ data }: NodeProps) => {
               )}
             </div>
           </div>
+
+          {/* Fixed bottom buttons */}
+          {block && (
+            <div className="mt-4">
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={onConfigureBlock}
+                  className="flex-1 h-7 text-xs bg-accent hover:bg-accent/80 font-medium"
+                >
+                  <Settings className="h-3 w-3 mr-1" />
+                  Config
+                </Button>
+                {onDetachBlock && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      console.log('Detach button clicked');
+                      onDetachBlock();
+                    }}
+                    className="h-7 px-2 text-xs bg-destructive/20 border-destructive/50 text-destructive hover:bg-destructive/30"
+                    title="Detach block"
+                  >
+                    <Unlink className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
