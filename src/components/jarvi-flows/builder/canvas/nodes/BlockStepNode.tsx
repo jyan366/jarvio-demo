@@ -99,8 +99,10 @@ const BlockStepNode = memo(({ data }: NodeProps) => {
       
       <Card 
         className={`w-72 min-h-[120px] transition-all duration-200 cursor-pointer border-2 ${getBlockColor(block?.type)} relative`}
-        onClick={onBlockClick}
-        onDoubleClick={onBlockDoubleClick}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          onBlockDoubleClick?.();
+        }}
       >
         <CardContent className="p-4 h-full flex flex-col relative">
           <div className="flex-1 flex flex-col">
