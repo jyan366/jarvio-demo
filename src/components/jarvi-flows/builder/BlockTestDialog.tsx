@@ -601,6 +601,59 @@ Available Data Fields:
     }
   };
 
+  const handleExecutePreviousStep = async () => {
+    const prevStep = getImmediatePreviousStep();
+    if (!prevStep) return;
+
+    setIsExecuting(true);
+    
+    try {
+      const stepTitle = prevStep.title || `Step ${getCurrentStepIndex()}`;
+      
+      // Check if this step has already been executed
+      const existingResult = stepExecutionResults.find(r => r.stepId === prevStep.id);
+      if (existingResult) {
+        toast({
+          title: "Step Already Executed",
+          description: `${stepTitle} has already been executed. Using cached data.`,
+        });
+        return;
+      }
+      
+      // Simulate step execution
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generate and store structured data for this step
+      const stepData = generatePreviousStepData(stepTitle);
+      
+      // Store execution result for chain tracking
+      const executionResult: StepExecutionResult = {
+        stepId: prevStep.id,
+        stepTitle,
+        blockName: prevStep.blockId ? 'Connected Block' : 'Agent',
+        data: stepData,
+        executedAt: new Date().toISOString()
+      };
+      
+      onStepExecuted?.(executionResult);
+      
+      toast({
+        title: "Step Executed",
+        description: `${stepTitle} completed successfully. Data is now available.`,
+      });
+
+    } catch (error) {
+      console.error('Previous step execution failed:', error);
+      toast({
+        title: "Execution Failed",
+        description: "Failed to execute the previous step.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
   const handleExecuteSteps = async () => {
     // Check if previous steps need to be executed first
     const unexpectedSteps = getUnexecutedPreviousSteps();
@@ -744,6 +797,24 @@ Please execute the previous steps first to maintain the data flow chain.`);
                         <div className="text-xs font-medium text-orange-700">
                           Required: {getImmediatePreviousStep()?.title || `Step ${getCurrentStepIndex()}`}
                         </div>
+                        <Button
+                          onClick={handleExecutePreviousStep}
+                          disabled={isExecuting}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white h-8 mt-3"
+                          size="sm"
+                        >
+                          {isExecuting ? (
+                            <>
+                              <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                              Executing...
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-3 h-3 mr-2" />
+                              Execute Step {getCurrentStepIndex()}
+                            </>
+                          )}
+                        </Button>
                       </div>
                     )}
                   </>
