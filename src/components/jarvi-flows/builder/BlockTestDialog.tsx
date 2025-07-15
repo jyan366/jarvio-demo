@@ -482,9 +482,8 @@ Available Data Fields:
     };
   };
 
-  const handleExecuteSteps = async () => {
+  const handleExecutePreviousSteps = async () => {
     setIsExecuting(true);
-    setExecutionResults('');
     const newPreviousStepData: Record<string, any> = {};
     const newAvailableFields: Record<string, string[]> = {};
 
@@ -494,6 +493,7 @@ Available Data Fields:
 
       if (previousSteps.length > 0) {
         results += '📋 Executing Previous Steps...\n\n';
+        setExecutionResults(results);
         
         for (let i = 0; i < previousSteps.length; i++) {
           const prevStep = previousSteps[i];
@@ -513,12 +513,70 @@ Available Data Fields:
           setExecutionResults(results);
         }
         
-        results += '\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+        results += '\n✅ Previous steps execution complete!\n';
+        results += '📊 Data is now available for auto-population in configuration fields.\n';
+        
+        setExecutionResults(results);
+      } else {
+        setExecutionResults('ℹ️ No previous steps to execute - this is the first step in the flow.');
       }
 
       // Store the data for use in config auto-population
       setPreviousStepData(newPreviousStepData);
       setAvailableFields(newAvailableFields);
+
+      toast({
+        title: "Previous Steps Complete",
+        description: `Successfully executed ${previousSteps.length} previous step${previousSteps.length === 1 ? '' : 's'}. Data is now available for auto-population.`,
+      });
+
+    } catch (error) {
+      console.error('Previous steps execution failed:', error);
+      setExecutionResults('❌ Previous steps execution failed: ' + (error as Error).message);
+      toast({
+        title: "Execution Failed",
+        description: "Failed to execute previous steps.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
+  const handleExecuteSteps = async () => {
+    setIsExecuting(true);
+    setExecutionResults('');
+
+    try {
+      let results = '';
+
+      // Check if we have previous step data, if not execute previous steps first
+      if (Object.keys(previousStepData).length === 0) {
+        const previousSteps = getPreviousSteps();
+        const newPreviousStepData: Record<string, any> = {};
+
+        if (previousSteps.length > 0) {
+          results += '📋 Executing Previous Steps...\n\n';
+          
+          for (let i = 0; i < previousSteps.length; i++) {
+            const prevStep = previousSteps[i];
+            const stepTitle = prevStep.title || `Step ${i + 1}`;
+            results += `${i + 1}. ${stepTitle}: `;
+            setExecutionResults(results + '⏳ Running...');
+            
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            const stepData = generatePreviousStepData(stepTitle);
+            newPreviousStepData[prevStep.id] = stepData;
+            
+            results += '✅ Completed\n';
+            setExecutionResults(results);
+          }
+          
+          setPreviousStepData(newPreviousStepData);
+          results += '\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+        }
+      }
 
       results += `🚀 Executing Current Step: ${step.title || block.option}\n\n`;
       setExecutionResults(results + '⏳ Processing...');
@@ -573,7 +631,7 @@ Available Data Fields:
                 {previousSteps.length > 0 ? (
                   <>
                     <p className="text-sm text-gray-600">
-                      The following steps will be executed before testing this block:
+                      Execute these steps first to generate data for auto-population:
                     </p>
                     <div className="space-y-2">
                       {previousSteps.map((prevStep, index) => (
@@ -589,6 +647,26 @@ Available Data Fields:
                           </span>
                         </div>
                       ))}
+                    </div>
+                    <div className="pt-3">
+                      <Button
+                        onClick={handleExecutePreviousSteps}
+                        disabled={isExecuting}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white h-8"
+                        size="sm"
+                      >
+                        {isExecuting ? (
+                          <>
+                            <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                            Executing...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-3 h-3 mr-2" />
+                            Execute Previous Steps
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </>
                 ) : (
@@ -740,7 +818,7 @@ Available Data Fields:
                   ) : (
                     <>
                       <Play className="w-3 h-3 mr-2" />
-                      Execute & Test
+                      Test This Block
                     </>
                   )}
                 </Button>
