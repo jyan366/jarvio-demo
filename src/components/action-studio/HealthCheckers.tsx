@@ -420,13 +420,13 @@ const getStatusIcon = (status: string) => {
 };
 
 const categoryLabels = {
-  'All': 'All Checkers',
+  'All': 'All',
   'account': 'Account Health',
-  'sales': 'Sales Performance', 
-  'inventory': 'Inventory Management',
-  'customers': 'Customer Insights',
-  'competitors': 'Competitor Insights',
-  'listings': 'Listing Quality'
+  'sales': 'Sales', 
+  'inventory': 'Inventory',
+  'customers': 'Customers',
+  'competitors': 'Competitors',
+  'listings': 'Listings'
 };
 
 export function HealthCheckers() {
