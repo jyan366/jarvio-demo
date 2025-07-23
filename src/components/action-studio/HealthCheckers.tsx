@@ -84,7 +84,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: true,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '22%',
+    lastUpdated: '5 days ago'
   },
   {
     id: 'buybox-rate',
@@ -110,7 +112,9 @@ const healthChecks: HealthCheck[] = [
     category: 'inventory',
     checkerActive: false,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '52',
+    lastUpdated: '3 days ago'
   },
   {
     id: 'suppressed-listings',
@@ -123,7 +127,9 @@ const healthChecks: HealthCheck[] = [
     frequency: 'Hourly',
     checkerWorkflowActive: true,
     hasReactWorkflow: true,
-    reactWorkflowActive: true
+    reactWorkflowActive: true,
+    previousValue: '1',
+    lastUpdated: '4 days ago'
   },
   {
     id: 'monthly-sales',
@@ -134,7 +140,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: false,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '$14,200',
+    lastUpdated: '1 day ago'
   },
   {
     id: 'avg-order-value',
@@ -145,7 +153,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '$25.80',
+    lastUpdated: '2 days ago'
   },
   {
     id: 'buybox-monthly',
@@ -156,7 +166,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '81%',
+    lastUpdated: '1 day ago'
   },
   {
     id: 'sales-trend',
@@ -167,7 +179,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'Stable',
+    lastUpdated: '12 hours ago'
   },
   {
     id: 'top-asins',
@@ -178,7 +192,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: false,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'B08X1234, B07ABC12, B09KLM78, B08V999L, B09ABC99',
+    lastUpdated: '1 week ago'
   },
   {
     id: 'stockout-forecast',
@@ -189,7 +205,9 @@ const healthChecks: HealthCheck[] = [
     category: 'inventory',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '2',
+    lastUpdated: '6 hours ago'
   },
   {
     id: 'restock-needed',
@@ -200,7 +218,9 @@ const healthChecks: HealthCheck[] = [
     category: 'inventory',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '16',
+    lastUpdated: '1 day ago'
   },
   {
     id: 'out-of-stock',
@@ -212,7 +232,10 @@ const healthChecks: HealthCheck[] = [
     checkerActive: true,
     frequency: 'Hourly',
     checkerWorkflowActive: true,
-    hasReactWorkflow: true
+    hasReactWorkflow: true,
+    reactWorkflowActive: true,
+    previousValue: '2',
+    lastUpdated: '3 days ago'
   },
   {
     id: 'slow-moving',
@@ -223,7 +246,9 @@ const healthChecks: HealthCheck[] = [
     category: 'inventory',
     checkerActive: false,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'B08CDE23, B098YHJ4, B07ABC12',
+    lastUpdated: '1 week ago'
   },
   {
     id: 'inventory-health',
@@ -235,7 +260,10 @@ const healthChecks: HealthCheck[] = [
     checkerActive: true,
     frequency: 'Daily',
     checkerWorkflowActive: true,
-    hasReactWorkflow: true
+    hasReactWorkflow: true,
+    reactWorkflowActive: true,
+    previousValue: 'Overstocked',
+    lastUpdated: '1 week ago'
   },
   {
     id: 'feedback-score',
@@ -246,7 +274,9 @@ const healthChecks: HealthCheck[] = [
     category: 'customers',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'Good',
+    lastUpdated: '3 days ago'
   },
   {
     id: 'product-rating',
@@ -257,7 +287,9 @@ const healthChecks: HealthCheck[] = [
     category: 'customers',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '4.1 Stars',
+    lastUpdated: '5 days ago'
   },
   {
     id: 'buybox-lost',
@@ -268,7 +300,9 @@ const healthChecks: HealthCheck[] = [
     category: 'competitors',
     checkerActive: true,
     frequency: 'Hourly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'B08X1234',
+    lastUpdated: '2 hours ago'
   },
   {
     id: 'price-undercut',
@@ -279,7 +313,9 @@ const healthChecks: HealthCheck[] = [
     category: 'competitors',
     checkerActive: true,
     frequency: 'Hourly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'B09ZZY01',
+    lastUpdated: '4 hours ago'
   },
   {
     id: 'top-competitors',
@@ -290,7 +326,9 @@ const healthChecks: HealthCheck[] = [
     category: 'competitors',
     checkerActive: false,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'BrandA, BrandB, BrandC, BrandF, BrandE',
+    lastUpdated: '1 week ago'
   },
   {
     id: 'competitor-ads',
@@ -301,7 +339,9 @@ const healthChecks: HealthCheck[] = [
     category: 'competitors',
     checkerActive: true,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'No',
+    lastUpdated: '2 days ago'
   },
   {
     id: 'customer-retention',
@@ -312,7 +352,9 @@ const healthChecks: HealthCheck[] = [
     category: 'customers',
     checkerActive: true,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '74%',
+    lastUpdated: '1 week ago'
   },
   {
     id: 'repeat-purchase-rate',
@@ -323,7 +365,9 @@ const healthChecks: HealthCheck[] = [
     category: 'customers',
     checkerActive: true,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '31%',
+    lastUpdated: '1 week ago'
   },
   {
     id: 'customer-lifetime-value',
@@ -334,7 +378,9 @@ const healthChecks: HealthCheck[] = [
     category: 'customers',
     checkerActive: false,
     frequency: 'Monthly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '$118.20',
+    lastUpdated: '2 weeks ago'
   },
   {
     id: 'negative-reviews',
@@ -345,7 +391,9 @@ const healthChecks: HealthCheck[] = [
     category: 'customers',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '5',
+    lastUpdated: '1 day ago'
   },
   {
     id: 'customer-service-response',
@@ -356,7 +404,9 @@ const healthChecks: HealthCheck[] = [
     category: 'customers',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '5.1 hours',
+    lastUpdated: '2 days ago'
   },
   {
     id: 'competitor-price-advantage',
@@ -367,7 +417,9 @@ const healthChecks: HealthCheck[] = [
     category: 'competitors',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '-1.8%',
+    lastUpdated: '1 day ago'
   },
   {
     id: 'competitor-new-products',
@@ -378,7 +430,9 @@ const healthChecks: HealthCheck[] = [
     category: 'competitors',
     checkerActive: true,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '4',
+    lastUpdated: '3 days ago'
   },
   {
     id: 'market-share',
@@ -389,7 +443,9 @@ const healthChecks: HealthCheck[] = [
     category: 'competitors',
     checkerActive: false,
     frequency: 'Monthly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '11.8%',
+    lastUpdated: '2 weeks ago'
   },
   {
     id: 'missing-content',
@@ -400,7 +456,9 @@ const healthChecks: HealthCheck[] = [
     category: 'listings',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '8',
+    lastUpdated: '2 days ago'
   },
   {
     id: 'image-quality',
@@ -411,7 +469,9 @@ const healthChecks: HealthCheck[] = [
     category: 'listings',
     checkerActive: true,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '89%',
+    lastUpdated: '1 week ago'
   },
   {
     id: 'keyword-duplication',
@@ -422,7 +482,9 @@ const healthChecks: HealthCheck[] = [
     category: 'listings',
     checkerActive: false,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'B08CDE23, B09ZZY01, B07ABC12, B08V999L',
+    lastUpdated: '1 week ago'
   },
   {
     id: 'title-guidelines',
@@ -433,7 +495,9 @@ const healthChecks: HealthCheck[] = [
     category: 'listings',
     checkerActive: true,
     frequency: 'Daily',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: 'No',
+    lastUpdated: '3 days ago'
   },
   {
     id: 'keyword-optimization',
@@ -444,7 +508,9 @@ const healthChecks: HealthCheck[] = [
     category: 'listings',
     checkerActive: true,
     frequency: 'Weekly',
-    checkerWorkflowActive: true
+    checkerWorkflowActive: true,
+    previousValue: '64%',
+    lastUpdated: '1 week ago'
   }
 ];
 
