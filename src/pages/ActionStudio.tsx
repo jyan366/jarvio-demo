@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { SuggestedTasksSection } from '@/components/action-studio/SuggestedTasksSection';
+import { HealthCheckers } from '@/components/action-studio/HealthCheckers';
 import { MonitoringFlowsSection } from '@/components/action-studio/MonitoringFlowsSection';
-import { AllInsightsSection } from '@/components/action-studio/AllInsightsSection';
 import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 import { ProcessBuilder } from '@/components/ads/ProcessBuilder';
 import { BestSellersRestockProcess } from '@/components/inventory/BestSellersRestockProcess';
@@ -27,15 +26,14 @@ export default function ActionStudio() {
           <p className="text-muted-foreground">Monitor your business and get actionable insights</p>
         </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 w-full">
-          <div className="xl:col-span-2 space-y-8 min-w-0">
-            <MonitoringFlowsSection />
-            <SuggestedTasksSection />
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 w-full">
+          <div className="lg:col-span-3 space-y-8 min-w-0">
+            <HealthCheckers />
           </div>
           
-          <div className="space-y-8 min-w-0 overflow-hidden">
-            <AllInsightsSection />
+          <div className="space-y-8 min-w-0">
+            <MonitoringFlowsSection />
           </div>
         </div>
       </div>
