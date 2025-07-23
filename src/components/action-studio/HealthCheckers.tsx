@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { RecentChanges } from './RecentChanges';
+import { NotificationSettingsDialog } from './NotificationSettingsDialog';
 import { 
   ShieldCheck, 
   DollarSign, 
@@ -24,7 +26,9 @@ import {
   Play,
   Settings,
   Filter,
-  Plus
+  Plus,
+  Bell,
+  BellOff
 } from 'lucide-react';
 
 interface HealthCheck {
@@ -556,6 +560,14 @@ const categoryLabels = {
 
 export function HealthCheckers() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [notifications, setNotifications] = useState<Record<string, boolean>>(() => {
+    // Initialize with some default notifications enabled
+    const defaultNotifications: Record<string, boolean> = {};
+    healthChecks.forEach(check => {
+      defaultNotifications[check.id] = check.status === 'critical' || check.status === 'warning';
+    });
+    return defaultNotifications;
+  });
   
   const categories = ['All', 'account', 'sales', 'inventory', 'customers', 'competitors', 'listings'];
   
@@ -578,6 +590,14 @@ export function HealthCheckers() {
     // TODO: Integrate with react workflow creator
   };
 
+  const handleNotificationToggle = (checkId: string, enabled: boolean) => {
+    setNotifications(prev => ({
+      ...prev,
+      [checkId]: enabled
+    }));
+    console.log(`Notification ${enabled ? 'enabled' : 'disabled'} for:`, checkId);
+  };
+
   return (
     <TooltipProvider>
       <div className="space-y-6">
@@ -586,7 +606,8 @@ export function HealthCheckers() {
         
         {/* Header and Category Filters */}
         <div className="space-y-4">
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center">
+            <NotificationSettingsDialog />
             <Badge variant="outline" className="text-xs text-muted-foreground">
               {filteredChecks.length} checkers
             </Badge>
@@ -626,9 +647,34 @@ export function HealthCheckers() {
                   <div className="flex-1 min-w-0 space-y-3">
                     {/* Checker Name */}
                     <div className="space-y-1">
-                      <div className="text-sm font-medium text-foreground">
-                        {check.question}
-                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-medium text-foreground">
+                          {check.question}
+                        </div>
+                        
+                        {/* Notification Toggle */}
+                        <div className="flex items-center gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-2">
+                                {notifications[check.id] ? (
+                                  <Bell className="h-4 w-4 text-primary" />
+                                ) : (
+                                  <BellOff className="h-4 w-4 text-muted-foreground" />
+                                )}
+                                <Switch
+                                  checked={notifications[check.id] || false}
+                                  onCheckedChange={(checked) => handleNotificationToggle(check.id, checked)}
+                                  className="scale-75"
+                                />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{notifications[check.id] ? 'Notifications enabled' : 'Notifications disabled'}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                     </div>
                        <div className="flex items-center gap-2">
                          <span className="text-xs text-muted-foreground">Result:</span>
                          <div className="px-2 py-1 bg-muted/50 rounded text-sm font-semibold text-primary border">
