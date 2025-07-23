@@ -586,8 +586,7 @@ export function HealthCheckers() {
         
         {/* Header and Category Filters */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">Business Health Checkers</h2>
+          <div className="flex justify-end">
             <Badge variant="outline" className="text-xs text-muted-foreground">
               {filteredChecks.length} checkers
             </Badge>
