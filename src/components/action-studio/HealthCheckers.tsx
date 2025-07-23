@@ -647,79 +647,77 @@ export function HealthCheckers() {
                     </div>
                     
                     {/* Checker Details */}
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <div className="flex items-center gap-3 flex-wrap">
-                        {/* Checker Active Status */}
-                        <div className="flex items-center gap-1">
-                          {check.checkerActive ? (
-                            <div className="flex items-center gap-1 text-green-600">
-                              <Play className="h-3 w-3" />
-                              <span className="text-xs">Active</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1 text-muted-foreground">
-                              <Settings className="h-3 w-3" />
-                              <span className="text-xs">Inactive</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Frequency */}
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          <span className="text-xs">{check.frequency}</span>
-                        </div>
-                      </div>
-                      
-                      {/* Action Buttons */}
-                      <div className="flex gap-2">
-                        <Button 
-                          variant={check.checkerWorkflowActive ? "default" : "outline"}
-                          size="sm" 
-                          className={`text-xs h-7 px-3 ${check.checkerWorkflowActive ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
-                          onClick={() => handleCheckerWorkflow(check.id)}
-                        >
-                          <div className="flex items-center gap-1">
-                            {check.checkerWorkflowActive && <CheckCircle className="h-3 w-3" />}
-                            <span>Checker Workflow</span>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {/* Checker Active Status */}
+                      <div className="flex items-center gap-1">
+                        {check.checkerActive ? (
+                          <div className="flex items-center gap-1 text-green-600">
+                            <Play className="h-3 w-3" />
+                            <span className="text-xs">Active</span>
                           </div>
-                        </Button>
-                        
-                        {check.hasReactWorkflow && check.reactWorkflowActive ? (
-                          <Button 
-                            variant="default" 
-                            size="sm" 
-                            className="text-xs h-7 px-3 bg-blue-600 hover:bg-blue-700 text-white"
-                            onClick={() => handleReactWorkflow(check.id)}
-                          >
-                            <div className="flex items-center gap-1">
-                              <CheckCircle className="h-3 w-3" />
-                              <span>React Workflow</span>
-                            </div>
-                          </Button>
-                        ) : check.hasReactWorkflow ? (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="text-xs h-7 px-3"
-                            onClick={() => handleReactWorkflow(check.id)}
-                          >
-                            React Workflow
-                          </Button>
                         ) : (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-xs h-7 px-3 text-muted-foreground border border-dashed border-muted-foreground/30 hover:bg-muted/50 hover:text-foreground"
-                            onClick={() => handleCreateReactWorkflow(check.id)}
-                          >
-                            <div className="flex items-center gap-1">
-                              <Plus className="h-3 w-3" />
-                              <span>Create React Workflow</span>
-                            </div>
-                          </Button>
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <Settings className="h-3 w-3" />
+                            <span className="text-xs">Inactive</span>
+                          </div>
                         )}
                       </div>
+                      
+                      {/* Frequency */}
+                      <div className="flex items-center gap-1 text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span className="text-xs">{check.frequency}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Action Buttons - Bottom Left and Right */}
+                    <div className="flex justify-between items-center mt-3">
+                      <Button 
+                        variant={check.checkerWorkflowActive ? "default" : "outline"}
+                        size="sm" 
+                        className={`text-xs h-7 px-3 ${check.checkerWorkflowActive ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
+                        onClick={() => handleCheckerWorkflow(check.id)}
+                      >
+                        <div className="flex items-center gap-1">
+                          {check.checkerWorkflowActive && <CheckCircle className="h-3 w-3" />}
+                          <span>Checker Workflow</span>
+                        </div>
+                      </Button>
+                      
+                      {check.hasReactWorkflow && check.reactWorkflowActive ? (
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          className="text-xs h-7 px-3 bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={() => handleReactWorkflow(check.id)}
+                        >
+                          <div className="flex items-center gap-1">
+                            <CheckCircle className="h-3 w-3" />
+                            <span>React Workflow</span>
+                          </div>
+                        </Button>
+                      ) : check.hasReactWorkflow ? (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs h-7 px-3"
+                          onClick={() => handleReactWorkflow(check.id)}
+                        >
+                          React Workflow
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-xs h-7 px-3 text-muted-foreground border border-dashed border-muted-foreground/30 hover:bg-muted/50 hover:text-foreground"
+                          onClick={() => handleCreateReactWorkflow(check.id)}
+                        >
+                          <div className="flex items-center gap-1">
+                            <Plus className="h-3 w-3" />
+                            <span>Create React Workflow</span>
+                          </div>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
