@@ -492,11 +492,16 @@ export function HealthCheckers() {
                   </div>
                   
                   <div className="flex-1 min-w-0 space-y-3">
-                    {/* Main Question and Answer */}
-                    <div>
-                      <div className="text-sm text-foreground">
-                        <span className="font-medium">{check.question}</span>
-                        <span className="ml-2 font-semibold text-primary">{check.answer}</span>
+                    {/* Checker Name */}
+                    <div className="space-y-1">
+                      <div className="text-sm font-medium text-foreground">
+                        {check.question}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Result:</span>
+                        <div className="px-2 py-1 bg-muted/50 rounded text-sm font-semibold text-primary border">
+                          {check.answer}
+                        </div>
                       </div>
                     </div>
                     
