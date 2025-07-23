@@ -22,8 +22,8 @@ export default function ActionStudio() {
       <div className="space-y-8 max-w-full overflow-hidden">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-semibold text-foreground">Insights Studio</h1>
-          <p className="text-muted-foreground">Monitor your business and get actionable insights</p>
+          <h1 className="text-2xl font-semibold text-foreground">Action Studio</h1>
+          <p className="text-muted-foreground">Build automated workflows that monitor your business and take action when changes occur</p>
         </div>
 
         {/* Main Content */}
