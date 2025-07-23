@@ -364,40 +364,38 @@ export function HealthCheckers() {
 
   return (
     <div className="space-y-6">
-      {/* Category Filters */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Business Health Checkers
-            </CardTitle>
-            <Badge variant="outline" className="text-xs">
-              {filteredChecks.length} checkers
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className="text-xs"
-              >
-                {categoryLabels[category as keyof typeof categoryLabels]}
-                {category !== 'All' && (
-                  <Badge variant="secondary" className="ml-2 text-xs">
-                    {healthChecks.filter(check => check.category === category).length}
-                  </Badge>
-                )}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Header and Category Filters */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-foreground">Business Health Checkers</h2>
+          <Badge variant="outline" className="text-xs text-muted-foreground">
+            {filteredChecks.length} checkers
+          </Badge>
+        </div>
+        
+        <div className="flex flex-wrap gap-1 border-b border-border">
+          {categories.map((category) => (
+            <Button
+              key={category}
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedCategory(category)}
+              className={`text-sm px-3 py-2 rounded-t-md rounded-b-none border-b-2 transition-colors ${
+                selectedCategory === category 
+                  ? 'border-primary bg-background text-foreground font-medium' 
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              }`}
+            >
+              {categoryLabels[category as keyof typeof categoryLabels]}
+              {category !== 'All' && (
+                <span className="ml-1.5 text-xs opacity-60">
+                  {healthChecks.filter(check => check.category === category).length}
+                </span>
+              )}
+            </Button>
+          ))}
+        </div>
+      </div>
 
       {/* Health Checkers List */}
       <div className="space-y-3">
