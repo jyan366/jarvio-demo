@@ -508,14 +508,6 @@ export function HealthCheckers() {
                     {/* Checker Details */}
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div className="flex items-center gap-3 flex-wrap">
-                        {/* Status Badge */}
-                        <Badge 
-                          variant="outline" 
-                          className={`${getStatusColor(check.status)} text-xs px-2 py-1`}
-                        >
-                          {getStatusIcon(check.status)} {check.status.charAt(0).toUpperCase() + check.status.slice(1)}
-                        </Badge>
-                        
                         {/* Checker Active Status */}
                         <div className="flex items-center gap-1">
                           {check.checkerActive ? (
