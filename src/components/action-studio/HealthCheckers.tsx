@@ -23,7 +23,8 @@ import {
   Clock,
   Play,
   Settings,
-  Filter
+  Filter,
+  Plus
 } from 'lucide-react';
 
 interface HealthCheck {
@@ -35,7 +36,9 @@ interface HealthCheck {
   category: 'account' | 'sales' | 'inventory' | 'listings' | 'customers' | 'competitors';
   checkerActive: boolean;
   frequency: string;
+  checkerWorkflowActive: boolean; // All checkers should have this as true
   hasReactWorkflow?: boolean;
+  reactWorkflowActive?: boolean;
   previousValue?: string;
   lastUpdated?: string;
 }
@@ -51,7 +54,9 @@ const healthChecks: HealthCheck[] = [
     category: 'account',
     checkerActive: true,
     frequency: 'Daily',
+    checkerWorkflowActive: true,
     hasReactWorkflow: true,
+    reactWorkflowActive: true,
     previousValue: 'At Risk',
     lastUpdated: '2 hours ago'
   },
@@ -64,7 +69,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: true,
     frequency: 'Daily',
+    checkerWorkflowActive: true,
     hasReactWorkflow: true,
+    reactWorkflowActive: true,
     previousValue: '$38,200',
     lastUpdated: '6 days ago'
   },
@@ -76,7 +83,8 @@ const healthChecks: HealthCheck[] = [
     icon: TrendingUp,
     category: 'sales',
     checkerActive: true,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'buybox-rate',
@@ -87,7 +95,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: true,
     frequency: 'Hourly',
+    checkerWorkflowActive: true,
     hasReactWorkflow: true,
+    reactWorkflowActive: true,
     previousValue: '78%',
     lastUpdated: '8 days ago'
   },
@@ -99,7 +109,8 @@ const healthChecks: HealthCheck[] = [
     icon: Package,
     category: 'inventory',
     checkerActive: false,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'suppressed-listings',
@@ -109,7 +120,10 @@ const healthChecks: HealthCheck[] = [
     icon: AlertTriangle,
     category: 'listings',
     checkerActive: true,
-    frequency: 'Hourly'
+    frequency: 'Hourly',
+    checkerWorkflowActive: true,
+    hasReactWorkflow: true,
+    reactWorkflowActive: true
   },
   {
     id: 'monthly-sales',
@@ -119,7 +133,8 @@ const healthChecks: HealthCheck[] = [
     icon: DollarSign,
     category: 'sales',
     checkerActive: false,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'avg-order-value',
@@ -129,7 +144,8 @@ const healthChecks: HealthCheck[] = [
     icon: DollarSign,
     category: 'sales',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'buybox-monthly',
@@ -139,7 +155,8 @@ const healthChecks: HealthCheck[] = [
     icon: Trophy,
     category: 'sales',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'sales-trend',
@@ -149,7 +166,8 @@ const healthChecks: HealthCheck[] = [
     icon: TrendingUp,
     category: 'sales',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'top-asins',
@@ -159,7 +177,8 @@ const healthChecks: HealthCheck[] = [
     icon: Target,
     category: 'sales',
     checkerActive: false,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'stockout-forecast',
@@ -169,7 +188,8 @@ const healthChecks: HealthCheck[] = [
     icon: AlertTriangle,
     category: 'inventory',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'restock-needed',
@@ -179,7 +199,8 @@ const healthChecks: HealthCheck[] = [
     icon: Calendar,
     category: 'inventory',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'out-of-stock',
@@ -190,6 +211,7 @@ const healthChecks: HealthCheck[] = [
     category: 'inventory',
     checkerActive: true,
     frequency: 'Hourly',
+    checkerWorkflowActive: true,
     hasReactWorkflow: true
   },
   {
@@ -200,7 +222,8 @@ const healthChecks: HealthCheck[] = [
     icon: Package,
     category: 'inventory',
     checkerActive: false,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'inventory-health',
@@ -211,6 +234,7 @@ const healthChecks: HealthCheck[] = [
     category: 'inventory',
     checkerActive: true,
     frequency: 'Daily',
+    checkerWorkflowActive: true,
     hasReactWorkflow: true
   },
   {
@@ -221,7 +245,8 @@ const healthChecks: HealthCheck[] = [
     icon: Users,
     category: 'customers',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'product-rating',
@@ -231,7 +256,8 @@ const healthChecks: HealthCheck[] = [
     icon: Star,
     category: 'customers',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'buybox-lost',
@@ -241,7 +267,8 @@ const healthChecks: HealthCheck[] = [
     icon: AlertTriangle,
     category: 'competitors',
     checkerActive: true,
-    frequency: 'Hourly'
+    frequency: 'Hourly',
+    checkerWorkflowActive: true
   },
   {
     id: 'price-undercut',
@@ -251,7 +278,8 @@ const healthChecks: HealthCheck[] = [
     icon: DollarSign,
     category: 'competitors',
     checkerActive: true,
-    frequency: 'Hourly'
+    frequency: 'Hourly',
+    checkerWorkflowActive: true
   },
   {
     id: 'top-competitors',
@@ -261,7 +289,8 @@ const healthChecks: HealthCheck[] = [
     icon: Target,
     category: 'competitors',
     checkerActive: false,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'competitor-ads',
@@ -271,7 +300,8 @@ const healthChecks: HealthCheck[] = [
     icon: TrendingUp,
     category: 'competitors',
     checkerActive: true,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'customer-retention',
@@ -281,7 +311,8 @@ const healthChecks: HealthCheck[] = [
     icon: Users,
     category: 'customers',
     checkerActive: true,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'repeat-purchase-rate',
@@ -291,7 +322,8 @@ const healthChecks: HealthCheck[] = [
     icon: Users,
     category: 'customers',
     checkerActive: true,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'customer-lifetime-value',
@@ -301,7 +333,8 @@ const healthChecks: HealthCheck[] = [
     icon: DollarSign,
     category: 'customers',
     checkerActive: false,
-    frequency: 'Monthly'
+    frequency: 'Monthly',
+    checkerWorkflowActive: true
   },
   {
     id: 'negative-reviews',
@@ -311,7 +344,8 @@ const healthChecks: HealthCheck[] = [
     icon: Star,
     category: 'customers',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'customer-service-response',
@@ -321,7 +355,8 @@ const healthChecks: HealthCheck[] = [
     icon: Clock,
     category: 'customers',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'competitor-price-advantage',
@@ -331,7 +366,8 @@ const healthChecks: HealthCheck[] = [
     icon: DollarSign,
     category: 'competitors',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'competitor-new-products',
@@ -341,7 +377,8 @@ const healthChecks: HealthCheck[] = [
     icon: Package,
     category: 'competitors',
     checkerActive: true,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'market-share',
@@ -351,7 +388,8 @@ const healthChecks: HealthCheck[] = [
     icon: Target,
     category: 'competitors',
     checkerActive: false,
-    frequency: 'Monthly'
+    frequency: 'Monthly',
+    checkerWorkflowActive: true
   },
   {
     id: 'missing-content',
@@ -361,7 +399,8 @@ const healthChecks: HealthCheck[] = [
     icon: Type,
     category: 'listings',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'image-quality',
@@ -371,7 +410,8 @@ const healthChecks: HealthCheck[] = [
     icon: Image,
     category: 'listings',
     checkerActive: true,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'keyword-duplication',
@@ -381,7 +421,8 @@ const healthChecks: HealthCheck[] = [
     icon: Search,
     category: 'listings',
     checkerActive: false,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   },
   {
     id: 'title-guidelines',
@@ -391,7 +432,8 @@ const healthChecks: HealthCheck[] = [
     icon: CheckCircle,
     category: 'listings',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    checkerWorkflowActive: true
   },
   {
     id: 'keyword-optimization',
@@ -401,7 +443,8 @@ const healthChecks: HealthCheck[] = [
     icon: Search,
     category: 'listings',
     checkerActive: true,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    checkerWorkflowActive: true
   }
 ];
 
@@ -462,6 +505,11 @@ export function HealthCheckers() {
   const handleReactWorkflow = (checkId: string) => {
     console.log('Building react workflow for:', checkId);
     // TODO: Integrate with react workflow builder
+  };
+
+  const handleCreateReactWorkflow = (checkId: string) => {
+    console.log('Creating react workflow for:', checkId);
+    // TODO: Integrate with react workflow creator
   };
 
   return (
@@ -568,16 +616,32 @@ export function HealthCheckers() {
                       {/* Action Buttons */}
                       <div className="flex gap-2">
                         <Button 
-                          variant="outline" 
+                          variant={check.checkerWorkflowActive ? "default" : "outline"}
                           size="sm" 
-                          className="text-xs h-7 px-3"
+                          className={`text-xs h-7 px-3 ${check.checkerWorkflowActive ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
                           onClick={() => handleCheckerWorkflow(check.id)}
                         >
-                          Checker Workflow
+                          <div className="flex items-center gap-1">
+                            {check.checkerWorkflowActive && <CheckCircle className="h-3 w-3" />}
+                            <span>Checker Workflow</span>
+                          </div>
                         </Button>
-                        {check.hasReactWorkflow ? (
+                        
+                        {check.hasReactWorkflow && check.reactWorkflowActive ? (
                           <Button 
                             variant="default" 
+                            size="sm" 
+                            className="text-xs h-7 px-3 bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={() => handleReactWorkflow(check.id)}
+                          >
+                            <div className="flex items-center gap-1">
+                              <CheckCircle className="h-3 w-3" />
+                              <span>React Workflow</span>
+                            </div>
+                          </Button>
+                        ) : check.hasReactWorkflow ? (
+                          <Button 
+                            variant="outline" 
                             size="sm" 
                             className="text-xs h-7 px-3"
                             onClick={() => handleReactWorkflow(check.id)}
@@ -588,10 +652,13 @@ export function HealthCheckers() {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-xs h-7 px-3 text-muted-foreground cursor-not-allowed opacity-50"
-                            disabled
+                            className="text-xs h-7 px-3 text-muted-foreground border border-dashed border-muted-foreground/30 hover:bg-muted/50 hover:text-foreground"
+                            onClick={() => handleCreateReactWorkflow(check.id)}
                           >
-                            React Workflow
+                            <div className="flex items-center gap-1">
+                              <Plus className="h-3 w-3" />
+                              <span>Create React Workflow</span>
+                            </div>
                           </Button>
                         )}
                       </div>
