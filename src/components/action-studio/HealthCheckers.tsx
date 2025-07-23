@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { RecentChanges } from './RecentChanges';
 import { 
   ShieldCheck, 
   DollarSign, 
@@ -34,6 +36,8 @@ interface HealthCheck {
   checkerActive: boolean;
   frequency: string;
   hasReactWorkflow?: boolean;
+  previousValue?: string;
+  lastUpdated?: string;
 }
 
 const healthChecks: HealthCheck[] = [
@@ -47,7 +51,9 @@ const healthChecks: HealthCheck[] = [
     category: 'account',
     checkerActive: true,
     frequency: 'Daily',
-    hasReactWorkflow: true
+    hasReactWorkflow: true,
+    previousValue: 'At Risk',
+    lastUpdated: '2 hours ago'
   },
   {
     id: 'total-sales',
@@ -58,7 +64,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: true,
     frequency: 'Daily',
-    hasReactWorkflow: true
+    hasReactWorkflow: true,
+    previousValue: '$38,200',
+    lastUpdated: '6 days ago'
   },
   {
     id: 'profit-margin',
@@ -79,7 +87,9 @@ const healthChecks: HealthCheck[] = [
     category: 'sales',
     checkerActive: true,
     frequency: 'Hourly',
-    hasReactWorkflow: true
+    hasReactWorkflow: true,
+    previousValue: '78%',
+    lastUpdated: '8 days ago'
   },
   {
     id: 'active-skus',
@@ -455,39 +465,43 @@ export function HealthCheckers() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header and Category Filters */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground">Business Health Checkers</h2>
-          <Badge variant="outline" className="text-xs text-muted-foreground">
-            {filteredChecks.length} checkers
-          </Badge>
-        </div>
+    <TooltipProvider>
+      <div className="space-y-6">
+        {/* Recent Changes */}
+        <RecentChanges />
         
-        <div className="flex flex-wrap gap-1 border-b border-border">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelectedCategory(category)}
-              className={`text-sm px-3 py-2 rounded-t-md rounded-b-none border-b-2 transition-colors ${
-                selectedCategory === category 
-                  ? 'border-primary bg-background text-foreground font-medium' 
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              }`}
-            >
-              {categoryLabels[category as keyof typeof categoryLabels]}
-              {category !== 'All' && (
-                <span className="ml-1.5 text-xs opacity-60">
-                  {healthChecks.filter(check => check.category === category).length}
-                </span>
-              )}
-            </Button>
-          ))}
+        {/* Header and Category Filters */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-foreground">Business Health Checkers</h2>
+            <Badge variant="outline" className="text-xs text-muted-foreground">
+              {filteredChecks.length} checkers
+            </Badge>
+          </div>
+          
+          <div className="flex flex-wrap gap-1 border-b border-border">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className={`text-sm px-3 py-2 rounded-t-md rounded-b-none border-b-2 transition-colors ${
+                  selectedCategory === category 
+                    ? 'border-primary bg-background text-foreground font-medium' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                {categoryLabels[category as keyof typeof categoryLabels]}
+                {category !== 'All' && (
+                  <span className="ml-1.5 text-xs opacity-60">
+                    {healthChecks.filter(check => check.category === category).length}
+                  </span>
+                )}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
 
       {/* Health Checkers List */}
       <div className="space-y-3">
@@ -502,12 +516,28 @@ export function HealthCheckers() {
                       <div className="text-sm font-medium text-foreground">
                         {check.question}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">Result:</span>
-                        <div className="px-2 py-1 bg-muted/50 rounded text-sm font-semibold text-primary border">
-                          {check.answer}
-                        </div>
-                      </div>
+                       <div className="flex items-center gap-2">
+                         <span className="text-xs text-muted-foreground">Result:</span>
+                         {check.previousValue && check.lastUpdated ? (
+                           <Tooltip>
+                             <TooltipTrigger asChild>
+                               <div className="px-2 py-1 bg-muted/50 rounded text-sm font-semibold text-primary border cursor-help">
+                                 {check.answer}
+                               </div>
+                             </TooltipTrigger>
+                             <TooltipContent>
+                               <div className="text-xs space-y-1">
+                                 <div>Previous: {check.previousValue}</div>
+                                 <div>Updated: {check.lastUpdated}</div>
+                               </div>
+                             </TooltipContent>
+                           </Tooltip>
+                         ) : (
+                           <div className="px-2 py-1 bg-muted/50 rounded text-sm font-semibold text-primary border">
+                             {check.answer}
+                           </div>
+                         )}
+                       </div>
                     </div>
                     
                     {/* Checker Details */}
@@ -582,5 +612,6 @@ export function HealthCheckers() {
         </Card>
       )}
     </div>
+    </TooltipProvider>
   );
 }
