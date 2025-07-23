@@ -30,7 +30,7 @@ interface HealthCheck {
   answer: string;
   status: 'healthy' | 'warning' | 'critical' | 'info';
   icon: React.ComponentType<any>;
-  category: 'account' | 'sales' | 'inventory' | 'performance' | 'listings';
+  category: 'account' | 'sales' | 'inventory' | 'listings' | 'customers' | 'competitors';
   checkerActive: boolean;
   frequency: string;
 }
@@ -73,7 +73,7 @@ const healthChecks: HealthCheck[] = [
     answer: '86%',
     status: 'healthy',
     icon: Trophy,
-    category: 'performance',
+    category: 'sales',
     checkerActive: true,
     frequency: 'Hourly'
   },
@@ -123,7 +123,7 @@ const healthChecks: HealthCheck[] = [
     answer: '84%',
     status: 'healthy',
     icon: Trophy,
-    category: 'performance',
+    category: 'sales',
     checkerActive: true,
     frequency: 'Daily'
   },
@@ -143,7 +143,7 @@ const healthChecks: HealthCheck[] = [
     answer: 'B08X1234, B07ABC12, B09KLM78, B08V999L, B09ZZY01',
     status: 'info',
     icon: Target,
-    category: 'performance',
+    category: 'sales',
     checkerActive: false,
     frequency: 'Weekly'
   },
@@ -203,7 +203,7 @@ const healthChecks: HealthCheck[] = [
     answer: 'Healthy',
     status: 'healthy',
     icon: Users,
-    category: 'performance',
+    category: 'customers',
     checkerActive: true,
     frequency: 'Daily'
   },
@@ -213,7 +213,7 @@ const healthChecks: HealthCheck[] = [
     answer: '4.3 Stars',
     status: 'healthy',
     icon: Star,
-    category: 'performance',
+    category: 'customers',
     checkerActive: true,
     frequency: 'Daily'
   },
@@ -223,7 +223,7 @@ const healthChecks: HealthCheck[] = [
     answer: 'B08X1234, B07MNB88',
     status: 'warning',
     icon: AlertTriangle,
-    category: 'performance',
+    category: 'competitors',
     checkerActive: true,
     frequency: 'Hourly'
   },
@@ -233,7 +233,7 @@ const healthChecks: HealthCheck[] = [
     answer: 'B09ZZY01, B08V999L',
     status: 'warning',
     icon: DollarSign,
-    category: 'performance',
+    category: 'competitors',
     checkerActive: true,
     frequency: 'Hourly'
   },
@@ -243,7 +243,7 @@ const healthChecks: HealthCheck[] = [
     answer: 'BrandA, BrandB, BrandC, BrandD, BrandE',
     status: 'info',
     icon: Target,
-    category: 'performance',
+    category: 'competitors',
     checkerActive: false,
     frequency: 'Weekly'
   },
@@ -253,9 +253,89 @@ const healthChecks: HealthCheck[] = [
     answer: 'Yes',
     status: 'warning',
     icon: TrendingUp,
-    category: 'performance',
+    category: 'competitors',
     checkerActive: true,
     frequency: 'Weekly'
+  },
+  {
+    id: 'customer-retention',
+    question: 'My customer retention rate is:',
+    answer: '78%',
+    status: 'healthy',
+    icon: Users,
+    category: 'customers',
+    checkerActive: true,
+    frequency: 'Weekly'
+  },
+  {
+    id: 'repeat-purchase-rate',
+    question: 'My repeat purchase rate is:',
+    answer: '34%',
+    status: 'healthy',
+    icon: Users,
+    category: 'customers',
+    checkerActive: true,
+    frequency: 'Weekly'
+  },
+  {
+    id: 'customer-lifetime-value',
+    question: 'My average customer lifetime value is:',
+    answer: '$127.50',
+    status: 'info',
+    icon: DollarSign,
+    category: 'customers',
+    checkerActive: false,
+    frequency: 'Monthly'
+  },
+  {
+    id: 'negative-reviews',
+    question: 'I have this many negative reviews in the last 7 days:',
+    answer: '2',
+    status: 'warning',
+    icon: Star,
+    category: 'customers',
+    checkerActive: true,
+    frequency: 'Daily'
+  },
+  {
+    id: 'customer-service-response',
+    question: 'My average customer service response time is:',
+    answer: '4.2 hours',
+    status: 'healthy',
+    icon: Clock,
+    category: 'customers',
+    checkerActive: true,
+    frequency: 'Daily'
+  },
+  {
+    id: 'competitor-price-advantage',
+    question: 'My price advantage over top competitors is:',
+    answer: '-2.3%',
+    status: 'warning',
+    icon: DollarSign,
+    category: 'competitors',
+    checkerActive: true,
+    frequency: 'Daily'
+  },
+  {
+    id: 'competitor-new-products',
+    question: 'New competitor products launched this week:',
+    answer: '7',
+    status: 'info',
+    icon: Package,
+    category: 'competitors',
+    checkerActive: true,
+    frequency: 'Weekly'
+  },
+  {
+    id: 'market-share',
+    question: 'My estimated market share in top categories is:',
+    answer: '12.4%',
+    status: 'info',
+    icon: Target,
+    category: 'competitors',
+    checkerActive: false,
+    frequency: 'Monthly'
   },
   {
     id: 'missing-content',
@@ -344,14 +424,15 @@ const categoryLabels = {
   'account': 'Account Health',
   'sales': 'Sales Performance', 
   'inventory': 'Inventory Management',
-  'performance': 'Performance Metrics',
+  'customers': 'Customer Insights',
+  'competitors': 'Competitor Insights',
   'listings': 'Listing Quality'
 };
 
 export function HealthCheckers() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   
-  const categories = ['All', 'account', 'sales', 'inventory', 'performance', 'listings'];
+  const categories = ['All', 'account', 'sales', 'inventory', 'customers', 'competitors', 'listings'];
   
   const filteredChecks = selectedCategory === 'All' 
     ? healthChecks 
