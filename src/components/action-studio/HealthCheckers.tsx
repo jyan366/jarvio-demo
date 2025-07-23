@@ -566,23 +566,15 @@ export function HealthCheckers() {
                       </div>
                        <div className="flex items-center gap-2">
                          <span className="text-xs text-muted-foreground">Result:</span>
-                         {check.previousValue && check.lastUpdated ? (
-                           <Tooltip>
-                             <TooltipTrigger asChild>
-                               <div className="px-2 py-1 bg-muted/50 rounded text-sm font-semibold text-primary border cursor-help">
-                                 {check.answer}
-                               </div>
-                             </TooltipTrigger>
-                             <TooltipContent>
-                               <div className="text-xs space-y-1">
-                                 <div>Previous: {check.previousValue}</div>
-                                 <div>Updated: {check.lastUpdated}</div>
-                               </div>
-                             </TooltipContent>
-                           </Tooltip>
-                         ) : (
-                           <div className="px-2 py-1 bg-muted/50 rounded text-sm font-semibold text-primary border">
-                             {check.answer}
+                         <div className="px-2 py-1 bg-muted/50 rounded text-sm font-semibold text-primary border">
+                           {check.answer}
+                         </div>
+                         {check.previousValue && check.lastUpdated && (
+                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                             <span>•</span>
+                             <span>Previous: {check.previousValue}</span>
+                             <span>•</span>
+                             <span>Updated: {check.lastUpdated}</span>
                            </div>
                          )}
                        </div>
