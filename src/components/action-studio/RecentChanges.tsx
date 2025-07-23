@@ -107,29 +107,29 @@ export function RecentChanges() {
         </Badge>
       </div>
       
-      <div className="relative overflow-hidden">
-        <div className="flex gap-3 animate-scroll">
-          {[...recentChanges, ...recentChanges].map((change, index) => (
-            <Card key={`${change.id}-${index}`} className="flex-none w-72 p-3 hover:shadow-sm transition-shadow">
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-2">
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <div className="flex gap-4 pb-2 min-w-max">
+          {recentChanges.map((change) => (
+            <Card key={change.id} className="flex-none w-80 p-4 hover:shadow-sm transition-shadow">
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium text-foreground truncate">
+                    <div className="text-sm font-medium text-foreground">
                       {change.checker}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground mt-1">
                       {change.timeAgo}
                     </div>
                   </div>
                   {getChangeIcon(change.changeType)}
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <span className="text-xs px-2 py-1 bg-muted/50 rounded border">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm px-3 py-1.5 bg-muted/50 rounded border">
                     {change.previousValue}
                   </span>
-                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                  <span className={`text-xs px-2 py-1 rounded border font-medium ${getChangeColor(change.changeType)}`}>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  <span className={`text-sm px-3 py-1.5 rounded border font-medium ${getChangeColor(change.changeType)}`}>
                     {change.currentValue}
                   </span>
                 </div>
@@ -138,25 +138,6 @@ export function RecentChanges() {
           ))}
         </div>
       </div>
-      
-      <style>{`
-        @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-100%);
-          }
-        }
-        
-        .animate-scroll {
-          animation: scroll 60s linear infinite;
-        }
-        
-        .animate-scroll:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
     </div>
   );
 }
