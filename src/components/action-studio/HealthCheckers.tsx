@@ -33,6 +33,7 @@ interface HealthCheck {
   category: 'account' | 'sales' | 'inventory' | 'listings' | 'customers' | 'competitors';
   checkerActive: boolean;
   frequency: string;
+  hasReactWorkflow?: boolean;
 }
 
 const healthChecks: HealthCheck[] = [
@@ -45,7 +46,8 @@ const healthChecks: HealthCheck[] = [
     icon: ShieldCheck,
     category: 'account',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    hasReactWorkflow: true
   },
   {
     id: 'total-sales',
@@ -55,7 +57,8 @@ const healthChecks: HealthCheck[] = [
     icon: DollarSign,
     category: 'sales',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    hasReactWorkflow: true
   },
   {
     id: 'profit-margin',
@@ -75,7 +78,8 @@ const healthChecks: HealthCheck[] = [
     icon: Trophy,
     category: 'sales',
     checkerActive: true,
-    frequency: 'Hourly'
+    frequency: 'Hourly',
+    hasReactWorkflow: true
   },
   {
     id: 'active-skus',
@@ -175,7 +179,8 @@ const healthChecks: HealthCheck[] = [
     icon: XCircle,
     category: 'inventory',
     checkerActive: true,
-    frequency: 'Hourly'
+    frequency: 'Hourly',
+    hasReactWorkflow: true
   },
   {
     id: 'slow-moving',
@@ -195,7 +200,8 @@ const healthChecks: HealthCheck[] = [
     icon: CheckCircle,
     category: 'inventory',
     checkerActive: true,
-    frequency: 'Daily'
+    frequency: 'Daily',
+    hasReactWorkflow: true
   },
   {
     id: 'feedback-score',
@@ -438,9 +444,14 @@ export function HealthCheckers() {
     ? healthChecks 
     : healthChecks.filter(check => check.category === selectedCategory);
   
-  const handleBuildWorkflow = (checkId: string) => {
-    console.log('Building workflow for:', checkId);
-    // TODO: Integrate with workflow builder
+  const handleCheckerWorkflow = (checkId: string) => {
+    console.log('Building checker workflow for:', checkId);
+    // TODO: Integrate with checker workflow builder
+  };
+
+  const handleReactWorkflow = (checkId: string) => {
+    console.log('Building react workflow for:', checkId);
+    // TODO: Integrate with react workflow builder
   };
 
   return (
@@ -524,15 +535,36 @@ export function HealthCheckers() {
                         </div>
                       </div>
                       
-                      {/* Action Button */}
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-xs h-7 px-3"
-                        onClick={() => handleBuildWorkflow(check.id)}
-                      >
-                        Build Workflow
-                      </Button>
+                      {/* Action Buttons */}
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs h-7 px-3"
+                          onClick={() => handleCheckerWorkflow(check.id)}
+                        >
+                          Checker Workflow
+                        </Button>
+                        {check.hasReactWorkflow ? (
+                          <Button 
+                            variant="default" 
+                            size="sm" 
+                            className="text-xs h-7 px-3"
+                            onClick={() => handleReactWorkflow(check.id)}
+                          >
+                            React Workflow
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-xs h-7 px-3 text-muted-foreground cursor-not-allowed opacity-50"
+                            disabled
+                          >
+                            React Workflow
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
