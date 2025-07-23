@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
   ShieldCheck, 
   DollarSign, 
@@ -16,7 +17,11 @@ import {
   Image,
   Type,
   CheckCircle,
-  XCircle
+  XCircle,
+  Clock,
+  Play,
+  Settings,
+  Filter
 } from 'lucide-react';
 
 interface HealthCheck {
@@ -26,6 +31,8 @@ interface HealthCheck {
   status: 'healthy' | 'warning' | 'critical' | 'info';
   icon: React.ComponentType<any>;
   category: 'account' | 'sales' | 'inventory' | 'performance' | 'listings';
+  checkerActive: boolean;
+  frequency: string;
 }
 
 const healthChecks: HealthCheck[] = [
@@ -36,7 +43,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'Healthy',
     status: 'healthy',
     icon: ShieldCheck,
-    category: 'account'
+    category: 'account',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'total-sales',
@@ -44,7 +53,9 @@ const healthChecks: HealthCheck[] = [
     answer: '$42,600',
     status: 'healthy',
     icon: DollarSign,
-    category: 'sales'
+    category: 'sales',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'profit-margin',
@@ -52,7 +63,9 @@ const healthChecks: HealthCheck[] = [
     answer: '24%',
     status: 'healthy',
     icon: TrendingUp,
-    category: 'sales'
+    category: 'sales',
+    checkerActive: true,
+    frequency: 'Weekly'
   },
   {
     id: 'buybox-rate',
@@ -60,7 +73,9 @@ const healthChecks: HealthCheck[] = [
     answer: '86%',
     status: 'healthy',
     icon: Trophy,
-    category: 'performance'
+    category: 'performance',
+    checkerActive: true,
+    frequency: 'Hourly'
   },
   {
     id: 'active-skus',
@@ -68,7 +83,9 @@ const healthChecks: HealthCheck[] = [
     answer: '54',
     status: 'info',
     icon: Package,
-    category: 'inventory'
+    category: 'inventory',
+    checkerActive: false,
+    frequency: 'Daily'
   },
   {
     id: 'suppressed-listings',
@@ -76,7 +93,9 @@ const healthChecks: HealthCheck[] = [
     answer: '3',
     status: 'warning',
     icon: AlertTriangle,
-    category: 'listings'
+    category: 'listings',
+    checkerActive: true,
+    frequency: 'Hourly'
   },
   {
     id: 'monthly-sales',
@@ -84,7 +103,9 @@ const healthChecks: HealthCheck[] = [
     answer: '$15,000',
     status: 'info',
     icon: DollarSign,
-    category: 'sales'
+    category: 'sales',
+    checkerActive: false,
+    frequency: 'Daily'
   },
   {
     id: 'avg-order-value',
@@ -92,7 +113,9 @@ const healthChecks: HealthCheck[] = [
     answer: '$27.50',
     status: 'info',
     icon: DollarSign,
-    category: 'sales'
+    category: 'sales',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'buybox-monthly',
@@ -100,7 +123,9 @@ const healthChecks: HealthCheck[] = [
     answer: '84%',
     status: 'healthy',
     icon: Trophy,
-    category: 'performance'
+    category: 'performance',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'sales-trend',
@@ -108,7 +133,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'Increasing',
     status: 'healthy',
     icon: TrendingUp,
-    category: 'sales'
+    category: 'sales',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'top-asins',
@@ -116,7 +143,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'B08X1234, B07ABC12, B09KLM78, B08V999L, B09ZZY01',
     status: 'info',
     icon: Target,
-    category: 'performance'
+    category: 'performance',
+    checkerActive: false,
+    frequency: 'Weekly'
   },
   {
     id: 'stockout-forecast',
@@ -124,7 +153,9 @@ const healthChecks: HealthCheck[] = [
     answer: '3',
     status: 'warning',
     icon: AlertTriangle,
-    category: 'inventory'
+    category: 'inventory',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'restock-needed',
@@ -132,7 +163,9 @@ const healthChecks: HealthCheck[] = [
     answer: '14',
     status: 'info',
     icon: Calendar,
-    category: 'inventory'
+    category: 'inventory',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'out-of-stock',
@@ -140,7 +173,9 @@ const healthChecks: HealthCheck[] = [
     answer: '6',
     status: 'critical',
     icon: XCircle,
-    category: 'inventory'
+    category: 'inventory',
+    checkerActive: true,
+    frequency: 'Hourly'
   },
   {
     id: 'slow-moving',
@@ -148,7 +183,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'B08CDE23, B098YHJ4, B07MNB88',
     status: 'warning',
     icon: Package,
-    category: 'inventory'
+    category: 'inventory',
+    checkerActive: false,
+    frequency: 'Weekly'
   },
   {
     id: 'inventory-health',
@@ -156,7 +193,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'Balanced',
     status: 'healthy',
     icon: CheckCircle,
-    category: 'inventory'
+    category: 'inventory',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'feedback-score',
@@ -164,7 +203,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'Healthy',
     status: 'healthy',
     icon: Users,
-    category: 'performance'
+    category: 'performance',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'product-rating',
@@ -172,7 +213,9 @@ const healthChecks: HealthCheck[] = [
     answer: '4.3 Stars',
     status: 'healthy',
     icon: Star,
-    category: 'performance'
+    category: 'performance',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'buybox-lost',
@@ -180,7 +223,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'B08X1234, B07MNB88',
     status: 'warning',
     icon: AlertTriangle,
-    category: 'performance'
+    category: 'performance',
+    checkerActive: true,
+    frequency: 'Hourly'
   },
   {
     id: 'price-undercut',
@@ -188,7 +233,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'B09ZZY01, B08V999L',
     status: 'warning',
     icon: DollarSign,
-    category: 'performance'
+    category: 'performance',
+    checkerActive: true,
+    frequency: 'Hourly'
   },
   {
     id: 'top-competitors',
@@ -196,7 +243,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'BrandA, BrandB, BrandC, BrandD, BrandE',
     status: 'info',
     icon: Target,
-    category: 'performance'
+    category: 'performance',
+    checkerActive: false,
+    frequency: 'Weekly'
   },
   {
     id: 'competitor-ads',
@@ -204,7 +253,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'Yes',
     status: 'warning',
     icon: TrendingUp,
-    category: 'performance'
+    category: 'performance',
+    checkerActive: true,
+    frequency: 'Weekly'
   },
   {
     id: 'missing-content',
@@ -212,7 +263,9 @@ const healthChecks: HealthCheck[] = [
     answer: '6',
     status: 'warning',
     icon: Type,
-    category: 'listings'
+    category: 'listings',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'image-quality',
@@ -220,7 +273,9 @@ const healthChecks: HealthCheck[] = [
     answer: '92%',
     status: 'healthy',
     icon: Image,
-    category: 'listings'
+    category: 'listings',
+    checkerActive: true,
+    frequency: 'Weekly'
   },
   {
     id: 'keyword-duplication',
@@ -228,7 +283,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'B08CDE23, B09ZZY01, B07ABC12',
     status: 'warning',
     icon: Search,
-    category: 'listings'
+    category: 'listings',
+    checkerActive: false,
+    frequency: 'Weekly'
   },
   {
     id: 'title-guidelines',
@@ -236,7 +293,9 @@ const healthChecks: HealthCheck[] = [
     answer: 'Yes',
     status: 'healthy',
     icon: CheckCircle,
-    category: 'listings'
+    category: 'listings',
+    checkerActive: true,
+    frequency: 'Daily'
   },
   {
     id: 'keyword-optimization',
@@ -244,7 +303,9 @@ const healthChecks: HealthCheck[] = [
     answer: '68%',
     status: 'warning',
     icon: Search,
-    category: 'listings'
+    category: 'listings',
+    checkerActive: true,
+    frequency: 'Weekly'
   }
 ];
 
@@ -279,62 +340,145 @@ const getStatusIcon = (status: string) => {
 };
 
 const categoryLabels = {
-  account: 'Account Health',
-  sales: 'Sales Performance',
-  inventory: 'Inventory Management',
-  performance: 'Performance Metrics',
-  listings: 'Listing Quality'
+  'All': 'All Checkers',
+  'account': 'Account Health',
+  'sales': 'Sales Performance', 
+  'inventory': 'Inventory Management',
+  'performance': 'Performance Metrics',
+  'listings': 'Listing Quality'
 };
 
 export function HealthCheckers() {
-  const categories = Object.keys(categoryLabels) as Array<keyof typeof categoryLabels>;
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  
+  const categories = ['All', 'account', 'sales', 'inventory', 'performance', 'listings'];
+  
+  const filteredChecks = selectedCategory === 'All' 
+    ? healthChecks 
+    : healthChecks.filter(check => check.category === selectedCategory);
+  
+  const handleBuildWorkflow = (checkId: string) => {
+    console.log('Building workflow for:', checkId);
+    // TODO: Integrate with workflow builder
+  };
 
   return (
-    <div className="space-y-8">
-      {categories.map((category) => {
-        const categoryChecks = healthChecks.filter(check => check.category === category);
-        
-        return (
-          <Card key={category} className="w-full">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold text-foreground">
-                {categoryLabels[category]}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {categoryChecks.map((check) => {
-                  const IconComponent = check.icon;
+    <div className="space-y-6">
+      {/* Category Filters */}
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Business Health Checkers
+            </CardTitle>
+            <Badge variant="outline" className="text-xs">
+              {filteredChecks.length} checkers
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className="text-xs"
+              >
+                {categoryLabels[category as keyof typeof categoryLabels]}
+                {category !== 'All' && (
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    {healthChecks.filter(check => check.category === category).length}
+                  </Badge>
+                )}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Health Checkers List */}
+      <div className="space-y-3">
+        {filteredChecks.map((check) => {
+          const IconComponent = check.icon;
+          
+          return (
+            <Card key={check.id} className="hover:shadow-sm transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-1">
+                    <IconComponent className="h-4 w-4 text-muted-foreground" />
+                  </div>
                   
-                  return (
-                    <div key={check.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-                      <div className="flex-shrink-0">
-                        <IconComponent className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1 min-w-0 space-y-3">
+                    {/* Main Question and Answer */}
+                    <div>
+                      <div className="text-sm text-foreground">
+                        <span className="font-medium">{check.question}</span>
+                        <span className="ml-2 font-semibold text-primary">{check.answer}</span>
                       </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-foreground">
-                          <span className="font-medium">{check.question}</span>
-                          <span className="ml-2 font-semibold text-primary">{check.answer}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex-shrink-0">
+                    </div>
+                    
+                    {/* Checker Details */}
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        {/* Status Badge */}
                         <Badge 
                           variant="outline" 
                           className={`${getStatusColor(check.status)} text-xs px-2 py-1`}
                         >
-                          {getStatusIcon(check.status)}
+                          {getStatusIcon(check.status)} {check.status.charAt(0).toUpperCase() + check.status.slice(1)}
                         </Badge>
+                        
+                        {/* Checker Active Status */}
+                        <div className="flex items-center gap-1">
+                          {check.checkerActive ? (
+                            <div className="flex items-center gap-1 text-green-600">
+                              <Play className="h-3 w-3" />
+                              <span className="text-xs">Active</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <Settings className="h-3 w-3" />
+                              <span className="text-xs">Inactive</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Frequency */}
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          <span className="text-xs">{check.frequency}</span>
+                        </div>
                       </div>
+                      
+                      {/* Action Button */}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-xs h-7 px-3"
+                        onClick={() => handleBuildWorkflow(check.id)}
+                      >
+                        Build Workflow
+                      </Button>
                     </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+      
+      {filteredChecks.length === 0 && (
+        <Card className="p-8">
+          <div className="text-center text-muted-foreground">
+            No checkers found for the selected category
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
