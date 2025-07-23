@@ -481,16 +481,10 @@ export function HealthCheckers() {
       {/* Health Checkers List */}
       <div className="space-y-3">
         {filteredChecks.map((check) => {
-          const IconComponent = check.icon;
-          
           return (
             <Card key={check.id} className="hover:shadow-sm transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 mt-1">
-                    <IconComponent className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  
                   <div className="flex-1 min-w-0 space-y-3">
                     {/* Checker Name */}
                     <div className="space-y-1">
