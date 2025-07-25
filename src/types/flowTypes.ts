@@ -3,6 +3,7 @@ export interface FlowStep {
   id: string;
   title: string;
   description?: string;
+  useDescription?: boolean; // Toggle between description and AI instructions
   completed?: boolean;
   order: number;
   blockId?: string; // Links step to a specific block

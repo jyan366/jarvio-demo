@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { X, Database, Brain, Zap, User } from 'lucide-react';
@@ -152,14 +153,29 @@ export function NodeConfigPanel({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="step-description">Description</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="step-description">AI Instructions</Label>
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-muted-foreground">Use Description</Label>
+                <Switch
+                  checked={localStep.useDescription || false}
+                  onCheckedChange={(checked) => handleStepChange('useDescription', checked)}
+                />
+              </div>
+            </div>
             <Textarea
               id="step-description"
               value={localStep.description || ''}
               onChange={(e) => handleStepChange('description', e.target.value)}
-              placeholder="Enter step description"
+              placeholder={localStep.useDescription ? "Enter step description" : "Enter AI instructions for this step"}
               rows={3}
             />
+            <p className="text-xs text-muted-foreground">
+              {localStep.useDescription 
+                ? "Using this as step description for documentation"
+                : "Using this as AI instructions for execution"
+              }
+            </p>
           </div>
         </div>
 

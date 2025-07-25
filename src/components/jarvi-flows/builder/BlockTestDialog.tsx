@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { FlowBlock, FlowStep } from '@/types/flowTypes';
 import { Database, Brain, Zap, User, Play, Loader2, AlertCircle, Settings, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +38,8 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps, stepExecu
   const [blockConfig, setBlockConfig] = useState<any>(null);
   const [previousStepData, setPreviousStepData] = useState<Record<string, any>>({});
   const [availableFields, setAvailableFields] = useState<Record<string, string[]>>({});
+  const [selectedSourceStepId, setSelectedSourceStepId] = useState<string | null>(null);
+  const [useAiInstructions, setUseAiInstructions] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -298,6 +302,12 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps, stepExecu
     return previousSteps.filter(prevStep => 
       !stepExecutionResults.some(result => result.stepId === prevStep.id)
     );
+  };
+
+  // Get all previous steps for selection
+  const getAllPreviousSteps = () => {
+    const currentIndex = getCurrentStepIndex();
+    return steps.slice(0, currentIndex);
   };
 
   const generateMockOutput = () => {
@@ -719,11 +729,6 @@ Please execute the previous steps first to maintain the data flow chain.`);
     }
   };
 
-  // Get all previous steps for UI display
-  const getAllPreviousSteps = () => {
-    const currentIndex = getCurrentStepIndex();
-    return steps.slice(0, currentIndex);
-  };
 
   // Show immediate previous step result only
   const getImmediatePreviousStepForDisplay = () => {
@@ -742,7 +747,7 @@ Please execute the previous steps first to maintain the data flow chain.`);
         </DialogHeader>
         
         <div className="flex gap-4 flex-1 min-h-0">
-          {/* Left Panel - Previous Step Output (Only Immediate Previous) */}
+          {/* Left Panel - Previous Step Output (Selectable) */}
           <Card className="w-1/3 flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
@@ -752,71 +757,104 @@ Please execute the previous steps first to maintain the data flow chain.`);
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
               <div className="space-y-3 mb-4">
-                {/* Show only immediate previous step result */}
-                 {hasImmediatePreviousStepExecuted() && getImmediatePreviousStepResult() ? (
-                  <div className="space-y-4 max-h-[500px] overflow-y-auto">
-                    <div className="text-sm font-medium text-green-600">✅ Previous Step Data Available</div>
-                    {(() => {
-                      const executionResult = getImmediatePreviousStepResult();
-                      if (!executionResult) return null;
-                      
-                      return (
-                        <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
-                          <div className="font-medium text-sm mb-2">
-                            Step {getCurrentStepIndex()}: {executionResult.stepTitle}
-                          </div>
-                          <div className="text-xs bg-background p-2 rounded border">
-                            <pre className="whitespace-pre-wrap">{JSON.stringify(executionResult.data, null, 2)}</pre>
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Executed: {new Date(executionResult.executedAt).toLocaleString()}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
+                {getCurrentStepIndex() === 0 ? (
+                  <p className="text-sm text-gray-600">
+                    This is the first step - no previous step data needed.
+                  </p>
                 ) : (
                   <>
-                    <p className="text-sm text-gray-600">
-                      {getCurrentStepIndex() === 0 
-                        ? "This is the first step - no previous step data needed."
-                        : `Execute Step ${getCurrentStepIndex()} first to generate data for auto-population.`
+                    {/* Step Selection Dropdown */}
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium">Select Source Step</Label>
+                      <Select
+                        value={selectedSourceStepId || ''}
+                        onValueChange={setSelectedSourceStepId}
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Choose a previous step" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getAllPreviousSteps().map((prevStep, index) => {
+                            const stepNumber = index + 1;
+                            const isExecuted = stepExecutionResults.some(result => result.stepId === prevStep.id);
+                            return (
+                              <SelectItem key={prevStep.id} value={prevStep.id}>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs">Step {stepNumber}:</span>
+                                  <span className="text-sm">{prevStep.title || 'Untitled Step'}</span>
+                                  {isExecuted ? (
+                                    <span className="text-green-600 text-xs">✅</span>
+                                  ) : (
+                                    <span className="text-orange-600 text-xs">⏳</span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Selected Step Data Display */}
+                    {selectedSourceStepId && (() => {
+                      const selectedResult = stepExecutionResults.find(result => result.stepId === selectedSourceStepId);
+                      const selectedStep = steps.find(s => s.id === selectedSourceStepId);
+                      const stepNumber = steps.findIndex(s => s.id === selectedSourceStepId) + 1;
+                      
+                      if (selectedResult) {
+                        return (
+                          <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                            <div className="text-sm font-medium text-green-600">✅ Step Data Available</div>
+                            <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                              <div className="font-medium text-sm mb-2">
+                                Step {stepNumber}: {selectedResult.stepTitle}
+                              </div>
+                              <div className="text-xs bg-background p-2 rounded border">
+                                <pre className="whitespace-pre-wrap">{JSON.stringify(selectedResult.data, null, 2)}</pre>
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Executed: {new Date(selectedResult.executedAt).toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <AlertCircle className="w-4 h-4 text-orange-600" />
+                              <span className="text-sm font-medium text-orange-700">
+                                Step Not Executed
+                              </span>
+                            </div>
+                            <p className="text-xs text-orange-600 mb-2">
+                              Step {stepNumber} must be executed to access its data.
+                            </p>
+                            <div className="text-xs font-medium text-orange-700">
+                              Step: {selectedStep?.title || `Step ${stepNumber}`}
+                            </div>
+                            <Button
+                              onClick={handleExecutePreviousStep}
+                              disabled={isExecuting}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-8 mt-3"
+                              size="sm"
+                            >
+                              {isExecuting ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                  Executing...
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="w-3 h-3 mr-2" />
+                                  Execute Step {stepNumber}
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        );
                       }
-                    </p>
-                    {getCurrentStepIndex() > 0 && !hasImmediatePreviousStepExecuted() && (
-                      <div className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <AlertCircle className="w-4 h-4 text-orange-600" />
-                          <span className="text-sm font-medium text-orange-700">
-                            Missing Previous Step
-                          </span>
-                        </div>
-                        <p className="text-xs text-orange-600 mb-2">
-                          Step {getCurrentStepIndex()} must be executed before Step {getCurrentStepIndex() + 1}.
-                        </p>
-                        <div className="text-xs font-medium text-orange-700">
-                          Required: {getImmediatePreviousStep()?.title || `Step ${getCurrentStepIndex()}`}
-                        </div>
-                        <Button
-                          onClick={handleExecutePreviousStep}
-                          disabled={isExecuting}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white h-8 mt-3"
-                          size="sm"
-                        >
-                          {isExecuting ? (
-                            <>
-                              <Loader2 className="w-3 h-3 mr-2 animate-spin" />
-                              Executing...
-                            </>
-                          ) : (
-                            <>
-                              <Play className="w-3 h-3 mr-2" />
-                              Execute Step {getCurrentStepIndex()}
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
+                    })()}
                   </>
                 )}
               </div>
