@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { FlowBlock, FlowStep } from '@/types/flowTypes';
 import { Database, Brain, Zap, User, Play, Loader2, AlertCircle, Settings, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -38,7 +39,7 @@ export function BlockTestDialog({ block, step, isOpen, onClose, steps, stepExecu
   const [blockConfig, setBlockConfig] = useState<any>(null);
   const [previousStepData, setPreviousStepData] = useState<Record<string, any>>({});
   const [availableFields, setAvailableFields] = useState<Record<string, string[]>>({});
-  const [selectedSourceStepId, setSelectedSourceStepId] = useState<string | null>(null);
+  const [selectedSourceStepIds, setSelectedSourceStepIds] = useState<string[]>([]);
   const [useAiInstructions, setUseAiInstructions] = useState(false);
   const { toast } = useToast();
 
@@ -763,98 +764,117 @@ Please execute the previous steps first to maintain the data flow chain.`);
                   </p>
                 ) : (
                   <>
-                    {/* Step Selection Dropdown */}
+                    {/* Multiple Step Selection */}
                     <div className="space-y-2">
-                      <Label className="text-xs font-medium">Select Source Step</Label>
-                      <Select
-                        value={selectedSourceStepId || ''}
-                        onValueChange={setSelectedSourceStepId}
-                      >
-                        <SelectTrigger className="h-8 text-sm">
-                          <SelectValue placeholder="Choose a previous step" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {getAllPreviousSteps().map((prevStep, index) => {
-                            const stepNumber = index + 1;
-                            const isExecuted = stepExecutionResults.some(result => result.stepId === prevStep.id);
-                            return (
-                              <SelectItem key={prevStep.id} value={prevStep.id}>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs">Step {stepNumber}:</span>
-                                  <span className="text-sm">{prevStep.title || 'Untitled Step'}</span>
-                                  {isExecuted ? (
-                                    <span className="text-green-600 text-xs">✅</span>
-                                  ) : (
-                                    <span className="text-orange-600 text-xs">⏳</span>
-                                  )}
+                      <Label className="text-xs font-medium">Select Source Steps</Label>
+                      <div className="bg-background border rounded-lg p-3 max-h-[300px] overflow-y-auto">
+                        {getAllPreviousSteps().length === 0 ? (
+                          <p className="text-xs text-muted-foreground">No previous steps available</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {getAllPreviousSteps().map((prevStep, index) => {
+                              const stepNumber = index + 1;
+                              const isExecuted = stepExecutionResults.some(result => result.stepId === prevStep.id);
+                              const isSelected = selectedSourceStepIds.includes(prevStep.id);
+                              
+                              return (
+                                <div key={prevStep.id} className="flex items-center gap-3 p-2 hover:bg-muted rounded">
+                                  <Checkbox
+                                    checked={isSelected}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        setSelectedSourceStepIds(prev => [...prev, prevStep.id]);
+                                      } else {
+                                        setSelectedSourceStepIds(prev => prev.filter(id => id !== prevStep.id));
+                                      }
+                                    }}
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs font-medium">Step {stepNumber}:</span>
+                                      <span className="text-sm truncate">{prevStep.title || 'Untitled Step'}</span>
+                                      {isExecuted ? (
+                                        <span className="text-green-600 text-xs">✅</span>
+                                      ) : (
+                                        <span className="text-orange-600 text-xs">⏳</span>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {selectedSourceStepIds.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          {selectedSourceStepIds.length} step{selectedSourceStepIds.length === 1 ? '' : 's'} selected
+                        </div>
+                      )}
                     </div>
 
-                    {/* Selected Step Data Display */}
-                    {selectedSourceStepId && (() => {
-                      const selectedResult = stepExecutionResults.find(result => result.stepId === selectedSourceStepId);
-                      const selectedStep = steps.find(s => s.id === selectedSourceStepId);
-                      const stepNumber = steps.findIndex(s => s.id === selectedSourceStepId) + 1;
-                      
-                      if (selectedResult) {
-                        return (
-                          <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                            <div className="text-sm font-medium text-green-600">✅ Step Data Available</div>
-                            <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
-                              <div className="font-medium text-sm mb-2">
-                                Step {stepNumber}: {selectedResult.stepTitle}
+                    {/* Selected Steps Data Display */}
+                    {selectedSourceStepIds.length > 0 && (
+                      <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                        <div className="text-sm font-medium text-blue-600">
+                          📊 Selected Steps Data ({selectedSourceStepIds.length})
+                        </div>
+                        {selectedSourceStepIds.map(stepId => {
+                          const selectedResult = stepExecutionResults.find(result => result.stepId === stepId);
+                          const selectedStep = steps.find(s => s.id === stepId);
+                          const stepNumber = steps.findIndex(s => s.id === stepId) + 1;
+                          
+                          if (selectedResult) {
+                            return (
+                              <div key={stepId} className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                                <div className="font-medium text-sm mb-2">
+                                  Step {stepNumber}: {selectedResult.stepTitle}
+                                </div>
+                                <div className="text-xs bg-background p-2 rounded border max-h-[100px] overflow-y-auto">
+                                  <pre className="whitespace-pre-wrap">{JSON.stringify(selectedResult.data, null, 2)}</pre>
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  Executed: {new Date(selectedResult.executedAt).toLocaleString()}
+                                </div>
                               </div>
-                              <div className="text-xs bg-background p-2 rounded border">
-                                <pre className="whitespace-pre-wrap">{JSON.stringify(selectedResult.data, null, 2)}</pre>
+                            );
+                          } else {
+                            return (
+                              <div key={stepId} className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <AlertCircle className="w-4 h-4 text-orange-600" />
+                                  <span className="text-sm font-medium text-orange-700">
+                                    Step {stepNumber} Not Executed
+                                  </span>
+                                </div>
+                                <div className="text-xs font-medium text-orange-700 mb-2">
+                                  {selectedStep?.title || `Step ${stepNumber}`}
+                                </div>
+                                <Button
+                                  onClick={handleExecutePreviousStep}
+                                  disabled={isExecuting}
+                                  className="w-full bg-blue-600 hover:bg-blue-700 text-white h-7"
+                                  size="sm"
+                                >
+                                  {isExecuting ? (
+                                    <>
+                                      <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                      Executing...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Play className="w-3 h-3 mr-2" />
+                                      Execute Step {stepNumber}
+                                    </>
+                                  )}
+                                </Button>
                               </div>
-                              <div className="text-xs text-muted-foreground mt-1">
-                                Executed: {new Date(selectedResult.executedAt).toLocaleString()}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
-                            <div className="flex items-center gap-2 mb-2">
-                              <AlertCircle className="w-4 h-4 text-orange-600" />
-                              <span className="text-sm font-medium text-orange-700">
-                                Step Not Executed
-                              </span>
-                            </div>
-                            <p className="text-xs text-orange-600 mb-2">
-                              Step {stepNumber} must be executed to access its data.
-                            </p>
-                            <div className="text-xs font-medium text-orange-700">
-                              Step: {selectedStep?.title || `Step ${stepNumber}`}
-                            </div>
-                            <Button
-                              onClick={handleExecutePreviousStep}
-                              disabled={isExecuting}
-                              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-8 mt-3"
-                              size="sm"
-                            >
-                              {isExecuting ? (
-                                <>
-                                  <Loader2 className="w-3 h-3 mr-2 animate-spin" />
-                                  Executing...
-                                </>
-                              ) : (
-                                <>
-                                  <Play className="w-3 h-3 mr-2" />
-                                  Execute Step {stepNumber}
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        );
-                      }
-                    })()}
+                            );
+                          }
+                        })}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
