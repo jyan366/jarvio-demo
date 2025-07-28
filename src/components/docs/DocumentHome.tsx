@@ -117,7 +117,7 @@ export function DocumentHome({
 
         {/* Recent Documents */}
         {recentDocuments.length > 0 && (
-          <section>
+          <section id="recent">
             <h2 className="text-lg font-medium text-foreground mb-4">Recent</h2>
             <DocumentGrid
               documents={recentDocuments}
@@ -130,12 +130,14 @@ export function DocumentHome({
 
         {/* Enhanced Workflow Outputs Section */}
         {outputDocuments.length > 0 && (
-          <FlowOutputsSection
-            documents={outputDocuments}
-            onSelectDocument={onSelectDocument}
-            onDeleteDocument={onDeleteDocument}
-            onViewFlow={onViewFlow}
-          />
+          <div id="outputs">
+            <FlowOutputsSection
+              documents={outputDocuments}
+              onSelectDocument={onSelectDocument}
+              onDeleteDocument={onDeleteDocument}
+              onViewFlow={onViewFlow}
+            />
+          </div>
         )}
 
         {/* Other Categories */}
