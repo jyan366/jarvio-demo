@@ -213,10 +213,28 @@ export function TiptapEditor({ document, onSave, isSaving, lastSaved }: TiptapEd
         <div className="max-w-4xl mx-auto">
           <EditorToolbar editor={editor} />
           
-          <div className="prose prose-stone dark:prose-invert max-w-none min-h-[500px]">
+          <div className="prose prose-sm max-w-none min-h-[500px]">
             <EditorContent 
               editor={editor} 
-              className="outline-none focus:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[500px] [&_.ProseMirror]:p-4 [&_.ProseMirror]:border [&_.ProseMirror]:border-border [&_.ProseMirror]:rounded-lg [&_.ProseMirror]:bg-background"
+              className="outline-none focus:outline-none 
+                [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[500px] [&_.ProseMirror]:p-4 [&_.ProseMirror]:border [&_.ProseMirror]:border-border [&_.ProseMirror]:rounded-lg [&_.ProseMirror]:bg-background
+                [&_.ProseMirror_h1]:text-xl [&_.ProseMirror_h1]:font-bold [&_.ProseMirror_h1]:mt-4 [&_.ProseMirror_h1]:mb-2 [&_.ProseMirror_h1]:text-gray-900
+                [&_.ProseMirror_h2]:text-lg [&_.ProseMirror_h2]:font-bold [&_.ProseMirror_h2]:mt-3 [&_.ProseMirror_h2]:mb-2 [&_.ProseMirror_h2]:text-gray-900
+                [&_.ProseMirror_h3]:text-md [&_.ProseMirror_h3]:font-bold [&_.ProseMirror_h3]:mt-3 [&_.ProseMirror_h3]:mb-1 [&_.ProseMirror_h3]:text-gray-900
+                [&_.ProseMirror_p]:my-2 [&_.ProseMirror_p]:text-gray-700 [&_.ProseMirror_p]:leading-relaxed
+                [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.ProseMirror_ul]:space-y-1 [&_.ProseMirror_ul]:my-2
+                [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_ol]:space-y-1 [&_.ProseMirror_ol]:my-2
+                [&_.ProseMirror_li]:text-gray-700
+                [&_.ProseMirror_code]:px-1 [&_.ProseMirror_code]:py-0.5 [&_.ProseMirror_code]:rounded [&_.ProseMirror_code]:bg-gray-100 [&_.ProseMirror_code]:text-sm [&_.ProseMirror_code]:font-mono [&_.ProseMirror_code]:text-gray-800
+                [&_.ProseMirror_blockquote]:pl-4 [&_.ProseMirror_blockquote]:border-l-4 [&_.ProseMirror_blockquote]:border-gray-200 [&_.ProseMirror_blockquote]:text-gray-700 [&_.ProseMirror_blockquote]:italic [&_.ProseMirror_blockquote]:my-3
+                [&_.ProseMirror_table]:min-w-full [&_.ProseMirror_table]:divide-y [&_.ProseMirror_table]:divide-gray-200 [&_.ProseMirror_table]:border [&_.ProseMirror_table]:my-4
+                [&_.ProseMirror_thead]:bg-gray-50
+                [&_.ProseMirror_tbody]:divide-y [&_.ProseMirror_tbody]:divide-gray-200 [&_.ProseMirror_tbody]:bg-white
+                [&_.ProseMirror_th]:px-3 [&_.ProseMirror_th]:py-2 [&_.ProseMirror_th]:border [&_.ProseMirror_th]:text-sm [&_.ProseMirror_th]:font-medium [&_.ProseMirror_th]:text-gray-700 [&_.ProseMirror_th]:bg-gray-50
+                [&_.ProseMirror_td]:px-3 [&_.ProseMirror_td]:py-2 [&_.ProseMirror_td]:border [&_.ProseMirror_td]:text-sm
+                [&_.ProseMirror_tr:nth-child(even)]:bg-gray-50
+                [&_.ProseMirror_strong]:font-bold [&_.ProseMirror_strong]:text-gray-900
+                [&_.ProseMirror_em]:italic"
             />
           </div>
         </div>
