@@ -125,7 +125,8 @@ export default function MyDocs() {
                   onDeleteDocument={handleDeleteDocument}
                   onSearchDocuments={searchDocuments}
                   onViewFlow={(flowId) => {
-                    // Stay in docs context, could open flow details in a modal or navigate within docs
+                    // This could open a flow details modal or navigate to flow builder
+                    // For now, we'll keep it simple and just log
                     console.log('View flow:', flowId);
                   }}
                 />
