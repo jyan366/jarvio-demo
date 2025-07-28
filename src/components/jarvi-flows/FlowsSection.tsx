@@ -28,9 +28,10 @@ export function FlowsSection({
   
   const handleRunAllFlows = async () => {
     const manualFlows = flows.filter(flow => flow.trigger === 'manual');
-    // Run all manual flows - for now just call onRunFlow for each
+    // Demo: Just simulate running each flow
     for (const flow of manualFlows) {
-      await onRunFlow(flow.id);
+      onRunFlow(flow.id);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Small delay between flows
     }
   };
 

@@ -55,34 +55,29 @@ export default function JarviFlows() {
     navigate(`/jarvi-flows/builder/${flowId}`);
   };
 
-  // Function to handle running a flow - updated to use unified tasks
+  // Function to handle running a flow - demo simulation only
   const handleRunFlow = async (flowId: string) => {
-    try {
-      setIsRunningFlow(true);
-      setRunningFlowId(flowId);
-      const flowToRun = flows.find(flow => flow.id === flowId);
-      if (!flowToRun) {
-        throw new Error('Flow not found');
-      }
-      toast({
-        title: "Starting flow",
-        description: "Creating unified task from flow steps..."
-      });
+    setIsRunningFlow(true);
+    setRunningFlowId(flowId);
+    
+    const flowToRun = flows.find(flow => flow.id === flowId);
+    const flowName = flowToRun?.name || 'Flow';
+    
+    toast({
+      title: "Running flow",
+      description: `${flowName} is running in the background...`
+    });
 
-      // Since the flow is already a unified task, just navigate to it
-      navigate(`/task/${flowId}`);
-    } catch (error) {
-      console.error('Error running flow:', error);
-      toast({
-        title: "Error starting flow",
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
-        variant: "destructive"
-      });
-
-      // Reset running state on error
+    // Demo: Simulate flow execution with timeout
+    setTimeout(() => {
       setIsRunningFlow(false);
       setRunningFlowId(null);
-    }
+      
+      toast({
+        title: "Flow completed",
+        description: `${flowName} finished successfully!`
+      });
+    }, 3000); // 3 second demo run
   };
 
   // Function to handle deleting a flow
