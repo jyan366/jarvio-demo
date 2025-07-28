@@ -66,10 +66,24 @@ export default function MyDocs() {
   };
 
   const handleCategoryClick = (categoryId: string) => {
-    const element = document.getElementById(categoryId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setActiveSection(categoryId);
+    // If we're viewing a document, first go back to home
+    if (!showHome) {
+      setShowHome(true);
+      // Use setTimeout to ensure DOM has updated before scrolling
+      setTimeout(() => {
+        const element = document.getElementById(categoryId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setActiveSection(categoryId);
+        }
+      }, 100);
+    } else {
+      // We're already on home, just scroll to category
+      const element = document.getElementById(categoryId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setActiveSection(categoryId);
+      }
     }
     setSidebarOpen(false); // Close mobile sidebar after click
   };
