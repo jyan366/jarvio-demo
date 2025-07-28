@@ -140,7 +140,7 @@ export function FlowsGrid({
           <Button 
             onClick={onRunAllFlows}
             disabled={isRunningFlow}
-            className="gap-2"
+            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <PlayCircle className="h-4 w-4" />
             Run All Manual Flows ({manualFlows.length})
@@ -241,7 +241,7 @@ export function FlowsGrid({
                       size="sm" 
                       onClick={() => handleRunFlow(flow.id)} 
                       disabled={isCurrentFlowRunning}
-                      className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : ""}
+                      className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : "bg-primary text-primary-foreground hover:bg-primary/90"}
                     >
                       {isCurrentFlowRunning ? (
                         <>
