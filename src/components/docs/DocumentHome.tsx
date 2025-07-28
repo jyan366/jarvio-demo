@@ -15,6 +15,7 @@ interface DocumentHomeProps {
   onDeleteDocument: (id: string) => void;
   onSearchDocuments: (query: string) => DocumentMetadata[];
   onViewFlow?: (flowId: string) => void;
+  onViewFlowOutput?: (documentId: string) => void;
 }
 
 export function DocumentHome({
@@ -24,6 +25,7 @@ export function DocumentHome({
   onDeleteDocument,
   onSearchDocuments,
   onViewFlow,
+  onViewFlowOutput,
 }: DocumentHomeProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -111,7 +113,7 @@ export function DocumentHome({
         <div id="activity">
           <FlowActivityFeed 
             onViewFlow={onViewFlow}
-            onViewDocument={onSelectDocument}
+            onViewDocument={onViewFlowOutput || onSelectDocument}
           />
         </div>
 

@@ -3,6 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { DocumentHome } from '@/components/docs/DocumentHome';
 import { CategorySidebar } from '@/components/docs/CategorySidebar';
 import { TiptapEditor } from '@/components/docs/TiptapEditor';
+import { DocumentPreviewDialog } from '@/components/docs/DocumentPreviewDialog';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Button } from '@/components/ui/button';
 import { Menu, ArrowLeft } from 'lucide-react';
@@ -13,6 +14,7 @@ export default function MyDocs() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showHome, setShowHome] = useState(true);
   const [activeSection, setActiveSection] = useState<string>('activity');
+  const [previewDocument, setPreviewDocument] = useState<{id: string, title: string, content: string} | null>(null);
   
   const {
     documents,
@@ -88,6 +90,38 @@ export default function MyDocs() {
     setSidebarOpen(false); // Close mobile sidebar after click
   };
 
+  const handleViewFlowOutput = (documentId: string) => {
+    const documentMetadata = documents.find(doc => doc.id === documentId);
+    if (documentMetadata) {
+      // Load full document content from localStorage
+      try {
+        const stored = localStorage.getItem(`tiptap-documents-${documentId}`);
+        if (stored) {
+          const fullDocument = JSON.parse(stored);
+          setPreviewDocument({
+            id: fullDocument.id,
+            title: fullDocument.title,
+            content: fullDocument.content || '# Flow Output\n\nThis is a sample flow output document.'
+          });
+        } else {
+          // Fallback if no content found
+          setPreviewDocument({
+            id: documentMetadata.id,
+            title: documentMetadata.title,
+            content: '# Flow Output\n\nThis is a sample flow output document.'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load document content:', error);
+        setPreviewDocument({
+          id: documentMetadata.id,
+          title: documentMetadata.title,
+          content: '# Flow Output\n\nThis is a sample flow output document.'
+        });
+      }
+    }
+  };
+
   return (
     <MainLayout>
       <div className="flex h-screen overflow-hidden -m-6">
@@ -143,6 +177,7 @@ export default function MyDocs() {
                     // For now, we'll keep it simple and just log
                     console.log('View flow:', flowId);
                   }}
+                  onViewFlowOutput={handleViewFlowOutput}
                 />
               </div>
             </div>
@@ -192,6 +227,17 @@ export default function MyDocs() {
           )}
         </div>
       </div>
+      
+      {/* Document Preview Dialog */}
+      {previewDocument && (
+        <DocumentPreviewDialog
+          isOpen={true}
+          onClose={() => setPreviewDocument(null)}
+          documentId={previewDocument.id}
+          title={previewDocument.title}
+          content={previewDocument.content}
+        />
+      )}
     </MainLayout>
   );
 }
