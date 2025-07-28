@@ -60,6 +60,39 @@ export const sampleDocuments: DocumentMetadata[] = [
 
   // Outputs folder
   {
+    id: 'flow-output-1',
+    title: 'Inventory Restock Flow Output',
+    type: 'output',
+    category: 'outputs',
+    createdAt: new Date('2024-01-28'),
+    updatedAt: new Date('2024-01-28'),
+    wordCount: 456,
+    characterCount: 2890,
+    description: 'Automated inventory restock analysis and recommendations'
+  },
+  {
+    id: 'flow-output-2',
+    title: 'Listing Optimisation Flow Output',
+    type: 'output',
+    category: 'outputs',
+    createdAt: new Date('2024-01-24'),
+    updatedAt: new Date('2024-01-24'),
+    wordCount: 634,
+    characterCount: 3890,
+    description: 'Product listing optimization recommendations and changes'
+  },
+  {
+    id: 'flow-output-3',
+    title: 'Perfect Amazon Listing Creation Output',
+    type: 'output',
+    category: 'outputs',
+    createdAt: new Date('2024-01-27'),
+    updatedAt: new Date('2024-01-27'),
+    wordCount: 892,
+    characterCount: 5320,
+    description: 'Complete optimized Amazon product listing'
+  },
+  {
     id: 'output-1',
     title: 'Product Performance Analysis Report',
     type: 'output',
@@ -153,6 +186,94 @@ export const sampleDocuments: DocumentMetadata[] = [
 
 // Sample document contents
 export const sampleDocumentContents: Record<string, string> = {
+  'flow-output-1': `# Inventory Restock Flow Output
+
+**Flow Execution Date:** July 28, 2025
+**Status:** Completed Successfully
+
+## Restock Recommendations
+
+### Critical Items (Immediate Action Required)
+- **Wireless Headphones Pro**: Current Stock: 12 units | Recommended Restock: 200 units
+- **Bluetooth Speakers**: Current Stock: 8 units | Recommended Restock: 150 units
+
+### Medium Priority Items
+- **Phone Cases**: Current Stock: 45 units | Recommended Restock: 100 units
+- **Charging Cables**: Current Stock: 67 units | Recommended Restock: 80 units
+
+## Analysis Summary
+- Total investment needed: $45,000
+- Expected ROI: 35%
+- Lead time average: 14 days
+- Supplier recommendations included
+
+## Next Steps
+1. Contact TechSupply Co for headphones order
+2. Negotiate bulk pricing for speakers
+3. Schedule delivery for next week`,
+
+  'flow-output-2': `# Listing Optimisation Flow Output
+
+**Flow Execution Date:** July 24, 2025
+**Product:** Wireless Bluetooth Headphones Pro
+**Status:** Optimization Complete
+
+## Original vs Optimized Comparison
+
+### Title Optimization
+**Before:** Bluetooth Headphones Wireless
+**After:** Wireless Bluetooth Headphones Pro - Noise Cancelling, 30Hr Battery, Fast Charging
+
+### Key Improvements Made
+1. **Enhanced Title**: Added key features and benefits
+2. **Optimized Bullet Points**: Focused on customer pain points
+3. **Improved Images**: Added lifestyle and feature highlight images
+4. **Updated Description**: More compelling copy with technical specs
+
+## Performance Predictions
+- Expected CTR improvement: +25%
+- Estimated conversion rate increase: +18%
+- Projected sales increase: +35%
+
+## Implementation Status
+✅ Title updated
+✅ Images uploaded
+✅ Description revised
+⏳ A+ Content pending approval`,
+
+  'flow-output-3': `# Perfect Amazon Listing Creation Output
+
+**Flow Execution Date:** July 27, 2025
+**Product:** Premium Noise-Cancelling Bluetooth Headphones
+**Status:** Listing Created Successfully
+
+## Complete Listing Details
+
+### Optimized Title
+Premium Noise-Cancelling Bluetooth Headphones - 40Hr Battery, Quick Charge, Hi-Fi Sound, Comfortable Over-Ear Design
+
+### Key Features (Bullet Points)
+• **Superior Noise Cancellation** - Advanced ANC technology blocks 95% of ambient noise
+• **Extended Battery Life** - 40 hours playtime with ANC, 60 hours without
+• **Premium Sound Quality** - Hi-Fi drivers deliver crisp highs and deep bass
+• **Comfort Focused** - Memory foam ear cups for all-day wearing comfort
+• **Quick Charging** - 15 minutes charge provides 3 hours of playback
+
+### Product Description
+Experience audio like never before with our Premium Noise-Cancelling Bluetooth Headphones. Engineered for audiophiles and professionals who demand the best in sound quality and comfort.
+
+### Pricing Strategy
+- Launch Price: $199.99
+- Competitor Analysis: 15% below premium competitors
+- Promotional Strategy: 20% off for first 100 customers
+
+## Launch Checklist
+✅ Product photography completed
+✅ A+ Content created
+✅ PPC campaigns set up
+✅ Inventory secured (500 units)
+⏳ Launch scheduled for next Monday`,
+
   'doc-1': `# Amazon Listing Optimization Guide
 
 ## Overview

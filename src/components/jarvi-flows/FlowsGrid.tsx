@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Flow, FlowBlock } from '@/types/flowTypes';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DocumentPreviewDialog } from '@/components/docs/DocumentPreviewDialog';
+import { sampleDocumentContents } from '@/data/sampleDocuments';
 
 // Define the flow types and their properties
 export type TriggerType = 'manual' | 'scheduled' | 'webhook' | 'event' | 'insight';
@@ -131,8 +133,15 @@ export function FlowsGrid({
   isRunningFlow = false,
   runningFlowId
 }: FlowsGridProps) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [expandedFlows, setExpandedFlows] = useState<Set<string>>(new Set());
   const [individualRunning, setIndividualRunning] = useState<Set<string>>(new Set());
+  const [previewDocument, setPreviewDocument] = useState<{
+    id: string;
+    title: string;
+    content: string;
+  } | null>(null);
 
   const toggleExpanded = (flowId: string) => {
     const newExpanded = new Set(expandedFlows);
@@ -142,6 +151,47 @@ export function FlowsGrid({
       newExpanded.add(flowId);
     }
     setExpandedFlows(newExpanded);
+  };
+
+  // Map flow names to their corresponding document IDs
+  const getFlowDocumentId = (flowName: string): string | null => {
+    const normalizedName = flowName.toLowerCase();
+    if (normalizedName.includes('inventory') && normalizedName.includes('restock')) {
+      return 'flow-output-1';
+    }
+    if (normalizedName.includes('listing') && normalizedName.includes('optimis')) {
+      return 'flow-output-2';
+    }
+    if (normalizedName.includes('perfect') && normalizedName.includes('amazon') && normalizedName.includes('listing')) {
+      return 'flow-output-3';
+    }
+    return null;
+  };
+
+  const getDocumentTitle = (documentId: string): string => {
+    switch (documentId) {
+      case 'flow-output-1': return 'Inventory Restock Flow Output';
+      case 'flow-output-2': return 'Listing Optimisation Flow Output';  
+      case 'flow-output-3': return 'Perfect Amazon Listing Creation Output';
+      default: return 'Flow Output Document';
+    }
+  };
+
+  const handlePreviewDocument = (flowName: string) => {
+    const documentId = getFlowDocumentId(flowName);
+    if (documentId && sampleDocumentContents[documentId]) {
+      setPreviewDocument({
+        id: documentId,
+        title: getDocumentTitle(documentId),
+        content: sampleDocumentContents[documentId]
+      });
+    } else {
+      toast({
+        title: "No output available",
+        description: "This flow hasn't generated any output documents yet.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleRunFlow = (flowId: string) => {
@@ -248,17 +298,16 @@ export function FlowsGrid({
                 {/* Bottom section - Output focused */}
                 <div className="flex items-center justify-between pt-2 border-t">
                   <div className="flex gap-2">
-                    {runHistory.totalRuns > 0 && (
-                      <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(flow.id)}>
-                        <CollapsibleTrigger asChild>
-                          <Button variant="outline" size="sm" disabled={isCurrentFlowRunning}>
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Output
-                            {isExpanded ? <ChevronDown className="h-4 w-4 ml-1" /> : <ChevronRight className="h-4 w-4 ml-1" />}
-                          </Button>
-                        </CollapsibleTrigger>
-                      </Collapsible>
-                    )}
+                    {/* Document Preview Button */}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handlePreviewDocument(flow.name)}
+                      className="flex items-center gap-1"
+                    >
+                      <FileText className="h-4 w-4" />
+                      View Output
+                    </Button>
                   </div>
                   
                   {flow.trigger === 'manual' && (
@@ -316,6 +365,17 @@ export function FlowsGrid({
           );
         })}
       </div>
+      
+      {/* Document Preview Dialog */}
+      {previewDocument && (
+        <DocumentPreviewDialog
+          isOpen={!!previewDocument}
+          onClose={() => setPreviewDocument(null)}
+          documentId={previewDocument.id}
+          title={previewDocument.title}
+          content={previewDocument.content}
+        />
+      )}
     </div>
   );
 }

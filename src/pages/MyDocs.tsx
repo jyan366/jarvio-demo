@@ -7,8 +7,10 @@ import { useDocuments } from '@/hooks/useDocuments';
 import { Button } from '@/components/ui/button';
 import { Menu, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
+import { useSearchParams } from 'react-router-dom';
 
 export default function MyDocs() {
+  const [searchParams] = useSearchParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showHome, setShowHome] = useState(true);
   
@@ -24,6 +26,14 @@ export default function MyDocs() {
     deleteDocument,
     searchDocuments,
   } = useDocuments();
+
+  // Handle URL parameter for opening specific document
+  useEffect(() => {
+    const docId = searchParams.get('doc');
+    if (docId && documents.some(doc => doc.id === docId)) {
+      handleSelectDocument(docId);
+    }
+  }, [searchParams, documents]);
 
   const handleCreateDocument = (title?: string, type?: any, category?: any) => {
     const doc = createDocument(title, type, category);
