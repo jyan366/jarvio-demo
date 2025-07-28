@@ -76,9 +76,9 @@ export default function MyDocs() {
 
   return (
     <MainLayout>
-      <div className="flex h-full overflow-hidden -m-6">
-        {/* Desktop Category Sidebar */}
-        <div className="hidden lg:flex lg:w-80 lg:flex-col lg:border-r lg:bg-background lg:flex-shrink-0">
+      <div className="flex h-screen overflow-hidden -m-6">
+        {/* Desktop Category Sidebar - Sticky */}
+        <div className="hidden lg:flex lg:w-80 lg:flex-col lg:border-r lg:bg-background lg:flex-shrink-0 lg:h-screen lg:sticky lg:top-0">
           <CategorySidebar
             documents={documents}
             activeSection={activeSection}
@@ -100,13 +100,13 @@ export default function MyDocs() {
           </div>
         )}
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0">
+        {/* Main Content - Scrollable */}
+        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
           {showHome ? (
-            // Home view
-            <div className="flex-1 flex flex-col">
-              {/* Mobile header */}
-              <div className="lg:hidden flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            // Home view - Full height scrollable
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              {/* Mobile header - Fixed */}
+              <div className="lg:hidden flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -116,6 +116,7 @@ export default function MyDocs() {
                 </Button>
               </div>
               
+              {/* Scrollable content */}
               <div className="flex-1 overflow-auto">
                 <DocumentHome
                   documents={documents}
@@ -131,8 +132,8 @@ export default function MyDocs() {
               </div>
             </div>
           ) : (
-            // Document editor view
-            <div className="flex-1 flex flex-col overflow-hidden">
+            // Document editor view - Full height
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
               {/* Mobile header */}
               <div className="lg:hidden flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
                 <Button
