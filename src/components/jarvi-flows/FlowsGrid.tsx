@@ -148,7 +148,7 @@ export function FlowsGrid({
         </div>
       )}
       
-      {/* Flows List */}
+      {/* Flows List - Single Column */}
       <div className="space-y-4">
         {flows.map(flow => {
           const blockCounts = getBlockCounts(flow.blocks);
