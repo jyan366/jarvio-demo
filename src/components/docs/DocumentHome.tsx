@@ -108,10 +108,12 @@ export function DocumentHome({
       {/* Content */}
       <div className="p-6 space-y-8">
         {/* Flow Activity Feed */}
-        <FlowActivityFeed 
-          onViewFlow={onViewFlow}
-          onViewDocument={onSelectDocument}
-        />
+        <div id="activity">
+          <FlowActivityFeed 
+            onViewFlow={onViewFlow}
+            onViewDocument={onSelectDocument}
+          />
+        </div>
 
         {/* Recent Documents */}
         {recentDocuments.length > 0 && (
@@ -143,7 +145,7 @@ export function DocumentHome({
           const Icon = getCategoryIcon(category as DocumentCategory);
           
           return (
-            <section key={category}>
+            <div id={category} key={category}>
               <div className="flex items-center gap-2 mb-4">
                 <Icon className="h-5 w-5 text-muted-foreground" />
                 <h2 className="text-lg font-medium text-foreground">
@@ -157,7 +159,7 @@ export function DocumentHome({
                 onDeleteDocument={onDeleteDocument}
                 onViewFlow={onViewFlow}
               />
-            </section>
+            </div>
           );
         })}
 
