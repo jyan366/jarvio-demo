@@ -150,10 +150,10 @@ export function FlowActivityFeed({ onViewFlow, onViewDocument }: FlowActivityFee
                       onClick={() => {
                         // Map flow IDs to their corresponding output documents
                         const flowDocumentMap: Record<string, string> = {
-                          'flow-1': 'flow-output-1', // Inventory Restock Monitor
-                          'flow-5': 'flow-output-2', // Competitor Price Monitor  
-                          'flow-4': 'flow-output-3', // Performance Analyzer
-                          'flow-6': 'flow-output-1'  // Inventory Optimizer (use same sample)
+                          'flow-1': 'inventory-restock-output', // Inventory Restock Monitor
+                          'flow-5': 'competitor-price-output', // Competitor Price Monitor  
+                          'flow-4': 'performance-analyzer-output', // Performance Analyzer
+                          'flow-6': 'inventory-optimizer-output'  // Inventory Optimizer
                         };
                         const documentId = flowDocumentMap[activity.flowId];
                         if (documentId && onViewDocument) {
