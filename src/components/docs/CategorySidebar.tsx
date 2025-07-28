@@ -32,13 +32,6 @@ export function CategorySidebar({ documents, activeSection, onCategoryClick }: C
 
   const categories: CategoryInfo[] = [
     {
-      id: 'outputs',
-      name: 'Workflow Outputs',
-      icon: TrendingUp,
-      count: documentsByCategory.outputs?.length || 0,
-      description: 'Auto-generated flow outputs'
-    },
-    {
       id: 'activity',
       name: 'Flow Activity',
       icon: Activity,

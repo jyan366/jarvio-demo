@@ -128,18 +128,6 @@ export function DocumentHome({
           </section>
         )}
 
-        {/* Enhanced Workflow Outputs Section */}
-        {outputDocuments.length > 0 && (
-          <div id="outputs">
-            <FlowOutputsSection
-              documents={outputDocuments}
-              onSelectDocument={onSelectDocument}
-              onDeleteDocument={onDeleteDocument}
-              onViewFlow={onViewFlow}
-            />
-          </div>
-        )}
-
         {/* Other Categories */}
         {nonOutputCategories.map(([category, docs]) => {
           if (docs.length === 0) return null;
