@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from '@/components/ThemeProvider';
+
 import { Toaster } from "@/components/ui/toaster";
 import { AgentSettingsProvider } from '@/hooks/useAgentSettings';
 
@@ -44,8 +44,7 @@ import MyDocs from './pages/MyDocs';
 function App() {
   return (
     <div className="App">
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <AgentSettingsProvider>
+      <AgentSettingsProvider>
           <Routes>
             {/* Redirect root to new conversation */}
             <Route path="/" element={<Navigate to="/new-conversation" replace />} />
@@ -101,7 +100,6 @@ function App() {
           </Routes>
           <Toaster />
         </AgentSettingsProvider>
-      </ThemeProvider>
     </div>
   );
 }
