@@ -6,6 +6,7 @@ import { TiptapEditor } from '@/components/docs/TiptapEditor';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Button } from '@/components/ui/button';
 import { Menu, ArrowLeft } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function MyDocs() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -56,7 +57,49 @@ export default function MyDocs() {
 
   return (
     <MainLayout>
-      <div className="flex-1 flex flex-col min-h-0 -m-6">
+      <div className="flex h-[calc(100vh-4rem)] overflow-hidden -m-6">
+        {/* Desktop Sidebar - Always visible on lg+ screens */}
+        <div className="hidden lg:flex lg:w-80 lg:flex-col lg:border-r lg:bg-background">
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBackToHome}
+                className={showHome ? "bg-secondary" : ""}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Home
+              </Button>
+            </div>
+          </div>
+          
+          <div className="flex-1 overflow-hidden p-4">
+            <h3 className="text-sm font-medium text-muted-foreground mb-4">Recent Documents</h3>
+            <div className="space-y-1">
+              {documents.slice(0, 10).map((doc) => (
+                <Button
+                  key={doc.id}
+                  variant={currentDocument?.id === doc.id ? "secondary" : "ghost"}
+                  className="w-full justify-start text-left h-auto py-2 px-3"
+                  onClick={() => handleSelectDocument(doc.id)}
+                >
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="text-sm">{doc.icon || '📄'}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-sm truncate">{doc.title}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {format(new Date(doc.updatedAt), 'MMM d, yyyy')}
+                      </div>
+                    </div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Sidebar - Collapsible */}
         <CollapsibleSidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
@@ -66,62 +109,65 @@ export default function MyDocs() {
           onHome={handleBackToHome}
         />
 
-        {showHome ? (
-          // Home view - full width
-          <div className="h-full flex flex-col">
-            {/* Top bar with menu button */}
-            <div className="flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <Menu className="h-4 w-4" />
-              </Button>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {showHome ? (
+            // Home view
+            <div className="flex-1 flex flex-col">
+              {/* Mobile header */}
+              <div className="lg:hidden flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <Menu className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="flex-1 overflow-auto">
+                <DocumentHome
+                  documents={documents}
+                  onSelectDocument={handleSelectDocument}
+                  onCreateDocument={handleCreateDocument}
+                  onDeleteDocument={handleDeleteDocument}
+                  onSearchDocuments={searchDocuments}
+                />
+              </div>
             </div>
-            
-            <div className="flex-1 overflow-auto">
-              <DocumentHome
-                documents={documents}
-                onSelectDocument={handleSelectDocument}
-                onCreateDocument={handleCreateDocument}
-                onDeleteDocument={handleDeleteDocument}
-                onSearchDocuments={searchDocuments}
-              />
+          ) : (
+            // Document editor view
+            <div className="flex-1 flex flex-col">
+              {/* Mobile header */}
+              <div className="lg:hidden flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <Menu className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToHome}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Home
+                </Button>
+              </div>
+              
+              <div className="flex-1 overflow-hidden">
+                <TiptapEditor
+                  document={currentDocument}
+                  onSave={handleSaveDocument}
+                  isSaving={isSaving}
+                  lastSaved={lastSaved}
+                />
+              </div>
             </div>
-          </div>
-        ) : (
-          // Document editor view - full width
-          <div className="h-full flex flex-col">
-            {/* Top bar with back button */}
-            <div className="flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <Menu className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBackToHome}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
-              </Button>
-            </div>
-            
-            <div className="flex-1 overflow-hidden">
-              <TiptapEditor
-                document={currentDocument}
-                onSave={handleSaveDocument}
-                isSaving={isSaving}
-                lastSaved={lastSaved}
-              />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </MainLayout>
   );
