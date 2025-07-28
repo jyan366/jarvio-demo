@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Flow, FlowBlock } from '@/types/flowTypes';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DocumentPreviewDialog } from '@/components/docs/DocumentPreviewDialog';
 import { sampleDocumentContents } from '@/data/sampleDocuments';
 
@@ -177,12 +178,12 @@ export function FlowsGrid({
     }
   };
 
-  const handlePreviewDocument = (flowName: string) => {
+  const handlePreviewDocument = (flowName: string, outputId?: string) => {
     const documentId = getFlowDocumentId(flowName);
     if (documentId && sampleDocumentContents[documentId]) {
       setPreviewDocument({
         id: documentId,
-        title: getDocumentTitle(documentId),
+        title: `${getDocumentTitle(documentId)}${outputId ? ` - Run ${outputId.split('-').pop()}` : ''}`,
         content: sampleDocumentContents[documentId]
       });
     } else {
@@ -192,6 +193,15 @@ export function FlowsGrid({
         variant: "destructive"
       });
     }
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const handleRunFlow = (flowId: string) => {
@@ -211,11 +221,29 @@ export function FlowsGrid({
     onRunFlow(flowId);
   };
 
-  // Mock run history data
+  // Generate mock run history with outputs
   const getRunHistory = (flowId: string) => {
-    const mockRuns = Math.floor(Math.random() * 15) + 1;
-    const lastRun = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
-    return { totalRuns: mockRuns, lastRun };
+    const baseRuns = Math.floor(Math.random() * 20) + 5; // 5-25 runs
+    const outputs = [];
+    
+    for (let i = 0; i < Math.min(baseRuns, 10); i++) { // Show max 10 recent outputs
+      const daysAgo = Math.floor(Math.random() * 30); // Within last 30 days
+      const date = new Date();
+      date.setDate(date.getDate() - daysAgo);
+      
+      outputs.push({
+        id: `${flowId}-output-${i}`,
+        date: date,
+        status: Math.random() > 0.1 ? 'success' : 'failed', // 90% success rate
+        runtime: `${Math.floor(Math.random() * 300) + 30}s` // 30-330 seconds
+      });
+    }
+    
+    return {
+      totalRuns: baseRuns,
+      lastRun: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+      outputs: outputs.sort((a, b) => b.date.getTime() - a.date.getTime()) // Most recent first
+    };
   };
 
   
@@ -298,16 +326,53 @@ export function FlowsGrid({
                 {/* Bottom section - Output focused */}
                 <div className="flex items-center justify-between pt-2 border-t">
                   <div className="flex gap-2">
-                    {/* Document Preview Button */}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handlePreviewDocument(flow.name)}
-                      className="flex items-center gap-1"
-                    >
-                      <FileText className="h-4 w-4" />
-                      View Output
-                    </Button>
+                    {/* Document Preview Dropdown */}
+                    {runHistory.outputs.length > 0 ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="flex items-center gap-1">
+                            <FileText className="h-4 w-4" />
+                            View Output ({runHistory.outputs.length})
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-64">
+                          {runHistory.outputs.map((output, index) => (
+                            <DropdownMenuItem 
+                              key={output.id}
+                              onClick={() => handlePreviewDocument(flow.name, output.id)}
+                              className="flex items-center justify-between p-3"
+                            >
+                              <div className="flex flex-col">
+                                <span className="font-medium text-sm">
+                                  Run #{runHistory.outputs.length - index}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {formatDate(output.date)} • {output.runtime}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {output.status === 'success' ? (
+                                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                                ) : (
+                                  <div className="w-2 h-2 bg-red-500 rounded-full" />
+                                )}
+                              </div>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        disabled
+                        className="flex items-center gap-1"
+                      >
+                        <FileText className="h-4 w-4" />
+                        No Outputs
+                      </Button>
+                    )}
                   </div>
                   
                   {flow.trigger === 'manual' && (
