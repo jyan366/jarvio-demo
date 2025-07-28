@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, PlayCircle } from 'lucide-react';
 import { FlowsGrid, Flow } from './FlowsGrid';
 
 interface FlowsSectionProps {
@@ -26,8 +26,9 @@ export function FlowsSection({
   runningFlowId
 }: FlowsSectionProps) {
   
+  const manualFlows = flows.filter(flow => flow.trigger === 'manual');
+  
   const handleRunAllFlows = async () => {
-    const manualFlows = flows.filter(flow => flow.trigger === 'manual');
     // Demo: Just simulate running each flow
     for (const flow of manualFlows) {
       onRunFlow(flow.id);
@@ -43,16 +44,28 @@ export function FlowsSection({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Your Flows</h2>
-        <Button 
-          onClick={onCreateNewFlow} 
-          variant="outline" 
-          size="sm"
-          className="border-[#4457ff] text-[#4457ff]"
-          disabled={isCreating}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Flow
-        </Button>
+        <div className="flex gap-3">
+          {manualFlows.length > 0 && (
+            <Button 
+              onClick={handleRunAllFlows}
+              disabled={isCreating}
+              className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <PlayCircle className="h-4 w-4" />
+              Run All Manual Flows ({manualFlows.length})
+            </Button>
+          )}
+          <Button 
+            onClick={onCreateNewFlow} 
+            variant="outline" 
+            size="sm"
+            className="border-[#4457ff] text-[#4457ff]"
+            disabled={isCreating}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Flow
+          </Button>
+        </div>
       </div>
 
       <FlowsGrid 

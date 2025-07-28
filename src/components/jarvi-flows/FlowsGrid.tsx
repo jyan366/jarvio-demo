@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Play, Edit, Clock, Zap, Trash2, Loader2, Eye, History, PlayCircle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Play, Edit, Clock, Zap, Trash2, Loader2, Eye, History, PlayCircle, ChevronDown, ChevronRight, MoreVertical, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Flow, FlowBlock } from '@/types/flowTypes';
@@ -43,19 +43,9 @@ const getTriggerIcon = (trigger: TriggerType) => {
   }
 };
 
-// Helper function to generate block type count
-const getBlockCounts = (blocks: FlowBlock[]) => {
-  const counts = {
-    collect: 0,
-    think: 0,
-    act: 0
-  };
-  blocks.forEach(block => {
-    if (block.type === 'collect' || block.type === 'think' || block.type === 'act') {
-      counts[block.type]++;
-    }
-  });
-  return counts;
+// Helper function to get total step count
+const getTotalSteps = (blocks: FlowBlock[]) => {
+  return blocks.length;
 };
 
 // Generate mock output data
@@ -133,29 +123,16 @@ export function FlowsGrid({
   const manualFlows = flows.filter(flow => flow.trigger === 'manual');
 
   return (
-    <div className="space-y-6">
-      {/* Run All Manual Flows Button */}
-      {manualFlows.length > 0 && onRunAllFlows && (
-        <div className="flex justify-end">
-          <Button 
-            onClick={onRunAllFlows}
-            disabled={isRunningFlow}
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <PlayCircle className="h-4 w-4" />
-            Run All Manual Flows ({manualFlows.length})
-          </Button>
-        </div>
-      )}
-      
+    <div className="space-y-6">      
       {/* Flows List - Single Column */}
       <div className="space-y-4">
         {flows.map(flow => {
-          const blockCounts = getBlockCounts(flow.blocks);
+          const totalSteps = getTotalSteps(flow.blocks);
           const isCurrentFlowRunning = individualRunning.has(flow.id);
           const runHistory = getRunHistory(flow.id);
           const isExpanded = expandedFlows.has(flow.id);
           const mockOutput = generateMockOutput(flow.name);
+          const isActive = Math.random() > 0.3; // Mock active status
           
           return (
             <Card key={flow.id} className="overflow-hidden shadow-sm hover:shadow transition-shadow">
@@ -170,69 +147,69 @@ export function FlowsGrid({
                           {runHistory.totalRuns} runs
                         </Badge>
                       )}
-                      <div className="flex items-center space-x-1 rounded-md bg-secondary p-1 text-secondary-foreground">
+                    </div>
+                    <CardDescription className="break-words mb-3">{flow.description}</CardDescription>
+                    
+                    {/* Flow info row */}
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center space-x-1 rounded-md bg-secondary px-2 py-1 text-secondary-foreground">
                         {getTriggerIcon(flow.trigger)}
                         <span className="text-xs capitalize">{flow.trigger}</span>
                       </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <Activity className="h-3 w-3" />
+                        <span className="text-xs">{totalSteps} steps</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-400'}`} />
+                        <span className="text-xs">{isActive ? 'Active' : 'Inactive'}</span>
+                      </div>
                     </div>
-                    <CardDescription className="break-words mb-2">{flow.description}</CardDescription>
+                    
                     {runHistory.totalRuns > 0 && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground mt-2">
                         Last run: {runHistory.lastRun.toLocaleDateString()}
                       </div>
                     )}
                   </div>
-                </div>
-
-                {/* Block counts */}
-                <div className="flex space-x-4 text-sm">
-                  <div className="flex items-center">
-                    <div className="rounded-full w-2.5 h-2.5 bg-blue-500 mr-1.5" />
-                    <span>{blockCounts.collect} Collect</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="rounded-full w-2.5 h-2.5 bg-purple-500 mr-1.5" />
-                    <span>{blockCounts.think} Think</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="rounded-full w-2.5 h-2.5 bg-green-500 mr-1.5" />
-                    <span>{blockCounts.act} Act</span>
+                  
+                  {/* Top right buttons */}
+                  <div className="flex gap-2 ml-4">
+                    <Button variant="ghost" size="sm" onClick={() => onEditFlow(flow.id)} disabled={isCurrentFlowRunning}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    
+                    {onDeleteFlow && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700" 
+                        onClick={() => onDeleteFlow(flow.id)} 
+                        disabled={isCurrentFlowRunning}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardHeader>
 
               <CardContent className="pt-0">
-                {/* Action buttons */}
+                {/* Bottom section - Output focused */}
                 <div className="flex items-center justify-between pt-2 border-t">
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => onEditFlow(flow.id)} disabled={isCurrentFlowRunning}>
-                      <Edit className="h-4 w-4 mr-1" />
-                      Edit
-                    </Button>
-                    
                     {runHistory.totalRuns > 0 && (
                       <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(flow.id)}>
                         <CollapsibleTrigger asChild>
                           <Button variant="outline" size="sm" disabled={isCurrentFlowRunning}>
                             <Eye className="h-4 w-4 mr-1" />
-                            Output
+                            View Output
                             {isExpanded ? <ChevronDown className="h-4 w-4 ml-1" /> : <ChevronRight className="h-4 w-4 ml-1" />}
                           </Button>
                         </CollapsibleTrigger>
                       </Collapsible>
-                    )}
-                    
-                    {onDeleteFlow && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700" 
-                        onClick={() => onDeleteFlow(flow.id)} 
-                        disabled={isCurrentFlowRunning}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Delete
-                      </Button>
                     )}
                   </div>
                   
