@@ -120,7 +120,7 @@ export function FlowsGrid({
     return { totalRuns: mockRuns, lastRun };
   };
 
-  const manualFlows = flows.filter(flow => flow.trigger === 'manual');
+  
 
   return (
     <div className="space-y-6">      
