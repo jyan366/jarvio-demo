@@ -1,5 +1,6 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import * as React from 'react';
+const { createContext, useState, useContext } = React;
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -76,7 +77,7 @@ export const NavigationVisibilityContext = createContext<NavigationVisibilityCon
   toggleSection: () => {},
 });
 
-export function NavigationVisibilityProvider({ children }: { children: ReactNode }) {
+export function NavigationVisibilityProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<NavigationVisibilityState>(defaultState);
 
   const isItemVisible = (itemId: string, sectionId: string) => {

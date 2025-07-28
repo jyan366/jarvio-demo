@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { Toaster } from "@/components/ui/toaster";
