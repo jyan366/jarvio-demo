@@ -39,6 +39,7 @@ import ChatTest from './pages/ChatTest';
 import BlockTesting from './pages/BlockTesting';
 import PitchDeck from './pages/PitchDeck';
 import Designs from './pages/Designs';
+import MyDocs from './pages/MyDocs';
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
             <Route path="/jarvi-flows/builder" element={<FlowBuilder />} />
             <Route path="/jarvi-flows/builder/:flowId" element={<FlowBuilder />} />
             <Route path="/knowledge-base" element={<KnowledgeBase />} />
+            <Route path="/my-docs" element={<MyDocs />} />
             <Route path="/sales-hub" element={<SalesHub />} />
             <Route path="/agents-hub" element={<AgentsHub />} />
             <Route path="/agents-hub/agent/:agentId" element={<AgentProfile />} />

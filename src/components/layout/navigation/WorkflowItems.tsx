@@ -1,5 +1,5 @@
 
-import { CheckSquare, Lightbulb, Shuffle, BookOpen, MessageCirclePlus } from 'lucide-react';
+import { CheckSquare, Lightbulb, Shuffle, BookOpen, MessageCirclePlus, FileText } from 'lucide-react';
 import { MenuItem } from './types';
 
 export const workflowItems: MenuItem[] = [
@@ -32,5 +32,11 @@ export const workflowItems: MenuItem[] = [
     label: 'Chat',
     href: '/new-conversation',
     icon: MessageCirclePlus,
+  },
+  {
+    id: 'my-docs',
+    label: 'My Docs',
+    href: '/my-docs',
+    icon: FileText,
   },
 ];
