@@ -119,7 +119,7 @@ export function GradientBackground({ children }: { children: React.ReactNode }) 
       </div>
       
       {/* Content container with improved padding */}
-      <div className="relative z-40 p-6 md:p-14">
+      <div className="relative z-40 p-6 md:p-14 hidden">
         {children}
       </div>
     </div>
