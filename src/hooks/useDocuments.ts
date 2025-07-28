@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Document, DocumentMetadata } from '@/types/docs';
+import { Document, DocumentMetadata, DocumentType, DocumentCategory } from '@/types/docs';
 
 const STORAGE_KEY = 'tiptap-documents';
 
@@ -38,11 +38,13 @@ export function useDocuments() {
   }, []);
 
   // Create new document
-  const createDocument = useCallback((title: string = 'Untitled Document') => {
+  const createDocument = useCallback((title: string = 'Untitled Document', type: DocumentType = 'text', category: DocumentCategory = 'documents') => {
     const newDoc: Document = {
       id: Date.now().toString(),
       title,
       content: '',
+      type,
+      category,
       createdAt: new Date(),
       updatedAt: new Date(),
       wordCount: 0,
@@ -52,6 +54,8 @@ export function useDocuments() {
     const newMetadata: DocumentMetadata = {
       id: newDoc.id,
       title: newDoc.title,
+      type: newDoc.type,
+      category: newDoc.category,
       createdAt: newDoc.createdAt,
       updatedAt: newDoc.updatedAt,
       wordCount: 0,
@@ -108,6 +112,8 @@ export function useDocuments() {
           ? { 
               ...d, 
               title: doc.title, 
+              type: doc.type,
+              category: doc.category,
               updatedAt: updatedDoc.updatedAt,
               wordCount: doc.wordCount,
               characterCount: doc.characterCount
@@ -150,9 +156,40 @@ export function useDocuments() {
     );
   }, [documents]);
 
+  // Initialize with sample data if no documents exist
+  const initializeSampleData = useCallback(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored || JSON.parse(stored).length === 0) {
+      // Load sample documents
+      import('@/data/sampleDocuments').then(({ sampleDocuments, sampleDocumentContents }) => {
+        const docsWithDates = sampleDocuments.map(doc => ({
+          ...doc,
+          createdAt: new Date(doc.createdAt),
+          updatedAt: new Date(doc.updatedAt),
+        }));
+        
+        setDocuments(docsWithDates);
+        saveDocuments(docsWithDates);
+        
+        // Save full document contents
+        Object.entries(sampleDocumentContents).forEach(([id, content]) => {
+          const docMetadata = docsWithDates.find(d => d.id === id);
+          if (docMetadata) {
+            const fullDoc = {
+              ...docMetadata,
+              content,
+            };
+            localStorage.setItem(`${STORAGE_KEY}-${id}`, JSON.stringify(fullDoc));
+          }
+        });
+      });
+    }
+  }, [saveDocuments]);
+
   useEffect(() => {
     loadDocuments();
-  }, [loadDocuments]);
+    initializeSampleData();
+  }, [loadDocuments, initializeSampleData]);
 
   return {
     documents,

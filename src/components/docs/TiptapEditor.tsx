@@ -131,9 +131,9 @@ export function TiptapEditor({ document, onSave, isSaving, lastSaved }: TiptapEd
   const wordCount = editor?.storage.characterCount.words() || 0;
 
   return (
-    <div className="flex-1 flex flex-col bg-background">
+    <div className="flex-1 flex flex-col bg-background h-full">
       {/* Document Header */}
-      <div className="border-b border-border p-6 bg-background">
+      <div className="border-b border-border p-6 bg-background flex-shrink-0">
         <div className="max-w-4xl mx-auto">
           <Input
             value={title}
