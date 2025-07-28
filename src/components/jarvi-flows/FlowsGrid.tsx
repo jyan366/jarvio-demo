@@ -265,13 +265,18 @@ export function FlowsGrid({
     <div className="space-y-6">      
       {/* Flows List - Single Column */}
       <div className="space-y-4">
-        {flows.map(flow => {
+        {flows.map((flow, index) => {
           const totalSteps = getTotalSteps(flow.blocks);
           const isCurrentFlowRunning = individualRunning.has(flow.id);
           const runHistory = getRunHistory(flow.id);
           const isExpanded = expandedFlows.has(flow.id);
           const mockOutput = generateMockOutput(flow.name);
-          const isActive = Math.random() > 0.3; // Mock active status
+          
+          // Determine flow type based on index for consistent states
+          const isScheduled = index % 3 === 0; // Every 3rd flow is scheduled
+          const isActive = true; // All flows are active by default
+          const scheduledTime = isScheduled ? 
+            (index % 2 === 0 ? "Daily at 9:00 AM" : "Weekly on Mondays") : null;
           
           return (
             <Card key={flow.id} className="overflow-hidden shadow-sm hover:shadow transition-shadow">
@@ -292,8 +297,8 @@ export function FlowsGrid({
                     {/* Flow info row */}
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center space-x-1 rounded-md bg-secondary px-2 py-1 text-secondary-foreground">
-                        {getTriggerIcon(flow.trigger)}
-                        <span className="text-xs capitalize">{flow.trigger}</span>
+                        {getTriggerIcon(isScheduled ? 'scheduled' : 'manual')}
+                        <span className="text-xs capitalize">{isScheduled ? 'Scheduled' : 'Manual'}</span>
                       </div>
                       
                       <div className="flex items-center gap-1">
@@ -303,8 +308,15 @@ export function FlowsGrid({
                       
                       <div className="flex items-center gap-1">
                         <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-400'}`} />
-                        <span className="text-xs">{isActive ? 'Active' : 'Inactive'}</span>
+                        <span className="text-xs">Active</span>
                       </div>
+                      
+                      {isScheduled && scheduledTime && (
+                        <div className="flex items-center gap-1 text-blue-600">
+                          <Clock className="h-3 w-3" />
+                          <span className="text-xs">{scheduledTime}</span>
+                        </div>
+                      )}
                     </div>
                     
                     {runHistory.totalRuns > 0 && (
@@ -353,26 +365,24 @@ export function FlowsGrid({
                     )}
                   </div>
                   
-                  {flow.trigger === 'manual' && (
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleRunFlow(flow.id)} 
-                      disabled={isCurrentFlowRunning}
-                      className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : "bg-primary text-primary-foreground hover:bg-primary/90"}
-                    >
-                      {isCurrentFlowRunning ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                          Running...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4 mr-1" />
-                          Run
-                        </>
-                      )}
-                    </Button>
-                  )}
+                  <Button 
+                    size="sm" 
+                    onClick={() => handleRunFlow(flow.id)} 
+                    disabled={isCurrentFlowRunning}
+                    className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : "bg-primary text-primary-foreground hover:bg-primary/90"}
+                  >
+                    {isCurrentFlowRunning ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                        Running...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-1" />
+                        {isScheduled ? 'Run Now' : 'Run'}
+                      </>
+                    )}
+                  </Button>
                 </div>
 
                 {/* Collapsible Content - Show Output History */}
