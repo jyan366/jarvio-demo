@@ -1,9 +1,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { FileText, TrendingUp, Layout, Activity, Clock } from 'lucide-react';
+import { FileText, TrendingUp, Layout, Activity, Clock, Home } from 'lucide-react';
 import { DocumentMetadata } from '@/types/docs';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface CategorySidebarProps {
   documents: DocumentMetadata[];
@@ -72,6 +73,8 @@ export function CategorySidebar({ documents, activeSection, onCategoryClick }: C
     return category.count > 0;
   });
 
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b">
@@ -125,6 +128,19 @@ export function CategorySidebar({ documents, activeSection, onCategoryClick }: C
           })}
         </div>
       </ScrollArea>
+      
+      {/* Back to Home Button */}
+      <div className="p-4 border-t">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/')}
+          className="w-full justify-start gap-2"
+        >
+          <Home className="h-4 w-4" />
+          Back to Home
+        </Button>
+      </div>
     </div>
   );
 }

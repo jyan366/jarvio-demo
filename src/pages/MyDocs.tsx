@@ -125,8 +125,8 @@ export default function MyDocs() {
                   onDeleteDocument={handleDeleteDocument}
                   onSearchDocuments={searchDocuments}
                   onViewFlow={(flowId) => {
-                    // Navigate to flows page
-                    window.open('/jarvi-flows', '_blank');
+                    // Stay in docs context, could open flow details in a modal or navigate within docs
+                    console.log('View flow:', flowId);
                   }}
                 />
               </div>
