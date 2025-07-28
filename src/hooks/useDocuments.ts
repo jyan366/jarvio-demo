@@ -159,7 +159,15 @@ export function useDocuments() {
   // Initialize with sample data if no documents exist
   const initializeSampleData = useCallback(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored || JSON.parse(stored).length === 0) {
+    const existingDocs = stored ? JSON.parse(stored) : [];
+    
+    console.log('Existing docs in localStorage:', existingDocs);
+    
+    // Force load sample data if we don't have the expected sample documents
+    const hasSampleData = existingDocs.some((doc: any) => doc.id === 'doc-1' || doc.id === 'output-1');
+    
+    if (!stored || existingDocs.length === 0 || !hasSampleData) {
+      console.log('Loading sample documents...');
       // Load sample documents
       import('@/data/sampleDocuments').then(({ sampleDocuments, sampleDocumentContents }) => {
         const docsWithDates = sampleDocuments.map(doc => ({
@@ -168,6 +176,7 @@ export function useDocuments() {
           updatedAt: new Date(doc.updatedAt),
         }));
         
+        console.log('Setting sample documents:', docsWithDates);
         setDocuments(docsWithDates);
         saveDocuments(docsWithDates);
         
@@ -182,6 +191,8 @@ export function useDocuments() {
             localStorage.setItem(`${STORAGE_KEY}-${id}`, JSON.stringify(fullDoc));
           }
         });
+      }).catch(error => {
+        console.error('Failed to load sample documents:', error);
       });
     }
   }, [saveDocuments]);

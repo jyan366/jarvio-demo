@@ -57,6 +57,12 @@ export function DocumentHome({
     }
   };
 
+  // Temporary debug function to clear and reload sample data
+  const resetSampleData = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -68,7 +74,13 @@ export function DocumentHome({
               Create, organize, and manage your documents
             </p>
           </div>
-          <QuickActions onCreateDocument={onCreateDocument} />
+          <div className="flex items-center gap-4">
+            <QuickActions onCreateDocument={onCreateDocument} />
+            {/* Temporary debug button */}
+            <Button variant="outline" size="sm" onClick={resetSampleData}>
+              Reset Sample Data
+            </Button>
+          </div>
         </div>
         
         {/* Search Bar */}
