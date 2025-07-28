@@ -11,7 +11,7 @@ import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
-import { Underline } from '@tiptap/extension-underline';
+import Underline from '@tiptap/extension-underline';
 import { Document } from '@/types/docs';
 import { EditorToolbar } from './EditorToolbar';
 import { Input } from '@/components/ui/input';
@@ -26,13 +26,38 @@ interface TiptapEditorProps {
   lastSaved?: Date;
 }
 
+// Convert markdown-like content to HTML
+const convertMarkdownToHTML = (content: string): string => {
+  return content
+    // Headers
+    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+    // Bold and italic
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Lists
+    .replace(/^- (.*$)/gm, '<li>$1</li>')
+    // Line breaks
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    // Wrap in paragraphs
+    .replace(/^(?!<h|<li|<table|<p)(.*?)$/gm, '<p>$1</p>')
+    // Clean up empty paragraphs
+    .replace(/<p><\/p>/g, '')
+    .replace(/<p><br><\/p>/g, '<br>');
+};
+
 export function TiptapEditor({ document, onSave, isSaving, lastSaved }: TiptapEditorProps) {
   const [title, setTitle] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        // Disable default link extension to avoid conflicts
+        link: false,
+      }),
       Underline,
       Placeholder.configure({
         placeholder: 'Start writing your document...',
@@ -59,7 +84,7 @@ export function TiptapEditor({ document, onSave, isSaving, lastSaved }: TiptapEd
         nested: true,
       }),
     ],
-    content: document?.content || '',
+    content: '',
     onUpdate: ({ editor }) => {
       if (document) {
         setHasUnsavedChanges(true);
@@ -96,8 +121,16 @@ export function TiptapEditor({ document, onSave, isSaving, lastSaved }: TiptapEd
   useEffect(() => {
     if (document && editor) {
       setTitle(document.title);
-      if (editor.getHTML() !== document.content) {
-        editor.commands.setContent(document.content);
+      
+      // Convert markdown content to HTML if needed
+      let htmlContent = document.content;
+      if (htmlContent && !htmlContent.includes('<')) {
+        // Likely markdown content, convert it
+        htmlContent = convertMarkdownToHTML(htmlContent);
+      }
+      
+      if (editor.getHTML() !== htmlContent) {
+        editor.commands.setContent(htmlContent || '');
       }
       setHasUnsavedChanges(false);
     }
