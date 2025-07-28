@@ -56,7 +56,7 @@ export default function JarviFlows() {
   };
 
   // Function to handle running a flow - demo simulation only
-  const handleRunFlow = async (flowId: string) => {
+  const handleRunFlow = (flowId: string) => {
     setIsRunningFlow(true);
     setRunningFlowId(flowId);
     
