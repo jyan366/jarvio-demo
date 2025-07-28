@@ -4,12 +4,6 @@ import { MenuItem } from './types';
 
 export const workflowItems: MenuItem[] = [
   {
-    id: 'task-manager',
-    label: 'Tasks',
-    href: '/task-manager',
-    icon: CheckSquare,
-  },
-  {
     id: 'action-studio',
     label: 'Insights',
     href: '/action-studio',
