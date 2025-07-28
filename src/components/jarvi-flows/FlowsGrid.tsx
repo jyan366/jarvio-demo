@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Play, Edit, Clock, Zap, Trash2, Loader2, Eye, History, PlayCircle, ChevronDown, ChevronRight, MoreVertical, Activity } from 'lucide-react';
+import { Play, Edit, Clock, Zap, Trash2, Loader2, Eye, History, PlayCircle, ChevronDown, ChevronRight, MoreVertical, Activity, FileText, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Flow, FlowBlock } from '@/types/flowTypes';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 // Define the flow types and their properties
 export type TriggerType = 'manual' | 'scheduled' | 'webhook' | 'event' | 'insight';
@@ -48,29 +49,76 @@ const getTotalSteps = (blocks: FlowBlock[]) => {
   return blocks.length;
 };
 
-// Generate mock output data
+// Generate mock final output data
 const generateMockOutput = (flowName: string) => {
   const outputs = [
-    {
-      timestamp: new Date().toISOString(),
-      step: "Data Collection",
-      result: `Successfully collected 247 product listings for ${flowName}`,
-      duration: "2.3s"
-    },
-    {
-      timestamp: new Date(Date.now() - 1000).toISOString(),
-      step: "Analysis",
-      result: "Identified 23 optimization opportunities and 5 potential issues",
-      duration: "4.1s"
-    },
-    {
-      timestamp: new Date(Date.now() - 2000).toISOString(),
-      step: "Action",
-      result: "Generated 15 optimized listings and scheduled 8 price updates",
-      duration: "1.7s"
-    }
+    `Enhanced product listing for "${flowName.includes('Inventory') ? 'Amazon FBA Product Analyzer' : 'Bluetooth Wireless Earbuds'}" with optimized title, bullet points, and description`,
+    `Price adjustment recommendation reducing cost by 15% while maintaining 40% profit margin`,
+    `Competitor analysis report identifying 3 key advantages and 2 areas for improvement`,
+    `Updated inventory tracking spreadsheet with automated restock alerts for low-stock items`,
+    `SEO-optimized product description with high-converting keywords and improved search ranking`
   ];
-  return outputs;
+  
+  const randomIndex = Math.floor(Math.random() * outputs.length);
+  return {
+    result: outputs[randomIndex],
+    timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+    documentsGenerated: Math.floor(Math.random() * 5) + 1
+  };
+};
+
+// Document Preview Modal Component
+const DocumentPreviewModal = ({ flowName, output }: { flowName: string; output: any }) => {
+  return (
+    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle>Document Preview - {flowName}</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-4">
+        {/* Document preview content */}
+        <div className="bg-muted/30 rounded-lg p-6 border">
+          <div className="flex items-center gap-2 mb-4">
+            <FileText className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold">Generated Document</h3>
+          </div>
+          <div className="bg-white p-6 rounded-md border min-h-[300px]">
+            <h4 className="text-lg font-semibold mb-4">{flowName} - Final Output</h4>
+            <p className="text-muted-foreground mb-6">{output.result}</p>
+            
+            {/* Mock document content */}
+            <div className="space-y-4">
+              <div>
+                <h5 className="font-medium mb-2">Executive Summary</h5>
+                <p className="text-sm text-muted-foreground">This automated analysis has identified key optimization opportunities that can improve performance by 25-40%.</p>
+              </div>
+              <div>
+                <h5 className="font-medium mb-2">Key Findings</h5>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Pricing strategy optimization potential identified</li>
+                  <li>• Market positioning improvements recommended</li>
+                  <li>• Inventory management enhancements suggested</li>
+                </ul>
+              </div>
+              <div>
+                <h5 className="font-medium mb-2">Recommended Actions</h5>
+                <p className="text-sm text-muted-foreground">Implementation of suggested changes should be prioritized based on impact and resource requirements.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-muted-foreground">
+            Generated on {output.timestamp.toLocaleString()} • {output.documentsGenerated} documents created
+          </div>
+          <Button variant="outline" className="gap-2">
+            <ExternalLink className="h-4 w-4" />
+            View All Documents
+          </Button>
+        </div>
+      </div>
+    </DialogContent>
+  );
 };
 
 export function FlowsGrid({
@@ -240,20 +288,24 @@ export function FlowsGrid({
                   <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(flow.id)}>
                     <CollapsibleContent className="mt-4">
                       <div className="bg-muted/50 rounded-lg p-4">
-                        <h4 className="font-medium mb-3">Recent Output</h4>
-                        <div className="space-y-3">
-                          {mockOutput.map((output, index) => (
-                            <div key={index} className="bg-background rounded-md p-3 border">
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="font-medium text-sm">{output.step}</span>
-                                <span className="text-xs text-muted-foreground">{output.duration}</span>
-                              </div>
-                              <p className="text-sm text-muted-foreground">{output.result}</p>
-                              <span className="text-xs text-muted-foreground">
-                                {new Date(output.timestamp).toLocaleString()}
-                              </span>
-                            </div>
-                          ))}
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-medium">Recent Output</h4>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="gap-2">
+                                <FileText className="h-4 w-4" />
+                                Preview
+                              </Button>
+                            </DialogTrigger>
+                            <DocumentPreviewModal flowName={flow.name} output={mockOutput} />
+                          </Dialog>
+                        </div>
+                        <div className="bg-background rounded-md p-4 border">
+                          <p className="text-sm font-medium mb-2">{mockOutput.result}</p>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>Generated on {mockOutput.timestamp.toLocaleDateString()}</span>
+                            <span>{mockOutput.documentsGenerated} documents created</span>
+                          </div>
                         </div>
                       </div>
                     </CollapsibleContent>
