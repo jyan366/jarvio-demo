@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Play, Edit, Clock, Zap, Trash2, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Play, Edit, Clock, Zap, Trash2, Loader2, Eye, History, PlayCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Flow, FlowBlock } from '@/types/flowTypes';
 
 // Define the flow types and their properties
@@ -15,9 +16,11 @@ interface FlowsGridProps {
   flows: Flow[];
   onEditFlow: (flowId: string) => void;
   onRunFlow: (flowId: string) => void;
-  onDeleteFlow?: (flowId: string) => void; // Add delete flow handler
+  onDeleteFlow?: (flowId: string) => void;
+  onRunAllFlows?: () => void;
+  onViewOutput?: (flowId: string) => void;
   isRunningFlow?: boolean;
-  runningFlowId?: string; // Add to track which flow is running
+  runningFlowId?: string;
 }
 
 // Helper function to get a trigger icon
@@ -71,23 +74,63 @@ export function FlowsGrid({
   onEditFlow,
   onRunFlow,
   onDeleteFlow,
+  onRunAllFlows,
+  onViewOutput,
   isRunningFlow = false,
   runningFlowId
 }: FlowsGridProps) {
-  const {
-    toast
-  } = useToast();
-  return <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-      {flows.map(flow => {
-      const blockCounts = getBlockCounts(flow.blocks);
-      const significantBlocks = getSignificantBlocks(flow.blocks);
-      const isCurrentFlowRunning = isRunningFlow && runningFlowId === flow.id;
-      return <Card key={flow.id} className="overflow-hidden shadow-sm hover:shadow transition-shadow">
+  const { toast } = useToast();
+  
+  // Mock run history data - in real app this would come from props or API
+  const getRunHistory = (flowId: string) => {
+    const mockRuns = Math.floor(Math.random() * 15) + 1;
+    const lastRun = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
+    return { totalRuns: mockRuns, lastRun };
+  };
+
+  const manualFlows = flows.filter(flow => flow.trigger === 'manual');
+
+  return <div className="space-y-6">
+      {/* Run All Manual Flows Button */}
+      {manualFlows.length > 0 && onRunAllFlows && (
+        <div className="flex justify-end">
+          <Button 
+            onClick={onRunAllFlows}
+            disabled={isRunningFlow}
+            className="gap-2"
+          >
+            <PlayCircle className="h-4 w-4" />
+            Run All Manual Flows ({manualFlows.length})
+          </Button>
+        </div>
+      )}
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {flows.map(flow => {
+          const blockCounts = getBlockCounts(flow.blocks);
+          const significantBlocks = getSignificantBlocks(flow.blocks);
+          const isCurrentFlowRunning = isRunningFlow && runningFlowId === flow.id;
+          const runHistory = getRunHistory(flow.id);
+          
+          return <Card key={flow.id} className="overflow-hidden shadow-sm hover:shadow transition-shadow">
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg font-semibold break-words">{flow.name}</CardTitle>
-                  <CardDescription className="mt-1 line-clamp-2 break-words">{flow.description}</CardDescription>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <CardTitle className="text-lg font-semibold break-words">{flow.name}</CardTitle>
+                    {runHistory.totalRuns > 0 && (
+                      <Badge variant="secondary" className="text-xs gap-1">
+                        <History className="h-3 w-3" />
+                        {runHistory.totalRuns} runs
+                      </Badge>
+                    )}
+                  </div>
+                  <CardDescription className="line-clamp-2 break-words">{flow.description}</CardDescription>
+                  {runHistory.totalRuns > 0 && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Last run: {runHistory.lastRun.toLocaleDateString()}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center space-x-1 rounded-md bg-secondary p-1 text-secondary-foreground">
                   {getTriggerIcon(flow.trigger)}
@@ -123,17 +166,50 @@ export function FlowsGrid({
                   Edit
                 </Button>
                 
-                {onDeleteFlow && <Button variant="outline" size="sm" className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => onDeleteFlow(flow.id)} disabled={isRunningFlow}>
+                {runHistory.totalRuns > 0 && onViewOutput && (
+                  <Button variant="outline" size="sm" onClick={() => onViewOutput(flow.id)} disabled={isRunningFlow}>
+                    <Eye className="h-4 w-4 mr-1" />
+                    Output
+                  </Button>
+                )}
+                
+                {onDeleteFlow && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700" 
+                    onClick={() => onDeleteFlow(flow.id)} 
+                    disabled={isRunningFlow}
+                  >
                     <Trash2 className="h-4 w-4 mr-1" />
                     Delete
-                  </Button>}
+                  </Button>
+                )}
               </div>
               
-              {flow.trigger === 'manual' && <Button size="sm" onClick={() => onRunFlow(flow.id)} disabled={isRunningFlow} className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : "bg-blue-600 hover:bg-blue-700"}>
-                  {isCurrentFlowRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-                </Button>}
+              {flow.trigger === 'manual' && (
+                <Button 
+                  size="sm" 
+                  onClick={() => onRunFlow(flow.id)} 
+                  disabled={isRunningFlow}
+                  className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : ""}
+                >
+                  {isCurrentFlowRunning ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                      Running...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4 mr-1" />
+                      Run
+                    </>
+                  )}
+                </Button>
+              )}
             </CardFooter>
           </Card>;
-    })}
+        })}
+      </div>
     </div>;
 }

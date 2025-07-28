@@ -25,6 +25,19 @@ export function FlowsSection({
   isRunningFlow = false,
   runningFlowId
 }: FlowsSectionProps) {
+  
+  const handleRunAllFlows = async () => {
+    const manualFlows = flows.filter(flow => flow.trigger === 'manual');
+    // Run all manual flows - for now just call onRunFlow for each
+    for (const flow of manualFlows) {
+      await onRunFlow(flow.id);
+    }
+  };
+
+  const handleViewOutput = (flowId: string) => {
+    // Placeholder for viewing output - not functional yet as requested
+    console.log('View output for flow:', flowId);
+  };
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -46,6 +59,8 @@ export function FlowsSection({
         onEditFlow={onEditFlow} 
         onRunFlow={onRunFlow} 
         onDeleteFlow={onDeleteFlow}
+        onRunAllFlows={handleRunAllFlows}
+        onViewOutput={handleViewOutput}
         isRunningFlow={isRunningFlow}
         runningFlowId={runningFlowId}
       />
