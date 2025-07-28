@@ -28,7 +28,28 @@ interface TiptapEditorProps {
 
 // Convert markdown-like content to HTML
 const convertMarkdownToHTML = (content: string): string => {
-  return content
+  // First handle tables
+  let htmlContent = content.replace(/\|(.+)\|/g, (match, content) => {
+    const cells = content.split('|').map((cell: string) => cell.trim());
+    return cells.map((cell: string) => `<td>${cell}</td>`).join('');
+  });
+
+  // Convert table headers (lines with dashes)
+  htmlContent = htmlContent.replace(/\|[-\s|]+\|/g, '');
+
+  // Wrap table rows
+  htmlContent = htmlContent.replace(/(<td>.+<\/td>)/g, '<tr>$1</tr>');
+
+  // Find table blocks and wrap them
+  htmlContent = htmlContent.replace(/(<tr>.+<\/tr>(?:\s*<tr>.+<\/tr>)*)/gs, (match) => {
+    const rows = match.split('<tr>').filter(row => row.trim());
+    const headerRow = rows[0] ? `<thead><tr>${rows[0]}</tr></thead>` : '';
+    const bodyRows = rows.slice(1).map(row => `<tr>${row}`).join('');
+    const tbody = bodyRows ? `<tbody>${bodyRows}</tbody>` : '';
+    return `<table>${headerRow}${tbody}</table>`;
+  });
+
+  return htmlContent
     // Headers
     .replace(/^### (.*$)/gm, '<h3>$1</h3>')
     .replace(/^## (.*$)/gm, '<h2>$1</h2>')
@@ -41,8 +62,8 @@ const convertMarkdownToHTML = (content: string): string => {
     // Line breaks
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>')
-    // Wrap in paragraphs
-    .replace(/^(?!<h|<li|<table|<p)(.*?)$/gm, '<p>$1</p>')
+    // Wrap in paragraphs (but not tables)
+    .replace(/^(?!<h|<li|<table|<p|<tr)(.*?)$/gm, '<p>$1</p>')
     // Clean up empty paragraphs
     .replace(/<p><\/p>/g, '')
     .replace(/<p><br><\/p>/g, '<br>');
