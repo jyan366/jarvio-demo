@@ -8,7 +8,7 @@ import { Button } from '../ui/button';
 import { NavigationSettings } from './NavigationSettings';
 import { ThemeToggle } from '../ThemeToggle';
 import { MarketplaceSelector } from '../marketplace/MarketplaceSelector';
-import { LogOut, User, Settings, Sun, Moon, Package } from 'lucide-react';
+import { LogOut, User, Settings, Sun, Moon, Package, BookOpen } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useTheme } from '../ThemeProvider';
 
@@ -27,13 +27,14 @@ export function TopNavigation() {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  // Show Chat, Tasks, Flows, Insights Studio, and My Products
+  // Show Chat, Tasks, Flows, Insights Studio, My Products, and Docs
   const selectedItems = [
     workflowItems.find(item => item.id === 'new-conversation'), // Chat
     workflowItems.find(item => item.id === 'task-manager'), // Tasks
     workflowItems.find(item => item.id === 'jarvi-flows'), // Flows
     workflowItems.find(item => item.id === 'action-studio'), // Insights Studio
     { id: 'my-products', label: 'My Products', href: '/my-offers', icon: Package }, // My Products
+    workflowItems.find(item => item.id === 'my-docs'), // Docs
   ].filter(Boolean);
 
   const isTaskPage = /^\/task(\/|$)/.test(location.pathname);
