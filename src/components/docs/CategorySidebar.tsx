@@ -32,6 +32,13 @@ export function CategorySidebar({ documents, activeSection, onCategoryClick }: C
 
   const categories: CategoryInfo[] = [
     {
+      id: 'outputs',
+      name: 'Workflow Outputs',
+      icon: TrendingUp,
+      count: documentsByCategory.outputs?.length || 0,
+      description: 'Auto-generated flow outputs'
+    },
+    {
       id: 'activity',
       name: 'Flow Activity',
       icon: Activity,
@@ -44,13 +51,6 @@ export function CategorySidebar({ documents, activeSection, onCategoryClick }: C
       icon: Clock,
       count: Math.min(5, documents.length),
       description: 'Recently updated documents'
-    },
-    {
-      id: 'outputs',
-      name: 'Workflow Outputs',
-      icon: TrendingUp,
-      count: documentsByCategory.outputs?.length || 0,
-      description: 'Auto-generated flow outputs'
     },
     {
       id: 'documents',
