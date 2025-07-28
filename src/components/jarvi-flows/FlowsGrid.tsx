@@ -326,52 +326,17 @@ export function FlowsGrid({
                 {/* Bottom section - Output focused */}
                 <div className="flex items-center justify-between pt-2 border-t">
                   <div className="flex gap-2">
-                    {/* Document Preview Dropdown */}
-                    {runHistory.outputs.length > 0 ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="flex items-center gap-1">
-                            <FileText className="h-4 w-4" />
+                    {/* Collapsible Output Section */}
+                    {runHistory.outputs.length > 0 && (
+                      <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(flow.id)}>
+                        <CollapsibleTrigger asChild>
+                          <Button variant="outline" size="sm" disabled={isCurrentFlowRunning}>
+                            <Eye className="h-4 w-4 mr-1" />
                             View Output ({runHistory.outputs.length})
-                            <ChevronDown className="h-4 w-4" />
+                            {isExpanded ? <ChevronDown className="h-4 w-4 ml-1" /> : <ChevronRight className="h-4 w-4 ml-1" />}
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-64">
-                          {runHistory.outputs.map((output, index) => (
-                            <DropdownMenuItem 
-                              key={output.id}
-                              onClick={() => handlePreviewDocument(flow.name, output.id)}
-                              className="flex items-center justify-between p-3"
-                            >
-                              <div className="flex flex-col">
-                                <span className="font-medium text-sm">
-                                  Run #{runHistory.outputs.length - index}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  {formatDate(output.date)} • {output.runtime}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {output.status === 'success' ? (
-                                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                                ) : (
-                                  <div className="w-2 h-2 bg-red-500 rounded-full" />
-                                )}
-                              </div>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    ) : (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        disabled
-                        className="flex items-center gap-1"
-                      >
-                        <FileText className="h-4 w-4" />
-                        No Outputs
-                      </Button>
+                        </CollapsibleTrigger>
+                      </Collapsible>
                     )}
                   </div>
                   
@@ -397,30 +362,48 @@ export function FlowsGrid({
                   )}
                 </div>
 
-                {/* Expandable output section */}
-                {runHistory.totalRuns > 0 && (
+                {/* Collapsible Content - Show Output History */}
+                {runHistory.outputs.length > 0 && (
                   <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(flow.id)}>
-                    <CollapsibleContent className="mt-4">
-                      <div className="bg-muted/50 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-medium">Recent Output</h4>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="gap-2">
-                                <FileText className="h-4 w-4" />
-                                Preview
-                              </Button>
-                            </DialogTrigger>
-                            <DocumentPreviewModal flowName={flow.name} output={mockOutput} />
-                          </Dialog>
-                        </div>
-                        <div className="bg-background rounded-md p-4 border">
-                          <p className="text-sm font-medium mb-2">{mockOutput.result}</p>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>Generated on {mockOutput.timestamp.toLocaleDateString()}</span>
-                            <span>{mockOutput.documentsGenerated} documents created</span>
+                    <CollapsibleContent className="mt-4 pt-4 border-t space-y-2">
+                      <h4 className="text-sm font-medium text-foreground mb-3">Recent Outputs</h4>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {runHistory.outputs.slice(0, 5).map((output, index) => (
+                          <div 
+                            key={output.id}
+                            className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-medium text-sm">
+                                  Run #{runHistory.outputs.length - index}
+                                </span>
+                                {output.status === 'success' ? (
+                                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                                ) : (
+                                  <div className="w-2 h-2 bg-red-500 rounded-full" />
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {formatDate(output.date)} • Runtime: {output.runtime}
+                              </div>
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handlePreviewDocument(flow.name, output.id)}
+                              className="ml-2"
+                            >
+                              <FileText className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
                           </div>
-                        </div>
+                        ))}
+                        {runHistory.outputs.length > 5 && (
+                          <div className="text-xs text-muted-foreground text-center py-2">
+                            + {runHistory.outputs.length - 5} more outputs
+                          </div>
+                        )}
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
