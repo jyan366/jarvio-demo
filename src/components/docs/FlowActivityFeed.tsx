@@ -147,7 +147,19 @@ export function FlowActivityFeed({ onViewFlow, onViewDocument }: FlowActivityFee
                       variant="ghost"
                       size="sm"
                       className="h-auto p-1 text-xs"
-                      onClick={() => onViewFlow?.(activity.flowId)}
+                      onClick={() => {
+                        // Map flow IDs to their corresponding output documents
+                        const flowDocumentMap: Record<string, string> = {
+                          'flow-1': 'flow-output-1', // Inventory Restock Monitor
+                          'flow-5': 'flow-output-2', // Competitor Price Monitor  
+                          'flow-4': 'flow-output-3', // Performance Analyzer
+                          'flow-6': 'flow-output-1'  // Inventory Optimizer (use same sample)
+                        };
+                        const documentId = flowDocumentMap[activity.flowId];
+                        if (documentId && onViewDocument) {
+                          onViewDocument(documentId);
+                        }
+                      }}
                     >
                       <Eye className="h-3 w-3 mr-1" />
                       View Outputs
