@@ -138,9 +138,13 @@ export default function MyDocs() {
                 <DocumentHome
                   documents={documents}
                   onSelectDocument={handleSelectDocument}
-                  onCreateDocument={handleCreateDocument}
-                  onDeleteDocument={handleDeleteDocument}
-                  onSearchDocuments={searchDocuments}
+          onCreateDocument={handleCreateDocument}
+          onDeleteDocument={handleDeleteDocument}
+          onSearchDocuments={searchDocuments}
+          onViewFlow={(flowId) => {
+            // Navigate to flows page
+            window.open('/jarvi-flows', '_blank');
+          }}
                 />
               </div>
             </div>

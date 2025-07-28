@@ -3,6 +3,8 @@ import { Plus, Search, FileText, Table, TrendingUp, Layout } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DocumentGrid } from './DocumentGrid';
+import { FlowOutputsSection } from './FlowOutputsSection';
+import { FlowActivityFeed } from './FlowActivityFeed';
 import { QuickActions } from './QuickActions';
 import { DocumentMetadata, DocumentCategory } from '@/types/docs';
 
@@ -12,6 +14,7 @@ interface DocumentHomeProps {
   onCreateDocument: (title?: string, type?: any, category?: any) => void;
   onDeleteDocument: (id: string) => void;
   onSearchDocuments: (query: string) => DocumentMetadata[];
+  onViewFlow?: (flowId: string) => void;
 }
 
 export function DocumentHome({
@@ -20,6 +23,7 @@ export function DocumentHome({
   onCreateDocument,
   onDeleteDocument,
   onSearchDocuments,
+  onViewFlow,
 }: DocumentHomeProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -38,6 +42,10 @@ export function DocumentHome({
     acc[doc.category].push(doc);
     return acc;
   }, {} as Record<DocumentCategory, DocumentMetadata[]>);
+
+  // Get outputs for special handling
+  const outputDocuments = documentsByCategory.outputs || [];
+  const nonOutputCategories = Object.entries(documentsByCategory).filter(([category]) => category !== 'outputs');
 
   const getCategoryIcon = (category: DocumentCategory) => {
     switch (category) {
@@ -99,6 +107,12 @@ export function DocumentHome({
 
       {/* Content */}
       <div className="p-6 space-y-8">
+        {/* Flow Activity Feed */}
+        <FlowActivityFeed 
+          onViewFlow={onViewFlow}
+          onViewDocument={onSelectDocument}
+        />
+
         {/* Recent Documents */}
         {recentDocuments.length > 0 && (
           <section>
@@ -107,12 +121,23 @@ export function DocumentHome({
               documents={recentDocuments}
               onSelectDocument={onSelectDocument}
               onDeleteDocument={onDeleteDocument}
+              onViewFlow={onViewFlow}
             />
           </section>
         )}
 
-        {/* Documents by Category */}
-        {Object.entries(documentsByCategory).map(([category, docs]) => {
+        {/* Enhanced Workflow Outputs Section */}
+        {outputDocuments.length > 0 && (
+          <FlowOutputsSection
+            documents={outputDocuments}
+            onSelectDocument={onSelectDocument}
+            onDeleteDocument={onDeleteDocument}
+            onViewFlow={onViewFlow}
+          />
+        )}
+
+        {/* Other Categories */}
+        {nonOutputCategories.map(([category, docs]) => {
           if (docs.length === 0) return null;
           
           const Icon = getCategoryIcon(category as DocumentCategory);
@@ -130,6 +155,7 @@ export function DocumentHome({
                 documents={docs}
                 onSelectDocument={onSelectDocument}
                 onDeleteDocument={onDeleteDocument}
+                onViewFlow={onViewFlow}
               />
             </section>
           );
