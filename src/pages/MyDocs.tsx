@@ -56,7 +56,7 @@ export default function MyDocs() {
 
   return (
     <MainLayout>
-      <div className="absolute inset-0 bg-background">
+      <div className="flex-1 flex flex-col min-h-0 -m-6">
         <CollapsibleSidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
