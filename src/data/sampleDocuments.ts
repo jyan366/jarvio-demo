@@ -1,6 +1,7 @@
 import { DocumentMetadata } from '@/types/docs';
 
 export const sampleDocuments: DocumentMetadata[] = [
+  // My Documents folder
   {
     id: 'doc-1',
     title: 'Amazon Listing Optimization Guide',
@@ -26,8 +27,46 @@ export const sampleDocuments: DocumentMetadata[] = [
     description: 'Quarterly inventory planning and restock analysis'
   },
   {
+    id: 'doc-3',
+    title: 'Competitor Analysis - Electronics',
+    type: 'text',
+    category: 'documents',
+    createdAt: new Date('2024-01-12'),
+    updatedAt: new Date('2024-01-19'),
+    wordCount: 892,
+    characterCount: 5320,
+    icon: '🔍',
+    description: 'Deep dive into competitor pricing and positioning strategies'
+  },
+  {
+    id: 'doc-4',
+    title: 'Product Launch Timeline',
+    type: 'table',
+    category: 'documents',
+    createdAt: new Date('2024-01-08'),
+    updatedAt: new Date('2024-01-16'),
+    wordCount: 634,
+    characterCount: 3890,
+    icon: '🚀',
+    description: 'Step-by-step timeline for new product launches'
+  },
+  {
+    id: 'doc-5',
+    title: 'Customer Feedback Analysis',
+    type: 'text',
+    category: 'documents',
+    createdAt: new Date('2024-01-14'),
+    updatedAt: new Date('2024-01-21'),
+    wordCount: 728,
+    characterCount: 4200,
+    icon: '💬',
+    description: 'Analysis of customer reviews and feedback patterns'
+  },
+
+  // Outputs folder
+  {
     id: 'output-1',
-    title: 'Product Performance Analysis',
+    title: 'Product Performance Analysis Report',
     type: 'output',
     category: 'outputs',
     createdAt: new Date('2024-01-18'),
@@ -49,6 +88,44 @@ export const sampleDocuments: DocumentMetadata[] = [
     icon: '💰',
     description: 'Automated competitor pricing analysis and recommendations'
   },
+  {
+    id: 'output-3',
+    title: 'Inventory Optimization Suggestions',
+    type: 'output',
+    category: 'outputs',
+    createdAt: new Date('2024-01-17'),
+    updatedAt: new Date('2024-01-17'),
+    wordCount: 567,
+    characterCount: 3450,
+    icon: '📦',
+    description: 'AI recommendations for inventory management optimization'
+  },
+  {
+    id: 'output-4',
+    title: 'Keyword Research Analysis',
+    type: 'output',
+    category: 'outputs',
+    createdAt: new Date('2024-01-19'),
+    updatedAt: new Date('2024-01-19'),
+    wordCount: 445,
+    characterCount: 2890,
+    icon: '🔤',
+    description: 'Automated keyword research and SEO recommendations'
+  },
+  {
+    id: 'output-5',
+    title: 'Sales Trend Forecast',
+    type: 'output',
+    category: 'outputs',
+    createdAt: new Date('2024-01-20'),
+    updatedAt: new Date('2024-01-20'),
+    wordCount: 723,
+    characterCount: 4100,
+    icon: '📊',
+    description: 'AI-powered sales forecasting based on historical data'
+  },
+
+  // Templates folder
   {
     id: 'template-1',
     title: 'Product Launch Checklist',
@@ -72,6 +149,18 @@ export const sampleDocuments: DocumentMetadata[] = [
     characterCount: 1890,
     icon: '📅',
     description: 'Template for monthly business performance reviews'
+  },
+  {
+    id: 'template-3',
+    title: 'Competitor Analysis Framework',
+    type: 'template',
+    category: 'templates',
+    createdAt: new Date('2024-01-06'),
+    updatedAt: new Date('2024-01-06'),
+    wordCount: 398,
+    characterCount: 2340,
+    icon: '🎯',
+    description: 'Structured template for competitor analysis'
   }
 ];
 
