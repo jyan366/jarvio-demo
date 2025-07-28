@@ -326,13 +326,13 @@ export function FlowsGrid({
                 {/* Bottom section - Output focused */}
                 <div className="flex items-center justify-between pt-2 border-t">
                   <div className="flex gap-2">
-                    {/* Collapsible Output Section */}
+                    {/* Collapsible Runs Section */}
                     {runHistory.outputs.length > 0 && (
                       <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(flow.id)}>
                         <CollapsibleTrigger asChild>
                           <Button variant="outline" size="sm" disabled={isCurrentFlowRunning}>
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Output ({runHistory.outputs.length})
+                            <History className="h-4 w-4 mr-1" />
+                            View Runs ({runHistory.outputs.length})
                             {isExpanded ? <ChevronDown className="h-4 w-4 ml-1" /> : <ChevronRight className="h-4 w-4 ml-1" />}
                           </Button>
                         </CollapsibleTrigger>
@@ -366,8 +366,8 @@ export function FlowsGrid({
                 {runHistory.outputs.length > 0 && (
                   <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(flow.id)}>
                     <CollapsibleContent className="mt-4 pt-4 border-t space-y-2">
-                      <h4 className="text-sm font-medium text-foreground mb-3">Recent Outputs</h4>
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                      <h4 className="text-sm font-medium text-foreground mb-3">Recent Runs</h4>
+                      <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-track-muted scrollbar-thumb-muted-foreground/20">
                         {runHistory.outputs.slice(0, 5).map((output, index) => (
                           <div 
                             key={output.id}
@@ -388,20 +388,22 @@ export function FlowsGrid({
                                 {formatDate(output.date)} • Runtime: {output.runtime}
                               </div>
                             </div>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handlePreviewDocument(flow.name, output.id)}
-                              className="ml-2"
-                            >
-                              <FileText className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handlePreviewDocument(flow.name, output.id)}
+                                className="text-xs"
+                              >
+                                <FileText className="h-3 w-3 mr-1" />
+                                View Output
+                              </Button>
+                            </div>
                           </div>
                         ))}
                         {runHistory.outputs.length > 5 && (
                           <div className="text-xs text-muted-foreground text-center py-2">
-                            + {runHistory.outputs.length - 5} more outputs
+                            + {runHistory.outputs.length - 5} more runs
                           </div>
                         )}
                       </div>
