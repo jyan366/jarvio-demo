@@ -117,7 +117,7 @@ export default function MyDocs() {
               </div>
               
               {/* Scrollable content */}
-              <div className="flex-1 overflow-auto">
+              <div className="flex-1 overflow-auto scrollbar-hide">
                 <DocumentHome
                   documents={documents}
                   onSelectDocument={handleSelectDocument}

@@ -81,7 +81,7 @@ export function CategorySidebar({ documents, activeSection, onCategoryClick }: C
         </p>
       </div>
       
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 scrollbar-hide">
         <div className="p-2 space-y-1">
           {categories.map((category) => {
             const Icon = category.icon;
