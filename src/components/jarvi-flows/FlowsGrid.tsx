@@ -191,7 +191,7 @@ export function FlowsGrid({
                 <Button 
                   size="sm" 
                   onClick={() => onRunFlow(flow.id)} 
-                  disabled={isRunningFlow}
+                  disabled={isCurrentFlowRunning}
                   className={isCurrentFlowRunning ? "bg-amber-500 hover:bg-amber-600" : ""}
                 >
                   {isCurrentFlowRunning ? (
