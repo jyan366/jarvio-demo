@@ -40,11 +40,7 @@ export function DocumentCard({ document, onSelect, onDelete }: DocumentCardProps
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {document.icon ? (
-              <span className="text-lg">{document.icon}</span>
-            ) : (
-              <TypeIcon className={`h-4 w-4 ${getTypeColor(document.type)}`} />
-            )}
+            <TypeIcon className={`h-4 w-4 ${getTypeColor(document.type)}`} />
             <h3 
               className="font-medium text-foreground truncate cursor-pointer hover:text-primary"
               onClick={onSelect}

@@ -77,7 +77,6 @@ export function CollapsibleSidebar({
                   onClick={() => onSelectDocument(doc.id)}
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="text-sm">{doc.icon || '📄'}</span>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-sm truncate">{doc.title}</div>
                       <div className="text-xs text-muted-foreground">

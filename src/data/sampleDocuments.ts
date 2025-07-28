@@ -11,7 +11,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-20'),
     wordCount: 1247,
     characterCount: 7580,
-    icon: '📝',
     description: 'Complete guide for optimizing product listings on Amazon marketplace'
   },
   {
@@ -23,7 +22,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-22'),
     wordCount: 456,
     characterCount: 2890,
-    icon: '📊',
     description: 'Quarterly inventory planning and restock analysis'
   },
   {
@@ -35,7 +33,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-19'),
     wordCount: 892,
     characterCount: 5320,
-    icon: '🔍',
     description: 'Deep dive into competitor pricing and positioning strategies'
   },
   {
@@ -47,7 +44,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-16'),
     wordCount: 634,
     characterCount: 3890,
-    icon: '🚀',
     description: 'Step-by-step timeline for new product launches'
   },
   {
@@ -59,7 +55,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-21'),
     wordCount: 728,
     characterCount: 4200,
-    icon: '💬',
     description: 'Analysis of customer reviews and feedback patterns'
   },
 
@@ -73,7 +68,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-18'),
     wordCount: 892,
     characterCount: 5320,
-    icon: '📈',
     description: 'AI-generated analysis of product performance metrics'
   },
   {
@@ -85,7 +79,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-16'),
     wordCount: 634,
     characterCount: 3890,
-    icon: '💰',
     description: 'Automated competitor pricing analysis and recommendations'
   },
   {
@@ -97,7 +90,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-17'),
     wordCount: 567,
     characterCount: 3450,
-    icon: '📦',
     description: 'AI recommendations for inventory management optimization'
   },
   {
@@ -109,7 +101,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-19'),
     wordCount: 445,
     characterCount: 2890,
-    icon: '🔤',
     description: 'Automated keyword research and SEO recommendations'
   },
   {
@@ -121,7 +112,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-20'),
     wordCount: 723,
     characterCount: 4100,
-    icon: '📊',
     description: 'AI-powered sales forecasting based on historical data'
   },
 
@@ -135,7 +125,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-05'),
     wordCount: 523,
     characterCount: 3210,
-    icon: '✅',
     description: 'Template for new product launch planning'
   },
   {
@@ -147,7 +136,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-08'),
     wordCount: 287,
     characterCount: 1890,
-    icon: '📅',
     description: 'Template for monthly business performance reviews'
   },
   {
@@ -159,7 +147,6 @@ export const sampleDocuments: DocumentMetadata[] = [
     updatedAt: new Date('2024-01-06'),
     wordCount: 398,
     characterCount: 2340,
-    icon: '🎯',
     description: 'Structured template for competitor analysis'
   }
 ];

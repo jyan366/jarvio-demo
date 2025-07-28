@@ -57,9 +57,9 @@ export default function MyDocs() {
 
   return (
     <MainLayout>
-      <div className="flex h-[calc(100vh-4rem)] overflow-hidden -m-6">
+      <div className="flex h-full overflow-hidden -m-6">
         {/* Desktop Sidebar - Always visible on lg+ screens */}
-        <div className="hidden lg:flex lg:w-80 lg:flex-col lg:border-r lg:bg-background">
+        <div className="hidden lg:flex lg:w-80 lg:flex-col lg:border-r lg:bg-background lg:flex-shrink-0">
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2">
               <Button
@@ -85,7 +85,6 @@ export default function MyDocs() {
                   onClick={() => handleSelectDocument(doc.id)}
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="text-sm">{doc.icon || '📄'}</span>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-sm truncate">{doc.title}</div>
                       <div className="text-xs text-muted-foreground">
@@ -137,9 +136,9 @@ export default function MyDocs() {
             </div>
           ) : (
             // Document editor view
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col overflow-hidden">
               {/* Mobile header */}
-              <div className="lg:hidden flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <div className="lg:hidden flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
                 <Button
                   variant="ghost"
                   size="sm"
