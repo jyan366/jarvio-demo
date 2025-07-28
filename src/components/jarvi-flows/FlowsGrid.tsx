@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -124,6 +124,31 @@ const DocumentPreviewModal = ({ flowName, output }: { flowName: string; output: 
   );
 };
 
+// Generate stable mock run history with outputs (only runs once per flow)
+const generateStableRunHistory = (flowId: string) => {
+  const baseRuns = Math.floor(Math.random() * 20) + 5; // 5-25 runs
+  const outputs = [];
+  
+  for (let i = 0; i < Math.min(baseRuns, 10); i++) { // Show max 10 recent outputs
+    const daysAgo = Math.floor(Math.random() * 30); // Within last 30 days
+    const date = new Date();
+    date.setDate(date.getDate() - daysAgo);
+    
+    outputs.push({
+      id: `${flowId}-output-${i}`,
+      date: date,
+      status: Math.random() > 0.1 ? 'success' : 'failed', // 90% success rate
+      runtime: `${Math.floor(Math.random() * 300) + 30}s` // 30-330 seconds
+    });
+  }
+  
+  return {
+    totalRuns: baseRuns,
+    lastRun: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+    outputs: outputs.sort((a, b) => b.date.getTime() - a.date.getTime()) // Most recent first
+  };
+};
+
 export function FlowsGrid({
   flows,
   onEditFlow,
@@ -143,6 +168,15 @@ export function FlowsGrid({
     title: string;
     content: string;
   } | null>(null);
+
+  // Generate stable run history data for all flows (memoized to prevent regeneration)
+  const flowRunHistories = useMemo(() => {
+    const histories: Record<string, any> = {};
+    flows.forEach(flow => {
+      histories[flow.id] = generateStableRunHistory(flow.id);
+    });
+    return histories;
+  }, [flows.map(f => f.id).join(',')]); // Only regenerate if flow IDs change
 
   const toggleExpanded = (flowId: string) => {
     const newExpanded = new Set(expandedFlows);
@@ -221,32 +255,11 @@ export function FlowsGrid({
     onRunFlow(flowId);
   };
 
-  // Generate mock run history with outputs
-  const getRunHistory = (flowId: string) => {
-    const baseRuns = Math.floor(Math.random() * 20) + 5; // 5-25 runs
-    const outputs = [];
-    
-    for (let i = 0; i < Math.min(baseRuns, 10); i++) { // Show max 10 recent outputs
-      const daysAgo = Math.floor(Math.random() * 30); // Within last 30 days
-      const date = new Date();
-      date.setDate(date.getDate() - daysAgo);
-      
-      outputs.push({
-        id: `${flowId}-output-${i}`,
-        date: date,
-        status: Math.random() > 0.1 ? 'success' : 'failed', // 90% success rate
-        runtime: `${Math.floor(Math.random() * 300) + 30}s` // 30-330 seconds
-      });
-    }
-    
-    return {
-      totalRuns: baseRuns,
-      lastRun: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
-      outputs: outputs.sort((a, b) => b.date.getTime() - a.date.getTime()) // Most recent first
-    };
-  };
 
-  
+  // Get stable run history for a flow
+  const getRunHistory = (flowId: string) => {
+    return flowRunHistories[flowId] || { totalRuns: 0, outputs: [], lastRun: new Date() };
+  };
 
   return (
     <div className="space-y-6">      
