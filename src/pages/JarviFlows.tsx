@@ -60,23 +60,10 @@ export default function JarviFlows() {
     setIsRunningFlow(true);
     setRunningFlowId(flowId);
     
-    const flowToRun = flows.find(flow => flow.id === flowId);
-    const flowName = flowToRun?.name || 'Flow';
-    
-    toast({
-      title: "Running flow",
-      description: `${flowName} is running in the background...`
-    });
-
     // Demo: Simulate flow execution with timeout
     setTimeout(() => {
       setIsRunningFlow(false);
       setRunningFlowId(null);
-      
-      toast({
-        title: "Flow completed",
-        description: `${flowName} finished successfully!`
-      });
     }, 3000); // 3 second demo run
   };
 
