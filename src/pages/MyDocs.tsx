@@ -67,10 +67,10 @@ export default function MyDocs() {
 
   return (
     <MainLayout>
-      <div className="flex h-screen overflow-hidden -m-6">
+      <div className="flex h-full overflow-hidden -m-6">
         {/* Desktop Sidebar - Always visible on lg+ screens */}
-        <div className="hidden lg:flex lg:w-80 lg:flex-col lg:border-r lg:bg-background lg:flex-shrink-0 lg:h-screen lg:sticky lg:top-0">
-          <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
+        <div className="hidden lg:flex lg:w-80 lg:flex-col lg:border-r lg:bg-background lg:flex-shrink-0">
+          <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
