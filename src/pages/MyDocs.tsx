@@ -154,6 +154,18 @@ export default function MyDocs() {
                 </Button>
               </div>
               
+              {/* Desktop header for document view */}
+              <div className="hidden lg:flex items-center gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToHome}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Documents
+                </Button>
+              </div>
+              
               <div className="flex-1 overflow-hidden">
                 <TiptapEditor
                   document={currentDocument}
