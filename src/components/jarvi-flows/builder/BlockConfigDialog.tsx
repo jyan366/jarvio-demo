@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FlowBlock } from '@/types/flowTypes';
-import { Database, Brain, Zap, User, Play, Loader2, Save } from 'lucide-react';
+import { Database, Brain, Zap, User, Play, Loader2, Save, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -22,6 +22,9 @@ export function BlockConfigDialog({ block, isOpen, onClose }: BlockConfigDialogP
   const [isSaving, setIsSaving] = useState(false);
   const [testOutput, setTestOutput] = useState<string | null>(null);
   const [blockConfig, setBlockConfig] = useState<any>(null);
+  const [isPopulatingAI, setIsPopulatingAI] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [showAiPrompt, setShowAiPrompt] = useState(false);
   const { toast } = useToast();
 
   // Initialize block parameters state
@@ -347,6 +350,87 @@ Ready for analysis or next processing step.
     }));
   };
 
+  const handleAIPopulate = async () => {
+    if (!aiPrompt.trim()) {
+      toast({
+        title: "Prompt Required",
+        description: "Please enter a prompt to generate parameters.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsPopulatingAI(true);
+    
+    try {
+      // Call AI service to populate parameters
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Generate parameters for a ${block?.type} block called "${block?.option}" based on this prompt: "${aiPrompt}". 
+          
+          Available parameters: ${blockDetails.parameters.join(', ')}
+          
+          Please provide realistic values for each parameter based on the prompt. Return a JSON object with parameter names as keys and appropriate values.
+          
+          Example format:
+          {
+            "Input Type": "Text",
+            "Required Fields": "Product Name, Category",
+            "Validation": "Not Empty",
+            "Max Length": 500
+          }`,
+          type: 'parameters'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate parameters');
+      }
+
+      const data = await response.json();
+      let aiResponse = data.response || data.message || '';
+      
+      // Extract JSON from the response
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const generatedParams = JSON.parse(jsonMatch[0]);
+        
+        // Update parameters with AI-generated values
+        const updatedParams = { ...blockParams };
+        Object.entries(generatedParams).forEach(([key, value]) => {
+          if (blockDetails.parameters.includes(key)) {
+            updatedParams[key] = value;
+          }
+        });
+        
+        setBlockParams(updatedParams);
+        setShowAiPrompt(false);
+        setAiPrompt('');
+        
+        toast({
+          title: "Parameters Populated",
+          description: "AI has successfully populated the block parameters based on your prompt.",
+        });
+      } else {
+        throw new Error('Invalid AI response format');
+      }
+      
+    } catch (error) {
+      console.error('AI populate failed:', error);
+      toast({
+        title: "AI Population Failed",
+        description: "Failed to generate parameters with AI. Please try again or set them manually.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsPopulatingAI(false);
+    }
+  };
+
   // Use blockConfig from database instead of hardcoded data
   const blockDetails = blockConfig ? {
     description: blockConfig.credentials?.description || 
@@ -385,7 +469,61 @@ Ready for analysis or next processing step.
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <Label className="text-sm font-medium">Block Parameters</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Block Parameters</Label>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowAiPrompt(!showAiPrompt)}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    AI Populate
+                  </Button>
+                </div>
+                
+                {showAiPrompt && (
+                  <div className="space-y-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                    <Label className="text-xs font-medium">Describe what you want this block to do:</Label>
+                    <Textarea
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      placeholder="e.g., 'Collect product information from user including name, description, and price range'"
+                      rows={2}
+                      className="text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={handleAIPopulate}
+                        disabled={isPopulatingAI}
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        {isPopulatingAI ? (
+                          <>
+                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            Generate
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setShowAiPrompt(false);
+                          setAiPrompt('');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 
                 {blockDetails.parameters.map((param) => (
                   <div key={param} className="space-y-2">

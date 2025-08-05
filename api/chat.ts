@@ -15,10 +15,30 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const { prompt, message, type = 'flow' } = await req.json();
+    const userPrompt = prompt || message;
 
-    // AI system instructions for generating flow blocks
-    const systemPrompt = `
+    // Determine system prompt based on request type
+    let systemPrompt;
+    let responseFormat = { type: "json_object" };
+    
+    if (type === 'parameters') {
+      systemPrompt = `
+You are an AI assistant that helps configure block parameters for workflow automation.
+Your task is to generate appropriate parameter values based on the user's description.
+
+IMPORTANT RULES:
+1. Your response MUST be ONLY a valid JSON object with parameter names as keys and appropriate values.
+2. Base your parameter values on the user's prompt and the context of what they want to achieve.
+3. Use realistic, practical values that make sense for Amazon seller workflows.
+4. For text fields, provide clear, descriptive values.
+5. For numbers, use reasonable limits and counts.
+6. For boolean values, use true/false appropriately.
+
+Return ONLY the JSON object with the parameters, no explanations or extra text.
+`;
+    } else {
+      systemPrompt = `
 You are an AI assistant specialized in helping Amazon sellers create workflow automation.
 Your task is to generate a flow based on the user's description.
 
@@ -55,8 +75,9 @@ IMPORTANT: The "name" field for each block MUST be clear and descriptive of what
 
 Return ONLY the JSON object, no other text or formatting.
 `;
+    }
 
-    console.log("Sending request to OpenAI with prompt:", prompt);
+    console.log("Sending request to OpenAI with prompt:", userPrompt, "Type:", type);
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -68,10 +89,10 @@ Return ONLY the JSON object, no other text or formatting.
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt }
+          { role: 'user', content: userPrompt }
         ],
         temperature: 0.7,
-        response_format: { type: "json_object" }, // Force JSON response format
+        response_format: responseFormat
       }),
     });
 
@@ -92,65 +113,87 @@ Return ONLY the JSON object, no other text or formatting.
     const rawContent = data.choices[0].message.content;
     console.log("Raw response from OpenAI:", rawContent);
     
-    let flowData;
-    try {
-      // Attempt to parse the JSON directly
-      flowData = JSON.parse(rawContent);
-      
-      // Validate required fields
-      if (!flowData.name || !flowData.description || !Array.isArray(flowData.blocks)) {
-        throw new Error("Invalid flow structure. Missing required properties.");
-      }
-      
-      // Validate blocks
-      flowData.blocks.forEach(block => {
-        if (!block.type || !["collect", "think", "act"].includes(block.type)) {
-          throw new Error(`Invalid block type: ${block.type}`);
-        }
-        
-        const validOptions = {
-          collect: ["User Text", "Upload Sheet", "All Listing Info", "Get Keywords", "Estimate Sales", 
-                   "Review Information", "Scrape Sheet", "Seller Account Feedback", "Email Parsing"],
-          think: ["Basic AI Analysis", "Listing Analysis", "Insights Generation", "Review Analysis"],
-          act: ["AI Summary", "Push to Amazon", "Send Email", "Human in the Loop"]
+    let responseData;
+    
+    if (type === 'parameters') {
+      // Handle parameter population
+      try {
+        const parametersData = JSON.parse(rawContent);
+        responseData = {
+          success: true,
+          response: JSON.stringify(parametersData)
         };
+      } catch (parseError) {
+        console.error('Error parsing parameters JSON from OpenAI:', parseError, 'Raw content:', rawContent);
+        responseData = {
+          success: false,
+          error: 'Failed to parse AI-generated parameters'
+        };
+      }
+    } else {
+      // Handle flow generation
+      let flowData;
+      try {
+        // Attempt to parse the JSON directly
+        flowData = JSON.parse(rawContent);
         
-        if (!block.option || !validOptions[block.type].includes(block.option)) {
-          throw new Error(`Invalid option for ${block.type}: ${block.option}`);
+        // Validate required fields
+        if (!flowData.name || !flowData.description || !Array.isArray(flowData.blocks)) {
+          throw new Error("Invalid flow structure. Missing required properties.");
         }
         
-        // Ensure each block has a descriptive name
-        if (!block.name) {
-          // Generate a fallback descriptive name based on type and option
-          const actionPrefix = {
-            collect: "Gather",
-            think: "Analyze",
-            act: "Execute"
+        // Validate blocks
+        flowData.blocks.forEach(block => {
+          if (!block.type || !["collect", "think", "act"].includes(block.type)) {
+            throw new Error(`Invalid block type: ${block.type}`);
+          }
+          
+          const validOptions = {
+            collect: ["User Text", "Upload Sheet", "All Listing Info", "Get Keywords", "Estimate Sales", 
+                     "Review Information", "Scrape Sheet", "Seller Account Feedback", "Email Parsing"],
+            think: ["Basic AI Analysis", "Listing Analysis", "Insights Generation", "Review Analysis"],
+            act: ["AI Summary", "Push to Amazon", "Send Email", "Human in the Loop"]
           };
-          block.name = `${actionPrefix[block.type]} ${block.option}`;
-        }
-      });
-      
-    } catch (parseError) {
-      console.error('Error parsing or validating JSON from OpenAI:', parseError, 'Raw content:', rawContent);
-      
-      // Create a default flow based on the user's prompt
-      const flowName = prompt.split(' ').slice(0, 4).join(' ') + "...";
-      flowData = {
-        name: flowName,
-        description: `This flow helps Amazon sellers to ${prompt}.`,
-        blocks: [
-          { type: "collect", option: "All Listing Info", name: "Collect Product Data" },
-          { type: "think", option: "Basic AI Analysis", name: "Analyze Product Information" },
-          { type: "act", option: "AI Summary", name: "Generate Optimization Report" }
-        ]
+          
+          if (!block.option || !validOptions[block.type].includes(block.option)) {
+            throw new Error(`Invalid option for ${block.type}: ${block.option}`);
+          }
+          
+          // Ensure each block has a descriptive name
+          if (!block.name) {
+            // Generate a fallback descriptive name based on type and option
+            const actionPrefix = {
+              collect: "Gather",
+              think: "Analyze",
+              act: "Execute"
+            };
+            block.name = `${actionPrefix[block.type]} ${block.option}`;
+          }
+        });
+        
+      } catch (parseError) {
+        console.error('Error parsing or validating JSON from OpenAI:', parseError, 'Raw content:', rawContent);
+        
+        // Create a default flow based on the user's prompt
+        const flowName = userPrompt.split(' ').slice(0, 4).join(' ') + "...";
+        flowData = {
+          name: flowName,
+          description: `This flow helps Amazon sellers to ${userPrompt}.`,
+          blocks: [
+            { type: "collect", option: "All Listing Info", name: "Collect Product Data" },
+            { type: "think", option: "Basic AI Analysis", name: "Analyze Product Information" },
+            { type: "act", option: "AI Summary", name: "Generate Optimization Report" }
+          ]
+        };
+      }
+
+      responseData = {
+        success: true,
+        generatedFlow: flowData
       };
     }
 
-    return new Response(JSON.stringify({
-      success: true,
-      generatedFlow: flowData
-    }), {
+    return new Response(JSON.stringify(responseData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
     
