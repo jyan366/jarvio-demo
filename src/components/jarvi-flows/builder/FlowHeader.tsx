@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ViewToggle } from './ViewToggle';
+
 
 interface FlowHeaderProps {
   showAIPrompt: boolean;
@@ -59,12 +59,6 @@ export function FlowHeader({
       </Button>
       
       <div className="flex gap-2 items-center z-50 relative">
-        {onViewModeChange && (
-          <ViewToggle 
-            viewMode={viewMode} 
-            onViewModeChange={onViewModeChange} 
-          />
-        )}
         
         <Button
           variant="outline"

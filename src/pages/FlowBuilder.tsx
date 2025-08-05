@@ -203,7 +203,7 @@ export default function FlowBuilder() {
   const [isRunningFlow, setIsRunningFlow] = useState(false);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'steps' | 'canvas'>('steps');
+  const [viewMode, setViewMode] = useState<'canvas'>('canvas');
   const [stepExecutionResults, setStepExecutionResults] = useState<Array<{
     stepId: string;
     stepTitle: string;
@@ -689,8 +689,6 @@ export default function FlowBuilder() {
         flowHasBlocks={flow.steps.length > 0}
         onStartFlow={handleStartFlow}
         onSaveFlow={saveFlow}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
       />
       
       {showAIPrompt && (
@@ -704,44 +702,22 @@ export default function FlowBuilder() {
         </div>
       )}
 
-      {viewMode === 'canvas' ? (
-        // Full viewport canvas mode - starts right after main header
-        <div className="fixed top-[calc(4rem+10px)] left-2.5 right-2.5 bottom-2.5 bg-white z-0">
-          <ReactFlowCanvas
-            steps={flow.steps}
-            blocks={flow.blocks}
-            onStepsChange={updateFlowSteps}
-            onBlocksChange={updateFlowBlocks}
-            availableBlockOptions={availableBlockOptions}
-            flowTrigger={flow.trigger}
-            onTriggerChange={updateFlowTrigger}
-            onStartFlow={handleStartFlow}
-            isRunningFlow={isRunningFlow}
-            stepExecutionResults={stepExecutionResults}
-            onStepExecuted={handleStepExecuted}
-          />
-        </div>
-      ) : (
-        // Traditional steps mode
-        <div className="space-y-6 mt-6">
-          <FlowDetailsSection
-            name={flow.name}
-            setName={updateFlowName}
-            description={flow.description}
-            setDescription={updateFlowDescription}
-            trigger={flow.trigger}
-            setTrigger={updateFlowTrigger}
-          />
-          
-          <FlowStepsEditor
-            steps={flow.steps}
-            blocks={flow.blocks}
-            onStepsChange={updateFlowSteps}
-            onBlocksChange={updateFlowBlocks}
-            availableBlockOptions={availableBlockOptions}
-          />
-        </div>
-      )}
+      {/* Canvas mode - full viewport */}
+      <div className="fixed top-[calc(4rem+10px)] left-2.5 right-2.5 bottom-2.5 bg-white z-0">
+        <ReactFlowCanvas
+          steps={flow.steps}
+          blocks={flow.blocks}
+          onStepsChange={updateFlowSteps}
+          onBlocksChange={updateFlowBlocks}
+          availableBlockOptions={availableBlockOptions}
+          flowTrigger={flow.trigger}
+          onTriggerChange={updateFlowTrigger}
+          onStartFlow={handleStartFlow}
+          isRunningFlow={isRunningFlow}
+          stepExecutionResults={stepExecutionResults}
+          onStepExecuted={handleStepExecuted}
+        />
+      </div>
     </MainLayout>
   );
 }
