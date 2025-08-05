@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Play, Edit, Clock, Zap, Trash2, Loader2, Eye, History, PlayCircle, ChevronDown, ChevronRight, MoreVertical, Activity, FileText, ExternalLink } from 'lucide-react';
+import { Play, Edit, Clock, Zap, Trash2, Loader2, Eye, History, PlayCircle, ChevronDown, ChevronRight, MoreVertical, Activity, FileText, ExternalLink, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Flow, FlowBlock } from '@/types/flowTypes';
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DocumentPreviewDialog } from '@/components/docs/DocumentPreviewDialog';
 import { sampleDocumentContents } from '@/data/sampleDocuments';
+import { EmptyFlowsState } from './EmptyFlowsState';
 
 // Define the flow types and their properties
 export type TriggerType = 'manual' | 'scheduled' | 'webhook' | 'event' | 'insight';
@@ -23,10 +24,10 @@ interface FlowsGridProps {
   onEditFlow: (flowId: string) => void;
   onRunFlow: (flowId: string) => void;
   onDeleteFlow?: (flowId: string) => void;
-  onRunAllFlows?: () => void;
-  onViewOutput?: (flowId: string) => void;
+  onCreateFlow?: () => void;
   isRunningFlow?: boolean;
   runningFlowId?: string;
+  searchTerm?: string;
 }
 
 // Helper function to get a trigger icon
@@ -154,10 +155,10 @@ export function FlowsGrid({
   onEditFlow,
   onRunFlow,
   onDeleteFlow,
-  onRunAllFlows,
-  onViewOutput,
+  onCreateFlow,
   isRunningFlow = false,
-  runningFlowId
+  runningFlowId,
+  searchTerm = ''
 }: FlowsGridProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -261,6 +262,17 @@ export function FlowsGrid({
     return flowRunHistories[flowId] || { totalRuns: 0, outputs: [], lastRun: new Date() };
   };
 
+  // Handle empty state
+  if (flows.length === 0) {
+    return (
+      <EmptyFlowsState 
+        onCreateFlow={onCreateFlow || (() => {})} 
+        isFiltered={!!searchTerm}
+        searchTerm={searchTerm}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">      
       {/* Flows List - Single Column */}
@@ -279,49 +291,80 @@ export function FlowsGrid({
             (index % 2 === 0 ? "Daily at 9:00 AM" : "Weekly on Mondays") : null;
           
           return (
-            <Card key={flow.id} className="overflow-hidden shadow-sm hover:shadow transition-shadow">
+            <Card key={flow.id} className="overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-l-primary/20">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <CardTitle className="text-lg font-semibold">{flow.name}</CardTitle>
-                      {runHistory.totalRuns > 0 && (
-                        <Badge variant="secondary" className="text-xs gap-1">
-                          <History className="h-3 w-3" />
-                          {runHistory.totalRuns} runs
+                      <div className="flex items-center gap-2">
+                        {/* Status indicator */}
+                        <Badge 
+                          variant={isCurrentFlowRunning ? "destructive" : "secondary"} 
+                          className="text-xs gap-1"
+                        >
+                          <div className={`w-2 h-2 rounded-full ${
+                            isCurrentFlowRunning ? 'bg-amber-500 animate-pulse' : 
+                            isActive ? 'bg-green-500' : 'bg-gray-400'
+                          }`} />
+                          {isCurrentFlowRunning ? 'Running' : isActive ? 'Active' : 'Inactive'}
                         </Badge>
-                      )}
+                        
+                        {/* Performance badge */}
+                        {runHistory.totalRuns > 0 && (
+                          <Badge variant="outline" className="text-xs gap-1">
+                            <TrendingUp className="h-3 w-3" />
+                            {Math.round((runHistory.outputs.filter(o => o.status === 'success').length / runHistory.outputs.length) * 100)}% success
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                     <CardDescription className="break-words mb-3">{flow.description}</CardDescription>
                     
-                    {/* Flow info row */}
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center space-x-1 rounded-md bg-secondary px-2 py-1 text-secondary-foreground">
+                    {/* Flow info row with enhanced layout */}
+                    <div className="flex items-center gap-3 text-sm flex-wrap">
+                      <Badge 
+                        variant={isScheduled ? "default" : "secondary"} 
+                        className="text-xs gap-1 font-normal"
+                      >
                         {getTriggerIcon(isScheduled ? 'scheduled' : 'manual')}
-                        <span className="text-xs capitalize">{isScheduled ? 'Scheduled' : 'Manual'}</span>
-                      </div>
+                        {isScheduled ? 'Scheduled' : 'Manual'}
+                      </Badge>
                       
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 text-muted-foreground">
                         <Activity className="h-3 w-3" />
                         <span className="text-xs">{totalSteps} steps</span>
                       </div>
                       
-                      <div className="flex items-center gap-1">
-                        <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-400'}`} />
-                        <span className="text-xs">Active</span>
-                      </div>
+                      {runHistory.totalRuns > 0 && (
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                          <History className="h-3 w-3" />
+                          <span className="text-xs">{runHistory.totalRuns} runs</span>
+                        </div>
+                      )}
                       
                       {isScheduled && scheduledTime && (
                         <div className="flex items-center gap-1 text-blue-600">
                           <Clock className="h-3 w-3" />
-                          <span className="text-xs">{scheduledTime}</span>
+                          <span className="text-xs font-medium">{scheduledTime}</span>
                         </div>
                       )}
                     </div>
                     
+                    {/* Last run info with enhanced display */}
                     {runHistory.totalRuns > 0 && (
-                      <div className="text-xs text-muted-foreground mt-2">
-                        Last run: {runHistory.lastRun.toLocaleDateString()}
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground mt-3 pt-3 border-t border-muted/50">
+                        <div className="flex items-center gap-1">
+                          <span>Last run:</span>
+                          <span className="font-medium">{runHistory.lastRun.toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span>Avg runtime:</span>
+                          <span className="font-medium">
+                            {Math.round(runHistory.outputs.reduce((acc, output) => 
+                              acc + parseInt(output.runtime), 0) / runHistory.outputs.length)}s
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>
