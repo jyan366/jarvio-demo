@@ -33,7 +33,7 @@ export function TopNavigation() {
     workflowItems.find(item => item.id === 'task-manager'), // Tasks
     workflowItems.find(item => item.id === 'jarvi-flows'), // Flows
     workflowItems.find(item => item.id === 'action-studio'), // Insights Studio
-    { id: 'my-products', label: 'My Products', href: '/my-offers', icon: Package }, // My Products
+    { id: 'my-products', label: 'My Products', href: '/my-products', icon: Package }, // My Products
     workflowItems.find(item => item.id === 'my-docs'), // Docs
   ].filter(Boolean);
 

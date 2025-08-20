@@ -10,7 +10,7 @@ export const brandToolkitItems: MenuItem[] = [{
   status: 'active',
   submenu: [
     { label: 'Sales Hub', href: '/sales-hub' },
-    { label: 'My Offers', href: '/my-offers' },
+    { label: 'My Products', href: '/my-products' },
     { label: 'Reports Builder', href: '/reports-builder' }
   ]
 }, {

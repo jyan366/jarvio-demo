@@ -18,7 +18,7 @@ import AgentsHub from './pages/AgentsHub';
 import AgentProfile from './pages/AgentProfile';
 import AdsManager from './pages/AdsManager';
 import AllProductReviews from './pages/AllProductReviews';
-import MyOffers from './pages/MyOffers';
+import MyProducts from './pages/MyProducts';
 import ReportsBuilder from './pages/ReportsBuilder';
 import MyInventory from './pages/MyInventory';
 import SellerReimbursements from './pages/SellerReimbursements';
@@ -71,7 +71,7 @@ function App() {
             <Route path="/designs" element={<Designs />} />
             
             {/* Brand Toolkit Routes */}
-            <Route path="/my-offers" element={<MyOffers />} />
+            <Route path="/my-products" element={<MyProducts />} />
             <Route path="/reports-builder" element={<ReportsBuilder />} />
             <Route path="/inventory" element={<MyInventory />} />
             <Route path="/seller-reimbursements" element={<SellerReimbursements />} />

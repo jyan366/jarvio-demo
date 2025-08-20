@@ -20,7 +20,7 @@ interface NavigationVisibilityState {
     'agents-hub': boolean;
     'ads-manager': boolean;
     'all-product-reviews': boolean;
-    'my-offers': boolean;
+    'my-products': boolean;
     'reports-builder': boolean;
     'inventory': boolean;
     'seller-reimbursements': boolean;
@@ -55,7 +55,7 @@ const defaultState: NavigationVisibilityState = {
     'agents-hub': true,
     'ads-manager': true,
     'all-product-reviews': true,
-    'my-offers': true,
+    'my-products': true,
     'reports-builder': true,
     'inventory': true,
     'seller-reimbursements': true,
@@ -185,7 +185,7 @@ export function NavigationSettings() {
                 { id: 'agents-hub', label: 'Agents Hub' },
                 { id: 'ads-manager', label: 'Ads Manager' },
                 { id: 'all-product-reviews', label: 'All Product Reviews' },
-                { id: 'my-offers', label: 'My Offers' },
+                { id: 'my-products', label: 'My Products' },
                 { id: 'reports-builder', label: 'Reports Builder' },
                 { id: 'inventory', label: 'My Inventory' },
                 { id: 'seller-reimbursements', label: 'Seller Reimbursements' },
