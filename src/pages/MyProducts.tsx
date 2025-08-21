@@ -9,6 +9,9 @@ import { accountHealthMetrics, productSections } from '@/data/productsData';
 import { useToast } from '@/hooks/use-toast';
 
 export default function MyProducts() {
+  console.log('MyProducts component loading...');
+  console.log('Account health metrics:', accountHealthMetrics);
+  console.log('Product sections:', productSections);
   const [healthMetrics, setHealthMetrics] = useState(accountHealthMetrics);
   const [sections, setSections] = useState(productSections);
   const { toast } = useToast();
