@@ -94,7 +94,6 @@ export const ProductSections: React.FC<ProductSectionsProps> = ({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[80px]">Image</TableHead>
                     <TableHead>Product Name</TableHead>
                     <TableHead className="w-[100px]">ASIN</TableHead>
                     <TableHead className="w-[100px]">SKU</TableHead>
@@ -108,15 +107,6 @@ export const ProductSections: React.FC<ProductSectionsProps> = ({
                 <TableBody>
                   {section.products.map((product) => (
                     <TableRow key={product.id} className="group">
-                      <TableCell>
-                        <div className="w-12 h-12 flex items-center justify-center bg-muted rounded-md overflow-hidden">
-                          <img 
-                            src={product.image} 
-                            alt={product.name}
-                            className="w-full h-full object-contain" 
-                          />
-                        </div>
-                      </TableCell>
                       <TableCell className="font-medium max-w-[300px]">
                         <div className="line-clamp-2">{product.name}</div>
                       </TableCell>
