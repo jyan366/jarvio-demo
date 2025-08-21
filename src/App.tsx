@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { Toaster } from "@/components/ui/toaster";
 import { AgentSettingsProvider } from '@/hooks/useAgentSettings';
+import { TrackedMetricsProvider } from '@/hooks/useTrackedMetrics';
 
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
@@ -44,7 +45,8 @@ import MyDocs from './pages/MyDocs';
 function App() {
   return (
     <div className="App">
-      <AgentSettingsProvider>
+      <TrackedMetricsProvider>
+        <AgentSettingsProvider>
           <Routes>
             {/* Redirect root to new conversation */}
             <Route path="/" element={<Navigate to="/new-conversation" replace />} />
@@ -100,6 +102,7 @@ function App() {
           </Routes>
           <Toaster />
         </AgentSettingsProvider>
+      </TrackedMetricsProvider>
     </div>
   );
 }

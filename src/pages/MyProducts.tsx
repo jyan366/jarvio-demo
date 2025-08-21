@@ -1,67 +1,40 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Button } from '@/components/ui/button';
-import { ChevronDown, Settings } from 'lucide-react';
 import { AccountHealthWidgets } from '@/components/products/AccountHealthWidgets';
 import { ProductSections } from '@/components/products/ProductSections';
-import { accountHealthMetrics, productSections } from '@/data/productsData';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, Settings } from 'lucide-react';
+import { useTrackedMetrics } from '@/hooks/useTrackedMetrics';
 import { useToast } from '@/hooks/use-toast';
 
 export default function MyProducts() {
-  console.log('MyProducts component loading...');
-  console.log('Account health metrics:', accountHealthMetrics);
-  console.log('Product sections:', productSections);
-  const [healthMetrics, setHealthMetrics] = useState(accountHealthMetrics);
-  const [sections, setSections] = useState(productSections);
+  const { healthMetrics, productSections, updateHealthMetricTracking, updateProductMetricTracking } = useTrackedMetrics();
   const { toast } = useToast();
 
   const handleToggleHealthTracking = (metricId: string) => {
-    setHealthMetrics(prev => 
-      prev.map(metric => 
-        metric.id === metricId 
-          ? { ...metric, isTracked: !metric.isTracked }
-          : metric
-      )
-    );
-    
     const metric = healthMetrics.find(m => m.id === metricId);
+    const newTrackedState = !metric?.isTracked;
+    
+    updateHealthMetricTracking(metricId, newTrackedState);
+    
     toast({
-      title: metric?.isTracked ? "Stopped tracking" : "Now tracking",
-      description: `${metric?.title} ${metric?.isTracked ? 'removed from' : 'added to'} Action Studio insights.`,
+      title: newTrackedState ? "Now tracking" : "Stopped tracking",
+      description: `${metric?.title} ${newTrackedState ? 'added to' : 'removed from'} Action Studio insights.`,
     });
   };
 
   const handleToggleMetricTracking = (sectionId: string, productId: string, metricId: string) => {
-    setSections(prev => 
-      prev.map(section => 
-        section.id === sectionId 
-          ? {
-              ...section,
-              products: section.products.map(product => 
-                product.id === productId 
-                  ? {
-                      ...product,
-                      metrics: product.metrics.map(metric => 
-                        metric.id === metricId 
-                          ? { ...metric, isTracked: !metric.isTracked }
-                          : metric
-                      )
-                    }
-                  : product
-              )
-            }
-          : section
-      )
-    );
-
-    const section = sections.find(s => s.id === sectionId);
+    const section = productSections.find(s => s.id === sectionId);
     const product = section?.products.find(p => p.id === productId);
     const metric = product?.metrics.find(m => m.id === metricId);
+    const newTrackedState = !metric?.isTracked;
     
+    updateProductMetricTracking(sectionId, productId, metricId, newTrackedState);
+
     toast({
-      title: metric?.isTracked ? "Stopped tracking" : "Now tracking",
-      description: `${metric?.title} for ${product?.name.slice(0, 30)}... ${metric?.isTracked ? 'removed from' : 'added to'} Action Studio insights.`,
+      title: newTrackedState ? "Now tracking" : "Stopped tracking",
+      description: `${metric?.title} for ${product?.name.slice(0, 30)}... ${newTrackedState ? 'added to' : 'removed from'} Action Studio insights.`,
     });
   };
 
@@ -111,7 +84,7 @@ export default function MyProducts() {
 
         {/* Product Sections */}
         <ProductSections 
-          sections={sections}
+          sections={productSections}
           onToggleMetricTracking={handleToggleMetricTracking}
         />
       </div>

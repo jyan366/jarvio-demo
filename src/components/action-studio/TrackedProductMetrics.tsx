@@ -3,11 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, Minus, Star, Package, DollarSign, BarChart3 } from 'lucide-react';
-import { accountHealthMetrics, productSections } from '@/data/productsData';
+import { useTrackedMetrics } from '@/hooks/useTrackedMetrics';
+import { useNavigate } from 'react-router-dom';
 
 export const TrackedProductMetrics: React.FC = () => {
+  const { healthMetrics, productSections } = useTrackedMetrics();
+  const navigate = useNavigate();
+  
   // Get all tracked metrics from account health
-  const trackedHealthMetrics = accountHealthMetrics.filter(metric => metric.isTracked);
+  const trackedHealthMetrics = healthMetrics.filter(metric => metric.isTracked);
 
   // Get all tracked product metrics
   const trackedProductMetrics = productSections.flatMap(section => 
@@ -69,7 +73,7 @@ export const TrackedProductMetrics: React.FC = () => {
             <p className="text-sm mb-4">
               Star metrics in My Products to track them here and get automated insights.
             </p>
-            <Button variant="outline" className="text-xs">
+            <Button variant="outline" className="text-xs" onClick={() => navigate('/my-products')}>
               Go to My Products
             </Button>
           </div>
@@ -89,7 +93,7 @@ export const TrackedProductMetrics: React.FC = () => {
               {totalTrackedMetrics} tracked
             </Badge>
           </CardTitle>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate('/my-products')}>
             Manage Tracking
           </Button>
         </div>
