@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, StarOff, TrendingUp, TrendingDown, Minus, Search } from 'lucide-react';
+import { Star, StarOff, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { ProductSection, ProductMetric } from '@/types/products';
 
 interface ProductSectionsProps {
@@ -27,141 +26,104 @@ export const ProductSections: React.FC<ProductSectionsProps> = ({
     }
   };
 
-  const getQualityScoreColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500';
-    if (score >= 60) return 'bg-yellow-500';
-    return 'bg-orange-500';
-  };
-
-  const formatRevenue = (value: string) => {
-    // Extract number from value for demo purposes
-    const num = parseFloat(value.replace(/[^0-9.]/g, ''));
-    return `$${num.toLocaleString()}`;
-  };
-
-  const renderStarRating = (rating: number, reviewCount: number) => {
+  const renderMetricCell = (sectionId: string, productId: string, metric: ProductMetric) => {
+    const isHovered = hoveredMetric === `${productId}-${metric.id}`;
+    
     return (
-      <div className="flex items-center gap-1">
-        <div className="flex items-center">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star 
-              key={star} 
-              className={`h-3 w-3 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
-            />
-          ))}
+      <TableCell 
+        key={metric.id}
+        className="text-right relative"
+        onMouseEnter={() => setHoveredMetric(`${productId}-${metric.id}`)}
+        onMouseLeave={() => setHoveredMetric(null)}
+      >
+        <div className="flex items-center justify-end gap-2">
+          <div className="text-right">
+            <div className="flex items-center gap-1 justify-end">
+              <span className="font-medium">
+                {isHovered && metric.previousValue ? metric.previousValue : metric.value}
+              </span>
+              {metric.change && getChangeIcon(metric.changeType)}
+            </div>
+            {metric.change && (
+              <span className="text-xs text-muted-foreground">
+                {isHovered ? 'Previous' : `${metric.change > 0 ? '+' : ''}${metric.change}%`}
+              </span>
+            )}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-1 h-auto opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => onToggleMetricTracking(sectionId, productId, metric.id)}
+          >
+            {metric.isTracked ? (
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+            ) : (
+              <StarOff className="h-3 w-3" />
+            )}
+          </Button>
         </div>
-        <span className="text-xs text-muted-foreground ml-1">({reviewCount.toLocaleString()})</span>
-      </div>
+      </TableCell>
     );
   };
 
   return (
-    <Tabs defaultValue="sales" className="space-y-6">
-      <TabsList className="inline-flex h-10 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
+    <Tabs defaultValue="sales" className="space-y-4">
+      <TabsList className="grid w-full grid-cols-3">
         {sections.map((section) => (
-          <TabsTrigger 
-            key={section.id} 
-            value={section.id} 
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm capitalize"
-          >
+          <TabsTrigger key={section.id} value={section.id} className="capitalize">
             {section.title}
           </TabsTrigger>
         ))}
       </TabsList>
 
       {sections.map((section) => (
-        <TabsContent key={section.id} value={section.id} className="space-y-6">
+        <TabsContent key={section.id} value={section.id} className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Products Overview</h2>
-            <div className="relative w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search products..."
-                className="pl-10"
-              />
+            <div>
+              <h2 className="text-2xl font-bold">{section.title}</h2>
+              <p className="text-muted-foreground">{section.description}</p>
             </div>
+            <Badge variant="secondary">
+              {section.products.length} products
+            </Badge>
           </div>
 
-          <Card className="overflow-hidden border-0 shadow-sm">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b bg-muted/30">
-                  <TableHead className="font-medium text-muted-foreground py-4">Product</TableHead>
-                  <TableHead className="font-medium text-muted-foreground py-4">Quality Score</TableHead>
-                  <TableHead className="font-medium text-muted-foreground py-4">Revenue</TableHead>
-                  <TableHead className="font-medium text-muted-foreground py-4">Stock</TableHead>
-                  <TableHead className="font-medium text-muted-foreground py-4">Reviews</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {section.products.map((product) => (
-                  <TableRow key={product.id} className="group hover:bg-muted/20 border-b border-border/40">
-                    <TableCell className="py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 flex-shrink-0 bg-muted rounded-lg overflow-hidden">
-                          <img 
-                            src={product.image} 
-                            alt={product.name}
-                            className="w-full h-full object-cover" 
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-foreground text-sm leading-tight">
-                            {product.name.slice(0, 50)}{product.name.length > 50 ? '...' : ''}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1 font-mono">
-                            {product.sku}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-4">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${getQualityScoreColor(Math.floor(Math.random() * 40) + 50)}`}></div>
-                        <span className="font-medium">{Math.floor(Math.random() * 40) + 50}%</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-4">
-                      <div>
-                        <div className="font-semibold text-foreground">
-                          {formatRevenue(product.metrics[0]?.value || '$0')}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {Math.floor(Math.random() * 1000) + 100} orders
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-4">
-                      <div>
-                        <div className="font-semibold text-foreground">
-                          {Math.floor(Math.random() * 10000) + 500}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {Math.floor(Math.random() * 100) + 10}d left
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-4">
-                      <div className="flex items-center justify-between">
-                        {renderStarRating(4.5, Math.floor(Math.random() * 5000) + 100)}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-1 h-auto opacity-0 group-hover:opacity-100 transition-opacity ml-2"
-                          onClick={() => onToggleMetricTracking(section.id, product.id, product.metrics[0]?.id || 'revenue')}
-                        >
-                          {product.metrics[0]?.isTracked ? (
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          ) : (
-                            <StarOff className="h-3 w-3" />
-                          )}
-                        </Button>
-                      </div>
-                    </TableCell>
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product Name</TableHead>
+                    <TableHead className="w-[100px]">ASIN</TableHead>
+                    <TableHead className="w-[100px]">SKU</TableHead>
+                    {section.products[0]?.metrics.map((metric) => (
+                      <TableHead key={metric.id} className="text-right">
+                        {metric.title}
+                      </TableHead>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {section.products.map((product) => (
+                    <TableRow key={product.id} className="group">
+                      <TableCell className="font-medium max-w-[300px]">
+                        <div className="line-clamp-2">{product.name}</div>
+                      </TableCell>
+                      <TableCell>
+                        <code className="text-xs bg-muted px-2 py-1 rounded">{product.asin}</code>
+                      </TableCell>
+                      <TableCell>
+                        <code className="text-xs bg-muted px-2 py-1 rounded">{product.sku}</code>
+                      </TableCell>
+                      {product.metrics.map((metric) => 
+                        renderMetricCell(section.id, product.id, metric)
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </Card>
         </TabsContent>
       ))}
