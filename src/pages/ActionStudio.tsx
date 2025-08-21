@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { HealthCheckers } from '@/components/action-studio/HealthCheckers';
+import { TrackedProductMetrics } from '@/components/action-studio/TrackedProductMetrics';
 import { MonitoringFlowsSection } from '@/components/action-studio/MonitoringFlowsSection';
 import { CreateTaskFlow } from '@/components/tasks/CreateTaskFlow';
 import { ProcessBuilder } from '@/components/ads/ProcessBuilder';
@@ -27,7 +28,8 @@ export default function ActionStudio() {
         </div>
 
         {/* Main Content */}
-        <div className="w-full">
+        <div className="w-full space-y-8">
+          <TrackedProductMetrics />
           <HealthCheckers />
         </div>
       </div>
